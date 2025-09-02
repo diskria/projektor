@@ -27,6 +27,7 @@ import io.github.diskria.utils.kotlin.delegates.toAutoNamedProperty
 import io.github.diskria.utils.kotlin.extensions.capitalizeFirstChar
 import io.github.diskria.utils.kotlin.extensions.common.className
 import io.github.diskria.utils.kotlin.extensions.common.failWithUnsupportedType
+import io.github.diskria.utils.kotlin.extensions.common.fileName
 import io.github.diskria.utils.kotlin.extensions.common.unsupportedOperation
 import io.github.diskria.utils.kotlin.extensions.setCase
 import io.github.diskria.utils.kotlin.extensions.wrap
@@ -325,6 +326,15 @@ fun Project.configureMinecraftMod(
     val mod = projekt(MinecraftOrganization, license, MinecraftJvmHelper.getJvmTarget(minecraftVersion)).toMinecraftMod(
         modrinthProjectUrl = ModrinthUtils.getProjectUrl(modrinthProjectId),
     )
+    val mixinsConfigFileName = fileName(mod.id, "mixins", Constants.File.Extension.JSON)
+    val artifactVersion = buildString {
+        append(loader.logicalName)
+        append(Constants.Char.HYPHEN)
+        append(mod.version)
+        append(Constants.Char.PLUS)
+        append(MinecraftConstants.SHORT_NAME)
+        append(minecraftVersion)
+    }
     configureBuildConfig(mod.packageName, "MinecraftMod") {
         val modId by mod.id.toAutoNamedProperty(ScreamingSnakeCase)
         val modName by mod.name.toAutoNamedProperty(ScreamingSnakeCase)
@@ -421,7 +431,7 @@ fun Project.configureMinecraftMod(
         }
         val generateFabricConfigTask by tasks.registering {
             val modConfigFile = getBuildFile("generated/resources/fabric/fabric.mod.json")
-            val mixinsConfigFile = getBuildFile("generated/resources/fabric/${mod.id}.mixins.json")
+            val mixinsConfigFile = getBuildFile("generated/resources/fabric/$mixinsConfigFileName")
             outputs.files(modConfigFile, mixinsConfigFile)
             doLast {
                 modConfigFile.get().asFile.apply {
@@ -466,7 +476,7 @@ fun Project.configureMinecraftMod(
             runs {
                 configureEach {
                     systemProperty("forge.logging.console.level", "debug")
-                    systemProperty("eventbus.api.strictRuntimeChecks", "true")
+                    args("-mixin.config=$mixinsConfigFileName")
                 }
                 environment.sides.forEach { side ->
                     create(side.logicalName) {
@@ -500,17 +510,26 @@ fun Project.configureMinecraftMod(
                 java.destinationDirectory.set(directory)
             }
         }
+        tasks.named<Jar>("jar") {
+            manifest {
+                attributes(
+                    mapOf(
+                        "Specification-Version" to 1.toString(),
+                        "Specification-Title" to mod.id,
+                        "Specification-Vendor" to MainDeveloper.name,
+
+                        "Implementation-Version" to artifactVersion,
+                        "Implementation-Title" to mod.name,
+                        "Implementation-Vendor" to MainDeveloper.name
+                    )
+                )
+                attributes["MixinConfigs"] = mixinsConfigFileName
+            }
+        }
     }
     configureProjekt(
         projekt = mod,
-        artifactVersion = buildString {
-            append(loader.logicalName)
-            append(Constants.Char.HYPHEN)
-            append(mod.version)
-            append(Constants.Char.PLUS)
-            append(MinecraftConstants.SHORT_NAME)
-            append(minecraftVersion)
-        }
+        artifactVersion = artifactVersion,
     )
     configurePublishing(mod, PublishingTarget.MODRINTH)
     return mod
