@@ -11,16 +11,8 @@ import io.github.diskria.projektor.licenses.MitLicense
 import io.github.diskria.projektor.minecraft.*
 import io.github.diskria.projektor.minecraft.config.FabricModConfig
 import io.github.diskria.projektor.minecraft.config.MixinsConfig
-import io.github.diskria.projektor.owner.AndroidOrganization
-import io.github.diskria.projektor.owner.GithubOwner
-import io.github.diskria.projektor.owner.LibrariesOrganization
-import io.github.diskria.projektor.owner.MainDeveloper
-import io.github.diskria.projektor.owner.MinecraftOrganization
-import io.github.diskria.projektor.projekt.GradlePlugin
-import io.github.diskria.projektor.projekt.IProjekt
-import io.github.diskria.projektor.projekt.Projekt
-import io.github.diskria.projektor.projekt.PublishingTarget
-import io.github.diskria.projektor.projekt.Secrets
+import io.github.diskria.projektor.owner.*
+import io.github.diskria.projektor.projekt.*
 import io.github.diskria.utils.kotlin.BracketsType
 import io.github.diskria.utils.kotlin.Constants
 import io.github.diskria.utils.kotlin.delegates.toAutoNamedProperty
@@ -510,27 +502,34 @@ fun Project.configureMinecraftMod(
                 java.destinationDirectory.set(directory)
             }
         }
-        tasks.named<Jar>("jar") {
-            manifest {
-                attributes(
-                    mapOf(
-                        "Specification-Version" to 1.toString(),
-                        "Specification-Title" to mod.id,
-                        "Specification-Vendor" to MainDeveloper.name,
+    }
+    tasks.named<Jar>("jar") {
+        manifest {
+            val specificationVersion by 1.toString().toAutoNamedProperty(TrainCase)
+            val specificationTitle by mod.id.toAutoNamedProperty(TrainCase)
+            val specificationVendor by MainDeveloper.name.toAutoNamedProperty(TrainCase)
 
-                        "Implementation-Version" to artifactVersion,
-                        "Implementation-Title" to mod.name,
-                        "Implementation-Vendor" to MainDeveloper.name
-                    )
-                )
-                attributes["MixinConfigs"] = mixinsConfigFileName
-            }
+            val implementationVersion by artifactVersion.toAutoNamedProperty(TrainCase)
+            val implementationTitle by mod.name.toAutoNamedProperty(TrainCase)
+            val implementationVendor by MainDeveloper.name.toAutoNamedProperty(TrainCase)
+
+            val mixinConfigs by mixinsConfigFileName.toAutoNamedProperty(PascalCase)
+            attributes(
+                listOf(
+                    specificationVersion,
+                    specificationTitle,
+                    specificationVendor,
+
+                    implementationVersion,
+                    implementationTitle,
+                    implementationVendor,
+
+                    mixinConfigs,
+                ).associate { it.name to it.value }
+            )
         }
     }
-    configureProjekt(
-        projekt = mod,
-        artifactVersion = artifactVersion,
-    )
+    configureProjekt(mod, artifactVersion = artifactVersion)
     configurePublishing(mod, PublishingTarget.MODRINTH)
     return mod
 }
