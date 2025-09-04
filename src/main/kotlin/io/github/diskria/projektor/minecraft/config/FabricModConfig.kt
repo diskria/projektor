@@ -65,30 +65,30 @@ class FabricModConfig(
         val serverEntryPoints: List<EntryPoint>? = null,
 
         @SerialName("fabric-datagen")
-        val dataGenerators: List<EntryPoint>? = null,
+        val datagenEntryPoints: List<EntryPoint>? = null,
     ) {
         companion object {
-            fun of(mod: MinecraftMod, environment: ModEnvironment, dataGenerators: List<String>): EntryPoints {
+            fun of(mod: MinecraftMod, environment: ModEnvironment, datagenClasses: List<String>): EntryPoints {
                 val mainEntryPoints = entryPoints(mod.packageName.appendPackageName(mod.className + "Mod"))
                 val clientEntryPoints = entryPoints(mod.packageName.appendPackageName(mod.className + "Client"))
                 val serverEntryPoints = entryPoints(mod.packageName.appendPackageName(mod.className + "Server"))
-                val dataGeneratorEntryPoints = dataGenerators.map { EntryPoint.of(it) }.ifEmpty { null }
+                val datagenEntryPoints = datagenClasses.map { EntryPoint.of(it) }.ifEmpty { null }
 
                 return when (environment) {
                     ModEnvironment.CLIENT_SERVER -> EntryPoints(
                         mainEntryPoints = mainEntryPoints,
                         clientEntryPoints = clientEntryPoints,
                         serverEntryPoints = serverEntryPoints,
-                        dataGenerators = dataGeneratorEntryPoints,
+                        datagenEntryPoints = datagenEntryPoints,
                     )
 
                     ModEnvironment.CLIENT_SIDE_ONLY -> EntryPoints(
                         clientEntryPoints = clientEntryPoints,
-                        dataGenerators = dataGeneratorEntryPoints,
+                        datagenEntryPoints = datagenEntryPoints,
                     )
 
                     ModEnvironment.SERVER_SIDE_ONLY -> EntryPoints(
-                        serverEntryPoints = serverEntryPoints
+                        serverEntryPoints = serverEntryPoints,
                     )
                 }
             }
@@ -157,7 +157,7 @@ class FabricModConfig(
             minecraftVersion: String,
             loaderVersion: String,
             isApiRequired: Boolean,
-            dataGenerators: List<String>,
+            datagenClasses: List<String>,
         ): FabricModConfig =
             FabricModConfig(
                 schemaVersion = 1,
@@ -178,7 +178,7 @@ class FabricModConfig(
                 entryPoints = EntryPoints.of(
                     mod,
                     environment,
-                    dataGenerators,
+                    datagenClasses,
                 ),
                 dependencies = Dependencies.of(
                     mod.jvmTarget.toInt(),

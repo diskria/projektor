@@ -8,20 +8,32 @@ fun RepositoryHandler.mavenGradlePluginPortal() {
     maven("https://plugins.gradle.org/m2")
 }
 
-fun RepositoryHandler.mavenFabricMinecraft() {
+fun RepositoryHandler.mavenFabric() {
     maven("https://maven.fabricmc.net")
 }
 
-fun RepositoryHandler.mavenForgeMinecraft() {
-    maven("https://maven.minecraftforge.net")
+fun RepositoryHandler.mavenMinecraftLibraries() {
+    maven("https://libraries.minecraft.net")
+}
+
+@Suppress("UnstableApiUsage")
+fun RepositoryHandler.mavenSpongePowered() {
+    exclusiveContent {
+        forRepository {
+            maven("https://repo.spongepowered.org/repository/maven-public")
+        }
+        filter {
+            includeGroupAndSubgroups("org.spongepowered")
+        }
+    }
 }
 
 fun RepositoryHandler.commonRepositories() {
-    mavenLocal()
     mavenCentral()
     mavenGradlePluginPortal()
-    mavenFabricMinecraft()
-    mavenForgeMinecraft()
+    mavenFabric()
+    mavenMinecraftLibraries()
+    mavenSpongePowered()
 }
 
 fun RepositoryHandler.pluginRepositories() {

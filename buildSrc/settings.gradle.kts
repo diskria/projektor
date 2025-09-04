@@ -6,16 +6,10 @@ fun RepositoryHandler.mavenFabricMinecraft() {
     maven("https://maven.fabricmc.net")
 }
 
-fun RepositoryHandler.mavenForgeMinecraft() {
-    maven("https://maven.minecraftforge.net")
-}
-
 fun RepositoryHandler.commonRepositories() {
-    mavenLocal()
     mavenCentral()
     mavenGradlePluginPortal()
     mavenFabricMinecraft()
-    mavenForgeMinecraft()
 }
 
 fun RepositoryHandler.pluginRepositories() {

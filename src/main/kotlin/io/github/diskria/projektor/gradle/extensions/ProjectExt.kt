@@ -29,7 +29,6 @@ import io.github.diskria.utils.kotlin.words.*
 import kotlinx.serialization.json.Json
 import net.fabricmc.loom.api.LoomGradleExtensionAPI
 import net.fabricmc.loom.api.fabricapi.FabricApiExtension
-import net.minecraftforge.gradle.MinecraftExtension
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.VersionCatalogsExtension
@@ -69,7 +68,7 @@ typealias SigningExt = SigningExtension
 typealias BuildConfigExt = BuildConfigExtension
 typealias FabricExt = LoomGradleExtensionAPI
 typealias FabricApiExt = FabricApiExtension
-typealias ForgeExt = MinecraftExtension.ForProject
+//typealias ForgeExt = MinecraftExtensionForProject<*>
 typealias ModrinthExt = ModrinthExtension
 
 fun Project.getProjectDirectory(path: String): Directory =
@@ -83,7 +82,7 @@ fun Project.getBuildFile(path: String): Provider<RegularFile> =
 
 fun Project.requirePlugins(vararg ids: String) {
     ids.forEach { id ->
-        require(plugins.hasPlugin(id)) {
+        require(pluginManager.hasPlugin(id)) {
             gradleError("Plugin ${id.wrap(Constants.Char.SINGLE_QUOTE)} required but not applied.")
         }
     }
@@ -127,9 +126,6 @@ fun <R> Project.fabricApi(block: Any.() -> R): R =
 
 fun <R> Project.fabric(block: Any.() -> R): R =
     getExtensionOrThrow<FabricExt>("fabric-loom").block()
-
-fun Project.forge(block: Any.() -> Unit) =
-    extensions.configure<ForgeExt>("minecraft", block)
 
 fun <R> Project.modrinth(block: Any.() -> R): R =
     getExtensionOrThrow<ModrinthExt>("com.modrinth.minotaur").block()
@@ -336,15 +332,14 @@ fun Project.configureMinecraftMod(
         val mixins = environment
             .getSourceSets()
             .mapNotNull { sourceSet ->
-                val pathBase = "fabric/src/${sourceSet.logicalName}/java/${mod.packagePath}/mixins"
-                val files = getProjectFileNamesFrom(
+                val pathBase = "src/${sourceSet.logicalName}/java/${mod.packagePath}/mixins"
+                getProjectFileNamesFrom(
                     if (sourceSet == SourceSet.MAIN) pathBase
                     else "$pathBase/${sourceSet.logicalName}"
-                ).ifEmpty { null }
-                files?.let { sourceSet to it }
+                ).ifEmpty { null }?.let { sourceSet to it }
             }
             .toMap()
-        val dataGenerators = getProjectFileNamesFrom("fabric/src/datagen/kotlin/${mod.packagePath}").map {
+        val datagenClasses = getProjectFileNamesFrom("src/datagen/kotlin/${mod.packagePath}").map {
             mod.packageName + Constants.Char.DOT + it
         }
         dependencies {
@@ -382,8 +377,8 @@ fun Project.configureMinecraftMod(
                         ideConfigGenerated(hasSide)
 
                         if (hasSide) {
-                            name = "Fabric ${side.logicalName.capitalizeFirstChar()}"
-                            runDir = "fabric/run/${side.logicalName}"
+                            name = side.logicalName.capitalizeFirstChar()
+                            runDir = "run/${side.logicalName}"
                             when (side) {
                                 ModSide.CLIENT -> client()
                                 ModSide.SERVER -> server()
@@ -394,15 +389,15 @@ fun Project.configureMinecraftMod(
                     }
                 }
             }
-            accessWidenerPath.set(file("fabric/src/main/resources/${mod.id}.accesswidener"))
+            accessWidenerPath.set(file("src/main/resources/${mod.id}.accesswidener"))
         }
-        if (dataGenerators.isNotEmpty()) {
+        if (datagenClasses.isNotEmpty()) {
             fabric {
                 this as FabricExt
                 runs {
                     create("data") {
-                        name = "Data Generation"
-                        runDir = "fabric/datagen"
+                        name = "Datagen"
+                        runDir = "datagen"
                         environment("server")
                         vmArgs(
                             "-Dfabric-api.datagen",
@@ -422,8 +417,8 @@ fun Project.configureMinecraftMod(
             }
         }
         val generateFabricConfigTask by tasks.registering {
-            val modConfigFile = getBuildFile("generated/resources/fabric/fabric.mod.json")
-            val mixinsConfigFile = getBuildFile("generated/resources/fabric/$mixinsConfigFileName")
+            val modConfigFile = getBuildFile("generated/resources/fabric.mod.json")
+            val mixinsConfigFile = getBuildFile("generated/resources/$mixinsConfigFileName")
             outputs.files(modConfigFile, mixinsConfigFile)
             doLast {
                 modConfigFile.get().asFile.apply {
@@ -436,7 +431,7 @@ fun Project.configureMinecraftMod(
                                 minecraftVersion = minecraftVersion,
                                 loaderVersion = getCatalogVersionOrThrow("fabric-loader"),
                                 isApiRequired = isFabricApiRequired,
-                                dataGenerators = dataGenerators,
+                                datagenClasses = datagenClasses,
                             )
                         )
                     )
@@ -457,50 +452,6 @@ fun Project.configureMinecraftMod(
         tasks.named<ProcessResources>("processResources") {
             duplicatesStrategy = DuplicatesStrategy.INCLUDE
             from(generateFabricConfigTask)
-        }
-    } else if (loader == ModLoader.FORGE) {
-        dependencies {
-            implementation("net.minecraftforge:forge:$minecraftVersion-${getCatalogVersionOrThrow("minecraft-forge")}")
-        }
-        forge {
-            this as ForgeExt
-            mappings("parchment", "$minecraftVersion-${getCatalogVersionOrThrow("parchment")}")
-            runs {
-                configureEach {
-                    systemProperty("forge.logging.console.level", "debug")
-                    args("-mixin.config=$mixinsConfigFileName")
-                }
-                environment.sides.forEach { side ->
-                    create(side.logicalName) {
-                        workingDir.set(layout.projectDirectory.dir("forge/run/${side.logicalName}"))
-                        args("--username", "${MainDeveloper.name}-${side.logicalName}")
-
-                        jvmArgs("-Xms2G", side.getMaxMemoryJvmArgument())
-
-                        if (side == ModSide.SERVER) {
-                            args("--nogui")
-                        }
-                    }
-                }
-                create("data") {
-                    workingDir.set(layout.projectDirectory.dir("forge/datagen"))
-                    args(
-                        "--mod", mod.id,
-                        "--all",
-                        "--output", file("src/generated/resources").toString(),
-                        "--existing", file("src/main/resources").toString(),
-                    )
-                    jvmArgs("-Xms2G", "-Xmx8G")
-                }
-            }
-        }
-        sourceSets {
-            this as SourceSetsExt
-            configureEach {
-                val directory = getBuildDirectory("sourcesSets/$name")
-                output.setResourcesDir(directory.get().asFile)
-                java.destinationDirectory.set(directory)
-            }
         }
     }
     tasks.named<Jar>("jar") {

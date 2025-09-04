@@ -14,7 +14,6 @@ dependencies {
     compileOnly(libs.build.config.plugin)
     compileOnly(libs.modrinth.minotaur.plugin)
     compileOnly(libs.fabric.loom.plugin)
-    compileOnly(libs.forge.plugin)
 
     implementation(libs.ktor.http)
     implementation(libs.kotlin.utils)
