@@ -4,9 +4,10 @@ plugins {
 
 dependencies {
     implementation(libs.kotlin.plugin)
-    compileOnly(libs.build.config.plugin)
-    compileOnly(libs.modrinth.minotaur.plugin)
-    compileOnly(libs.fabric.loom.plugin)
+    implementation(libs.build.config.plugin)
+    implementation(libs.fabric.loom.plugin)
+    implementation(libs.neoforge.moddevplugin)
+    implementation(libs.modrinth.minotaur.plugin)
 
     implementation(libs.ktor.http)
     implementation(libs.kotlin.utils)

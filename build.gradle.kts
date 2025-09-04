@@ -3,17 +3,16 @@ import io.github.diskria.projektor.owner.MainDeveloper
 import io.github.diskria.projektor.projekt.PublishingTarget
 
 plugins {
-    `java-gradle-plugin`
     `kotlin-dsl`
     `maven-publish`
-    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {
-    implementation(libs.kotlin.plugin)
+    compileOnly(libs.kotlin.plugin)
     compileOnly(libs.build.config.plugin)
-    compileOnly(libs.modrinth.minotaur.plugin)
     compileOnly(libs.fabric.loom.plugin)
+    compileOnly(libs.neoforge.moddevplugin)
+    compileOnly(libs.modrinth.minotaur.plugin)
 
     implementation(libs.ktor.http)
     implementation(libs.kotlin.utils)

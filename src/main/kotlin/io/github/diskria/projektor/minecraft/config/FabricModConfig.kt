@@ -2,9 +2,9 @@ package io.github.diskria.projektor.minecraft.config
 
 import io.github.diskria.projektor.gradle.extensions.mappers.toInt
 import io.github.diskria.projektor.minecraft.ModEnvironment
-import io.github.diskria.projektor.minecraft.config.dependencies.FabricVersionRange
-import io.github.diskria.projektor.minecraft.config.dependencies.VersionBound
-import io.github.diskria.projektor.minecraft.config.dependencies.VersionRange
+import io.github.diskria.projektor.minecraft.config.versions.VersionBound
+import io.github.diskria.projektor.minecraft.config.versions.range.InequalityVersionRange
+import io.github.diskria.projektor.minecraft.config.versions.range.VersionRange
 import io.github.diskria.projektor.owner.MainDeveloper
 import io.github.diskria.projektor.projekt.MinecraftMod
 import io.github.diskria.utils.kotlin.Constants
@@ -138,7 +138,7 @@ class FabricModConfig(
                 minecraftVersion: String,
                 loaderVersion: String,
                 isApiRequired: Boolean,
-                versionRange: VersionRange = FabricVersionRange,
+                versionRange: VersionRange = InequalityVersionRange,
             ): Dependencies =
                 Dependencies(
                     jvmDependency = versionRange.min(VersionBound.inclusive(javaVersion.toString())),

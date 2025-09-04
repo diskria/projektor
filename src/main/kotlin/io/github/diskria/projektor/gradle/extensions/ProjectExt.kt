@@ -11,20 +11,18 @@ import io.github.diskria.projektor.licenses.MitLicense
 import io.github.diskria.projektor.minecraft.*
 import io.github.diskria.projektor.minecraft.config.FabricModConfig
 import io.github.diskria.projektor.minecraft.config.MixinsConfig
+import io.github.diskria.projektor.minecraft.utils.ModrinthUtils
 import io.github.diskria.projektor.owner.*
 import io.github.diskria.projektor.projekt.*
 import io.github.diskria.utils.kotlin.BracketsType
 import io.github.diskria.utils.kotlin.Constants
-import io.github.diskria.utils.kotlin.delegates.toAutoNamedProperty
-import io.github.diskria.utils.kotlin.extensions.capitalizeFirstChar
+import io.github.diskria.utils.kotlin.extensions.*
+import io.github.diskria.utils.kotlin.extensions.common.`Train-Case`
 import io.github.diskria.utils.kotlin.extensions.common.className
 import io.github.diskria.utils.kotlin.extensions.common.failWithUnsupportedType
 import io.github.diskria.utils.kotlin.extensions.common.fileName
-import io.github.diskria.utils.kotlin.extensions.common.unsupportedOperation
-import io.github.diskria.utils.kotlin.extensions.setCase
-import io.github.diskria.utils.kotlin.extensions.wrap
-import io.github.diskria.utils.kotlin.extensions.wrapWithBrackets
 import io.github.diskria.utils.kotlin.poet.Property
+import io.github.diskria.utils.kotlin.properties.toAutoNamedProperty
 import io.github.diskria.utils.kotlin.words.*
 import kotlinx.serialization.json.Json
 import net.fabricmc.loom.api.LoomGradleExtensionAPI
@@ -55,6 +53,7 @@ import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import kotlin.enums.enumEntries
 import kotlin.jvm.optionals.getOrNull
 
 typealias IdeaExt = IdeaModel
@@ -68,7 +67,6 @@ typealias SigningExt = SigningExtension
 typealias BuildConfigExt = BuildConfigExtension
 typealias FabricExt = LoomGradleExtensionAPI
 typealias FabricApiExt = FabricApiExtension
-//typealias ForgeExt = MinecraftExtensionForProject<*>
 typealias ModrinthExt = ModrinthExtension
 
 fun Project.getProjectDirectory(path: String): Directory =
@@ -88,47 +86,44 @@ fun Project.requirePlugins(vararg ids: String) {
     }
 }
 
-inline fun <reified T : Any> Project.getExtensionOrThrow(pluginId: String): T {
-    requirePlugins(pluginId)
-    val clazz = T::class
-    return extensions.findByType(clazz.java) ?: failWithUnsupportedType(clazz)
-}
+inline fun <reified T : Any> Project.getExtensionOrThrow(): T =
+    extensions.findByType(T::class.java) ?: failWithUnsupportedType(T::class)
 
-fun <R> Project.idea(block: Any.() -> R): R =
-    getExtensionOrThrow<IdeaModel>("idea").block()
+fun <R> Project.idea(block: IdeaExt.() -> R): R =
+    getExtensionOrThrow<IdeaExt>().block()
 
-fun <R> Project.base(block: Any.() -> R): R =
-    getExtensionOrThrow<BaseExt>("base").block()
+fun <R> Project.base(block: BaseExt.() -> R): R =
+    getExtensionOrThrow<BaseExt>().block()
 
-fun <R> Project.java(block: Any.() -> R): R =
-    getExtensionOrThrow<JavaExt>("java").block()
+fun <R> Project.java(block: JavaExt.() -> R): R =
+    getExtensionOrThrow<JavaExt>().block()
 
-fun <R> Project.kotlin(block: Any.() -> R): R =
-    getExtensionOrThrow<KotlinExt>("kotlin").block()
+fun <R> Project.kotlin(block: KotlinExt.() -> R): R =
+    getExtensionOrThrow<KotlinExt>().block()
 
-fun <R> Project.sourceSets(block: Any.() -> R): R =
-    getExtensionOrThrow<SourceSetsExt>("java").block()
+fun <R> Project.sourceSets(block: SourceSetsExt.() -> R): R =
+    getExtensionOrThrow<SourceSetsExt>().block()
 
-fun <R> Project.gradlePlugin(block: Any.() -> R): R =
-    getExtensionOrThrow<GradlePluginExt>("maven-publish").block()
+fun <R> Project.gradlePlugin(block: GradlePluginExt.() -> R): R =
+    getExtensionOrThrow<GradlePluginExt>().block()
 
-fun <R> Project.publishing(block: Any.() -> R): R =
-    getExtensionOrThrow<PublishingExt>("publishing").block()
+fun <R> Project.publishing(block: PublishingExt.() -> R): R =
+    getExtensionOrThrow<PublishingExt>().block()
 
-fun <R> Project.signing(block: Any.() -> R): R =
-    getExtensionOrThrow<SigningExt>("signing").block()
+fun <R> Project.signing(block: SigningExt.() -> R): R =
+    getExtensionOrThrow<SigningExt>().block()
 
-fun <R> Project.buildConfig(block: Any.() -> R): R =
-    getExtensionOrThrow<BuildConfigExt>("com.github.gmazzo.buildconfig").block()
+fun <R> Project.buildConfig(block: BuildConfigExt.() -> R): R =
+    getExtensionOrThrow<BuildConfigExt>().block()
 
-fun <R> Project.fabricApi(block: Any.() -> R): R =
-    getExtensionOrThrow<FabricApiExt>("fabric-loom").block()
+fun <R> Project.fabricApi(block: FabricApiExt.() -> R): R =
+    getExtensionOrThrow<FabricApiExt>().block()
 
-fun <R> Project.fabric(block: Any.() -> R): R =
-    getExtensionOrThrow<FabricExt>("fabric-loom").block()
+fun <R> Project.fabric(block: FabricExt.() -> R): R =
+    getExtensionOrThrow<FabricExt>().block()
 
-fun <R> Project.modrinth(block: Any.() -> R): R =
-    getExtensionOrThrow<ModrinthExt>("com.modrinth.minotaur").block()
+fun <R> Project.modrinth(block: ModrinthExt.() -> R): R =
+    getExtensionOrThrow<ModrinthExt>().block()
 
 fun DependencyHandler.implementation(dependencyNotation: Any): Dependency? =
     add("implementation", dependencyNotation)
@@ -143,7 +138,8 @@ fun DependencyHandler.modImplementation(dependencyNotation: Any): Dependency? =
     add("modImplementation", dependencyNotation)
 
 fun Project.versionCatalogs(): VersionCatalogsExtension =
-    extensions.findByType(VersionCatalogsExtension::class.java) ?: unsupportedOperation()
+    extensions.findByType(VersionCatalogsExtension::class.java)
+        ?: gradleError("Gradle version catalogs not supported")
 
 fun Project.getCatalogVersion(alias: String, catalog: String = VersionCatalogUtils.DEFAULT_CATALOG_NAME): String? =
     versionCatalogs().named(catalog).findVersion(alias).getOrNull()?.requiredVersion
@@ -170,7 +166,6 @@ fun Project.getProjectFileNamesFrom(path: String): List<String> =
 
 fun Project.configureBuildConfig(packageName: String, className: String, fields: () -> List<Property<String>>) {
     buildConfig {
-        this as BuildConfigExt
         packageName(packageName)
         className(className)
         fields().forEach { field ->
@@ -207,14 +202,13 @@ fun Project.configureProjekt(
     baseArtifactName: String = projekt.slug,
     artifactVersion: String = projekt.version,
 ) {
+    requirePlugins("kotlin")
     group = projekt.owner.namespace
     version = projekt.version
     base {
-        this as BaseExt
         archivesName = baseArtifactName
     }
     java {
-        this as JavaExt
         toolchain {
             languageVersion.set(JavaLanguageVersion.of(projekt.javaVersion))
             vendor.set(JvmVendorSpec.ADOPTIUM)
@@ -224,7 +218,6 @@ fun Project.configureProjekt(
         withJavadocJar()
     }
     kotlin {
-        this as KotlinExt
         jvmToolchain(projekt.javaVersion)
     }
     tasks.withType<JavaCompile>().configureEach {
@@ -247,7 +240,6 @@ fun Project.configureProjekt(
         archiveVersion.set(artifactVersion)
     }
     sourceSets {
-        this as SourceSetsExt
         named("main") {
             val generatedDirectory = "src/main/generated"
 
@@ -263,9 +255,9 @@ fun Project.configureGradlePlugin(
     tags: Set<String> = emptySet(),
     license: License = MitLicense,
 ): GradlePlugin {
+    requirePlugins("maven-publish")
     val plugin = projekt(owner, license).toGradlePlugin()
     gradlePlugin {
-        this as GradlePluginExt
         website.set(owner.getRepositoryUrl(plugin.slug))
         vcsUrl.set(owner.getRepositoryUrl(plugin.slug, isVcsUrl = true))
         plugins.create(plugin.id) {
@@ -286,41 +278,52 @@ fun Project.configureGradlePlugin(
 }
 
 fun Project.configureLibrary(license: License = MitLicense): IProjekt {
-    val library = projekt(LibrariesOrganization, license).toLibrary()
+    val library = projekt(LibrariesOrganization, license, JvmTarget.JVM_1_8).toLibrary()
     configureProjekt(library)
     configurePublishing(library, PublishingTarget.MAVEN_CENTRAL)
     return library
 }
 
+// region TODO move to kotlin-utils before release
+
+inline fun <reified T : Enum<T>> String.toEnumOrNull(): T? =
+    enumEntries<T>().firstOrNull { it.name.equalsIgnoreCase(this) }
+
+// endregion
+
 fun Project.configureMinecraftMod(
-    minecraftVersion: String,
     environment: ModEnvironment,
     loader: ModLoader,
     isFabricApiRequired: Boolean,
     modrinthProjectId: String,
     license: License = MitLicense,
 ): IProjekt {
-    requirePlugins("org.jetbrains.kotlin.plugin.serialization")
+    val loader = ModLoader.FABRIC // todo tea time
+    val minecraftVersion = "" // todo tea time
+    requirePlugins(
+        "idea",
+        "org.jetbrains.kotlin.plugin.serialization",
+        "com.github.gmazzo.buildconfig",
+    )
     if (loader == ModLoader.FABRIC) {
         requirePlugins("fabric-loom")
     }
     idea {
-        this as IdeaExt
         module {
             isDownloadJavadoc = true
             isDownloadSources = true
         }
     }
-    val mod = projekt(MinecraftOrganization, license, MinecraftJvmHelper.getJvmTarget(minecraftVersion)).toMinecraftMod(
-        modrinthProjectUrl = ModrinthUtils.getProjectUrl(modrinthProjectId),
-    )
+    val jvmTarget = MinecraftJvmHelper.getJvmTarget(minecraftVersion)
+    val modrinthProjectUrl = ModrinthUtils.getProjectUrl(modrinthProjectId)
+    val mod = projekt(MinecraftOrganization, license, jvmTarget).toMinecraftMod(modrinthProjectUrl)
     val mixinsConfigFileName = fileName(mod.id, "mixins", Constants.File.Extension.JSON)
     val artifactVersion = buildString {
         append(loader.logicalName)
         append(Constants.Char.HYPHEN)
         append(mod.version)
         append(Constants.Char.PLUS)
-        append(MinecraftConstants.SHORT_NAME)
+        append(MinecraftOrganization.suffix)
         append(minecraftVersion)
     }
     configureBuildConfig(mod.packageName, "MinecraftMod") {
@@ -358,12 +361,10 @@ fun Project.configureMinecraftMod(
             }
         }
         fabric {
-            this as FabricExt
             splitEnvironmentSourceSets()
             mods {
                 create(mod.id) {
                     sourceSets {
-                        this as SourceSetsExt
                         environment.getSourceSets().forEach { sourceSet ->
                             sourceSet(getByName(sourceSet.logicalName))
                         }
@@ -393,7 +394,6 @@ fun Project.configureMinecraftMod(
         }
         if (datagenClasses.isNotEmpty()) {
             fabric {
-                this as FabricExt
                 runs {
                     create("data") {
                         name = "Datagen"
@@ -410,7 +410,6 @@ fun Project.configureMinecraftMod(
                 }
             }
             fabricApi {
-                this as FabricApiExt
                 configureDataGeneration {
                     client = true
                 }
@@ -456,15 +455,16 @@ fun Project.configureMinecraftMod(
     }
     tasks.named<Jar>("jar") {
         manifest {
-            val specificationVersion by 1.toString().toAutoNamedProperty(TrainCase)
-            val specificationTitle by mod.id.toAutoNamedProperty(TrainCase)
-            val specificationVendor by MainDeveloper.name.toAutoNamedProperty(TrainCase)
+            val specificationVersion by 1.toString().toAutoNamedProperty(`Train-Case`)
+            val specificationTitle by mod.id.toAutoNamedProperty(`Train-Case`)
+            val specificationVendor by MainDeveloper.name.toAutoNamedProperty(`Train-Case`)
 
-            val implementationVersion by artifactVersion.toAutoNamedProperty(TrainCase)
-            val implementationTitle by mod.name.toAutoNamedProperty(TrainCase)
-            val implementationVendor by MainDeveloper.name.toAutoNamedProperty(TrainCase)
+            val implementationVersion by artifactVersion.toAutoNamedProperty(`Train-Case`)
+            val implementationTitle by mod.name.toAutoNamedProperty(`Train-Case`)
+            val implementationVendor by MainDeveloper.name.toAutoNamedProperty(`Train-Case`)
 
             val mixinConfigs by mixinsConfigFileName.toAutoNamedProperty(PascalCase)
+
             attributes(
                 listOf(
                     specificationVersion,
@@ -517,7 +517,6 @@ private fun Project.configureGithubPackagesPublishing(project: IProjekt) {
         return
     }
     publishing {
-        this as PublishingExt
         publications.withType<MavenPublication> {
             artifactId = project.slug
         }
@@ -540,13 +539,11 @@ private fun Project.configureMavenCentralPublishing(project: IProjekt) {
         return
     }
     publishing {
-        this as PublishingExt
         repositories {
             maven(getBuildDirectory("staging-repo").get().asFile)
         }
     }
     val publication = publishing {
-        this as PublishingExt
         publications.create<MavenPublication>(project.slug) {
             artifactId = project.slug
             from(components["java"])
@@ -587,15 +584,14 @@ private fun Project.configureMavenCentralPublishing(project: IProjekt) {
         }
     }
     signing {
-        this as SigningExt
         useInMemoryPgpKeys(gpgKey, gpgPassphrase)
         sign(publication)
     }
 }
 
 fun Project.configureModrinthPublishing(project: IProjekt) {
+    requirePlugins("com.modrinth.minotaur")
     modrinth {
-        this as ModrinthExt
         projectId.set(project.slug)
     }
 }

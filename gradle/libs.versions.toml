@@ -7,9 +7,10 @@ build-config = "5.6.7"
 
 kotlin-serialization = "1.9.0"
 ktor = "3.2.3"
-kotlin-utils = "0.3.5"
+kotlin-utils = "0.3.8"
 
 fabric-loom = "1.11.4"
+neoforge-moddevplugin = "2.0.107"
 
 modrinth-minotaur = "2.8.8"
 okio = "3.16.0"
@@ -21,6 +22,7 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 kotlin-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 build-config-plugin = { group = "com.github.gmazzo.buildconfig", name = "plugin", version.ref = "build-config" }
 fabric-loom-plugin = { group = "fabric-loom", name = "fabric-loom.gradle.plugin", version.ref = "fabric-loom" }
+neoforge-moddevplugin = { group = "net.neoforged.moddev.repositories", name = "net.neoforged.moddev.repositories.gradle.plugin", version.ref = "neoforge-moddevplugin" }
 modrinth-minotaur-plugin = { group = "com.modrinth.minotaur", name = "Minotaur", version.ref = "modrinth-minotaur" }
 
 kotlin-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlin-serialization" }

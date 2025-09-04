@@ -7,5 +7,5 @@ enum class SoftwareForgeType(val displayName: String, val hostname: String, val 
     GITHUB("GitHub", "github.com", ScmType.GIT);
 
     fun getSshAuthority(): String =
-        scmType.logicalName + Constants.Char.AT + hostname
+        scmType.logicalName + Constants.Char.AT_SIGN + hostname
 }
