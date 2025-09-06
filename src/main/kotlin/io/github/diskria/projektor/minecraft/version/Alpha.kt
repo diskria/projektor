@@ -1,7 +1,5 @@
 package io.github.diskria.projektor.minecraft.version
 
-import io.github.diskria.projektor.minecraft.era.MinecraftEra
-
 enum class Alpha(private val version: String) : MinecraftVersion {
 
     V_1_0_1_01("0.1_01"),
@@ -52,7 +50,5 @@ enum class Alpha(private val version: String) : MinecraftVersion {
     V_1_2_5("2.5"),
     V_1_2_6("2.6");
 
-    override fun getEra(): MinecraftEra = MinecraftEra.ALPHA
-
-    override fun getVersion(): String = "1.$version"
+    override fun getVersion(): String = "a1.$version"
 }

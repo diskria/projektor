@@ -1,7 +1,5 @@
 package io.github.diskria.projektor.minecraft.version
 
-import io.github.diskria.projektor.minecraft.era.MinecraftEra
-
 enum class Indev(private val version: String) : MinecraftVersion {
 
     V_20091223_1459("20091223-1459"),
@@ -28,9 +26,7 @@ enum class Indev(private val version: String) : MinecraftVersion {
     V_20100219("20100219"),
     V_20100223("20100223");
 
-    override fun getEra(): MinecraftEra = MinecraftEra.INDEV
-
-    override fun getVersion(): String = version
+    override fun getVersion(): String = "in-$version"
 
     companion object {
         fun firstVersion(): Indev =
