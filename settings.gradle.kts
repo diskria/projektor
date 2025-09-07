@@ -53,3 +53,5 @@ fun setupRepositories() {
 }
 
 setupRepositories()
+
+include(":build-plugin")

@@ -13,7 +13,7 @@ interface IProjekt {
     val slug: String
     val packageName: String
     val packagePath: String
-    val className: String
+    val classNameBase: String
     val javaVersion: Int
     val jvmTarget: JvmTarget
     val kotlinVersion: String

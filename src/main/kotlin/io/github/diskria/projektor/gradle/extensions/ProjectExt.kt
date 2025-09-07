@@ -12,6 +12,9 @@ import io.github.diskria.projektor.minecraft.*
 import io.github.diskria.projektor.minecraft.config.FabricModConfig
 import io.github.diskria.projektor.minecraft.config.MixinsConfig
 import io.github.diskria.projektor.minecraft.utils.ModrinthUtils
+import io.github.diskria.projektor.minecraft.version.MinecraftVersion
+import io.github.diskria.projektor.minecraft.version.getMinJavaVersion
+import io.github.diskria.projektor.minecraft.version.getVersion
 import io.github.diskria.projektor.owner.*
 import io.github.diskria.projektor.projekt.*
 import io.github.diskria.utils.kotlin.BracketsType
@@ -20,7 +23,8 @@ import io.github.diskria.utils.kotlin.extensions.*
 import io.github.diskria.utils.kotlin.extensions.common.`Train-Case`
 import io.github.diskria.utils.kotlin.extensions.common.className
 import io.github.diskria.utils.kotlin.extensions.common.failWithUnsupportedType
-import io.github.diskria.utils.kotlin.extensions.common.fileName
+import io.github.diskria.utils.kotlin.extensions.generics.joinBySpace
+import io.github.diskria.utils.kotlin.extensions.generics.toNullIfEmpty
 import io.github.diskria.utils.kotlin.poet.Property
 import io.github.diskria.utils.kotlin.properties.toAutoNamedProperty
 import io.github.diskria.utils.kotlin.words.*
@@ -41,6 +45,8 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.api.tasks.testing.Test
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.jvm.tasks.Jar
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JvmImplementation
@@ -53,7 +59,6 @@ import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import kotlin.enums.enumEntries
 import kotlin.jvm.optionals.getOrNull
 
 typealias IdeaExt = IdeaModel
@@ -69,8 +74,11 @@ typealias FabricExt = LoomGradleExtensionAPI
 typealias FabricApiExt = FabricApiExtension
 typealias ModrinthExt = ModrinthExtension
 
-fun Project.getProjectDirectory(path: String): Directory =
+fun Project.getDirectory(path: String): Directory =
     layout.projectDirectory.dir(path)
+
+fun Project.getFile(path: String): RegularFile =
+    layout.projectDirectory.file(path)
 
 fun Project.getBuildDirectory(path: String): Provider<Directory> =
     layout.buildDirectory.dir(path)
@@ -79,18 +87,14 @@ fun Project.getBuildFile(path: String): Provider<RegularFile> =
     layout.buildDirectory.file(path)
 
 fun Project.requirePlugins(vararg ids: String) {
-    ids.forEach { id ->
-        require(pluginManager.hasPlugin(id)) {
-            gradleError("Plugin ${id.wrap(Constants.Char.SINGLE_QUOTE)} required but not applied.")
-        }
+    val unknownPluginIds = ids.filterNot { id -> pluginManager.hasPlugin(id) }
+    if (unknownPluginIds.isNotEmpty()) {
+        gradleError("Plugins required but not applied: ${unknownPluginIds.joinBySpace()}")
     }
 }
 
 inline fun <reified T : Any> Project.getExtensionOrThrow(): T =
     extensions.findByType(T::class.java) ?: failWithUnsupportedType(T::class)
-
-fun <R> Project.idea(block: IdeaExt.() -> R): R =
-    getExtensionOrThrow<IdeaExt>().block()
 
 fun <R> Project.base(block: BaseExt.() -> R): R =
     getExtensionOrThrow<BaseExt>().block()
@@ -128,6 +132,9 @@ fun <R> Project.modrinth(block: ModrinthExt.() -> R): R =
 fun DependencyHandler.implementation(dependencyNotation: Any): Dependency? =
     add("implementation", dependencyNotation)
 
+fun DependencyHandler.testImplementation(dependencyNotation: Any): Dependency? =
+    add("testImplementation", dependencyNotation)
+
 fun DependencyHandler.minecraft(dependencyNotation: Any): Dependency? =
     add("minecraft", dependencyNotation)
 
@@ -162,7 +169,7 @@ fun Project.resolveCatalogVersion(
     getCatalogVersion("$aliasShort-full", catalog) ?: formatShort(getCatalogVersionOrThrow(aliasShort, catalog))
 
 fun Project.getProjectFileNamesFrom(path: String): List<String> =
-    getProjectDirectory(path).asFile.listFiles { it.isFile && !it.isHidden }?.map { it.nameWithoutExtension }.orEmpty()
+    getDirectory(path).asFile.listFiles { it.isFile && !it.isHidden }?.map { it.nameWithoutExtension }.orEmpty()
 
 fun Project.configureBuildConfig(packageName: String, className: String, fields: () -> List<Property<String>>) {
     buildConfig {
@@ -179,10 +186,12 @@ fun Project.configureBuildConfig(packageName: String, className: String, fields:
 }
 
 fun Project.projekt(owner: GithubOwner, license: License, jvmTarget: JvmTarget? = null): Projekt {
+    val javaVersion = getCatalogVersionOrThrow("java").toInt()
+    val kotlinVersion = getCatalogVersionOrThrow("kotlin")
+
     val projectName: String by rootProject
     val projectDescription: String by rootProject
     val projectVersion: String by rootProject
-    val javaVersion = getCatalogVersionOrThrow("java").toInt()
     return Projekt(
         owner = owner,
         license = license,
@@ -193,7 +202,7 @@ fun Project.projekt(owner: GithubOwner, license: License, jvmTarget: JvmTarget? 
         packageName = owner.namespace + Constants.Char.DOT + projectName.setCase(SpaceCase, DotCase),
         javaVersion = javaVersion,
         jvmTarget = jvmTarget ?: javaVersion.toJvmTarget(),
-        kotlinVersion = getCatalogVersionOrThrow("kotlin"),
+        kotlinVersion = kotlinVersion,
     )
 }
 
@@ -250,25 +259,29 @@ fun Project.configureProjekt(
 }
 
 fun Project.configureGradlePlugin(
-    owner: GithubOwner = MainDeveloper,
+    owner: GithubOwner,
     publishingTarget: PublishingTarget?,
+    isSettingsPlugin: Boolean = false,
     tags: Set<String> = emptySet(),
     license: License = MitLicense,
 ): GradlePlugin {
     requirePlugins("maven-publish")
-    val plugin = projekt(owner, license).toGradlePlugin()
+    val plugin = projekt(owner, license).toGradlePlugin(isSettingsPlugin)
     gradlePlugin {
         website.set(owner.getRepositoryUrl(plugin.slug))
         vcsUrl.set(owner.getRepositoryUrl(plugin.slug, isVcsUrl = true))
-        plugins.create(plugin.id) {
-            id = plugin.id
-            implementationClass = plugin.packageName + Constants.Char.DOT + plugin.className + "GradlePlugin"
 
-            displayName = plugin.name
-            description = plugin.description
+        plugins {
+            create(plugin.id) {
+                id = plugin.id
+                implementationClass = plugin.packageName + Constants.Char.DOT + plugin.className
 
-            if (tags.isNotEmpty()) {
-                this.tags.set(tags)
+                displayName = plugin.name
+                description = plugin.description
+
+                if (tags.isNotEmpty()) {
+                    this.tags.set(tags)
+                }
             }
         }
     }
@@ -284,42 +297,26 @@ fun Project.configureLibrary(license: License = MitLicense): IProjekt {
     return library
 }
 
-// region TODO move to kotlin-utils before release
-
-inline fun <reified T : Enum<T>> String.toEnumOrNull(): T? =
-    enumEntries<T>().firstOrNull { it.name.equalsIgnoreCase(this) }
-
-// endregion
-
 fun Project.configureMinecraftMod(
     environment: ModEnvironment,
-    loader: ModLoader,
     isFabricApiRequired: Boolean,
     modrinthProjectId: String,
     license: License = MitLicense,
 ): IProjekt {
-    val loader = ModLoader.FABRIC // todo tea time
-    val minecraftVersion = "" // todo tea time
     requirePlugins(
-        "idea",
         "org.jetbrains.kotlin.plugin.serialization",
         "com.github.gmazzo.buildconfig",
     )
-    if (loader == ModLoader.FABRIC) {
-        requirePlugins("fabric-loom")
-    }
-    idea {
-        module {
-            isDownloadJavadoc = true
-            isDownloadSources = true
-        }
-    }
-    val jvmTarget = MinecraftJvmHelper.getJvmTarget(minecraftVersion)
-    val modrinthProjectUrl = ModrinthUtils.getProjectUrl(modrinthProjectId)
-    val mod = projekt(MinecraftOrganization, license, jvmTarget).toMinecraftMod(modrinthProjectUrl)
-    val mixinsConfigFileName = fileName(mod.id, "mixins", Constants.File.Extension.JSON)
+    val minecraftVersion = MinecraftVersion.of(projectDir.name)
+    val jvmTarget = minecraftVersion.getMinJavaVersion().toJvmTarget()
+    val mod = projekt(MinecraftOrganization, license, jvmTarget).toMinecraftMod(
+        modLoader = projectDir.parentFile.name.toEnum<ModLoader>(),
+        minecraftVersion = minecraftVersion,
+        environment = environment,
+        modrinthProjectUrl = ModrinthUtils.getProjectUrl(modrinthProjectId),
+    )
     val artifactVersion = buildString {
-        append(loader.logicalName)
+        append(mod.modLoader.logicalName)
         append(Constants.Char.HYPHEN)
         append(mod.version)
         append(Constants.Char.PLUS)
@@ -331,127 +328,8 @@ fun Project.configureMinecraftMod(
         val modName by mod.name.toAutoNamedProperty(ScreamingSnakeCase)
         listOf(modId, modName)
     }
-    if (loader == ModLoader.FABRIC) {
-        val mixins = environment
-            .getSourceSets()
-            .mapNotNull { sourceSet ->
-                val pathBase = "src/${sourceSet.logicalName}/java/${mod.packagePath}/mixins"
-                getProjectFileNamesFrom(
-                    if (sourceSet == SourceSet.MAIN) pathBase
-                    else "$pathBase/${sourceSet.logicalName}"
-                ).ifEmpty { null }?.let { sourceSet to it }
-            }
-            .toMap()
-        val datagenClasses = getProjectFileNamesFrom("src/datagen/kotlin/${mod.packagePath}").map {
-            mod.packageName + Constants.Char.DOT + it
-        }
-        dependencies {
-            minecraft("com.mojang:minecraft:$minecraftVersion")
-            modImplementation("net.fabricmc:fabric-loader:${getCatalogVersionOrThrow("fabric-loader")}")
-
-            val yarnVersion = resolveCatalogVersion("fabric-yarn") { "$minecraftVersion+build.$it" }
-            mappings("net.fabricmc:yarn:$yarnVersion:v2")
-
-            val kotlinModVersion = resolveCatalogVersion("fabric-kotlin") { "$it+kotlin.${mod.kotlinVersion}" }
-            modImplementation("net.fabricmc:fabric-language-kotlin:$kotlinModVersion")
-
-            if (isFabricApiRequired) {
-                val apiVersion = resolveCatalogVersion("fabric-api") { "$it+$minecraftVersion" }
-                modImplementation("net.fabricmc.fabric-api:fabric-api:$apiVersion")
-            }
-        }
-        fabric {
-            splitEnvironmentSourceSets()
-            mods {
-                create(mod.id) {
-                    sourceSets {
-                        environment.getSourceSets().forEach { sourceSet ->
-                            sourceSet(getByName(sourceSet.logicalName))
-                        }
-                    }
-                }
-            }
-            runs {
-                ModSide.entries.forEach { side ->
-                    named(side.logicalName) {
-                        val hasSide = environment.sides.contains(side)
-                        ideConfigGenerated(hasSide)
-
-                        if (hasSide) {
-                            name = side.logicalName.capitalizeFirstChar()
-                            runDir = "run/${side.logicalName}"
-                            when (side) {
-                                ModSide.CLIENT -> client()
-                                ModSide.SERVER -> server()
-                            }
-                            programArgs("--username", "${MainDeveloper.name}-${side.logicalName}")
-                            vmArgs("-Xms2G", side.getMaxMemoryJvmArgument())
-                        }
-                    }
-                }
-            }
-            accessWidenerPath.set(file("src/main/resources/${mod.id}.accesswidener"))
-        }
-        if (datagenClasses.isNotEmpty()) {
-            fabric {
-                runs {
-                    create("data") {
-                        name = "Datagen"
-                        runDir = "datagen"
-                        environment("server")
-                        vmArgs(
-                            "-Dfabric-api.datagen",
-                            "-Dfabric-api.datagen.output-dir=${file("src/main/generated")}",
-                            "-Dfabric-api.datagen.modid=${mod.id}",
-                            "-Xms2G",
-                            "-Xmx4G",
-                        )
-                    }
-                }
-            }
-            fabricApi {
-                configureDataGeneration {
-                    client = true
-                }
-            }
-        }
-        val generateFabricConfigTask by tasks.registering {
-            val modConfigFile = getBuildFile("generated/resources/fabric.mod.json")
-            val mixinsConfigFile = getBuildFile("generated/resources/$mixinsConfigFileName")
-            outputs.files(modConfigFile, mixinsConfigFile)
-            doLast {
-                modConfigFile.get().asFile.apply {
-                    parentFile.mkdirs()
-                    writeText(
-                        Json { prettyPrint = true }.encodeToString(
-                            FabricModConfig.of(
-                                mod = mod,
-                                environment = environment,
-                                minecraftVersion = minecraftVersion,
-                                loaderVersion = getCatalogVersionOrThrow("fabric-loader"),
-                                isApiRequired = isFabricApiRequired,
-                                datagenClasses = datagenClasses,
-                            )
-                        )
-                    )
-                }
-                mixinsConfigFile.get().asFile.apply {
-                    parentFile.mkdirs()
-                    writeText(
-                        Json { prettyPrint = true }.encodeToString(
-                            MixinsConfig.of(
-                                mod = mod,
-                                mixins = mixins,
-                            )
-                        )
-                    )
-                }
-            }
-        }
-        tasks.named<ProcessResources>("processResources") {
-            duplicatesStrategy = DuplicatesStrategy.INCLUDE
-            from(generateFabricConfigTask)
-        }
+    if (mod.modLoader == ModLoader.FABRIC) {
+        configureFabricModLoader(mod, isFabricApiRequired)
     }
     tasks.named<Jar>("jar") {
         manifest {
@@ -463,7 +341,7 @@ fun Project.configureMinecraftMod(
             val implementationTitle by mod.name.toAutoNamedProperty(`Train-Case`)
             val implementationVendor by MainDeveloper.name.toAutoNamedProperty(`Train-Case`)
 
-            val mixinConfigs by mixinsConfigFileName.toAutoNamedProperty(PascalCase)
+            val mixinsConfig by mod.mixinsConfigFileName.toAutoNamedProperty(PascalCase)
 
             attributes(
                 listOf(
@@ -475,7 +353,7 @@ fun Project.configureMinecraftMod(
                     implementationTitle,
                     implementationVendor,
 
-                    mixinConfigs,
+                    mixinsConfig,
                 ).associate { it.name to it.value }
             )
         }
@@ -483,6 +361,131 @@ fun Project.configureMinecraftMod(
     configureProjekt(mod, artifactVersion = artifactVersion)
     configurePublishing(mod, PublishingTarget.MODRINTH)
     return mod
+}
+
+fun Project.configureFabricModLoader(mod: MinecraftMod, isFabricApiRequired: Boolean) {
+    requirePlugins("fabric-loom")
+    val loaderVersion = getCatalogVersionOrThrow("fabric-loader")
+    val mixins = mod.environment
+        .getSourceSets()
+        .mapNotNull { sourceSet ->
+            val pathBase = "src/${sourceSet.logicalName}/java/${mod.packagePath}/mixins"
+            getProjectFileNamesFrom(
+                if (sourceSet == SourceSet.MAIN) pathBase
+                else "$pathBase/${sourceSet.logicalName}"
+            ).toNullIfEmpty()?.let { sourceSet to it }
+        }
+        .toMap()
+    val datagenClasses = getProjectFileNamesFrom("src/datagen/kotlin/${mod.packagePath}").map {
+        mod.packageName + Constants.Char.DOT + it
+    }
+    val minecraftVersion = mod.minecraftVersion.getVersion()
+    dependencies {
+        minecraft("com.mojang:minecraft:$minecraftVersion")
+        modImplementation("net.fabricmc:fabric-loader:$loaderVersion")
+
+        val yarnVersion = resolveCatalogVersion("fabric-yarn") { "$minecraftVersion+build.$it" }
+        mappings("net.fabricmc:yarn:$yarnVersion:v2")
+
+        val kotlinModVersion = resolveCatalogVersion("fabric-kotlin") { "$it+kotlin.${mod.kotlinVersion}" }
+        modImplementation("net.fabricmc:fabric-language-kotlin:$kotlinModVersion")
+
+        if (isFabricApiRequired) {
+            val apiVersion = resolveCatalogVersion("fabric-api") { "$it+$minecraftVersion" }
+            modImplementation("net.fabricmc.fabric-api:fabric-api:$apiVersion")
+        }
+    }
+    fabric {
+        splitEnvironmentSourceSets()
+        mods {
+            create(mod.id) {
+                sourceSets {
+                    mod.environment.getSourceSets().forEach { sourceSet ->
+                        sourceSet(getByName(sourceSet.logicalName))
+                    }
+                }
+            }
+        }
+        runs {
+            ModSide.entries.forEach { side ->
+                named(side.logicalName) {
+                    val hasSide = mod.environment.sides.contains(side)
+                    ideConfigGenerated(hasSide)
+
+                    if (hasSide) {
+                        name = side.logicalName.capitalizeFirstChar()
+                        runDir = "run/${side.logicalName}"
+                        when (side) {
+                            ModSide.CLIENT -> client()
+                            ModSide.SERVER -> server()
+                        }
+                        programArgs("--username", "${MainDeveloper.name}-${side.logicalName}")
+                        vmArgs("-Xms2G", side.getMaxMemoryJvmArgument())
+                    }
+                }
+            }
+        }
+        accessWidenerPath.set(file("src/main/resources/${mod.id}.accesswidener"))
+    }
+    if (datagenClasses.isNotEmpty()) {
+        fabric {
+            runs {
+                create("data") {
+                    name = "Datagen"
+                    runDir = "datagen"
+                    environment("server")
+                    vmArgs(
+                        "-Dfabric-api.datagen",
+                        "-Dfabric-api.datagen.output-dir=${file("src/main/generated")}",
+                        "-Dfabric-api.datagen.modid=${mod.id}",
+                        "-Xms2G",
+                        ModSide.SERVER.getMaxMemoryJvmArgument(),
+                    )
+                }
+            }
+        }
+        fabricApi {
+            configureDataGeneration {
+                client = true
+            }
+        }
+    }
+    val generateFabricConfigTask by tasks.registering {
+        val modConfigFile = getBuildFile("generated/resources/${ModLoader.FABRIC.getConfigFilePath()}")
+        val mixinsConfigFile = getBuildFile("generated/resources/${mod.mixinsConfigFileName}")
+        outputs.files(modConfigFile, mixinsConfigFile)
+        doLast {
+            modConfigFile.get().asFile.apply {
+                parentFile.mkdirs()
+                writeText(
+                    Json { prettyPrint = true }.encodeToString(
+                        FabricModConfig.of(
+                            mod = mod,
+                            minecraftVersion = mod.minecraftVersion,
+                            loaderVersion = loaderVersion,
+                            isApiRequired = isFabricApiRequired,
+                            datagenClasses = datagenClasses,
+                        )
+                    )
+                )
+            }
+            mixinsConfigFile.get().asFile.apply {
+                parentFile.mkdirs()
+                writeText(
+                    Json { prettyPrint = true }.encodeToString(
+                        MixinsConfig.of(
+                            mod = mod,
+                            mixins = mixins,
+                        )
+                    )
+                )
+            }
+        }
+    }
+    tasks.named<ProcessResources>("processResources") {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        from(generateFabricConfigTask)
+    }
 }
 
 fun Project.configureAndroidApp(license: License = MitLicense): IProjekt {

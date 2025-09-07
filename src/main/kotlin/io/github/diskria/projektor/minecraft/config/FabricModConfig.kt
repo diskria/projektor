@@ -5,11 +5,14 @@ import io.github.diskria.projektor.minecraft.ModEnvironment
 import io.github.diskria.projektor.minecraft.config.versions.VersionBound
 import io.github.diskria.projektor.minecraft.config.versions.range.InequalityVersionRange
 import io.github.diskria.projektor.minecraft.config.versions.range.VersionRange
+import io.github.diskria.projektor.minecraft.version.MinecraftVersion
+import io.github.diskria.projektor.minecraft.version.getVersion
 import io.github.diskria.projektor.owner.MainDeveloper
 import io.github.diskria.projektor.projekt.MinecraftMod
 import io.github.diskria.utils.kotlin.Constants
 import io.github.diskria.utils.kotlin.extensions.appendPackageName
 import io.github.diskria.utils.kotlin.extensions.common.fileName
+import io.github.diskria.utils.kotlin.extensions.generics.toNullIfEmpty
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -68,13 +71,13 @@ class FabricModConfig(
         val datagenEntryPoints: List<EntryPoint>? = null,
     ) {
         companion object {
-            fun of(mod: MinecraftMod, environment: ModEnvironment, datagenClasses: List<String>): EntryPoints {
-                val mainEntryPoints = entryPoints(mod.packageName.appendPackageName(mod.className + "Mod"))
-                val clientEntryPoints = entryPoints(mod.packageName.appendPackageName(mod.className + "Client"))
-                val serverEntryPoints = entryPoints(mod.packageName.appendPackageName(mod.className + "Server"))
-                val datagenEntryPoints = datagenClasses.map { EntryPoint.of(it) }.ifEmpty { null }
+            fun of(mod: MinecraftMod, datagenClasses: List<String>): EntryPoints {
+                val mainEntryPoints = entryPoints(mod.packageName.appendPackageName(mod.classNameBase + "Mod"))
+                val clientEntryPoints = entryPoints(mod.packageName.appendPackageName(mod.classNameBase + "Client"))
+                val serverEntryPoints = entryPoints(mod.packageName.appendPackageName(mod.classNameBase + "Server"))
+                val datagenEntryPoints = datagenClasses.map { EntryPoint.of(it) }.toNullIfEmpty()
 
-                return when (environment) {
+                return when (mod.environment) {
                     ModEnvironment.CLIENT_SERVER -> EntryPoints(
                         mainEntryPoints = mainEntryPoints,
                         clientEntryPoints = clientEntryPoints,
@@ -135,14 +138,14 @@ class FabricModConfig(
         companion object {
             fun of(
                 javaVersion: Int,
-                minecraftVersion: String,
+                minecraftVersion: MinecraftVersion,
                 loaderVersion: String,
                 isApiRequired: Boolean,
                 versionRange: VersionRange = InequalityVersionRange,
             ): Dependencies =
                 Dependencies(
                     jvmDependency = versionRange.min(VersionBound.inclusive(javaVersion.toString())),
-                    minecraftDependency = versionRange.min(VersionBound.inclusive(minecraftVersion)),
+                    minecraftDependency = versionRange.min(VersionBound.inclusive(minecraftVersion.getVersion())),
                     loaderDependency = versionRange.min(VersionBound.inclusive(loaderVersion)),
                     kotlinDependency = versionRange.any,
                     apiDependency = versionRange.any.takeIf { isApiRequired },
@@ -153,8 +156,7 @@ class FabricModConfig(
     companion object {
         fun of(
             mod: MinecraftMod,
-            environment: ModEnvironment,
-            minecraftVersion: String,
+            minecraftVersion: MinecraftVersion,
             loaderVersion: String,
             isApiRequired: Boolean,
             datagenClasses: List<String>,
@@ -167,17 +169,16 @@ class FabricModConfig(
                 description = mod.description,
                 authors = listOf(MainDeveloper.name),
                 license = mod.license.id,
-                icon = "assets/${mod.slug}/${fileName("icon", "png")}",
-                environment = environment.fabricConfigValue,
+                icon = "assets/${mod.slug}/${fileName("icon", Constants.File.Extension.PNG)}",
+                environment = mod.environment.fabricConfigValue,
                 accessWidener = fileName(mod.slug, "accesswidener"),
-                mixins = listOf(fileName(mod.slug, "mixins", Constants.File.Extension.JSON)),
+                mixins = listOf(mod.mixinsConfigFileName),
                 links = Links.of(
                     modrinthProjectUrl = mod.modrinthProjectUrl,
                     sourceCodeUrl = mod.owner.getRepositoryUrl(mod.slug),
                 ),
                 entryPoints = EntryPoints.of(
                     mod,
-                    environment,
                     datagenClasses,
                 ),
                 dependencies = Dependencies.of(

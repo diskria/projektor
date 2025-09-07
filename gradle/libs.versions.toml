@@ -19,7 +19,6 @@ okio = "3.16.0"
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
 [libraries]
-kotlin-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 build-config-plugin = { group = "com.github.gmazzo.buildconfig", name = "plugin", version.ref = "build-config" }
 fabric-loom-plugin = { group = "fabric-loom", name = "fabric-loom.gradle.plugin", version.ref = "fabric-loom" }
 neoforge-moddevplugin = { group = "net.neoforged.moddev.repositories", name = "net.neoforged.moddev.repositories.gradle.plugin", version.ref = "neoforge-moddevplugin" }

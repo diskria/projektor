@@ -3,7 +3,9 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.kotlin.plugin)
+    implementation(kotlin("gradle-plugin"))
+    implementation(gradleKotlinDsl())
+
     implementation(libs.build.config.plugin)
     implementation(libs.fabric.loom.plugin)
     implementation(libs.neoforge.moddevplugin)

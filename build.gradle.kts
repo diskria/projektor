@@ -8,7 +8,9 @@ plugins {
 }
 
 dependencies {
-    compileOnly(libs.kotlin.plugin)
+    implementation(kotlin("gradle-plugin"))
+    compileOnly(gradleKotlinDsl())
+
     compileOnly(libs.build.config.plugin)
     compileOnly(libs.fabric.loom.plugin)
     compileOnly(libs.neoforge.moddevplugin)
