@@ -1,7 +1,12 @@
 package io.github.diskria.projektor.projekt
 
 import io.github.diskria.projektor.licenses.License
+import io.github.diskria.projektor.minecraft.ModEnvironment
+import io.github.diskria.projektor.minecraft.ModLoader
+import io.github.diskria.projektor.minecraft.version.MinecraftVersion
 import io.github.diskria.projektor.owner.ProjektOwner
+import io.github.diskria.utils.kotlin.Constants
+import io.github.diskria.utils.kotlin.extensions.common.fileName
 import io.github.diskria.utils.kotlin.extensions.setCase
 import io.github.diskria.utils.kotlin.words.DotCase
 import io.github.diskria.utils.kotlin.words.PascalCase
@@ -32,8 +37,20 @@ data class Projekt(
     fun toLibrary(): Library =
         Library(this)
 
-    fun toMinecraftMod(modrinthProjectUrl: String): MinecraftMod =
-        MinecraftMod(modrinthProjectUrl, this)
+    fun toMinecraftMod(
+        modLoader: ModLoader,
+        minecraftVersion: MinecraftVersion,
+        environment: ModEnvironment,
+        modrinthProjectUrl: String,
+    ): MinecraftMod =
+        MinecraftMod(
+            modLoader = modLoader,
+            minecraftVersion = minecraftVersion,
+            environment = environment,
+            modrinthProjectUrl = modrinthProjectUrl,
+            mixinsConfigFileName = fileName(slug, "mixins", Constants.File.Extension.JSON),
+            delegate = this,
+        )
 
     fun toAndroidApp(): AndroidApp =
         AndroidApp(this)
