@@ -360,6 +360,12 @@ fun Project.configureMinecraftMod(
     }
     configureProjekt(mod, artifactVersion = artifactVersion)
     configurePublishing(mod, PublishingTarget.MODRINTH)
+    idea {
+        module {
+            isDownloadJavadoc = true
+            isDownloadSources = true
+        }
+    }
     return mod
 }
 
