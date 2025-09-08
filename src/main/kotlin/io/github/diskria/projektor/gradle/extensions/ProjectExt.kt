@@ -291,7 +291,20 @@ fun Project.configureGradlePlugin(
 }
 
 fun Project.configureLibrary(license: License = MitLicense): IProjekt {
+    val junitVersion = getCatalogVersionOrThrow("junit")
     val library = projekt(LibrariesOrganization, license, JvmTarget.JVM_1_8).toLibrary()
+    dependencies {
+        testImplementation(kotlin("test"))
+        testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
+    }
+    tasks.named<Test>("test") {
+        useJUnitPlatform()
+        testLogging {
+            events("passed", "skipped", "failed")
+            exceptionFormat = TestExceptionFormat.FULL
+            showStandardStreams = true
+        }
+    }
     configureProjekt(library)
     configurePublishing(library, PublishingTarget.MAVEN_CENTRAL)
     return library
@@ -360,12 +373,6 @@ fun Project.configureMinecraftMod(
     }
     configureProjekt(mod, artifactVersion = artifactVersion)
     configurePublishing(mod, PublishingTarget.MODRINTH)
-    idea {
-        module {
-            isDownloadJavadoc = true
-            isDownloadSources = true
-        }
-    }
     return mod
 }
 
