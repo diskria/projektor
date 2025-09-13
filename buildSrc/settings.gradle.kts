@@ -1,40 +1,11 @@
-fun RepositoryHandler.mavenGradlePluginPortal() {
-    maven("https://plugins.gradle.org/m2")
-}
+apply(from = "../../bisectrix/gradle/scripts/project.settings.gradle.kts")
+apply(from = "../../bisectrix/gradle/scripts/android-app.settings.gradle.kts")
+apply(from = "../../bisectrix/gradle/scripts/minecraft-mod.settings.gradle.kts")
 
-fun RepositoryHandler.mavenFabricMinecraft() {
-    maven("https://maven.fabricmc.net")
-}
-
-fun RepositoryHandler.commonRepositories() {
-    mavenCentral()
-    mavenGradlePluginPortal()
-    mavenFabricMinecraft()
-}
-
-fun RepositoryHandler.pluginRepositories() {
-    gradlePluginPortal()
-}
-
-@Suppress("UnstableApiUsage")
-fun setupRepositories() {
-    dependencyResolutionManagement.repositories {
-        commonRepositories()
-    }
-
-    pluginManagement.repositories {
-        commonRepositories()
-        pluginRepositories()
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("libs") {
+            from(files("../gradle/libs.versions.toml"))
+        }
     }
 }
-
-setupRepositories()
-
-fun setupVersionCatalogs() {
-    dependencyResolutionManagement
-        .versionCatalogs
-        .create("libs")
-        .from(files("../gradle/libs.versions.toml"))
-}
-
-setupVersionCatalogs()

@@ -5,7 +5,7 @@ import io.github.diskria.projektor.minecraft.ModLoader
 import io.github.diskria.projektor.minecraft.config.versions.VersionBound
 import io.github.diskria.projektor.minecraft.config.versions.range.InequalityVersionRange
 import io.github.diskria.projektor.minecraft.config.versions.range.VersionRange
-import io.github.diskria.projektor.owner.MainDeveloper
+import io.github.diskria.projektor.owner.GithubProfile
 import io.github.diskria.projektor.projekt.MinecraftMod
 import io.github.diskria.utils.kotlin.Constants
 import io.github.diskria.utils.kotlin.extensions.common.fileName
@@ -60,7 +60,7 @@ class ForgeModConfig(
                 ForgeMod(
                     description = mod.description,
                     version = mod.version,
-                    authors = MainDeveloper.name,
+                    authors = GithubProfile.username,
                     id = mod.id,
                     name = mod.name,
                     icon = fileName("icon", Constants.File.Extension.PNG),

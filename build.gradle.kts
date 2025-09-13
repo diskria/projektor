@@ -1,5 +1,5 @@
 import io.github.diskria.projektor.gradle.extensions.configureGradlePlugin
-import io.github.diskria.projektor.owner.MainDeveloper
+import io.github.diskria.projektor.owner.GithubProfile
 import io.github.diskria.projektor.projekt.PublishingTarget
 
 plugins {
@@ -8,7 +8,7 @@ plugins {
 }
 
 dependencies {
-    implementation(kotlin("gradle-plugin"))
+    compileOnly(kotlin("gradle-plugin"))
     compileOnly(gradleKotlinDsl())
 
     compileOnly(libs.build.config.plugin)
@@ -27,4 +27,4 @@ dependencies {
     }
 }
 
-configureGradlePlugin(MainDeveloper, PublishingTarget.GITHUB_PACKAGES)
+configureGradlePlugin(GithubProfile, PublishingTarget.GITHUB_PACKAGES)

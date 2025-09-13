@@ -7,7 +7,10 @@ sealed class VersionRange {
 
     abstract val any: String
 
-    protected abstract fun rangeInternal(minVersion: VersionBound?, maxVersion: VersionBound?): String
+    protected abstract fun rangeInternal(
+        minVersion: VersionBound?,
+        maxVersion: VersionBound?
+    ): String
 
     fun min(version: VersionBound): String =
         rangeInternal(version, null)

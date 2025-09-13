@@ -26,7 +26,6 @@ sourceSets.main {
     kotlin {
         srcDirs(
             "../src", // dogfooding trick: include the API code to configure yourself in the build script
-            "../gradle/settings" // so IDEs treat these scripts as project sources and provide full IDE support
         )
     }
 }

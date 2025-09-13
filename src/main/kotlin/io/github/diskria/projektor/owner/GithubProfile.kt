@@ -1,3 +1,10 @@
 package io.github.diskria.projektor.owner
 
-sealed class GithubProfile(val username: String) : GithubOwner(username)
+import io.github.diskria.utils.kotlin.extensions.common.buildEmail
+
+object GithubProfile : GithubOwner("diskria") {
+
+    val username: String = name
+
+    override val email: String = buildEmail(username, "proton.me")
+}

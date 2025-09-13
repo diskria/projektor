@@ -3,7 +3,10 @@ package io.github.diskria.projektor.minecraft.era
 import io.github.diskria.projektor.minecraft.version.*
 import io.github.diskria.utils.kotlin.Constants
 
-enum class MinecraftEra(val versions: List<MinecraftVersion>, val versionPrefix: String = Constants.Char.EMPTY) {
+enum class MinecraftEra(
+    val versions: List<MinecraftVersion>,
+    val versionPrefix: String = Constants.Char.EMPTY,
+) {
 
     PRE_CLASSIC(PreClassic.entries.toList(), "rd-"),
     CLASSIC(Classic.entries.toList(), "c"),

@@ -7,7 +7,7 @@ import io.github.diskria.projektor.minecraft.config.versions.range.InequalityVer
 import io.github.diskria.projektor.minecraft.config.versions.range.VersionRange
 import io.github.diskria.projektor.minecraft.version.MinecraftVersion
 import io.github.diskria.projektor.minecraft.version.getVersion
-import io.github.diskria.projektor.owner.MainDeveloper
+import io.github.diskria.projektor.owner.GithubProfile
 import io.github.diskria.projektor.projekt.MinecraftMod
 import io.github.diskria.utils.kotlin.Constants
 import io.github.diskria.utils.kotlin.extensions.appendPackageName
@@ -167,7 +167,7 @@ class FabricModConfig(
                 version = mod.version,
                 name = mod.name,
                 description = mod.description,
-                authors = listOf(MainDeveloper.name),
+                authors = listOf(GithubProfile.username),
                 license = mod.license.id,
                 icon = "assets/${mod.slug}/${fileName("icon", Constants.File.Extension.PNG)}",
                 environment = mod.environment.fabricConfigValue,

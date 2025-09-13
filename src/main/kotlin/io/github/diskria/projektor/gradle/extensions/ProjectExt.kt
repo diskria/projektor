@@ -16,6 +16,9 @@ import io.github.diskria.projektor.minecraft.version.MinecraftVersion
 import io.github.diskria.projektor.minecraft.version.getMinJavaVersion
 import io.github.diskria.projektor.minecraft.version.getVersion
 import io.github.diskria.projektor.owner.*
+import io.github.diskria.projektor.owner.domain.AndroidDomain
+import io.github.diskria.projektor.owner.domain.LibrariesDomain
+import io.github.diskria.projektor.owner.domain.MinecraftDomain
 import io.github.diskria.projektor.projekt.*
 import io.github.diskria.utils.kotlin.BracketsType
 import io.github.diskria.utils.kotlin.Constants
@@ -60,8 +63,9 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import kotlin.jvm.optionals.getOrNull
+import kotlin.properties.ReadOnlyProperty
+import kotlin.text.get
 
-typealias IdeaExt = IdeaModel
 typealias BaseExt = BasePluginExtension
 typealias JavaExt = JavaPluginExtension
 typealias KotlinExt = KotlinProjectExtension
@@ -185,13 +189,18 @@ fun Project.configureBuildConfig(packageName: String, className: String, fields:
     }
 }
 
+fun Project.gradlePropertyDelegate(): ReadOnlyProperty<Any?, String> =
+    ReadOnlyProperty { _, property ->
+        providers.gradleProperty(property.name.setCase(CamelCase, DotCase)).get()
+    }
+
 fun Project.projekt(owner: GithubOwner, license: License, jvmTarget: JvmTarget? = null): Projekt {
     val javaVersion = getCatalogVersionOrThrow("java").toInt()
     val kotlinVersion = getCatalogVersionOrThrow("kotlin")
 
-    val projectName: String by rootProject
-    val projectDescription: String by rootProject
-    val projectVersion: String by rootProject
+    val projectName: String by gradlePropertyDelegate()
+    val projectDescription: String by gradlePropertyDelegate()
+    val projectVersion: String by gradlePropertyDelegate()
     return Projekt(
         owner = owner,
         license = license,
@@ -291,11 +300,10 @@ fun Project.configureGradlePlugin(
 }
 
 fun Project.configureLibrary(license: License = MitLicense): IProjekt {
-    val junitVersion = getCatalogVersionOrThrow("junit")
-    val library = projekt(LibrariesOrganization, license, JvmTarget.JVM_1_8).toLibrary()
+    val library = projekt(LibrariesDomain, license, JvmTarget.JVM_1_8).toLibrary()
     dependencies {
         testImplementation(kotlin("test"))
-        testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
+        testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
     }
     tasks.named<Test>("test") {
         useJUnitPlatform()
@@ -322,7 +330,7 @@ fun Project.configureMinecraftMod(
     )
     val minecraftVersion = MinecraftVersion.of(projectDir.name)
     val jvmTarget = minecraftVersion.getMinJavaVersion().toJvmTarget()
-    val mod = projekt(MinecraftOrganization, license, jvmTarget).toMinecraftMod(
+    val mod = projekt(MinecraftDomain, license, jvmTarget).toMinecraftMod(
         modLoader = projectDir.parentFile.name.toEnum<ModLoader>(),
         minecraftVersion = minecraftVersion,
         environment = environment,
@@ -333,7 +341,7 @@ fun Project.configureMinecraftMod(
         append(Constants.Char.HYPHEN)
         append(mod.version)
         append(Constants.Char.PLUS)
-        append(MinecraftOrganization.suffix)
+        append(MinecraftDomain.suffix)
         append(minecraftVersion)
     }
     configureBuildConfig(mod.packageName, "MinecraftMod") {
@@ -348,11 +356,11 @@ fun Project.configureMinecraftMod(
         manifest {
             val specificationVersion by 1.toString().toAutoNamedProperty(`Train-Case`)
             val specificationTitle by mod.id.toAutoNamedProperty(`Train-Case`)
-            val specificationVendor by MainDeveloper.name.toAutoNamedProperty(`Train-Case`)
+            val specificationVendor by GithubProfile.username.toAutoNamedProperty(`Train-Case`)
 
             val implementationVersion by artifactVersion.toAutoNamedProperty(`Train-Case`)
             val implementationTitle by mod.name.toAutoNamedProperty(`Train-Case`)
-            val implementationVendor by MainDeveloper.name.toAutoNamedProperty(`Train-Case`)
+            val implementationVendor by GithubProfile.username.toAutoNamedProperty(`Train-Case`)
 
             val mixinsConfig by mod.mixinsConfigFileName.toAutoNamedProperty(PascalCase)
 
@@ -432,7 +440,7 @@ fun Project.configureFabricModLoader(mod: MinecraftMod, isFabricApiRequired: Boo
                             ModSide.CLIENT -> client()
                             ModSide.SERVER -> server()
                         }
-                        programArgs("--username", "${MainDeveloper.name}-${side.logicalName}")
+                        programArgs("--username", "${GithubProfile.username}-${side.logicalName}")
                         vmArgs("-Xms2G", side.getMaxMemoryJvmArgument())
                     }
                 }
@@ -502,7 +510,7 @@ fun Project.configureFabricModLoader(mod: MinecraftMod, isFabricApiRequired: Boo
 }
 
 fun Project.configureAndroidApp(license: License = MitLicense): IProjekt {
-    val app = projekt(AndroidOrganization, license).toAndroidApp()
+    val app = projekt(AndroidDomain, license).toAndroidApp()
     configureProjekt(app)
     configurePublishing(app, PublishingTarget.GOOGLE_PLAY)
     return app
@@ -539,7 +547,7 @@ private fun Project.configureGithubPackagesPublishing(project: IProjekt) {
         repositories {
             maven(githubOwner.getPackagesMavenUrl(project.slug)) {
                 credentials {
-                    username = MainDeveloper.name
+                    username = GithubProfile.username
                     password = githubPackagesToken
                 }
             }
