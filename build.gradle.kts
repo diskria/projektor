@@ -28,4 +28,4 @@ dependencies {
     }
 }
 
-configureGradlePlugin(GithubProfile, PublishingTarget.GITHUB_PACKAGES)
+configureGradlePlugin(GithubProfile, PublishingTarget.GITHUB_PAGES)

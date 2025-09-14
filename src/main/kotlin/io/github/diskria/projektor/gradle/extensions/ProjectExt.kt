@@ -27,6 +27,7 @@ import io.github.diskria.utils.kotlin.extensions.*
 import io.github.diskria.utils.kotlin.extensions.common.`Train-Case`
 import io.github.diskria.utils.kotlin.extensions.common.className
 import io.github.diskria.utils.kotlin.extensions.common.failWithUnsupportedType
+import io.github.diskria.utils.kotlin.extensions.common.snake_case
 import io.github.diskria.utils.kotlin.extensions.generics.joinBySpace
 import io.github.diskria.utils.kotlin.extensions.generics.toNullIfEmpty
 import io.github.diskria.utils.kotlin.poet.Property
@@ -66,6 +67,13 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import kotlin.jvm.optionals.getOrNull
 import kotlin.properties.ReadOnlyProperty
 
+// region TODO Move to kotlin-utils
+
+fun <E : Enum<E>> E.setCase(case: StringCase): String =
+    name.lowercase().setCase(snake_case, case)
+
+// endregion
+
 typealias BaseExt = BasePluginExtension
 typealias JavaExt = JavaPluginExtension
 typealias KotlinExt = KotlinProjectExtension
@@ -84,10 +92,16 @@ fun Project.getDirectory(path: String): Directory =
 fun Project.getFile(path: String): RegularFile =
     layout.projectDirectory.file(path)
 
-fun Project.getBuildDirectory(path: String): Provider<Directory> =
+fun Project.rootDirectory(path: String): Directory =
+    rootProject.getDirectory(path)
+
+fun Project.rootFile(path: String): RegularFile =
+    rootProject.getFile(path)
+
+fun Project.buildDirectory(path: String): Provider<Directory> =
     layout.buildDirectory.dir(path)
 
-fun Project.getBuildFile(path: String): Provider<RegularFile> =
+fun Project.buildFile(path: String): Provider<RegularFile> =
     layout.buildDirectory.file(path)
 
 fun Project.requirePlugins(vararg ids: String) {
@@ -172,8 +186,12 @@ fun Project.resolveCatalogVersion(
 ): String =
     getCatalogVersion("$aliasShort-full", catalog) ?: formatShort(getCatalogVersionOrThrow(aliasShort, catalog))
 
-fun Project.getProjectFileNamesFrom(path: String): List<String> =
-    getDirectory(path).asFile.listFiles { it.isFile && !it.isHidden }?.map { it.nameWithoutExtension }.orEmpty()
+fun Project.getFileNames(directoryPath: String): List<String> =
+    getDirectory(directoryPath)
+        .asFile
+        .listFiles { it.isFile && !it.isHidden }
+        ?.map { it.nameWithoutExtension }
+        .orEmpty()
 
 fun Project.configureBuildConfig(packageName: String, className: String, fields: () -> List<Property<String>>) {
     buildConfig {
@@ -399,13 +417,13 @@ fun Project.configureFabricMod(mod: MinecraftMod, isFabricApiRequired: Boolean) 
         .getSourceSets()
         .mapNotNull { sourceSet ->
             val pathBase = "src/${sourceSet.logicalName}/java/${mod.packagePath}/mixins"
-            getProjectFileNamesFrom(
+            getFileNames(
                 if (sourceSet == SourceSet.MAIN) pathBase
                 else "$pathBase/${sourceSet.logicalName}"
             ).toNullIfEmpty()?.let { sourceSet to it }
         }
         .toMap()
-    val datagenClasses = getProjectFileNamesFrom("src/datagen/kotlin/${mod.packagePath}").map {
+    val datagenClasses = getFileNames("src/datagen/kotlin/${mod.packagePath}").map {
         mod.packageName + Constants.Char.DOT + it
     }
     val minecraftVersion = mod.minecraftVersion.getVersion()
@@ -480,8 +498,8 @@ fun Project.configureFabricMod(mod: MinecraftMod, isFabricApiRequired: Boolean) 
         }
     }
     val generateFabricConfigTask by tasks.registering {
-        val modConfigFile = getBuildFile("generated/resources/${ModLoader.FABRIC.getConfigFilePath()}")
-        val mixinsConfigFile = getBuildFile("generated/resources/${mod.mixinsConfigFileName}")
+        val modConfigFile = buildFile("generated/resources/${ModLoader.FABRIC.getConfigFilePath()}")
+        val mixinsConfigFile = buildFile("generated/resources/${mod.mixinsConfigFileName}")
         outputs.files(modConfigFile, mixinsConfigFile)
         doLast {
             modConfigFile.get().asFile.apply {
@@ -515,9 +533,8 @@ fun Project.configureFabricMod(mod: MinecraftMod, isFabricApiRequired: Boolean) 
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
         from(generateFabricConfigTask)
 
-        from(rootProject.file("icon.png")) {
+        from(rootFile("icon.png")) {
             into("assets/${mod.slug}/")
-            rename { "icon.png" }
         }
     }
 }
@@ -540,6 +557,7 @@ fun Project.configurePublishing(projekt: IProjekt, target: PublishingTarget?) {
     }
     when (target) {
         PublishingTarget.GITHUB_PACKAGES -> configureGithubPackagesPublishing(projekt)
+        PublishingTarget.GITHUB_PAGES -> configureGithubPagesPublishing()
         PublishingTarget.MAVEN_CENTRAL -> configureMavenCentralPublishing(projekt)
         PublishingTarget.MODRINTH -> configureModrinthPublishing(projekt)
         PublishingTarget.GRADLE_PLUGIN_PORTAL -> {}
@@ -563,10 +581,21 @@ private fun Project.configureGithubPackagesPublishing(project: IProjekt) {
         }
         repositories {
             maven(githubOwner.getPackagesMavenUrl(project.slug)) {
+                name = PublishingTarget.GITHUB_PACKAGES.setCase(PascalCase)
                 credentials {
                     username = GithubProfile.username
                     password = githubPackagesToken
                 }
+            }
+        }
+    }
+}
+
+private fun Project.configureGithubPagesPublishing() {
+    publishing {
+        repositories {
+            maven(buildDirectory("repo")) {
+                name = PublishingTarget.GITHUB_PAGES.setCase(PascalCase)
             }
         }
     }
@@ -581,7 +610,9 @@ private fun Project.configureMavenCentralPublishing(project: IProjekt) {
     }
     publishing {
         repositories {
-            maven(getBuildDirectory("staging-repo").get().asFile)
+            maven(buildDirectory("staging-repo").get().asFile) {
+                name = PublishingTarget.MAVEN_CENTRAL.setCase(PascalCase)
+            }
         }
     }
     val publication = publishing {

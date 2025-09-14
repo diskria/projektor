@@ -1,4 +1,4 @@
-name: Publish to GitHub Packages
+name: Publish plugin to GitHub Pages
 
 on:
   workflow_dispatch:
@@ -6,15 +6,12 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: write
+
 jobs:
   publish:
     runs-on: ubuntu-latest
-
-    env:
-      GITHUB_USERNAME: ${{ secrets.GPR_USERNAME }}
-      GITHUB_PACKAGES_TOKEN: ${{ secrets.GPR_TOKEN }}
-      GPG_KEY: ${{ secrets.GPG_KEY }}
-      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
     steps:
       - uses: actions/checkout@v4
@@ -34,5 +31,12 @@ jobs:
           java-version: ${{ steps.java_version.outputs.java }}
           distribution: temurin
 
-      - name: Publish to GitHub Packages
+      - name: Build & publish locally
         run: ./gradlew publish --stacktrace
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: build/repo
+          force_orphan: true
