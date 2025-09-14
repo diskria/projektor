@@ -2,6 +2,8 @@
 java = "21"
 kotlin = "2.2.0"
 
+projektor = "1.1.0"
+
 build-config = "5.6.7"
 
 kotlin-serialization = "1.9.0"
@@ -15,7 +17,9 @@ modrinth-minotaur = "2.8.8"
 okio = "3.16.0"
 
 [plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+projektor = { id = "io.github.diskria.projektor", version.ref = "projektor" }
 
 [libraries]
 build-config-plugin = { group = "com.github.gmazzo.buildconfig", name = "plugin", version.ref = "build-config" }

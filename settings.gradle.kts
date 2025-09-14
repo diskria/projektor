@@ -4,25 +4,28 @@ fun RepositoryHandler.commonRepositories() {
     mavenLocal()
     mavenCentral()
     gradlePluginPortal()
-    google()
-
+    maven("https://diskria.github.io/projektor") {
+        name = "Projektor"
+    }
     maven("https://libraries.minecraft.net") {
-        name = "Minecraft Libraries"
+        name = "MinecraftLibraries"
     }
     maven("https://maven.fabricmc.net") {
         name = "Fabric"
     }
-    exclusiveContent {
-        forRepository {
-            maven("https://repo.spongepowered.org/repository/maven-public") {
-                name = "SpongePowered"
-            }
-        }
-        filter {
-            @Suppress("UnstableApiUsage")
-            includeGroupAndSubgroups("org.spongepowered")
-        }
-    }
+    setupExclusiveContent(
+        maven("https://repo.spongepowered.org/repository/maven-public") {
+            name = "SpongePowered"
+        },
+        "org.spongepowered",
+        isSubgroupsAllowed = true
+    )
+    setupExclusiveContent(
+        maven("https://api.modrinth.com/maven") {
+            name = "Modrinth"
+        },
+        "maven.modrinth"
+    )
 }
 
 fun setupRepositories() {
@@ -40,4 +43,26 @@ fun setupRepositories() {
     }
 }
 
+private fun RepositoryHandler.setupExclusiveContent(
+    maven: MavenArtifactRepository,
+    groupFilter: String,
+    isSubgroupsAllowed: Boolean = false,
+) {
+    exclusiveContent {
+        forRepository {
+            maven
+        }
+        filter {
+            if (isSubgroupsAllowed) {
+                @Suppress("UnstableApiUsage")
+                includeGroupAndSubgroups(groupFilter)
+            } else {
+                includeGroup(groupFilter)
+            }
+        }
+    }
+}
+
 setupRepositories()
+
+include(":common", ":project-plugin", ":settings-plugin")

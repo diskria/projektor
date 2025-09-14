@@ -1,31 +1,15 @@
-import io.github.diskria.projektor.gradle.extensions.configureGradlePlugin
-import io.github.diskria.projektor.owner.GithubProfile
-import io.github.diskria.projektor.projekt.PublishingTarget
-
 plugins {
-    `kotlin-dsl`
-    `maven-publish`
-    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin.jvm) apply false
 }
 
-dependencies {
-    compileOnly(kotlin("gradle-plugin"))
-    compileOnly(gradleKotlinDsl())
+tasks.register<Sync>("publishAllToLocalRepo") {
+    group = "publishing"
+    description = "Merges all plugin repositories into one for GitHub Pages"
 
-    compileOnly(libs.build.config.plugin)
-    compileOnly(libs.fabric.plugin)
-    compileOnly(libs.neoforge.plugin)
-    compileOnly(libs.modrinth.minotaur.plugin)
+    val plugins = listOf("project-plugin", "settings-plugin")
 
-    implementation(libs.ktor.http)
-    implementation(libs.kotlin.utils)
-    implementation(libs.kotlin.serialization)
+    dependsOn(plugins.map { ":$it:publishAllPublicationsToGithubPagesRepository" })
+    from(plugins.map { "$it/build/repo" })
 
-    constraints {
-        // Override vulnerable transitive dependency (Okio < 3.4.0, CVE-2023-3635)
-        // com.modrinth.minotaur → Modrinth4J → Okio
-        implementation(libs.okio)
-    }
+    into("build/repo")
 }
-
-configureGradlePlugin(GithubProfile, PublishingTarget.GITHUB_PAGES)
