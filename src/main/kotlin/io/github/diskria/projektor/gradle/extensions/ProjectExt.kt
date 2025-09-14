@@ -15,7 +15,8 @@ import io.github.diskria.projektor.minecraft.utils.ModrinthUtils
 import io.github.diskria.projektor.minecraft.version.MinecraftVersion
 import io.github.diskria.projektor.minecraft.version.getMinJavaVersion
 import io.github.diskria.projektor.minecraft.version.getVersion
-import io.github.diskria.projektor.owner.*
+import io.github.diskria.projektor.owner.GithubOwner
+import io.github.diskria.projektor.owner.GithubProfile
 import io.github.diskria.projektor.owner.domain.AndroidDomain
 import io.github.diskria.projektor.owner.domain.LibrariesDomain
 import io.github.diskria.projektor.owner.domain.MinecraftDomain
@@ -57,14 +58,12 @@ import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.*
 import org.gradle.language.jvm.tasks.ProcessResources
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
-import org.gradle.plugins.ide.idea.model.IdeaModel
 import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import kotlin.jvm.optionals.getOrNull
 import kotlin.properties.ReadOnlyProperty
-import kotlin.text.get
 
 typealias BaseExt = BasePluginExtension
 typealias JavaExt = JavaPluginExtension

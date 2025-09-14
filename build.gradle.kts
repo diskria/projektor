@@ -12,8 +12,8 @@ dependencies {
     compileOnly(gradleKotlinDsl())
 
     compileOnly(libs.build.config.plugin)
-    compileOnly(libs.fabric.loom.plugin)
-    compileOnly(libs.neoforge.moddevplugin)
+    compileOnly(libs.fabric.plugin)
+    compileOnly(libs.neoforge.plugin)
     compileOnly(libs.modrinth.minotaur.plugin)
 
     implementation(libs.ktor.http)

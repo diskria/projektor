@@ -2,9 +2,7 @@ package io.github.diskria.projektor.minecraft.version
 
 import io.github.diskria.projektor.minecraft.era.MinecraftEra
 import io.github.diskria.utils.kotlin.extensions.common.failWithDetails
-import io.github.diskria.utils.kotlin.extensions.common.failWithWrongUsage
 import io.github.diskria.utils.kotlin.properties.toAutoNamedProperty
-import kotlin.math.min
 
 interface MinecraftVersion {
 

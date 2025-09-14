@@ -7,8 +7,8 @@ dependencies {
     implementation(gradleKotlinDsl())
 
     implementation(libs.build.config.plugin)
-    implementation(libs.fabric.loom.plugin)
-    implementation(libs.neoforge.moddevplugin)
+    implementation(libs.fabric.plugin)
+    implementation(libs.neoforge.plugin)
     implementation(libs.modrinth.minotaur.plugin)
 
     implementation(libs.ktor.http)
@@ -22,10 +22,10 @@ dependencies {
     }
 }
 
-sourceSets.main {
-    kotlin {
-        srcDirs(
-            "../src", // dogfooding trick: include the API code to configure yourself in the build script
-        )
+sourceSets {
+    main {
+        kotlin {
+            srcDirs("../src")
+        }
     }
 }
