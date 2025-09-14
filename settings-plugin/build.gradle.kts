@@ -9,9 +9,9 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":common"))
+    compileOnly(project(":common"))
 
-    implementation(libs.kotlin.utils)
+    compileOnly(libs.kotlin.utils)
 }
 
 configureGradlePlugin(GithubProfile, PublishingTarget.GITHUB_PAGES, isSettingsPlugin = true)

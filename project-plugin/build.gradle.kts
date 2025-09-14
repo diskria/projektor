@@ -10,7 +10,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":common"))
+    compileOnly(project(":common"))
 
     compileOnly(kotlin("gradle-plugin"))
     compileOnly(gradleKotlinDsl())
@@ -21,7 +21,7 @@ dependencies {
     compileOnly(libs.modrinth.minotaur.plugin)
 
     implementation(libs.ktor.http)
-    implementation(libs.kotlin.utils)
+    compileOnly(libs.kotlin.utils)
     implementation(libs.kotlin.serialization)
 
     constraints {
