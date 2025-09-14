@@ -133,7 +133,7 @@ class FabricModConfig(
         val kotlinDependency: String,
 
         @SerialName("fabric-api")
-        val apiDependency: String?,
+        val apiDependency: String? = null,
     ) {
         companion object {
             fun of(
@@ -148,7 +148,7 @@ class FabricModConfig(
                     minecraftDependency = versionRange.min(VersionBound.inclusive(minecraftVersion.getVersion())),
                     loaderDependency = versionRange.min(VersionBound.inclusive(loaderVersion)),
                     kotlinDependency = versionRange.any,
-                    apiDependency = versionRange.any.takeIf { isApiRequired },
+                    apiDependency = if (isApiRequired) versionRange.any else null,
                 )
         }
     }

@@ -14,8 +14,12 @@ enum class ModLoader(val logicalName: String) {
 
 fun ModLoader.getConfigFilePath(): String =
     when (this) {
-        ModLoader.FABRIC, ModLoader.QUILT -> fileName(logicalName, "mod", Constants.File.Extension.JSON)
+        ModLoader.FABRIC, ModLoader.QUILT -> {
+            fileName(logicalName, "mod", Constants.File.Extension.JSON)
+        }
 
-        ModLoader.FORGE, ModLoader.NEOFORGE -> "META-INF/" + fileName("mods", Constants.File.Extension.TOML)
-            .modifyIf(this == ModLoader.NEOFORGE) { it.appendPrefix(logicalName + Constants.Char.DOT) }
+        ModLoader.FORGE, ModLoader.NEOFORGE -> {
+            "META-INF/" + fileName("mods", Constants.File.Extension.TOML)
+                .modifyIf(this == ModLoader.NEOFORGE) { it.appendPrefix(logicalName + Constants.Char.DOT) }
+        }
     }

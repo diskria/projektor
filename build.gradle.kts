@@ -5,6 +5,7 @@ import io.github.diskria.projektor.projekt.PublishingTarget
 plugins {
     `kotlin-dsl`
     `maven-publish`
+    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {

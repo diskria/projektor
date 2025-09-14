@@ -14,6 +14,9 @@ neoforge-plugin = "2.0.107"
 modrinth-minotaur = "2.8.8"
 okio = "3.16.0"
 
+[plugins]
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
 [libraries]
 build-config-plugin = { group = "com.github.gmazzo.buildconfig", name = "plugin", version.ref = "build-config" }
 fabric-plugin = { group = "fabric-loom", name = "fabric-loom.gradle.plugin", version.ref = "fabric-plugin" }

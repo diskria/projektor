@@ -47,6 +47,7 @@ import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Provider
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
@@ -341,15 +342,17 @@ fun Project.configureMinecraftMod(
         append(mod.version)
         append(Constants.Char.PLUS)
         append(MinecraftDomain.suffix)
-        append(minecraftVersion)
+        append(minecraftVersion.getVersion())
     }
     configureBuildConfig(mod.packageName, "MinecraftMod") {
         val modId by mod.id.toAutoNamedProperty(ScreamingSnakeCase)
         val modName by mod.name.toAutoNamedProperty(ScreamingSnakeCase)
         listOf(modId, modName)
     }
-    if (mod.modLoader == ModLoader.FABRIC) {
-        configureFabricModLoader(mod, isFabricApiRequired)
+    when (mod.modLoader) {
+        ModLoader.FABRIC -> configureFabricMod(mod, isFabricApiRequired)
+        ModLoader.QUILT -> configureQuiltMod(mod)
+        else -> TODO()
     }
     tasks.named<Jar>("jar") {
         manifest {
@@ -361,8 +364,6 @@ fun Project.configureMinecraftMod(
             val implementationTitle by mod.name.toAutoNamedProperty(`Train-Case`)
             val implementationVendor by GithubProfile.username.toAutoNamedProperty(`Train-Case`)
 
-            val mixinsConfig by mod.mixinsConfigFileName.toAutoNamedProperty(PascalCase)
-
             attributes(
                 listOf(
                     specificationVersion,
@@ -372,18 +373,26 @@ fun Project.configureMinecraftMod(
                     implementationVersion,
                     implementationTitle,
                     implementationVendor,
-
-                    mixinsConfig,
                 ).associate { it.name to it.value }
             )
         }
     }
     configureProjekt(mod, artifactVersion = artifactVersion)
     configurePublishing(mod, PublishingTarget.MODRINTH)
+
+    val mainJar = tasks.named<Jar>("jar")
+    val unpackJar = tasks.register<Copy>("unpackJar") {
+        dependsOn(mainJar)
+        from(zipTree(mainJar.flatMap { it.archiveFile }))
+        into(layout.buildDirectory.dir("mod-jar-unpacked"))
+    }
+    tasks.named("build") {
+        finalizedBy(unpackJar)
+    }
     return mod
 }
 
-fun Project.configureFabricModLoader(mod: MinecraftMod, isFabricApiRequired: Boolean) {
+fun Project.configureFabricMod(mod: MinecraftMod, isFabricApiRequired: Boolean) {
     requirePlugins("fabric-loom")
     val loaderVersion = getCatalogVersionOrThrow("fabric-loader")
     val mixins = mod.environment
@@ -505,7 +514,16 @@ fun Project.configureFabricModLoader(mod: MinecraftMod, isFabricApiRequired: Boo
     tasks.named<ProcessResources>("processResources") {
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
         from(generateFabricConfigTask)
+
+        from(rootProject.file("icon.png")) {
+            into("assets/${mod.slug}/")
+            rename { "icon.png" }
+        }
     }
+}
+
+fun Project.configureQuiltMod(mod: MinecraftMod) {
+
 }
 
 fun Project.configureAndroidApp(license: License = MitLicense): IProjekt {
