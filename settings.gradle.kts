@@ -1,3 +1,3 @@
-apply(from = "../bisectrix/gradle/settings/project.gradle.kts")
-apply(from = "../bisectrix/gradle/settings/android-app.gradle.kts")
-apply(from = "../bisectrix/gradle/settings/minecraft-mod.gradle.kts")
+apply(from = "../bisectrix/settings/project.settings.gradle.kts")
+apply(from = "../bisectrix/settings/android-app.settings.gradle.kts")
+apply(from = "../bisectrix/settings/minecraft-mod.settings.gradle.kts")
