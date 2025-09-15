@@ -1,4 +1,4 @@
-name: Publish plugin to GitHub Pages
+name: Publish plugins to GitHub Pages Maven
 
 on:
   workflow_dispatch:
@@ -16,23 +16,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install toml-cli
-        run: pip install toml-cli
-
-      - name: Extract Java version
-        id: java_version
-        run: |
-          JAVA_VERSION=$(toml get versions.java --toml-path gradle/libs.versions.toml | tr -d '"')
-          echo "java=$JAVA_VERSION" >> $GITHUB_OUTPUT
-
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: ${{ steps.java_version.outputs.java }}
+          java-version: 21
           distribution: temurin
 
       - name: Build & publish locally
-        run: ./gradlew publishAllToLocalRepo --stacktrace
+        run: ./gradlew publishAllToGithubPagesMaven --stacktrace
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
