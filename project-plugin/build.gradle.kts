@@ -23,8 +23,6 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":common"))
-
     compileOnly(kotlin("gradle-plugin"))
     compileOnly(gradleKotlinDsl())
 

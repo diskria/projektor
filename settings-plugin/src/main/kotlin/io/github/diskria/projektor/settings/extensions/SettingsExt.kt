@@ -1,7 +1,8 @@
 package io.github.diskria.projektor.settings.extensions
 
-import io.github.diskria.projektor.minecraft.ModLoader
-import io.github.diskria.projektor.properties.toAutoNamedGradleProperty
+import io.github.diskria.projektor.settings.minecraft.ModLoader
+import io.github.diskria.projektor.settings.minecraft.logicalName
+import io.github.diskria.projektor.settings.properties.toAutoNamedGradleProperty
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.initialization.Settings
@@ -46,7 +47,7 @@ fun Settings.configureMinecraftMod() {
         include(":common")
 
         ModLoader.entries.forEach { modLoader ->
-            val modLoaderDirectory = rootDir.resolve(modLoader.name)
+            val modLoaderDirectory = rootDir.resolve(modLoader.logicalName())
             if (modLoaderDirectory.isDirectory) {
                 modLoaderDirectory.listFiles()?.filter { it.isDirectory }?.forEach { versionDirectory ->
                     include(":$modLoader:${versionDirectory.name}")

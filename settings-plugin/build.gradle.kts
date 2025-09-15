@@ -1,4 +1,3 @@
-import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -12,8 +11,6 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":common"))
-
     implementation(libs.kotlin.utils)
 }
 
@@ -69,7 +66,8 @@ gradlePlugin {
             id = "io.github.diskria.projektor.settings"
             implementationClass = "io.github.diskria.projektor.settings.ProjektorSettingsGradlePlugin"
             displayName = "Projektor"
-            description = "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
+            description =
+                "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
         }
     }
 }

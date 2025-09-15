@@ -65,4 +65,4 @@ private fun RepositoryHandler.setupExclusiveContent(
 
 setupRepositories()
 
-include(":common", ":project-plugin", ":settings-plugin")
+include(":project-plugin", ":settings-plugin")
