@@ -92,7 +92,7 @@ gradlePlugin {
     plugins {
         create("projectPlugin") {
             id = "io.github.diskria.projektor"
-            implementationClass = "io.github.diskria.projektor.ProjectGradlePlugin"
+            implementationClass = "io.github.diskria.projektor.ProjektorGradlePlugin"
             displayName = "Projektor"
             description = "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
         }
