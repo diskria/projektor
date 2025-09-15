@@ -1,8 +1,8 @@
-package io.github.diskria.projektor.settings.extensions
+package io.github.diskria.projektor.extensions
 
-import io.github.diskria.projektor.settings.minecraft.ModLoader
-import io.github.diskria.projektor.settings.minecraft.logicalName
-import io.github.diskria.projektor.settings.properties.toAutoNamedGradleProperty
+import io.github.diskria.projektor.minecraft.ModLoader
+import io.github.diskria.projektor.minecraft.logicalName
+import io.github.diskria.projektor.properties.toAutoNamedGradleProperty
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.initialization.Settings

@@ -1,4 +1,4 @@
-package io.github.diskria.projektor.settings
+package io.github.diskria.projektor
 
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings

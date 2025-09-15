@@ -1,4 +1,4 @@
-package io.github.diskria.projektor.settings.extensions.common
+package io.github.diskria.projektor.extensions.common
 
 import org.gradle.api.GradleException
 

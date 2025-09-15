@@ -1,6 +1,6 @@
-package io.github.diskria.projektor.settings.properties
+package io.github.diskria.projektor.properties
 
-import io.github.diskria.projektor.settings.extensions.common.gradleError
+import io.github.diskria.projektor.extensions.common.gradleError
 import io.github.diskria.utils.kotlin.extensions.common.`dot․case`
 import io.github.diskria.utils.kotlin.extensions.setCase
 import io.github.diskria.utils.kotlin.extensions.toNullIfEmpty

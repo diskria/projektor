@@ -37,7 +37,6 @@ data class Projekt(
         GradlePlugin(
             id = packageName.modifyIf(isSettingsPlugin) { it.appendPackageName("settings") },
             className = classNameBase.modifyIf(isSettingsPlugin) { it + "Settings" } + "GradlePlugin",
-            isSettingsPlugin = isSettingsPlugin,
             delegate = this,
         )
 

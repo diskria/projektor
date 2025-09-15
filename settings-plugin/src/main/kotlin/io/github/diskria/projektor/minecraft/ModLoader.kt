@@ -1,4 +1,4 @@
-package io.github.diskria.projektor.settings.minecraft
+package io.github.diskria.projektor.minecraft
 
 import io.github.diskria.utils.kotlin.Constants
 import io.github.diskria.utils.kotlin.extensions.appendPrefix
