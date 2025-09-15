@@ -1,6 +1,5 @@
 # Projektor
 
-[![GitHub Packages](https://img.shields.io/github/v/release/diskria/projektor?sort=semver&label=GitHub%20Packages)](https://github.com/diskria/projektor/packages)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **Projektor** is a Gradle plugin for **unifying and centralizing project configuration**.  
@@ -27,7 +26,7 @@ Add to your `settings.gradle.kts` or `build.gradle.kts`:
 
 ```kotlin
 plugins {
-    id("io.github.diskria.projektor") version "<latest_version>"
+    id("io.github.diskria.projektor") version "1.+"
 }
 ```
 
