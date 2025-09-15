@@ -1,7 +1,3 @@
-plugins {
-    alias(libs.plugins.kotlin.jvm) apply false
-}
-
 tasks.register<Sync>("publishAllToLocalRepo") {
     group = "publishing"
     description = "Merges all plugin repositories into one for GitHub Pages"

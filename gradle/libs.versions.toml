@@ -1,8 +1,7 @@
 [versions]
-java = "21"
 kotlin = "2.2.0"
 
-projektor = "1.1.2"
+projektor = "1.+"
 
 build-config = "5.6.7"
 
