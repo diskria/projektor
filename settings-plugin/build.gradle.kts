@@ -15,7 +15,7 @@ dependencies {
 }
 
 group = "io.github.diskria"
-version = "1.1.2"
+version = "1.2.0"
 
 base {
     archivesName = "projektor"
