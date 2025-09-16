@@ -1,0 +1,136 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.github.diskria",
+    "module": "project-plugin",
+    "version": "1.2.4",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.0.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 21,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "project-plugin-1.2.4.jar",
+          "url": "project-plugin-1.2.4.jar",
+          "size": 280472,
+          "sha512": "f8f2491ab55e6379cd1b9c4ce2391aa5cf613d4a615237e79ef0f413a5f0bd6959d67d127a476a3ed68a7b90907f24ea9ebf704c20e483b4fbc8b6e8944f8721",
+          "sha256": "d8b7e2d092e00f1455df62619d1c7af5a09a8c87708ec623cf37657d4f1b73f7",
+          "sha1": "452c926f64f9e03883f3facd58b0ebe725553eef",
+          "md5": "db5c7dd356c400ce5d79935fb75bdabd"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 21,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "io.ktor",
+          "module": "ktor-http",
+          "version": {
+            "requires": "3.2.3"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "kotlin-utils",
+          "version": {
+            "requires": "0.3.8"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-serialization-json",
+          "version": {
+            "requires": "1.9.0"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "com.squareup.okio",
+          "module": "okio-jvm",
+          "version": {
+            "requires": "3.16.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "project-plugin-1.2.4.jar",
+          "url": "project-plugin-1.2.4.jar",
+          "size": 280472,
+          "sha512": "f8f2491ab55e6379cd1b9c4ce2391aa5cf613d4a615237e79ef0f413a5f0bd6959d67d127a476a3ed68a7b90907f24ea9ebf704c20e483b4fbc8b6e8944f8721",
+          "sha256": "d8b7e2d092e00f1455df62619d1c7af5a09a8c87708ec623cf37657d4f1b73f7",
+          "sha1": "452c926f64f9e03883f3facd58b0ebe725553eef",
+          "md5": "db5c7dd356c400ce5d79935fb75bdabd"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "project-plugin-1.2.4-sources.jar",
+          "url": "project-plugin-1.2.4-sources.jar",
+          "size": 38063,
+          "sha512": "f3b5a5d9e94a0eaf35b4cc7b1a1618df3a9e729a5861b5f35f2ed328853e1c360a61bb8c2e657dab89d174f57c4d02c8bd8774ee636b388ea8959a8ac25c2f75",
+          "sha256": "2853f050015ff750bcbcda051b6c570f893a7fa613aa73e8d446a6440c4ff4aa",
+          "sha1": "e25479ddc72ee643f292b8353399ea6224b240dd",
+          "md5": "2082fe70e5c799907d9f95e256797b04"
+        }
+      ]
+    },
+    {
+      "name": "javadocElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "javadoc",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "project-plugin-1.2.4-javadoc.jar",
+          "url": "project-plugin-1.2.4-javadoc.jar",
+          "size": 261,
+          "sha512": "1487e5a20c9e4d74f298e07c42e96a61be11b7a768c3fbc199ee138cd68e1fc2267d1cfe3f11f288acc05df755315344d052cc5f6f751f126ab4fe1caa5125ea",
+          "sha256": "c6deada2fac53b8ea6523dbda77597b128006674616f140f04df23264c6d1aa3",
+          "sha1": "2ad14aed781c4a73ed4dbb421966d408a0a06686",
+          "md5": "f43436d6bec321290f6af228ad602604"
+        }
+      ]
+    }
+  ]
+}
