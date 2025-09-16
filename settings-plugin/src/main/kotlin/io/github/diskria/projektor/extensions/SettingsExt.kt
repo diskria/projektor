@@ -47,10 +47,11 @@ fun Settings.configureMinecraftMod() {
         include(":common")
 
         ModLoader.entries.forEach { modLoader ->
-            val modLoaderDirectory = rootDir.resolve(modLoader.logicalName())
+            val directoryName = modLoader.logicalName()
+            val modLoaderDirectory = rootDir.resolve(directoryName)
             if (modLoaderDirectory.isDirectory) {
                 modLoaderDirectory.listFiles()?.filter { it.isDirectory }?.forEach { versionDirectory ->
-                    include(":$modLoader:${versionDirectory.name}")
+                    include(":$directoryName:${versionDirectory.name}")
                 }
             }
         }
