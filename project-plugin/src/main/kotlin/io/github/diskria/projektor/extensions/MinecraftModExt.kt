@@ -113,15 +113,6 @@ fun Project.configureMinecraftMod(
     configureProjekt(mod, artifactVersion = artifactVersion)
     configurePublishing(mod, PublishingTarget.MODRINTH)
 
-    val mainJar = tasks.named<Jar>("jar")
-    val unpackJar = tasks.register<Copy>("unpackJar") {
-        dependsOn(mainJar)
-        from(zipTree(mainJar.flatMap { it.archiveFile }))
-        into(layout.buildDirectory.dir("mod-jar-unpacked"))
-    }
-    tasks.named("build") {
-        finalizedBy(unpackJar)
-    }
     return mod
 }
 
