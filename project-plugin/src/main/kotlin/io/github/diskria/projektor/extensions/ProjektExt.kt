@@ -11,15 +11,13 @@ import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.tasks.Jar
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JvmImplementation
 import org.gradle.jvm.toolchain.JvmVendorSpec
-import org.gradle.kotlin.dsl.assign
-import org.gradle.kotlin.dsl.buildConfigField
-import org.gradle.kotlin.dsl.named
-import org.gradle.kotlin.dsl.withType
+import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -96,6 +94,16 @@ fun Project.configureProjekt(
             }
         }
         archiveVersion.set(artifactVersion)
+    }
+    val unpackJarTask = tasks.register<Sync>("unpackJar") {
+        val jarTask = tasks.named<Jar>("jar")
+
+        from(zipTree(jarTask.flatMap { it.archiveFile }))
+        into(buildDirectory("unpacked"))
+        dependsOn(jarTask)
+    }
+    tasks.named("build") {
+        finalizedBy(unpackJarTask)
     }
     sourceSets {
         named("main") {
