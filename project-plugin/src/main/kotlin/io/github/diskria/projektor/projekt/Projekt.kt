@@ -1,19 +1,25 @@
 package io.github.diskria.projektor.projekt
 
+import io.github.diskria.projektor.extensions.mappers.toJvmTarget
 import io.github.diskria.projektor.licenses.License
 import io.github.diskria.projektor.minecraft.ModEnvironment
 import io.github.diskria.projektor.minecraft.ModLoader
 import io.github.diskria.projektor.minecraft.version.MinecraftVersion
+import io.github.diskria.projektor.owner.GithubOwner
 import io.github.diskria.projektor.owner.ProjektOwner
+import io.github.diskria.projektor.properties.toAutoNamedGradleProperty
 import io.github.diskria.utils.kotlin.Constants
 import io.github.diskria.utils.kotlin.extensions.appendPackageName
 import io.github.diskria.utils.kotlin.extensions.common.fileName
 import io.github.diskria.utils.kotlin.extensions.common.modifyIf
 import io.github.diskria.utils.kotlin.extensions.setCase
 import io.github.diskria.utils.kotlin.words.DotCase
+import io.github.diskria.utils.kotlin.words.KebabCase
 import io.github.diskria.utils.kotlin.words.PascalCase
 import io.github.diskria.utils.kotlin.words.PathCase
 import io.github.diskria.utils.kotlin.words.SpaceCase
+import org.gradle.api.Project
+import org.gradle.kotlin.dsl.provideDelegate
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 data class Projekt(
@@ -63,4 +69,25 @@ data class Projekt(
 
     fun toAndroidApp(): AndroidApp =
         AndroidApp(this)
+
+    companion object {
+        fun of(project: Project, owner: GithubOwner, license: License, jvmTarget: JvmTarget? = null): Projekt {
+            val projectName by project.providers.toAutoNamedGradleProperty()
+            val projectDescription by project.providers.toAutoNamedGradleProperty()
+            val projectVersion by project.providers.toAutoNamedGradleProperty()
+            val javaVersion = Versions.JAVA
+            return Projekt(
+                owner = owner,
+                license = license,
+                name = projectName,
+                description = projectDescription,
+                version = projectVersion,
+                slug = projectName.setCase(SpaceCase, KebabCase).lowercase(),
+                packageName = owner.namespace + Constants.Char.DOT + projectName.setCase(SpaceCase, DotCase),
+                javaVersion = javaVersion,
+                jvmTarget = jvmTarget ?: javaVersion.toJvmTarget(),
+                kotlinVersion = Versions.KOTLIN,
+            )
+        }
+    }
 }

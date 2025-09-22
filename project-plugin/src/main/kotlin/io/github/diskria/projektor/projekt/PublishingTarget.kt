@@ -1,6 +1,6 @@
 package io.github.diskria.projektor.projekt
 
-import io.github.diskria.projektor.extensions.setCase
+import io.github.diskria.utils.kotlin.extensions.mappers.toName
 import io.github.diskria.utils.kotlin.words.PascalCase
 
 enum class PublishingTarget {
@@ -13,4 +13,4 @@ enum class PublishingTarget {
 }
 
 fun PublishingTarget.mavenName(): String =
-    setCase(PascalCase)
+    toName(PascalCase)

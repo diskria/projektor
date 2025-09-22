@@ -7,7 +7,7 @@ build-config = "5.6.7"
 
 kotlin-serialization = "1.9.0"
 ktor = "3.2.3"
-kotlin-utils = "0.3.8"
+kotlin-utils = "0.4.0"
 
 fabric-plugin = "1.11.4"
 neoforge-plugin = "2.0.107"
@@ -16,7 +16,6 @@ modrinth-minotaur = "2.8.8"
 okio = "3.16.0"
 
 [plugins]
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 projektor = { id = "io.github.diskria.projektor", version.ref = "projektor" }
 
