@@ -17,18 +17,18 @@ import io.github.diskria.projektor.projekt.*
 import io.github.diskria.utils.kotlin.Constants
 import io.github.diskria.utils.kotlin.extensions.capitalizeFirstChar
 import io.github.diskria.utils.kotlin.extensions.common.`Train-Case`
+import io.github.diskria.utils.kotlin.extensions.common.fileName
 import io.github.diskria.utils.kotlin.extensions.generics.toNullIfEmpty
 import io.github.diskria.utils.kotlin.extensions.mappers.toEnum
+import io.github.diskria.utils.kotlin.extensions.serialization.serialize
 import io.github.diskria.utils.kotlin.properties.toAutoNamedProperty
 import io.github.diskria.utils.kotlin.words.ScreamingSnakeCase
-import kotlinx.serialization.json.Json
 import net.fabricmc.loom.api.LoomGradleExtensionAPI
 import net.fabricmc.loom.api.fabricapi.FabricApiExtension
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.file.DuplicatesStrategy
-import org.gradle.api.tasks.Copy
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.*
 import org.gradle.language.jvm.tasks.ProcessResources
@@ -211,28 +211,20 @@ fun Project.configureFabricMod(mod: MinecraftMod, isFabricApiRequired: Boolean) 
         doLast {
             modConfigFile.get().asFile.apply {
                 parentFile.mkdirs()
-                writeText(
-                    Json { prettyPrint = true }.encodeToString(
-                        FabricModConfig.of(
-                            mod = mod,
-                            minecraftVersion = mod.minecraftVersion,
-                            loaderVersion = loaderVersion,
-                            isApiRequired = isFabricApiRequired,
-                            datagenClasses = datagenClasses,
-                        )
-                    )
-                )
+                FabricModConfig.of(
+                    mod = mod,
+                    minecraftVersion = mod.minecraftVersion,
+                    loaderVersion = loaderVersion,
+                    isApiRequired = isFabricApiRequired,
+                    datagenClasses = datagenClasses,
+                ).serialize(this)
             }
             mixinsConfigFile.get().asFile.apply {
                 parentFile.mkdirs()
-                writeText(
-                    Json { prettyPrint = true }.encodeToString(
-                        MixinsConfig.of(
-                            mod = mod,
-                            mixins = mixins,
-                        )
-                    )
-                )
+                MixinsConfig.of(
+                    mod = mod,
+                    mixins = mixins,
+                ).serialize(this)
             }
         }
     }
@@ -240,7 +232,7 @@ fun Project.configureFabricMod(mod: MinecraftMod, isFabricApiRequired: Boolean) 
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
         from(generateFabricConfigTask)
 
-        from(rootFile("icon.png")) {
+        from(rootFile(fileName("icon", Constants.File.Extension.PNG))) {
             into("assets/${mod.slug}/")
         }
     }

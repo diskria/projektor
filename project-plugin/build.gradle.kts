@@ -17,6 +17,7 @@ dependencies {
     compileOnly(libs.fabric.plugin)
     compileOnly(libs.neoforge.plugin)
     compileOnly(libs.modrinth.minotaur.plugin)
+    compileOnly(libs.android.tools)
 
     implementation(libs.ktor.http)
     implementation(libs.kotlin.utils)

@@ -15,8 +15,12 @@ import org.gradle.kotlin.dsl.kotlin
 import org.gradle.kotlin.dsl.named
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-fun Project.configureLibrary(license: License = MitLicense): IProjekt {
-    val library = Projekt.of(this, LibrariesDomain, license, JvmTarget.JVM_1_8).toLibrary()
+fun Project.configureLibrary(
+    license: License = MitLicense,
+    publishingTarget: PublishingTarget? = PublishingTarget.MAVEN_CENTRAL,
+    jvmTarget: JvmTarget = JvmTarget.JVM_1_8,
+): IProjekt {
+    val library = Projekt.of(this, LibrariesDomain, license, jvmTarget).toLibrary()
     dependencies {
         testImplementation(kotlin("test"))
         testImplementation("org.junit.jupiter:junit-jupiter:${Versions.JUNIT}")
@@ -30,6 +34,6 @@ fun Project.configureLibrary(license: License = MitLicense): IProjekt {
         }
     }
     configureProjekt(library)
-    configurePublishing(library, PublishingTarget.MAVEN_CENTRAL)
+    configurePublishing(library, publishingTarget)
     return library
 }

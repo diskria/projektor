@@ -4,13 +4,13 @@ import io.github.diskria.projektor.extensions.common.gradleError
 import io.github.diskria.projektor.utils.VersionCatalogUtils
 import io.github.diskria.utils.kotlin.BracketsType
 import io.github.diskria.utils.kotlin.Constants
-import io.github.diskria.utils.kotlin.extensions.asFileOrThrow
+import io.github.diskria.utils.kotlin.extensions.asFile
 import io.github.diskria.utils.kotlin.extensions.common.KotlinClass
 import io.github.diskria.utils.kotlin.extensions.common.failWithInvalidValue
 import io.github.diskria.utils.kotlin.extensions.common.failWithUnsupportedType
 import io.github.diskria.utils.kotlin.extensions.common.fileName
 import io.github.diskria.utils.kotlin.extensions.generics.joinBySpace
-import io.github.diskria.utils.kotlin.extensions.toTypedOrNull
+import io.github.diskria.utils.kotlin.extensions.parseOrNull
 import io.github.diskria.utils.kotlin.extensions.wrap
 import io.github.diskria.utils.kotlin.extensions.wrapWithBrackets
 import org.gradle.api.Project
@@ -24,7 +24,7 @@ import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
 inline fun <reified T> Provider<*>.value(): T =
-    get().toString().toTypedOrNull<T>() as T
+    get().toString().parseOrNull<T>() as T
 
 inline fun <reified T> Project.getProperty(propertiesFile: File, key: String): T =
     getPropertyOrNull(propertiesFile, key) ?: failWithInvalidValue(key)
@@ -32,7 +32,7 @@ inline fun <reified T> Project.getProperty(propertiesFile: File, key: String): T
 inline fun <reified T> Project.getPropertyOrNull(propertiesFile: File, key: String): T? =
     Properties().apply {
         propertiesFile.inputStream().use { load(it) }
-    }.getProperty(key, null)?.toTypedOrNull<T>()
+    }.getProperty(key, null)?.parseOrNull<T>()
 
 inline fun <reified T : Any> Project.getExtensionOrThrow(): T =
     extensions.findByType(T::class.java) ?: failWithUnsupportedType(T::class)
@@ -50,7 +50,7 @@ fun <T : Task> KotlinClass<T>.getDisplayName(): String =
         ?: failWithInvalidValue(simpleName)
 
 fun Project.getLocalProperty(name: String): String? =
-    getPropertyOrNull(rootDir.resolve(fileName("local", Constants.File.Extension.PROPERTIES)).asFileOrThrow(), name)
+    getPropertyOrNull(rootDir.resolve(fileName("local", Constants.File.Extension.PROPERTIES)).asFile(), name)
 
 fun Project.getBuildDirectory(): File =
     layout.buildDirectory.asFile.get()

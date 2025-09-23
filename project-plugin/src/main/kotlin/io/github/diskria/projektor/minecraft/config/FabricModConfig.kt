@@ -13,10 +13,12 @@ import io.github.diskria.utils.kotlin.Constants
 import io.github.diskria.utils.kotlin.extensions.appendPackageName
 import io.github.diskria.utils.kotlin.extensions.common.fileName
 import io.github.diskria.utils.kotlin.extensions.generics.toNullIfEmpty
+import io.github.diskria.utils.kotlin.serialization.annotations.PrettyPrint
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
+@PrettyPrint
 class FabricModConfig(
     val schemaVersion: Int,
     val id: String,

@@ -20,7 +20,9 @@ fun Project.configureGradlePlugin(
     tags: Set<String> = emptySet(),
     license: License = MitLicense,
 ): GradlePlugin {
-    requirePlugins("maven-publish")
+    if (publishingTarget != null) {
+        requirePlugins("maven-publish")
+    }
     val plugin = Projekt.of(this, owner, license).toGradlePlugin(isSettingsPlugin)
     gradlePlugin {
         website.set(owner.getRepositoryUrl(plugin.slug))
