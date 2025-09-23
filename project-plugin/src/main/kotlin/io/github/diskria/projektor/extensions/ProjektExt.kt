@@ -1,10 +1,10 @@
 package io.github.diskria.projektor.extensions
 
 import com.github.gmazzo.buildconfig.BuildConfigExtension
+import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.kotlin.utils.poet.Property
 import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.projekt.IProjekt
-import io.github.diskria.utils.kotlin.Constants
-import io.github.diskria.utils.kotlin.poet.Property
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.dsl.DependencyHandler

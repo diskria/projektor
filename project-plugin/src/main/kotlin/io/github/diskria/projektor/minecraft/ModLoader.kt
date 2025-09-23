@@ -1,9 +1,9 @@
 package io.github.diskria.projektor.minecraft
 
-import io.github.diskria.utils.kotlin.Constants
-import io.github.diskria.utils.kotlin.extensions.appendPrefix
-import io.github.diskria.utils.kotlin.extensions.common.fileName
-import io.github.diskria.utils.kotlin.extensions.common.modifyIf
+import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.kotlin.utils.extensions.appendPrefix
+import io.github.diskria.kotlin.utils.extensions.common.fileName
+import io.github.diskria.kotlin.utils.extensions.common.modifyIf
 
 enum class ModLoader {
     FABRIC,

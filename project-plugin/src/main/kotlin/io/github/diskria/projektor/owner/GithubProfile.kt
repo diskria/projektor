@@ -1,6 +1,6 @@
 package io.github.diskria.projektor.owner
 
-import io.github.diskria.utils.kotlin.extensions.common.buildEmail
+import io.github.diskria.kotlin.utils.extensions.common.buildEmail
 
 object GithubProfile : GithubOwner("diskria") {
 

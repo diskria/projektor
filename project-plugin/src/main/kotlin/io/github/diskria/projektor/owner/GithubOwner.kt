@@ -1,13 +1,13 @@
 package io.github.diskria.projektor.owner
 
+import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.kotlin.utils.extensions.appendPrefix
+import io.github.diskria.kotlin.utils.extensions.appendSuffix
+import io.github.diskria.kotlin.utils.extensions.common.modifyIf
+import io.github.diskria.kotlin.utils.extensions.mappers.toName
+import io.github.diskria.kotlin.utils.extensions.removePrefix
 import io.github.diskria.projektor.projekt.SoftwareForgeType
 import io.github.diskria.projektor.projekt.logicalName
-import io.github.diskria.utils.kotlin.Constants
-import io.github.diskria.utils.kotlin.extensions.appendPrefix
-import io.github.diskria.utils.kotlin.extensions.appendSuffix
-import io.github.diskria.utils.kotlin.extensions.common.modifyIf
-import io.github.diskria.utils.kotlin.extensions.mappers.toName
-import io.github.diskria.utils.kotlin.extensions.removePrefix
 import io.ktor.http.*
 
 abstract class GithubOwner(name: String) : ProjektOwner(name, SoftwareForgeType.GITHUB) {

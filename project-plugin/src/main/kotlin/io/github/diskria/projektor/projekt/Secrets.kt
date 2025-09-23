@@ -1,8 +1,8 @@
 package io.github.diskria.projektor.projekt
 
-import io.github.diskria.utils.kotlin.extensions.setCase
-import io.github.diskria.utils.kotlin.words.CamelCase
-import io.github.diskria.utils.kotlin.words.ScreamingSnakeCase
+import io.github.diskria.kotlin.utils.extensions.setCase
+import io.github.diskria.kotlin.utils.words.CamelCase
+import io.github.diskria.kotlin.utils.words.ScreamingSnakeCase
 import kotlin.properties.ReadOnlyProperty
 
 object Secrets {

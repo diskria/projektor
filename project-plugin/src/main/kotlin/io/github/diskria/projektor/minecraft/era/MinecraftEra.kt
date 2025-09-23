@@ -1,7 +1,7 @@
 package io.github.diskria.projektor.minecraft.era
 
+import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.projektor.minecraft.version.*
-import io.github.diskria.utils.kotlin.Constants
 
 enum class MinecraftEra(
     val versions: List<MinecraftVersion>,

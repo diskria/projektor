@@ -1,7 +1,7 @@
 package io.github.diskria.projektor.projekt
 
-import io.github.diskria.utils.kotlin.Constants
-import io.github.diskria.utils.kotlin.extensions.generics.joinToString
+import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.kotlin.utils.extensions.generics.joinToString
 
 enum class ScmType {
     GIT,

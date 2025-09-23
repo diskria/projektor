@@ -1,9 +1,9 @@
 package io.github.diskria.projektor.minecraft.config.versions.range
 
+import io.github.diskria.kotlin.utils.BracketsType
+import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.kotlin.utils.extensions.wrapWithBrackets
 import io.github.diskria.projektor.minecraft.config.versions.VersionBound
-import io.github.diskria.utils.kotlin.BracketsType
-import io.github.diskria.utils.kotlin.Constants
-import io.github.diskria.utils.kotlin.extensions.wrapWithBrackets
 
 object IntervalVersionRange : VersionRange() {
 

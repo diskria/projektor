@@ -1,12 +1,12 @@
 package io.github.diskria.projektor.extensions
 
+import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.projektor.licenses.License
 import io.github.diskria.projektor.licenses.MitLicense
 import io.github.diskria.projektor.owner.GithubOwner
 import io.github.diskria.projektor.projekt.GradlePlugin
 import io.github.diskria.projektor.projekt.Projekt
 import io.github.diskria.projektor.projekt.PublishingTarget
-import io.github.diskria.utils.kotlin.Constants
 import org.gradle.api.Project
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 

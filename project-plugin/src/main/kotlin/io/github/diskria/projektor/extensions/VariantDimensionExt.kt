@@ -1,12 +1,12 @@
 package io.github.diskria.projektor.extensions
 
 import com.android.build.api.dsl.VariantDimension
-import io.github.diskria.utils.kotlin.extensions.common.className
-import io.github.diskria.utils.kotlin.extensions.common.failWithDetails
-import io.github.diskria.utils.kotlin.extensions.common.modifyIf
-import io.github.diskria.utils.kotlin.extensions.common.primitiveTypeNameOrNull
-import io.github.diskria.utils.kotlin.extensions.wrapWithDoubleQuote
-import io.github.diskria.utils.kotlin.properties.toAutoNamedProperty
+import io.github.diskria.kotlin.utils.extensions.common.className
+import io.github.diskria.kotlin.utils.extensions.common.failWithDetails
+import io.github.diskria.kotlin.utils.extensions.common.modifyIf
+import io.github.diskria.kotlin.utils.extensions.common.primitiveTypeNameOrNull
+import io.github.diskria.kotlin.utils.extensions.wrapWithDoubleQuote
+import io.github.diskria.kotlin.utils.properties.toAutoNamedProperty
 
 fun VariantDimension.putBuildConfigs(configs: Map<String, Any>) {
     configs.forEach { (name, value) ->

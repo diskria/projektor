@@ -1,5 +1,8 @@
 package io.github.diskria.projektor.minecraft.config
 
+import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.kotlin.utils.extensions.common.fileName
+import io.github.diskria.kotlin.utils.extensions.generics.addElements
 import io.github.diskria.projektor.minecraft.ModEnvironment
 import io.github.diskria.projektor.minecraft.ModLoader
 import io.github.diskria.projektor.minecraft.config.versions.VersionBound
@@ -8,9 +11,6 @@ import io.github.diskria.projektor.minecraft.config.versions.range.VersionRange
 import io.github.diskria.projektor.minecraft.logicalName
 import io.github.diskria.projektor.owner.GithubProfile
 import io.github.diskria.projektor.projekt.MinecraftMod
-import io.github.diskria.utils.kotlin.Constants
-import io.github.diskria.utils.kotlin.extensions.common.fileName
-import io.github.diskria.utils.kotlin.extensions.generics.addElements
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

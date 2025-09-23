@@ -1,6 +1,15 @@
 package io.github.diskria.projektor.extensions
 
 import com.modrinth.minotaur.ModrinthExtension
+import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.kotlin.utils.extensions.capitalizeFirstChar
+import io.github.diskria.kotlin.utils.extensions.common.`Train-Case`
+import io.github.diskria.kotlin.utils.extensions.common.fileName
+import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
+import io.github.diskria.kotlin.utils.extensions.mappers.toEnum
+import io.github.diskria.kotlin.utils.extensions.serialization.serialize
+import io.github.diskria.kotlin.utils.properties.toAutoNamedProperty
+import io.github.diskria.kotlin.utils.words.ScreamingSnakeCase
 import io.github.diskria.projektor.extensions.mappers.toJvmTarget
 import io.github.diskria.projektor.licenses.License
 import io.github.diskria.projektor.licenses.MitLicense
@@ -14,15 +23,6 @@ import io.github.diskria.projektor.minecraft.version.getVersion
 import io.github.diskria.projektor.owner.GithubProfile
 import io.github.diskria.projektor.owner.domain.MinecraftDomain
 import io.github.diskria.projektor.projekt.*
-import io.github.diskria.utils.kotlin.Constants
-import io.github.diskria.utils.kotlin.extensions.capitalizeFirstChar
-import io.github.diskria.utils.kotlin.extensions.common.`Train-Case`
-import io.github.diskria.utils.kotlin.extensions.common.fileName
-import io.github.diskria.utils.kotlin.extensions.generics.toNullIfEmpty
-import io.github.diskria.utils.kotlin.extensions.mappers.toEnum
-import io.github.diskria.utils.kotlin.extensions.serialization.serialize
-import io.github.diskria.utils.kotlin.properties.toAutoNamedProperty
-import io.github.diskria.utils.kotlin.words.ScreamingSnakeCase
 import net.fabricmc.loom.api.LoomGradleExtensionAPI
 import net.fabricmc.loom.api.fabricapi.FabricApiExtension
 import org.gradle.api.Project

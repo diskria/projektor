@@ -1,7 +1,7 @@
 package io.github.diskria.projektor.utils
 
-import io.github.diskria.utils.kotlin.Constants
-import io.github.diskria.utils.kotlin.extensions.common.fileName
+import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.kotlin.utils.extensions.common.fileName
 
 object VersionCatalogUtils {
 

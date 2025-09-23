@@ -1,10 +1,10 @@
 package io.github.diskria.projektor.extensions
 
+import io.github.diskria.kotlin.utils.extensions.common.className
 import io.github.diskria.projektor.extensions.common.gradleError
 import io.github.diskria.projektor.owner.GithubOwner
 import io.github.diskria.projektor.owner.GithubProfile
 import io.github.diskria.projektor.projekt.*
-import io.github.diskria.utils.kotlin.extensions.common.className
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication

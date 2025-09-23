@@ -1,7 +1,7 @@
 package io.github.diskria.projektor.minecraft.config.versions.range
 
+import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.projektor.minecraft.config.versions.VersionBound
-import io.github.diskria.utils.kotlin.Constants
 
 object InequalityVersionRange : VersionRange() {
 

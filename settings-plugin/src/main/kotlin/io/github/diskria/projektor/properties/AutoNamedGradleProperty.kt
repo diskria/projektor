@@ -1,12 +1,12 @@
 package io.github.diskria.projektor.properties
 
 import io.github.diskria.projektor.extensions.common.gradleError
-import io.github.diskria.utils.kotlin.extensions.common.`dot․case`
-import io.github.diskria.utils.kotlin.extensions.setCase
-import io.github.diskria.utils.kotlin.extensions.toNullIfEmpty
-import io.github.diskria.utils.kotlin.extensions.wrapWithSingleQuote
-import io.github.diskria.utils.kotlin.properties.common.AbstractAutoNamedProperty
-import io.github.diskria.utils.kotlin.words.CamelCase
+import io.github.diskria.kotlin.utils.extensions.common.`dot․case`
+import io.github.diskria.kotlin.utils.extensions.setCase
+import io.github.diskria.kotlin.utils.extensions.toNullIfEmpty
+import io.github.diskria.kotlin.utils.extensions.wrapWithSingleQuote
+import io.github.diskria.kotlin.utils.properties.common.AbstractAutoNamedProperty
+import io.github.diskria.kotlin.utils.words.CamelCase
 import org.gradle.api.provider.ProviderFactory
 
 class AutoNamedGradleProperty(val providerFactory: ProviderFactory) : AbstractAutoNamedProperty<String>() {

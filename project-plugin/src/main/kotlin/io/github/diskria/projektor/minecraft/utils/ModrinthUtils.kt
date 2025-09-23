@@ -1,6 +1,6 @@
 package io.github.diskria.projektor.minecraft.utils
 
-import io.github.diskria.utils.kotlin.extensions.common.buildUrl
+import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.ktor.http.*
 
 object ModrinthUtils {

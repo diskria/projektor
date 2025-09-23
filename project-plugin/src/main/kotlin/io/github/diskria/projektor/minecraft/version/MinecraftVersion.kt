@@ -1,8 +1,8 @@
 package io.github.diskria.projektor.minecraft.version
 
+import io.github.diskria.kotlin.utils.extensions.common.failWithDetails
+import io.github.diskria.kotlin.utils.properties.toAutoNamedProperty
 import io.github.diskria.projektor.minecraft.era.MinecraftEra
-import io.github.diskria.utils.kotlin.extensions.common.failWithDetails
-import io.github.diskria.utils.kotlin.properties.toAutoNamedProperty
 
 interface MinecraftVersion {
 
