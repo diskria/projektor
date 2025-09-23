@@ -1,0 +1,136 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.github.diskria",
+    "module": "project-plugin",
+    "version": "1.3.3",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.0.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 21,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "project-plugin-1.3.3.jar",
+          "url": "project-plugin-1.3.3.jar",
+          "size": 310575,
+          "sha512": "2e3d9dd78ce552386b8a95bac921a03e64535f82262eaf96edc4df2675fe6d88ca4ec8fd92e16ba6b1efad974c03cfe4311b99266a9eca328566bf065c4ae3a3",
+          "sha256": "2ca9fc75d4c9dfaa63ccaa19c12fb7430a0b7510eee4aabcdb136be9b9dbf51d",
+          "sha1": "bdb3ab0e635823a2c02b6f1f16bd93f310b99833",
+          "md5": "c99c31153fa1b7dd832e03defd534472"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 21,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "io.ktor",
+          "module": "ktor-http",
+          "version": {
+            "requires": "3.2.3"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "kotlin-utils",
+          "version": {
+            "requires": "0.5.1"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-serialization-json",
+          "version": {
+            "requires": "1.9.0"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "com.squareup.okio",
+          "module": "okio-jvm",
+          "version": {
+            "requires": "3.16.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "project-plugin-1.3.3.jar",
+          "url": "project-plugin-1.3.3.jar",
+          "size": 310575,
+          "sha512": "2e3d9dd78ce552386b8a95bac921a03e64535f82262eaf96edc4df2675fe6d88ca4ec8fd92e16ba6b1efad974c03cfe4311b99266a9eca328566bf065c4ae3a3",
+          "sha256": "2ca9fc75d4c9dfaa63ccaa19c12fb7430a0b7510eee4aabcdb136be9b9dbf51d",
+          "sha1": "bdb3ab0e635823a2c02b6f1f16bd93f310b99833",
+          "md5": "c99c31153fa1b7dd832e03defd534472"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "project-plugin-1.3.3-sources.jar",
+          "url": "project-plugin-1.3.3-sources.jar",
+          "size": 42105,
+          "sha512": "105b74ae1a00076f67635a87d859e83d6863687cd1c25448019289be0ec8d53df6cb5a0d0c00795659e65592477ae189474dd74a05edf932ae6e23cd6316a7a1",
+          "sha256": "de7bac357720a367a2913c0bd0a1d5e2a79cda839120321bd6005068b5945849",
+          "sha1": "798ede3ad7c3db560f981d6bf4b6aeb28ea32538",
+          "md5": "537d7383aad041e48d51c00257409084"
+        }
+      ]
+    },
+    {
+      "name": "javadocElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "javadoc",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "project-plugin-1.3.3-javadoc.jar",
+          "url": "project-plugin-1.3.3-javadoc.jar",
+          "size": 261,
+          "sha512": "1487e5a20c9e4d74f298e07c42e96a61be11b7a768c3fbc199ee138cd68e1fc2267d1cfe3f11f288acc05df755315344d052cc5f6f751f126ab4fe1caa5125ea",
+          "sha256": "c6deada2fac53b8ea6523dbda77597b128006674616f140f04df23264c6d1aa3",
+          "sha1": "2ad14aed781c4a73ed4dbb421966d408a0a06686",
+          "md5": "f43436d6bec321290f6af228ad602604"
+        }
+      ]
+    }
+  ]
+}
