@@ -1,83 +1,59 @@
 package io.github.diskria.projektor.projekt
 
+import io.github.diskria.gradle.utils.extensions.kotlin.common.gradleError
 import io.github.diskria.kotlin.utils.Constants
-import io.github.diskria.kotlin.utils.extensions.appendPackageName
-import io.github.diskria.kotlin.utils.extensions.common.fileName
-import io.github.diskria.kotlin.utils.extensions.common.modifyIf
+import io.github.diskria.kotlin.utils.Semver
 import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.kotlin.utils.words.*
-import io.github.diskria.projektor.extensions.mappers.toJvmTarget
+import io.github.diskria.projektor.extensions.kotlin.mappers.toJvmTarget
 import io.github.diskria.projektor.licenses.License
-import io.github.diskria.projektor.minecraft.ModEnvironment
 import io.github.diskria.projektor.minecraft.ModLoader
 import io.github.diskria.projektor.minecraft.version.MinecraftVersion
-import io.github.diskria.projektor.owner.GithubOwner
 import io.github.diskria.projektor.owner.ProjektOwner
-import io.github.diskria.projektor.properties.toAutoNamedGradleProperty
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.provideDelegate
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 data class Projekt(
-    override val owner: ProjektOwner,
-    override val license: License,
-    override val name: String,
-    override val description: String,
-    override val version: String,
-    override val slug: String,
-    override val packageName: String,
-    override val packagePath: String = packageName.setCase(DotCase, PathCase),
-    override val classNameBase: String = name.setCase(SpaceCase, PascalCase),
-    override val javaVersion: Int,
-    override val jvmTarget: JvmTarget,
-    override val kotlinVersion: String,
-    override val scm: ScmType = ScmType.GIT,
-    override val softwareForge: SoftwareForgeType = owner.softwareForgeType,
+    override var owner: ProjektOwner,
+    override var license: License,
+    override var name: String,
+    override var description: String,
+    override var semver: Semver,
+    override var slug: String,
+    override var packageName: String,
+    override var packagePath: String = packageName.setCase(DotCase, PathCase),
+    override var classNameBase: String = name.setCase(SpaceCase, PascalCase),
+    override var javaVersion: Int,
+    override var jvmTarget: JvmTarget,
+    override var kotlinVersion: String,
+    override var scm: ScmType = ScmType.GIT,
+    override var softwareForge: SoftwareForgeType = owner.softwareForgeType,
 ) : IProjekt {
 
-    fun toGradlePlugin(isSettingsPlugin: Boolean): GradlePlugin =
-        GradlePlugin(
-            id = packageName.modifyIf(isSettingsPlugin) { it.appendPackageName("settings") },
-            className = classNameBase.modifyIf(isSettingsPlugin) { it + "Settings" } + "GradlePlugin",
-            delegate = this,
-        )
+    fun toGradlePlugin(): GradlePlugin = GradlePlugin(this)
 
-    fun toLibrary(): Library =
-        Library(this)
+    fun toKotlinLibrary(): KotlinLibrary = KotlinLibrary(this)
 
     fun toMinecraftMod(
         modLoader: ModLoader,
-        minecraftVersion: MinecraftVersion,
-        environment: ModEnvironment,
-        modrinthProjectUrl: String,
-    ): MinecraftMod {
-        val modId = slug
-        return MinecraftMod(
-            id = modId,
-            modLoader = modLoader,
-            minecraftVersion = minecraftVersion,
-            environment = environment,
-            modrinthProjectUrl = modrinthProjectUrl,
-            mixinsConfigFileName = fileName(modId, "mixins", Constants.File.Extension.JSON),
-            delegate = this,
-        )
-    }
+        minecraftVersion: MinecraftVersion
+    ): MinecraftMod =
+        MinecraftMod(this, modLoader, minecraftVersion)
 
-    fun toAndroidApp(): AndroidApp =
-        AndroidApp(this)
+    fun toAndroidApplication(): AndroidApplication = AndroidApplication(this)
 
     companion object {
-        fun of(project: Project, owner: GithubOwner, license: License, jvmTarget: JvmTarget? = null): Projekt {
-            val projectName by project.providers.toAutoNamedGradleProperty()
-            val projectDescription by project.providers.toAutoNamedGradleProperty()
-            val projectVersion by project.providers.toAutoNamedGradleProperty()
+        fun of(project: Project, owner: ProjektOwner, license: License, jvmTarget: JvmTarget? = null): Projekt {
+            val projectName = project.rootProject.name
+            val versionString = project.rootProject.version as? String ?: gradleError("Project version must be String!")
+            val semver = Semver.of(versionString)
             val javaVersion = Versions.JAVA
             return Projekt(
                 owner = owner,
                 license = license,
                 name = projectName,
-                description = projectDescription,
-                version = projectVersion,
+                description = project.rootProject.description ?: gradleError("Projekt description not set!"),
+                semver = semver,
                 slug = projectName.setCase(SpaceCase, KebabCase).lowercase(),
                 packageName = owner.namespace + Constants.Char.DOT + projectName.setCase(SpaceCase, DotCase),
                 javaVersion = javaVersion,

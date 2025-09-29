@@ -5,7 +5,7 @@ import io.github.diskria.kotlin.utils.extensions.appendPackageName
 import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
 import io.github.diskria.kotlin.utils.serialization.annotations.PrettyPrint
-import io.github.diskria.projektor.extensions.mappers.toInt
+import io.github.diskria.projektor.extensions.kotlin.mappers.toInt
 import io.github.diskria.projektor.minecraft.ModEnvironment
 import io.github.diskria.projektor.minecraft.config.versions.VersionBound
 import io.github.diskria.projektor.minecraft.config.versions.range.InequalityVersionRange
@@ -166,7 +166,7 @@ class FabricModConfig(
             FabricModConfig(
                 schemaVersion = 1,
                 id = mod.id,
-                version = mod.version,
+                version = mod.semver.toString(),
                 name = mod.name,
                 description = mod.description,
                 authors = listOf(GithubProfile.username),

@@ -3,12 +3,12 @@ package io.github.diskria.projektor.minecraft.config
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.generics.addElements
+import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.minecraft.ModEnvironment
 import io.github.diskria.projektor.minecraft.ModLoader
 import io.github.diskria.projektor.minecraft.config.versions.VersionBound
 import io.github.diskria.projektor.minecraft.config.versions.range.InequalityVersionRange
 import io.github.diskria.projektor.minecraft.config.versions.range.VersionRange
-import io.github.diskria.projektor.minecraft.logicalName
 import io.github.diskria.projektor.owner.GithubProfile
 import io.github.diskria.projektor.projekt.MinecraftMod
 import kotlinx.serialization.SerialName
@@ -60,7 +60,7 @@ class ForgeModConfig(
             ): ForgeMod =
                 ForgeMod(
                     description = mod.description,
-                    version = mod.version,
+                    version = mod.semver.toString(),
                     authors = GithubProfile.username,
                     id = mod.id,
                     name = mod.name,
@@ -108,7 +108,7 @@ class ForgeModConfig(
     class ForgeDependency(
         environment: ModEnvironment,
         versionRange: String,
-    ) : InternalModDependency(ModLoader.FORGE.logicalName(), environment, versionRange)
+    ) : InternalModDependency(ModLoader.FORGE.getName(), environment, versionRange)
 
     companion object {
         fun of(

@@ -1,4 +1,4 @@
-tasks.register<Sync>("publishAllToGithubPagesMaven") {
+tasks.register<Sync>("publishAllPublicationsToGitHubPagesRepository") {
     group = "publishing"
     description = "Merges all plugin repositories into one for GitHub Pages"
 

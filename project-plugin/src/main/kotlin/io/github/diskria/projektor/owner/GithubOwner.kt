@@ -4,7 +4,6 @@ import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.appendPrefix
 import io.github.diskria.kotlin.utils.extensions.appendSuffix
 import io.github.diskria.kotlin.utils.extensions.common.modifyIf
-import io.github.diskria.kotlin.utils.extensions.mappers.toName
 import io.github.diskria.kotlin.utils.extensions.removePrefix
 import io.github.diskria.projektor.projekt.SoftwareForgeType
 import io.github.diskria.projektor.projekt.logicalName
@@ -15,7 +14,7 @@ abstract class GithubOwner(name: String) : ProjektOwner(name, SoftwareForgeType.
     abstract override val email: String
 
     override val namespace: String =
-        "io.${softwareForgeType.toName()}.${name.lowercase()}"
+        "io.github.${name.lowercase()}"
 
     fun getPackagesMavenUrl(slug: String): String =
         buildRepositoryUrl(slug, isMaven = true).toString()

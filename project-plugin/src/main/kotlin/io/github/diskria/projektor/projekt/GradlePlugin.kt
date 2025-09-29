@@ -1,7 +1,6 @@
 package io.github.diskria.projektor.projekt
 
-class GradlePlugin(
-    val id: String,
-    val className: String,
-    private val delegate: IProjekt,
-) : IProjekt by delegate
+open class GradlePlugin(private val delegate: IProjekt) : IProjekt by delegate {
+    var isSettingsPlugin: Boolean = false
+    var tags: Set<String> = emptySet()
+}

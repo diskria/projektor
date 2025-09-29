@@ -6,10 +6,13 @@ plugins {
     `kotlin-dsl`
     `maven-publish`
     alias(libs.plugins.projektor)
+    alias(libs.plugins.build.config)
 }
 
 dependencies {
     implementation(libs.kotlin.utils)
+
+    implementation(libs.gradle.utils)
 }
 
 configureGradlePlugin(GithubProfile, PublishingTarget.GITHUB_PAGES, isSettingsPlugin = true)

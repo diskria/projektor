@@ -1,13 +1,12 @@
 import io.github.diskria.projektor.extensions.configureAndroidApp
-import io.github.diskria.projektor.extensions.configureProject
 import io.github.diskria.projektor.extensions.configureMinecraftMod
+import io.github.diskria.projektor.extensions.configureProject
 
 pluginManagement {
     repositories {
         mavenCentral()
         maven("https://diskria.github.io/projektor")
     }
-//    includeBuild("test/gradle-plugin")
 }
 
 plugins {
@@ -18,4 +17,10 @@ configureProject()
 configureMinecraftMod()
 configureAndroidApp()
 
-include(":project-plugin", ":settings-plugin")
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("libs") {
+            from(files("../gradle/libs.versions.toml"))
+        }
+    }
+}
