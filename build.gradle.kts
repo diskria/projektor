@@ -1,11 +1,12 @@
-tasks.register<Sync>("publishAllPublicationsToGitHubPagesRepository") {
+val taskName = "publishAllPublicationsToGitHubPagesRepository"
+val repoPath = "build/repo"
+
+tasks.register<Sync>(taskName) {
     group = "publishing"
     description = "Merges all plugin repositories into one for GitHub Pages"
-
-    val plugins = listOf("project-plugin", "settings-plugin")
-
-    dependsOn(plugins.map { ":$it:publishAllPublicationsToGithubPagesRepository" })
-    from(plugins.map { "$it/build/repo" })
-
-    into("build/repo")
+    childProjects.keys.forEach { projectName ->
+        dependsOn(":$projectName:$taskName")
+        from("$projectName/$repoPath")
+    }
+    into(repoPath)
 }

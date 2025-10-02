@@ -1,6 +1,5 @@
-import io.github.diskria.projektor.extensions.configureGradlePlugin
-import io.github.diskria.projektor.owner.GithubProfile
-import io.github.diskria.projektor.projekt.PublishingTarget
+import io.github.diskria.gradle.utils.extensions.kotlin.getBuildDirectory
+import io.github.diskria.projektor.extensions.kotlin.publishing
 
 plugins {
     `kotlin-dsl`
@@ -15,4 +14,22 @@ dependencies {
     implementation(libs.gradle.utils)
 }
 
-configureGradlePlugin(GithubProfile, PublishingTarget.GITHUB_PAGES, isSettingsPlugin = true)
+group = "io.github.diskria"
+version = "2.0.1"
+
+gradlePlugin {
+    plugins {
+        create("myPlugin") {
+            id = "io.github.diskria.projektor.settings"
+            implementationClass = "io.github.diskria.projektor.settings.ProjektorSettingsGradlePlugin"
+        }
+    }
+}
+
+publishing {
+    repositories {
+        maven(getBuildDirectory("repo")) {
+            name = "GitHubPages"
+        }
+    }
+}

@@ -1,11 +1,11 @@
-package io.github.diskria.projektor.extensions.gradle
+package io.github.diskria.projektor.settings.extensions.gradle
 
 import io.github.diskria.gradle.utils.extensions.gradle.SettingsExtension
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
-import io.github.diskria.projektor.RepositoriesFilterType
-import io.github.diskria.projektor.extensions.kotlin.configureMaven
-import io.github.diskria.projektor.extensions.kotlin.configureRepositories
-import io.github.diskria.projektor.minecraft.ModLoader
+import io.github.diskria.projektor.settings.RepositoriesFilterType
+import io.github.diskria.projektor.settings.extensions.kotlin.configureMaven
+import io.github.diskria.projektor.settings.extensions.kotlin.configureRepositories
+import io.github.diskria.projektor.settings.minecraft.ModLoader
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import javax.inject.Inject
@@ -16,26 +16,25 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Settin
     val description: Property<String> = objects.property(String::class.java)
     val version: Property<String> = objects.property(String::class.java)
 
-    private var isProjectConfigured: Boolean = false
+    private var isCommonConfigurationApplied: Boolean = false
 
     fun gradlePlugin() = script {
-        configureProject()
+        applyCommonConfiguration()
         configureRepositories(RepositoriesFilterType.DEPENDENCIES) {
             gradlePluginPortal()
         }
     }
 
     fun kotlinLibrary() = script {
-        configureProject()
+        applyCommonConfiguration()
     }
 
     fun minecraftMod() = script {
-        configureProject()
+        applyCommonConfiguration()
         configureRepositories(RepositoriesFilterType.DEPENDENCIES) {
             configureMaven(
                 name = "Minecraft",
-                url = "https://libraries.minecraft.net",
-                group = "com.mojang"
+                url = "https://libraries.minecraft.net"
             )
             configureMaven(
                 name = "SpongePowered",
@@ -52,8 +51,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Settin
         configureRepositories {
             configureMaven(
                 name = "Fabric",
-                url = "https://maven.fabricmc.net",
-                group = "net.fabricmc"
+                url = "https://maven.fabricmc.net"
             )
         }
         if (!isProjektor()) {
@@ -72,7 +70,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Settin
     }
 
     fun androidLibrary() = script {
-        configureProject()
+        applyCommonConfiguration()
         configureRepositories {
             google()
         }
@@ -82,8 +80,8 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Settin
         androidLibrary()
     }
 
-    private fun configureProject() = script {
-        if (isProjectConfigured) {
+    private fun applyCommonConfiguration() = script {
+        if (isCommonConfigurationApplied) {
             return@script
         }
 
@@ -103,10 +101,10 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Settin
         configureRepositories(RepositoriesFilterType.PLUGINS) {
             gradlePluginPortal()
         }
-        isProjectConfigured = true
+        isCommonConfigurationApplied = true
     }
 
     private fun isProjektor(): Boolean = script {
-        rootProject.name == "Projektor"
+        rootProject.name == "Projektor" || rootProject.name == "Projektor Settings"
     }
 }

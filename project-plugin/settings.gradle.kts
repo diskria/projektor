@@ -1,7 +1,3 @@
-import io.github.diskria.projektor.extensions.configureAndroidApp
-import io.github.diskria.projektor.extensions.configureMinecraftMod
-import io.github.diskria.projektor.extensions.configureProject
-
 pluginManagement {
     repositories {
         mavenCentral()
@@ -10,12 +6,14 @@ pluginManagement {
 }
 
 plugins {
-    id("io.github.diskria.projektor.settings") version "1.+"
+    id("io.github.diskria.projektor.settings") version "2.+"
 }
 
-configureProject()
-configureMinecraftMod()
-configureAndroidApp()
+projekt {
+    name = "Projektor"
+    description = "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
+    version = "2.0.1"
+}
 
 dependencyResolutionManagement {
     versionCatalogs {

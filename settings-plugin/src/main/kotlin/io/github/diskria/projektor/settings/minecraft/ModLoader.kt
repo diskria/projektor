@@ -1,4 +1,4 @@
-package io.github.diskria.projektor.minecraft
+package io.github.diskria.projektor.settings.minecraft
 
 enum class ModLoader {
     FABRIC,

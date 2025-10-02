@@ -61,7 +61,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
     fun gradlePlugin(block: GradlePlugin.() -> Unit): GradlePlugin = script {
         val plugin = buildProjekt().toGradlePlugin().apply(block)
         applyCommonConfiguration(plugin)
-        val pluginId = plugin.packageName.modifyIf(plugin.isSettingsPlugin) { it.appendPackageName("settings") }
+        val pluginId = plugin.packageName
         val className = plugin.classNameBase.modifyIf(plugin.isSettingsPlugin) { it + "Settings" } + "GradlePlugin"
         buildConfigs(plugin.packageName, "GradlePluginMetadata") {
             val pluginId by pluginId.toAutoNamedProperty(ScreamingSnakeCase)
@@ -75,7 +75,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
             plugins {
                 create(pluginId) {
                     id = pluginId
-                    implementationClass = plugin.packageName + Constants.Char.DOT + className
+                    implementationClass = plugin.packageName.appendPackageName(className)
 
                     displayName = plugin.name
                     description = plugin.description
@@ -381,6 +381,4 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
             }
         }
     }
-
-
 }

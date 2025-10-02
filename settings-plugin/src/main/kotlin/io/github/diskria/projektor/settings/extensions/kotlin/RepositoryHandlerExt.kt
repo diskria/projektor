@@ -1,4 +1,4 @@
-package io.github.diskria.projektor.extensions.kotlin
+package io.github.diskria.projektor.settings.extensions.kotlin
 
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository

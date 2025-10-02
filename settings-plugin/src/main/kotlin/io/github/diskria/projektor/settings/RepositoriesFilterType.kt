@@ -1,4 +1,4 @@
-package io.github.diskria.projektor
+package io.github.diskria.projektor.settings
 
 enum class RepositoriesFilterType {
     DEPENDENCIES,

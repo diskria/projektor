@@ -1,6 +1,6 @@
-package io.github.diskria.projektor.extensions.kotlin
+package io.github.diskria.projektor.settings.extensions.kotlin
 
-import io.github.diskria.projektor.RepositoriesFilterType
+import io.github.diskria.projektor.settings.RepositoriesFilterType
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.initialization.Settings
 
