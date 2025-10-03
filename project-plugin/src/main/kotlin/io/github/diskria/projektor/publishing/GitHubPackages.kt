@@ -1,10 +1,11 @@
 package io.github.diskria.projektor.publishing
 
-import io.github.diskria.projektor.extensions.kotlin.publishing
+import io.github.diskria.gradle.utils.extensions.kotlin.getExtensionOrThrow
 import io.github.diskria.projektor.owner.GithubProfile
 import io.github.diskria.projektor.projekt.IProjekt
 import io.github.diskria.projektor.projekt.Secrets
 import org.gradle.api.Project
+import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.maven
 import org.gradle.kotlin.dsl.withType
@@ -17,7 +18,7 @@ data object GitHubPackages : PublishingTarget {
             println("Skipping Github Packages publishing configuration: token is missing")
             return@configure
         }
-        publishing {
+        getExtensionOrThrow<PublishingExtension>().apply {
             publications.withType<MavenPublication> {
                 artifactId = projekt.slug
             }

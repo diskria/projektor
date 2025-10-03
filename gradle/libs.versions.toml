@@ -2,7 +2,7 @@
 projektor = "2.+"
 build-config = "5.6.7"
 
-kotlin = "2.2.0"
+kotlin = "2.2.20"
 kotlin-serialization = "1.9.0"
 ktor-http = "3.2.3"
 kotlin-utils = "0.5.2"

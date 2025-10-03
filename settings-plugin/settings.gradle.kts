@@ -1,7 +1,6 @@
 pluginManagement {
     repositories {
         mavenCentral()
-        gradlePluginPortal()
         maven("https://diskria.github.io/projektor")
     }
 }
@@ -13,7 +12,9 @@ plugins {
 projekt {
     name = "Projektor Settings"
     description = "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
-    version = "2.0.1"
+    version = "2.0.2"
+
+    gradlePlugin()
 }
 
 dependencyResolutionManagement {

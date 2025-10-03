@@ -1,5 +1,6 @@
 package io.github.diskria.projektor.extensions.gradle
 
+import com.github.gmazzo.buildconfig.BuildConfigExtension
 import io.github.diskria.gradle.utils.extensions.gradle.ProjectExtension
 import io.github.diskria.gradle.utils.extensions.kotlin.*
 import io.github.diskria.kotlin.utils.Constants
@@ -14,9 +15,11 @@ import io.github.diskria.kotlin.utils.extensions.mappers.toEnum
 import io.github.diskria.kotlin.utils.extensions.serialization.serialize
 import io.github.diskria.kotlin.utils.properties.toAutoNamedProperty
 import io.github.diskria.kotlin.utils.words.ScreamingSnakeCase
-import io.github.diskria.projektor.extensions.kotlin.*
 import io.github.diskria.projektor.extensions.kotlin.mappers.toInt
 import io.github.diskria.projektor.extensions.kotlin.mappers.toJvmTarget
+import io.github.diskria.projektor.extensions.kotlin.mappings
+import io.github.diskria.projektor.extensions.kotlin.minecraft
+import io.github.diskria.projektor.extensions.kotlin.modImplementation
 import io.github.diskria.projektor.licenses.License
 import io.github.diskria.projektor.licenses.MitLicense
 import io.github.diskria.projektor.minecraft.*
@@ -34,8 +37,13 @@ import io.github.diskria.projektor.publishing.GooglePlay
 import io.github.diskria.projektor.publishing.MavenCentral
 import io.github.diskria.projektor.publishing.Modrinth
 import io.github.diskria.projektor.publishing.PublishingTarget
+import net.fabricmc.loom.api.LoomGradleExtensionAPI
+import net.fabricmc.loom.api.fabricapi.FabricApiExtension
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.plugins.BasePluginExtension
+import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
@@ -46,6 +54,8 @@ import org.gradle.jvm.toolchain.JvmImplementation
 import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.*
 import org.gradle.language.jvm.tasks.ProcessResources
+import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import javax.inject.Inject
 
@@ -68,7 +78,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
             val pluginName by plugin.name.toAutoNamedProperty(ScreamingSnakeCase)
             listOf(pluginId, pluginName)
         }
-        gradlePlugin {
+        getExtensionOrThrow<GradlePluginDevelopmentExtension>().apply {
             website.set(plugin.owner.getRepositoryUrl(plugin.slug))
             vcsUrl.set(plugin.owner.getRepositoryUrl(plugin.slug, isVcsUrl = true))
 
@@ -179,7 +189,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
         fields: () -> List<BuildConfigProperty<String>>
     ) = script {
         requirePlugins("com.github.gmazzo.buildconfig")
-        buildConfig {
+        getExtensionOrThrow<BuildConfigExtension>().apply {
             packageName(packageName)
             className(className)
             fields().forEach { field ->
@@ -204,10 +214,10 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
         requirePlugins("kotlin")
         group = projekt.owner.namespace
         version = projekt.semver
-        base {
+        getExtensionOrThrow<BasePluginExtension>().apply {
             archivesName = baseArtifactName
         }
-        java {
+        getExtensionOrThrow<JavaPluginExtension>().apply {
             toolchain {
                 languageVersion.set(JavaLanguageVersion.of(projekt.javaVersion))
                 vendor.set(JvmVendorSpec.ADOPTIUM)
@@ -216,7 +226,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
             withSourcesJar()
             withJavadocJar()
         }
-        kotlin {
+        getExtensionOrThrow<KotlinProjectExtension>().apply {
             jvmToolchain(projekt.javaVersion)
         }
         tasks.withType<JavaCompile>().configureEach {
@@ -248,7 +258,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
         tasks.named("build") {
             finalizedBy(unpackJarTask)
         }
-        sourceSets {
+        getExtensionOrThrow<SourceSetContainer>().apply {
             named("main") {
                 val generatedDirectory = "src/main/generated"
 
@@ -292,11 +302,11 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
                 modImplementation("net.fabricmc.fabric-api:fabric-api:$apiVersion")
             }
         }
-        fabric {
+        getExtensionOrThrow<LoomGradleExtensionAPI>().apply {
             splitEnvironmentSourceSets()
             mods {
                 create(minecraftMod.id) {
-                    sourceSets {
+                    getExtensionOrThrow<SourceSetContainer>().apply {
                         minecraftMod.environment.getSourceSets().forEach { sourceSet ->
                             sourceSet(getByName(sourceSet.logicalName()))
                         }
@@ -326,7 +336,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
             accessWidenerPath.set(file("src/main/resources/${minecraftMod.id}.accesswidener"))
         }
         if (datagenClasses.isNotEmpty()) {
-            fabric {
+            getExtensionOrThrow<LoomGradleExtensionAPI>().apply {
                 runs {
                     create("data") {
                         name = "Datagen"
@@ -342,7 +352,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
                     }
                 }
             }
-            fabricApi {
+            getExtensionOrThrow<FabricApiExtension>().apply {
                 configureDataGeneration {
                     client = true
                 }

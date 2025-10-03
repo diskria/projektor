@@ -1,15 +1,16 @@
 package io.github.diskria.projektor.publishing
 
 import io.github.diskria.gradle.utils.extensions.kotlin.getBuildDirectory
+import io.github.diskria.gradle.utils.extensions.kotlin.getExtensionOrThrow
 import io.github.diskria.kotlin.utils.extensions.common.className
-import io.github.diskria.projektor.extensions.kotlin.publishing
-import io.github.diskria.projektor.extensions.kotlin.signing
 import io.github.diskria.projektor.projekt.*
 import org.gradle.api.Project
+import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.maven
+import org.gradle.plugins.signing.SigningExtension
 
 data object MavenCentral : PublishingTarget {
 
@@ -25,15 +26,15 @@ data object MavenCentral : PublishingTarget {
             is KotlinLibrary -> "java"
             else -> error("Publishing to Maven Central is supported only for Library or AndroidLibrary projects, but got ${projekt::class.className()}")
         }
-        publishing {
+        getExtensionOrThrow<PublishingExtension>().apply {
             repositories {
                 maven(getBuildDirectory("staging-repo").get().asFile) {
                     name = "MavenCentral"
                 }
             }
         }
-        val publication = publishing {
-            publications.create<MavenPublication>(projekt.slug) {
+        val publication = getExtensionOrThrow<PublishingExtension>().let {
+            it.publications.create<MavenPublication>(projekt.slug) {
                 artifactId = projekt.slug
                 from(components[componentName])
                 pom {
@@ -72,7 +73,7 @@ data object MavenCentral : PublishingTarget {
                 }
             }
         }
-        signing {
+        getExtensionOrThrow<SigningExtension>().apply {
             useInMemoryPgpKeys(gpgKey, gpgPassphrase)
             sign(publication)
         }

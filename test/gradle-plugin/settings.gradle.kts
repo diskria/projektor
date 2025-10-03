@@ -15,17 +15,7 @@ projekt {
     name = "Test Gradle Plugin"
     description = "Description of test gradle plugin"
     version = "0.1.0"
+    versionCatalog = files("../../gradle/libs.versions.toml")
 
     gradlePlugin()
-}
-
-dependencyResolutionManagement {
-    repositories {
-        mavenCentral()
-    }
-    versionCatalogs {
-        create("libs") {
-            from(files("../../gradle/libs.versions.toml"))
-        }
-    }
 }

@@ -1,36 +1,13 @@
 import io.github.diskria.gradle.utils.extensions.kotlin.getBuildDirectory
-import io.github.diskria.projektor.extensions.kotlin.configureMaven
-import io.github.diskria.projektor.extensions.kotlin.publishing
+//import io.github.diskria.projektor.extensions.kotlin.configureMaven
+//import io.github.diskria.projektor.extensions.kotlin.publishing
 
 plugins {
     `kotlin-dsl`
     `maven-publish`
-    alias(libs.plugins.projektor)
+//    alias(libs.plugins.projektor)
     alias(libs.plugins.build.config)
     alias(libs.plugins.kotlin.serialization)
-}
-
-repositories {
-    configureMaven(
-        name = "Minecraft",
-        url = "https://libraries.minecraft.net",
-        group = "com.mojang"
-    )
-    configureMaven(
-        name = "SpongePowered",
-        url = "https://repo.spongepowered.org/repository/maven-public",
-        group = "org.spongepowered"
-    )
-    configureMaven(
-        name = "Modrinth",
-        url = "https://api.modrinth.com/maven",
-        group = "maven.modrinth",
-        includeSubgroups = false
-    )
-    maven("https://maven.fabricmc.net")
-    mavenCentral()
-    gradlePluginPortal()
-    google()
 }
 
 dependencies {
@@ -55,11 +32,11 @@ dependencies {
 }
 
 group = "io.github.diskria"
-version = "2.0.1"
+version = "2.0.2"
 
 gradlePlugin {
     plugins {
-        create("myPlugin") {
+        create("io.github.diskria.projektor") {
             id = "io.github.diskria.projektor"
             implementationClass = "io.github.diskria.projektor.ProjektorGradlePlugin"
         }

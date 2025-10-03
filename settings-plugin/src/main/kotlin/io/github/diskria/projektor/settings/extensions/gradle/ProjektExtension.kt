@@ -6,6 +6,7 @@ import io.github.diskria.projektor.settings.RepositoriesFilterType
 import io.github.diskria.projektor.settings.extensions.kotlin.configureMaven
 import io.github.diskria.projektor.settings.extensions.kotlin.configureRepositories
 import io.github.diskria.projektor.settings.minecraft.ModLoader
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import javax.inject.Inject
@@ -15,6 +16,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Settin
     val name: Property<String> = objects.property(String::class.java)
     val description: Property<String> = objects.property(String::class.java)
     val version: Property<String> = objects.property(String::class.java)
+    val versionCatalog: Property<ConfigurableFileCollection> = objects.property(ConfigurableFileCollection::class.java)
 
     private var isCommonConfigurationApplied: Boolean = false
 
@@ -100,6 +102,15 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Settin
         }
         configureRepositories(RepositoriesFilterType.PLUGINS) {
             gradlePluginPortal()
+        }
+        versionCatalog.orNull?.let { configurableFileCollection ->
+            dependencyResolutionManagement {
+                versionCatalogs {
+                    create("libs") {
+                        from(configurableFileCollection)
+                    }
+                }
+            }
         }
         isCommonConfigurationApplied = true
     }
