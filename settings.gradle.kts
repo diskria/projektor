@@ -1,12 +1,14 @@
 pluginManagement {
     repositories {
         mavenCentral()
+        gradlePluginPortal()
         maven("https://diskria.github.io/projektor")
     }
     includeBuild("test/gradle-plugin")
 }
 
 plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
     id("io.github.diskria.projektor.settings") version "2.+"
 }
 
