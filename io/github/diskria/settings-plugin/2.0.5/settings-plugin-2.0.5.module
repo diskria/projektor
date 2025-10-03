@@ -1,0 +1,80 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.github.diskria",
+    "module": "settings-plugin",
+    "version": "2.0.5",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.1.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 25,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "settings-plugin-2.0.5.jar",
+          "url": "settings-plugin-2.0.5.jar",
+          "size": 28731,
+          "sha512": "a64a71ddbd33c7033ab174fb6a4c6d316b073927263dda8477c71f40b6957acb3efbd27404cd0e1a36e9c7468eda2a322ca80af4607eb7bd65b363a09898f4f0",
+          "sha256": "680e205c9d551784b8a2409a0e267a3c7cb9a92052513f7cae7fe23310d2b379",
+          "sha1": "0f068b31f611271ddef6e8963b22495dcd7b89c3",
+          "md5": "3dc9313d8cdb5e6956c09733b29f5e66"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 25,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "io.github.diskria",
+          "module": "kotlin-utils",
+          "version": {
+            "requires": "0.5.2"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "gradle-utils",
+          "version": {
+            "requires": "0.3.1"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "settings-plugin-2.0.5.jar",
+          "url": "settings-plugin-2.0.5.jar",
+          "size": 28731,
+          "sha512": "a64a71ddbd33c7033ab174fb6a4c6d316b073927263dda8477c71f40b6957acb3efbd27404cd0e1a36e9c7468eda2a322ca80af4607eb7bd65b363a09898f4f0",
+          "sha256": "680e205c9d551784b8a2409a0e267a3c7cb9a92052513f7cae7fe23310d2b379",
+          "sha1": "0f068b31f611271ddef6e8963b22495dcd7b89c3",
+          "md5": "3dc9313d8cdb5e6956c09733b29f5e66"
+        }
+      ]
+    }
+  ]
+}
