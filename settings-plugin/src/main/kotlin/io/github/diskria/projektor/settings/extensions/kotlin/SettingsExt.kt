@@ -4,7 +4,16 @@ import io.github.diskria.projektor.settings.RepositoriesFilterType
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.initialization.Settings
 
-fun Settings.configureRepositories(filter: RepositoriesFilterType? = null, block: RepositoryHandler.() -> Unit) {
+fun Settings.repositories(block: RepositoryHandler.() -> Unit) =
+    configureRepositories(null, block)
+
+fun Settings.dependencyRepositories(block: RepositoryHandler.() -> Unit) =
+    configureRepositories(RepositoriesFilterType.DEPENDENCIES, block)
+
+fun Settings.pluginRepositories(block: RepositoryHandler.() -> Unit) =
+    configureRepositories(RepositoriesFilterType.PLUGINS, block)
+
+private fun Settings.configureRepositories(filter: RepositoriesFilterType?, block: RepositoryHandler.() -> Unit) {
     when (filter) {
         null -> {
             RepositoriesFilterType.entries.forEach { target ->

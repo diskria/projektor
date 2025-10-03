@@ -8,34 +8,24 @@ import io.github.diskria.kotlin.utils.extensions.appendPackageName
 import io.github.diskria.kotlin.utils.extensions.capitalizeFirstChar
 import io.github.diskria.kotlin.utils.extensions.common.`Train-Case`
 import io.github.diskria.kotlin.utils.extensions.common.fileName
-import io.github.diskria.kotlin.utils.extensions.common.modifyIf
 import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
-import io.github.diskria.kotlin.utils.extensions.mappers.toEnum
 import io.github.diskria.kotlin.utils.extensions.serialization.serialize
 import io.github.diskria.kotlin.utils.properties.toAutoNamedProperty
 import io.github.diskria.kotlin.utils.words.ScreamingSnakeCase
 import io.github.diskria.projektor.extensions.kotlin.mappers.toInt
-import io.github.diskria.projektor.extensions.kotlin.mappers.toJvmTarget
 import io.github.diskria.projektor.extensions.kotlin.mappings
 import io.github.diskria.projektor.extensions.kotlin.minecraft
 import io.github.diskria.projektor.extensions.kotlin.modImplementation
 import io.github.diskria.projektor.licenses.License
-import io.github.diskria.projektor.licenses.MitLicense
 import io.github.diskria.projektor.minecraft.*
 import io.github.diskria.projektor.minecraft.config.FabricModConfig
 import io.github.diskria.projektor.minecraft.config.MixinsConfig
-import io.github.diskria.projektor.minecraft.version.MinecraftVersion
-import io.github.diskria.projektor.minecraft.version.getMinJavaVersion
 import io.github.diskria.projektor.minecraft.version.getVersion
 import io.github.diskria.projektor.owner.GithubProfile
 import io.github.diskria.projektor.owner.ProjektOwner
-import io.github.diskria.projektor.owner.domain.AndroidDomain
 import io.github.diskria.projektor.owner.domain.MinecraftDomain
 import io.github.diskria.projektor.projekt.*
-import io.github.diskria.projektor.publishing.GooglePlay
-import io.github.diskria.projektor.publishing.MavenCentral
-import io.github.diskria.projektor.publishing.Modrinth
 import io.github.diskria.projektor.publishing.PublishingTarget
 import net.fabricmc.loom.api.LoomGradleExtensionAPI
 import net.fabricmc.loom.api.fabricapi.FabricApiExtension
@@ -68,8 +58,8 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
     val license: GradleProperty<License> = objects.property(License::class.java)
     val publishingTarget: GradleProperty<PublishingTarget> = objects.property(PublishingTarget::class.java)
 
-    fun gradlePlugin(block: GradlePlugin.() -> Unit): GradlePlugin = script {
-        val plugin = buildProjekt().toGradlePlugin().apply(block)
+    fun gradlePlugin(block: GradlePlugin.() -> Unit = {}): GradlePlugin = script {
+        val plugin = buildProjekt().toGradlePlugin(this).apply(block)
         applyCommonConfiguration(plugin)
         val pluginId = plugin.packageName
         val className = plugin.classNameBase + "GradlePlugin"
@@ -98,8 +88,8 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
         return@script plugin
     }
 
-    fun kotlinLibrary(block: KotlinLibrary.() -> Unit): KotlinLibrary = script {
-        val library = buildProjekt().toKotlinLibrary().apply(block)
+    fun kotlinLibrary(block: KotlinLibrary.() -> Unit = {}): KotlinLibrary = script {
+        val library = buildProjekt().toKotlinLibrary(this).apply(block)
         buildConfigs(library.packageName, "KotlinLibraryMetadata") {
             val libraryName by library.name.toAutoNamedProperty(ScreamingSnakeCase)
             listOf(libraryName)
@@ -117,16 +107,25 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
             }
         }
         applyCommonConfiguration(library)
-        MavenCentral.configurePublishing(this, library)
+        publishingTarget.orNull?.configurePublishing(this, library)
         return@script library
     }
 
-    fun minecraftMod(block: MinecraftMod.() -> Unit): MinecraftMod = script {
-        val mod = buildProjekt().toMinecraftMod(
-            modLoader = projectDir.parentFile.name.toEnum<ModLoader>(),
-            minecraftVersion = MinecraftVersion.of(projectDir.name)
-        ).apply(block)
-        mod.jvmTarget = mod.minecraftVersion.getMinJavaVersion().toJvmTarget()
+    fun androidLibrary(block: AndroidLibrary.() -> Unit = {}): AndroidLibrary = script {
+        val library = buildProjekt().toAndroidLibrary(this).apply(block)
+        publishingTarget.orNull?.configurePublishing(this, library)
+        return@script library
+    }
+
+    fun androidApplication(block: AndroidApplication.() -> Unit = {}): AndroidApplication = script {
+        val application = buildProjekt().toAndroidApplication(this).apply(block)
+        applyCommonConfiguration(application)
+        publishingTarget.orNull?.configurePublishing(this, application)
+        return@script application
+    }
+
+    fun minecraftMod(block: MinecraftMod.() -> Unit = {}): MinecraftMod = script {
+        val mod = buildProjekt().toMinecraftMod(this).apply(block)
         val artifactVersion = buildString {
             append(mod.modLoader.getName())
             append(Constants.Char.HYPHEN)
@@ -135,7 +134,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
             append(MinecraftDomain.suffix)
             append(mod.minecraftVersion.getVersion())
         }
-        applyCommonConfiguration(mod, artifactVersion = artifactVersion)
+        applyCommonConfiguration(mod, jarVersion = artifactVersion)
         requirePlugins("org.jetbrains.kotlin.plugin.serialization")
         buildConfigs(mod.packageName, "MinecraftModMetadata") {
             val modId by mod.id.toAutoNamedProperty(ScreamingSnakeCase)
@@ -170,17 +169,8 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
             }
         }
 
-        Modrinth.configurePublishing(this, mod)
+        publishingTarget.orNull?.configurePublishing(this, mod)
         return@script mod
-    }
-
-    fun androidApplication(
-        license: License = MitLicense,
-    ): AndroidApplication = script {
-        val androidApplication = Projekt.of(this, AndroidDomain, license).toAndroidApplication()
-        applyCommonConfiguration(androidApplication)
-        GooglePlay.configurePublishing(this, androidApplication)
-        return@script androidApplication
     }
 
     private fun buildConfigs(
@@ -203,19 +193,23 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
     }
 
     private fun buildProjekt(): Projekt = script {
-        Projekt.of(this, requireProperty(owner, ::owner.name), requireProperty(license, ::license.name))
+        Projekt.of(
+            project = this,
+            owner = requireProperty(owner, ::owner.name),
+            license = requireProperty(license, ::license.name),
+        )
     }
 
     private fun applyCommonConfiguration(
         projekt: IProjekt,
-        baseArtifactName: String = projekt.slug,
-        artifactVersion: String = projekt.semver.toString(),
+        jarBaseName: String = projekt.slug,
+        jarVersion: String = projekt.semver.toString(),
     ) = script {
         requirePlugins("kotlin")
         group = projekt.owner.namespace
-        version = projekt.semver
+        version = jarVersion
         getExtensionOrThrow<BasePluginExtension>().apply {
-            archivesName = baseArtifactName
+            archivesName = jarBaseName
         }
         getExtensionOrThrow<JavaPluginExtension>().apply {
             toolchain {
@@ -246,7 +240,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
                     oldName + Constants.Char.UNDERSCORE + projekt.slug
                 }
             }
-            archiveVersion.set(artifactVersion)
+            archiveVersion.set(jarVersion)
         }
         val unpackJarTask = tasks.register<Sync>("unpackJar") {
             val jarTask = tasks.named<Jar>("jar")

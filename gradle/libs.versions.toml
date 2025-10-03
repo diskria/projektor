@@ -7,7 +7,7 @@ kotlin-serialization = "1.9.0"
 ktor-http = "3.2.3"
 kotlin-utils = "0.5.2"
 
-gradle-utils = "0.2.8"
+gradle-utils = "0.3.0"
 
 fabric-plugin = "1.11-SNAPSHOT"
 neoforge-plugin = "2.0.107"
@@ -17,8 +17,8 @@ okio = "3.16.0"
 
 [plugins]
 projektor = { id = "io.github.diskria.projektor", version.ref = "projektor" }
-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 build-config = { id = "com.github.gmazzo.buildconfig", version.ref = "build-config" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
 [libraries]
 build-config-plugin = { group = "com.github.gmazzo.buildconfig", name = "plugin", version.ref = "build-config" }

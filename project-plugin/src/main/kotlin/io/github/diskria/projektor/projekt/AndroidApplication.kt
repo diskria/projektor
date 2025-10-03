@@ -1,5 +1,7 @@
 package io.github.diskria.projektor.projekt
 
-open class AndroidApplication(private val delegate: IProjekt) : IProjekt by delegate {
+import org.gradle.api.Project
+
+open class AndroidApplication(private val projekt: IProjekt, project: Project) : IProjekt by projekt {
 
 }
