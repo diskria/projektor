@@ -16,7 +16,7 @@ dependencies {
 }
 
 group = "io.github.diskria"
-version = "2.0.2"
+version = "2.0.3"
 
 gradlePlugin {
     plugins {

@@ -12,16 +12,9 @@ plugins {
 projekt {
     name = "Projektor"
     description = "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
-    version = "2.0.2"
+    version = "2.0.3"
+    versionCatalog = files("../gradle/libs.versions.toml")
 
     gradlePlugin()
     minecraftMod()
-}
-
-dependencyResolutionManagement {
-    versionCatalogs {
-        create("libs") {
-            from(files("../gradle/libs.versions.toml"))
-        }
-    }
 }

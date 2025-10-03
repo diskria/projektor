@@ -72,7 +72,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
         val plugin = buildProjekt().toGradlePlugin().apply(block)
         applyCommonConfiguration(plugin)
         val pluginId = plugin.packageName
-        val className = plugin.classNameBase.modifyIf(plugin.isSettingsPlugin) { it + "Settings" } + "GradlePlugin"
+        val className = plugin.classNameBase + "GradlePlugin"
         buildConfigs(plugin.packageName, "GradlePluginMetadata") {
             val pluginId by pluginId.toAutoNamedProperty(ScreamingSnakeCase)
             val pluginName by plugin.name.toAutoNamedProperty(ScreamingSnakeCase)
