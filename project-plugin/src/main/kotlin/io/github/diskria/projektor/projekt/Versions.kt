@@ -1,7 +1,7 @@
 package io.github.diskria.projektor.projekt
 
 object Versions {
-    const val JAVA = 24
+    const val JAVA = 25
     const val KOTLIN = "2.2.20"
     const val JUNIT = "6.0.0"
 
