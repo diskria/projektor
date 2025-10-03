@@ -1,15 +1,9 @@
 package io.github.diskria.projektor.projekt
 
-import io.github.diskria.gradle.utils.extensions.kotlin.common.gradleError
-import io.github.diskria.gradle.utils.extensions.kotlin.semver
-import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.Semver
 import io.github.diskria.kotlin.utils.extensions.setCase
-import io.github.diskria.kotlin.utils.words.DotCase
-import io.github.diskria.kotlin.utils.words.KebabCase
 import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.kotlin.utils.words.SpaceCase
-import io.github.diskria.projektor.extensions.kotlin.mappers.toJvmTarget
 import io.github.diskria.projektor.licenses.License
 import io.github.diskria.projektor.owner.ProjektOwner
 import org.gradle.api.Project
@@ -29,34 +23,21 @@ data class Projekt(
     override val kotlinVersion: String,
     override val scm: ScmType = ScmType.GIT,
     override val softwareForge: SoftwareForgeType = owner.softwareForgeType,
+    override val project: Project,
 ) : IProjekt {
 
-    fun toGradlePlugin(project: Project): GradlePlugin = GradlePlugin(this, project)
+    fun gradlePlugin(): GradlePlugin =
+        GradlePlugin(this)
 
-    fun toKotlinLibrary(project: Project): KotlinLibrary = KotlinLibrary(this, project)
+    fun kotlinLibrary(): KotlinLibrary =
+        KotlinLibrary(this)
 
-    fun toAndroidLibrary(project: Project): AndroidLibrary = AndroidLibrary(this, project)
+    fun androidLibrary(): AndroidLibrary =
+        AndroidLibrary(this)
 
-    fun toAndroidApplication(project: Project): AndroidApplication = AndroidApplication(this, project)
+    fun androidApplication(): AndroidApplication =
+        AndroidApplication(this)
 
-    fun toMinecraftMod(project: Project): MinecraftMod = MinecraftMod(this, project)
-
-    companion object {
-        fun of(project: Project, owner: ProjektOwner, license: License, jvmTarget: JvmTarget? = null): Projekt {
-            val projectName = project.rootProject.name
-            val javaVersion = Versions.JAVA
-            return Projekt(
-                owner = owner,
-                license = license,
-                name = projectName,
-                description = project.rootProject.description ?: gradleError("Projekt description not set!"),
-                semver = project.rootProject.semver(),
-                slug = projectName.setCase(SpaceCase, KebabCase).lowercase(),
-                packageName = owner.namespace + Constants.Char.DOT + projectName.setCase(SpaceCase, DotCase),
-                javaVersion = javaVersion,
-                jvmTarget = jvmTarget ?: javaVersion.toJvmTarget(),
-                kotlinVersion = Versions.KOTLIN,
-            )
-        }
-    }
+    fun minecraftMod(): MinecraftMod =
+        MinecraftMod(this)
 }

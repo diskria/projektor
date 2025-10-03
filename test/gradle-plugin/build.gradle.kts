@@ -14,8 +14,9 @@ projekt {
     owner = GithubProfile
     publishingTarget = GitHubPages
 
-    gradlePlugin {
+    val a = gradlePlugin {
         isSettingsPlugin = true
         tags = setOf("build", "test")
     }
+    println(a.packageName)
 }

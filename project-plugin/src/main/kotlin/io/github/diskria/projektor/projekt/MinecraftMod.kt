@@ -9,16 +9,15 @@ import io.github.diskria.projektor.minecraft.ModLoader
 import io.github.diskria.projektor.minecraft.utils.ModrinthUtils
 import io.github.diskria.projektor.minecraft.version.MinecraftVersion
 import io.github.diskria.projektor.minecraft.version.getMinJavaVersion
-import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import kotlin.properties.Delegates
 
-open class MinecraftMod(private val projekt: IProjekt, project: Project) : IProjekt by projekt {
+open class MinecraftMod(private val projekt: IProjekt) : IProjekt by projekt {
 
     val id: String = projekt.slug
     val mixinsConfigFileName: String = fileName(id, "mixins", Constants.File.Extension.JSON)
-    val modLoader = project.projectDir.parentFile.name.toEnum<ModLoader>()
     val minecraftVersion = MinecraftVersion.of(project.projectDir.name)
+    val modLoader = project.projectDir.parentFile.name.toEnum<ModLoader>()
 
     val modrinthProjectUrl: String
         get() = ModrinthUtils.getProjectUrl(modrinthProjectId)
@@ -27,6 +26,5 @@ open class MinecraftMod(private val projekt: IProjekt, project: Project) : IProj
     var environment: ModEnvironment by Delegates.notNull()
     var isFabricApiRequired: Boolean by Delegates.notNull()
 
-    override val jvmTarget: JvmTarget =
-        minecraftVersion.getMinJavaVersion().toJvmTarget()
+    override val jvmTarget: JvmTarget = minecraftVersion.getMinJavaVersion().toJvmTarget()
 }

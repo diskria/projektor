@@ -5,7 +5,7 @@ import org.gradle.api.Project
 
 data object GradlePluginPortal : PublishingTarget {
 
-    override val configurePublishing: Project.(IProjekt) -> Unit = configure@{ projekt ->
+    override val publish: Project.(IProjekt) -> Unit = configure@{ projekt ->
 
     }
 }

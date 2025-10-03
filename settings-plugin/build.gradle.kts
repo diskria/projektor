@@ -1,11 +1,13 @@
 import io.github.diskria.gradle.utils.extensions.kotlin.getBuildDirectory
-//import io.github.diskria.projektor.settings.extensions.kotlin.configureMaven
-//import io.github.diskria.projektor.settings.extensions.kotlin.publishing
+
+//import io.github.diskria.projektor.licenses.MitLicense
+//import io.github.diskria.projektor.owner.GithubProfile
+//import io.github.diskria.projektor.publishing.GitHubPages
 
 plugins {
     `kotlin-dsl`
     `maven-publish`
-//    alias(libs.plugins.projektor)
+    alias(libs.plugins.projektor)
     alias(libs.plugins.build.config)
 }
 
@@ -15,8 +17,19 @@ dependencies {
     implementation(libs.gradle.utils)
 }
 
+//projekt {
+//    owner = GithubProfile
+//    license = MitLicense
+//    publishingTarget = GitHubPages
+//
+//    gradlePlugin {
+//        isSettingsPlugin = true
+//        tags = setOf("project", "configuration")
+//    }
+//}
+
 group = "io.github.diskria"
-version = "2.0.4"
+version = "2.0.5"
 
 gradlePlugin {
     plugins {

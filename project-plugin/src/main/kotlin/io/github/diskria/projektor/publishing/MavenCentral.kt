@@ -1,10 +1,11 @@
 package io.github.diskria.projektor.publishing
 
 import io.github.diskria.gradle.utils.extensions.kotlin.getBuildDirectory
-import io.github.diskria.gradle.utils.extensions.kotlin.getExtensionOrThrow
+import io.github.diskria.gradle.utils.extensions.kotlin.runExtension
 import io.github.diskria.kotlin.utils.extensions.common.className
 import io.github.diskria.projektor.projekt.*
 import org.gradle.api.Project
+import org.gradle.api.publish.Publication
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.create
@@ -14,7 +15,7 @@ import org.gradle.plugins.signing.SigningExtension
 
 data object MavenCentral : PublishingTarget {
 
-    override val configurePublishing: Project.(IProjekt) -> Unit = configure@{ projekt ->
+    override val publish: Project.(IProjekt) -> Unit = configure@{ projekt ->
         val gpgKey = Secrets.gpgKey
         val gpgPassphrase = Secrets.gpgPassphrase
         if (gpgKey == null || gpgPassphrase == null) {
@@ -26,15 +27,15 @@ data object MavenCentral : PublishingTarget {
             is KotlinLibrary -> "java"
             else -> error("Publishing to Maven Central is supported only for Library or AndroidLibrary projects, but got ${projekt::class.className()}")
         }
-        getExtensionOrThrow<PublishingExtension>().apply {
+        runExtension<PublishingExtension> {
             repositories {
                 maven(getBuildDirectory("staging-repo").get().asFile) {
                     name = "MavenCentral"
                 }
             }
         }
-        val publication = getExtensionOrThrow<PublishingExtension>().let {
-            it.publications.create<MavenPublication>(projekt.slug) {
+        val publication = runExtension<PublishingExtension, Publication> {
+            publications.create<MavenPublication>(projekt.slug) {
                 artifactId = projekt.slug
                 from(components[componentName])
                 pom {
@@ -43,17 +44,17 @@ data object MavenCentral : PublishingTarget {
                     url.set(projekt.owner.getRepositoryUrl(projekt.slug))
                     licenses {
                         license {
-                            projekt.license.let {
-                                name.set(it.displayName)
-                                url.set(it.getUrl())
+                            projekt.license.let { license ->
+                                name.set(license.displayName)
+                                url.set(license.url)
                             }
                         }
                     }
                     developers {
                         developer {
-                            projekt.owner.name.let {
-                                id.set(it)
-                                name.set(it)
+                            projekt.owner.name.let { ownerName ->
+                                id.set(ownerName)
+                                name.set(ownerName)
                             }
                             email.set(projekt.owner.email)
                         }
@@ -73,7 +74,7 @@ data object MavenCentral : PublishingTarget {
                 }
             }
         }
-        getExtensionOrThrow<SigningExtension>().apply {
+        runExtension<SigningExtension> {
             useInMemoryPgpKeys(gpgKey, gpgPassphrase)
             sign(publication)
         }

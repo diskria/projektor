@@ -6,9 +6,11 @@ import io.github.diskria.kotlin.utils.words.DotCase
 import io.github.diskria.kotlin.utils.words.PathCase
 import io.github.diskria.projektor.licenses.License
 import io.github.diskria.projektor.owner.ProjektOwner
+import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 interface IProjekt {
+
     val owner: ProjektOwner
     val license: License
     val name: String
@@ -22,7 +24,11 @@ interface IProjekt {
     val kotlinVersion: String
     val scm: ScmType
     val softwareForge: SoftwareForgeType
+    val project: Project
 
     val packagePath: String
         get() = packageName.setCase(DotCase, PathCase)
+
+    fun <R> script(block: Project.() -> R): R =
+        project.block()
 }

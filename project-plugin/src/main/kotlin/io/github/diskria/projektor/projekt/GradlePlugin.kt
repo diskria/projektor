@@ -2,13 +2,12 @@ package io.github.diskria.projektor.projekt
 
 import io.github.diskria.kotlin.utils.extensions.appendPackageName
 import io.github.diskria.kotlin.utils.extensions.common.modifyIf
-import org.gradle.api.Project
 
-open class GradlePlugin(private val projekt: IProjekt, project: Project) : IProjekt by projekt {
+open class GradlePlugin(private val projekt: IProjekt) : IProjekt by projekt {
 
     var isSettingsPlugin: Boolean = false
     var tags: Set<String> = emptySet()
 
-    override val packageName: String =
-        projekt.packageName.modifyIf(isSettingsPlugin) { it.appendPackageName("settings") }
+    override val packageName: String
+        get() = projekt.packageName.modifyIf(isSettingsPlugin) { it.appendPackageName("settings") }
 }

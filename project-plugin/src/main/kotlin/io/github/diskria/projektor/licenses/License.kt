@@ -5,8 +5,9 @@ import io.ktor.http.*
 
 sealed class License(val id: String, val displayName: String) {
 
-    fun getUrl(): String =
+    val url: String by lazy {
         buildUrl("opensource.org") {
             path("licenses", id)
         }
+    }
 }

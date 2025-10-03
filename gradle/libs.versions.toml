@@ -7,7 +7,7 @@ kotlin-serialization = "1.9.0"
 ktor-http = "3.2.3"
 kotlin-utils = "0.5.2"
 
-gradle-utils = "0.3.0"
+gradle-utils = "0.3.1"
 
 fabric-plugin = "1.11-SNAPSHOT"
 neoforge-plugin = "2.0.107"
