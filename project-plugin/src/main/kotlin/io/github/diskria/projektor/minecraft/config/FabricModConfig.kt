@@ -12,7 +12,6 @@ import io.github.diskria.projektor.minecraft.config.versions.range.InequalityVer
 import io.github.diskria.projektor.minecraft.config.versions.range.VersionRange
 import io.github.diskria.projektor.minecraft.version.MinecraftVersion
 import io.github.diskria.projektor.minecraft.version.getVersion
-import io.github.diskria.projektor.owner.GithubProfile
 import io.github.diskria.projektor.projekt.MinecraftMod
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -169,15 +168,15 @@ class FabricModConfig(
                 version = mod.semver.toString(),
                 name = mod.name,
                 description = mod.description,
-                authors = listOf(GithubProfile.username),
+                authors = listOf(mod.developer),
                 license = mod.license.id,
-                icon = "assets/${mod.slug}/${fileName("icon", Constants.File.Extension.PNG)}",
+                icon = "assets/${mod.id}/${fileName("icon", Constants.File.Extension.PNG)}",
                 environment = mod.environment.fabricConfigValue,
-                accessWidener = fileName(mod.slug, "accesswidener"),
+                accessWidener = fileName(mod.id, "accesswidener"),
                 mixins = listOf(mod.mixinsConfigFileName),
                 links = Links.of(
                     modrinthProjectUrl = mod.modrinthProjectUrl,
-                    sourceCodeUrl = mod.owner.getRepositoryUrl(mod.slug),
+                    sourceCodeUrl = mod.getRepoUrl(),
                 ),
                 entryPoints = EntryPoints.of(
                     mod,

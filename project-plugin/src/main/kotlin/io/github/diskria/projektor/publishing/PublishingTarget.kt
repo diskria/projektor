@@ -4,5 +4,5 @@ import io.github.diskria.projektor.projekt.IProjekt
 import org.gradle.api.Project
 
 sealed interface PublishingTarget {
-    val publish: Project.(IProjekt) -> Unit
+    val configure: Project.(IProjekt) -> Unit
 }

@@ -1,5 +1,4 @@
 import io.github.diskria.projektor.licenses.MitLicense
-import io.github.diskria.projektor.owner.GithubProfile
 import io.github.diskria.projektor.publishing.GitHubPages
 
 plugins {
@@ -11,12 +10,10 @@ plugins {
 
 projekt {
     license = MitLicense
-    owner = GithubProfile
     publishingTarget = GitHubPages
 
-    val a = gradlePlugin {
+    gradlePlugin {
         isSettingsPlugin = true
         tags = setOf("build", "test")
     }
-    println(a.packageName)
 }

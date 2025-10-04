@@ -5,6 +5,6 @@ import org.gradle.api.Project
 
 data object GooglePlay : PublishingTarget {
 
-    override val publish: Project.(IProjekt) -> Unit
+    override val configure: Project.(IProjekt) -> Unit
         get() = TODO("Not yet implemented")
 }

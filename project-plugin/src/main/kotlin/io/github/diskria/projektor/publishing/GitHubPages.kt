@@ -9,7 +9,7 @@ import org.gradle.kotlin.dsl.maven
 
 data object GitHubPages : PublishingTarget {
 
-    override val publish: Project.(IProjekt) -> Unit = configure@{ _ ->
+    override val configure: Project.(IProjekt) -> Unit = configure@{ _ ->
         runExtension<PublishingExtension> {
             repositories {
                 maven(getBuildDirectory("repo")) {

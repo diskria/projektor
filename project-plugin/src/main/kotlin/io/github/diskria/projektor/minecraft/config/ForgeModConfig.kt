@@ -9,7 +9,6 @@ import io.github.diskria.projektor.minecraft.ModLoader
 import io.github.diskria.projektor.minecraft.config.versions.VersionBound
 import io.github.diskria.projektor.minecraft.config.versions.range.InequalityVersionRange
 import io.github.diskria.projektor.minecraft.config.versions.range.VersionRange
-import io.github.diskria.projektor.owner.GithubProfile
 import io.github.diskria.projektor.projekt.MinecraftMod
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -61,9 +60,9 @@ class ForgeModConfig(
                 ForgeMod(
                     description = mod.description,
                     version = mod.semver.toString(),
-                    authors = GithubProfile.username,
+                    authors = mod.developer,
                     id = mod.id,
-                    name = mod.name,
+                    name = mod.id,
                     icon = fileName("icon", Constants.File.Extension.PNG),
                     modrinthProjectUrl = modrinthProjectUrl,
                 ).apply {
@@ -129,7 +128,7 @@ class ForgeModConfig(
                 mods = mods,
                 dependencies = mods.associate { it.id to it.dependencies },
                 loader = "javafml",
-                issueTrackerUrl = mod.owner.getIssuesUrl(mod.slug),
+                issueTrackerUrl = mod.githubIssuesUrl,
                 isClientSideOnly = environment == ModEnvironment.CLIENT_SIDE_ONLY,
             )
         }

@@ -15,7 +15,7 @@ import org.gradle.plugins.signing.SigningExtension
 
 data object MavenCentral : PublishingTarget {
 
-    override val publish: Project.(IProjekt) -> Unit = configure@{ projekt ->
+    override val configure: Project.(IProjekt) -> Unit = configure@{ projekt ->
         val gpgKey = Secrets.gpgKey
         val gpgPassphrase = Secrets.gpgPassphrase
         if (gpgKey == null || gpgPassphrase == null) {
@@ -25,7 +25,10 @@ data object MavenCentral : PublishingTarget {
         val componentName = when (projekt) {
             is AndroidLibrary -> "release"
             is KotlinLibrary -> "java"
-            else -> error("Publishing to Maven Central is supported only for Library or AndroidLibrary projects, but got ${projekt::class.className()}")
+            else -> error(
+                "Publishing to Maven Central is supported only for Library or AndroidLibrary projects, but got " +
+                        projekt::class.className()
+            )
         }
         runExtension<PublishingExtension> {
             repositories {
@@ -35,13 +38,13 @@ data object MavenCentral : PublishingTarget {
             }
         }
         val publication = runExtension<PublishingExtension, Publication> {
-            publications.create<MavenPublication>(projekt.slug) {
-                artifactId = projekt.slug
+            publications.create<MavenPublication>(projekt.repo) {
+                artifactId = projekt.repo
                 from(components[componentName])
                 pom {
-                    name.set(projekt.name)
+                    name.set(projekt.repo)
                     description.set(projekt.description)
-                    url.set(projekt.owner.getRepositoryUrl(projekt.slug))
+                    url.set(projekt.getRepoUrl())
                     licenses {
                         license {
                             projekt.license.let { license ->
@@ -52,23 +55,18 @@ data object MavenCentral : PublishingTarget {
                     }
                     developers {
                         developer {
-                            projekt.owner.name.let { ownerName ->
-                                id.set(ownerName)
-                                name.set(ownerName)
+                            projekt.developer.let { developer ->
+                                id.set(developer)
+                                name.set(developer)
                             }
-                            email.set(projekt.owner.email)
+                            email.set(projekt.email)
                         }
                     }
                     scm {
-                        url.set(projekt.owner.getRepositoryUrl(projekt.slug))
-                        connection.set(
-                            projekt.scm.buildUri(projekt.owner.getRepositoryUrl(projekt.slug, isVcsUrl = true))
-                        )
+                        url.set(projekt.getRepoUrl())
+                        connection.set(projekt.repoHost.vcs.buildUri(projekt.getRepoUrl(true)))
                         developerConnection.set(
-                            projekt.scm.buildUri(
-                                projekt.softwareForge.getSshAuthority(),
-                                projekt.owner.getRepositoryPath(projekt.slug, isVcsUrl = true)
-                            )
+                            projekt.repoHost.vcs.buildUri(projekt.repoHost.sshAuthority, projekt.getRepoPath(true))
                         )
                     }
                 }
