@@ -12,7 +12,6 @@ plugins {
 }
 
 projekt {
-    name = "Test Gradle Plugin"
     description = "Description of test gradle plugin"
     version = "0.1.0"
     versionCatalog = files("../../gradle/libs.versions.toml")

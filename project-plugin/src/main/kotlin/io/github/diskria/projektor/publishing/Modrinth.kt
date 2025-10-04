@@ -11,7 +11,7 @@ data object Modrinth : PublishingTarget {
     override val publish: Project.(IProjekt) -> Unit = configure@{ projekt ->
         requirePlugins("com.modrinth.minotaur")
         runExtension<ModrinthExtension> {
-            projectId.set(projekt.slug)
+            projectId.set(projekt.name)
         }
     }
 }

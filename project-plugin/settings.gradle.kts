@@ -14,7 +14,7 @@ plugins {
 projekt {
     name = "Projektor"
     description = "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
-    version = "2.0.5"
+    version = "2.0.6"
     versionCatalog = files("../gradle/libs.versions.toml")
 
     gradlePlugin()

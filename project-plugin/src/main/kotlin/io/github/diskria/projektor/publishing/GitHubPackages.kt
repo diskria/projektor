@@ -1,7 +1,6 @@
 package io.github.diskria.projektor.publishing
 
 import io.github.diskria.gradle.utils.extensions.kotlin.runExtension
-import io.github.diskria.projektor.owner.GithubProfile
 import io.github.diskria.projektor.projekt.IProjekt
 import io.github.diskria.projektor.projekt.Secrets
 import org.gradle.api.Project
@@ -20,13 +19,13 @@ data object GitHubPackages : PublishingTarget {
         }
         runExtension<PublishingExtension> {
             publications.withType<MavenPublication> {
-                artifactId = projekt.slug
+                artifactId = projekt.name
             }
             repositories {
-                maven(GithubProfile.getPackagesMavenUrl(projekt.slug)) {
+                maven(projekt.githubPackagesUrl) {
                     name = "GitHubPackages"
                     credentials {
-                        username = GithubProfile.username
+                        username = projekt.owner
                         password = githubPackagesToken
                     }
                 }

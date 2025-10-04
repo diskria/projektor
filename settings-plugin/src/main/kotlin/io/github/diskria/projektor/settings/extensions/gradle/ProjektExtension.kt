@@ -1,7 +1,11 @@
 package io.github.diskria.projektor.settings.extensions.gradle
 
 import io.github.diskria.gradle.utils.extensions.gradle.SettingsExtension
+import io.github.diskria.kotlin.utils.extensions.common.`Title Case`
+import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
+import io.github.diskria.kotlin.utils.extensions.setCase
+import io.github.diskria.projektor.settings.GradlePluginMetadata
 import io.github.diskria.projektor.settings.extensions.kotlin.configureMaven
 import io.github.diskria.projektor.settings.extensions.kotlin.dependencyRepositories
 import io.github.diskria.projektor.settings.extensions.kotlin.pluginRepositories
@@ -14,7 +18,6 @@ import javax.inject.Inject
 
 open class ProjektExtension @Inject constructor(objects: ObjectFactory) : SettingsExtension() {
 
-    val name: Property<String> = objects.property(String::class.java)
     val description: Property<String> = objects.property(String::class.java)
     val version: Property<String> = objects.property(String::class.java)
     val versionCatalog: Property<ConfigurableFileCollection> = objects.property(ConfigurableFileCollection::class.java)
@@ -53,7 +56,6 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Settin
             configureMaven(
                 name = "SpongePowered",
                 url = "https://repo.spongepowered.org/repository/maven-public",
-                group = "org.spongepowered"
             )
             configureMaven(
                 name = "Modrinth",
@@ -72,11 +74,11 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Settin
             include(":common")
 
             ModLoader.entries.forEach { modLoader ->
-                val directoryName = modLoader.getName()
-                val modLoaderDirectory = rootDir.resolve(directoryName)
+                val modLoaderName = modLoader.getName()
+                val modLoaderDirectory = rootDir.resolve(modLoaderName)
                 if (modLoaderDirectory.isDirectory) {
                     modLoaderDirectory.listFiles()?.filter { it.isDirectory }?.forEach { versionDirectory ->
-                        include(":$directoryName:${versionDirectory.name}")
+                        include(":$modLoaderName:${versionDirectory.name}")
                     }
                 }
             }
@@ -87,28 +89,24 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Settin
         if (isCommonConfigurationApplied) {
             return@script
         }
-
-        val projektName = requireProperty(name, ::name.name)
-        val projektDescription = requireProperty(description, ::description.name)
-        val projektVersion = requireProperty(version, ::version.name)
-
-        rootProject.name = projektName
+        val projectDescription = description.get()
+        val projectVersion = requireProperty(version, ::version.name)
+        rootProject.name = rootDir.name.setCase(`kebab-case`, `Title Case`)
         gradle.rootProject {
-            description = projektDescription
-            version = projektVersion
+            description = projectDescription
+            version = projectVersion
         }
-
         repositories {
             mavenCentral()
         }
         pluginRepositories {
             gradlePluginPortal()
         }
-        versionCatalog.orNull?.let { configurableFileCollection ->
+        versionCatalog.orNull?.let { files ->
             dependencyResolutionManagement {
                 versionCatalogs {
                     create("libs") {
-                        from(configurableFileCollection)
+                        from(files)
                     }
                 }
             }
@@ -117,6 +115,6 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Settin
     }
 
     private fun isProjektor(): Boolean = script {
-        rootProject.name == "Projektor"
+        rootProject.name == GradlePluginMetadata.PLUGIN_NAME
     }
 }

@@ -1,8 +1,8 @@
 package io.github.diskria.projektor.projekt
 
+import io.github.diskria.kotlin.utils.extensions.common.SCREAMING_SNAKE_CASE
+import io.github.diskria.kotlin.utils.extensions.common.camelCase
 import io.github.diskria.kotlin.utils.extensions.setCase
-import io.github.diskria.kotlin.utils.words.CamelCase
-import io.github.diskria.kotlin.utils.words.ScreamingSnakeCase
 import kotlin.properties.ReadOnlyProperty
 
 object Secrets {
@@ -17,7 +17,7 @@ object Secrets {
                 property
                     .name
                     .takeIf { it.isNotBlank() }
-                    ?.setCase(CamelCase, ScreamingSnakeCase)
+                    ?.setCase(camelCase, SCREAMING_SNAKE_CASE)
             )
         }
 }
