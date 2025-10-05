@@ -4,7 +4,6 @@ pluginManagement {
         gradlePluginPortal()
         maven("https://diskria.github.io/projektor")
     }
-//    includeBuild("test/gradle-plugin")
 }
 
 plugins {
@@ -14,10 +13,10 @@ plugins {
 
 projekt {
     description = "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
-    version = "2.1.0"
+    version = "2.1.1"
 
     gradlePlugin()
     minecraftMod()
 }
 
-include(":settings-plugin", ":project-plugin")
+include(":project-plugin", ":settings-plugin")

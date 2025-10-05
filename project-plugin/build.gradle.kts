@@ -1,3 +1,4 @@
+import io.github.diskria.gradle.utils.extensions.kotlin.getBuildDirectory
 import io.github.diskria.projektor.licenses.MitLicense
 import io.github.diskria.projektor.publishing.GitHubPages
 
@@ -30,11 +31,33 @@ dependencies {
     }
 }
 
-projekt {
-    license = MitLicense
-    publishingTarget = GitHubPages
+if (findProperty("dogfooding").toString().toBoolean()) {
+    projekt {
+        license = MitLicense
+        publishingTarget = GitHubPages
+
+        gradlePlugin {
+            tags = setOf("project", "configuration")
+        }
+    }
+} else {
+    group = "io.github.diskria"
+    version = "2.1.1"
 
     gradlePlugin {
-        tags = setOf("project", "configuration")
+        plugins {
+            create("io.github.diskria.projektor") {
+                id = "io.github.diskria.projektor"
+                implementationClass = "io.github.diskria.projektor.ProjektorGradlePlugin"
+            }
+        }
+    }
+
+    publishing {
+        repositories {
+            maven(getBuildDirectory("repo")) {
+                name = "GitHubPages"
+            }
+        }
     }
 }

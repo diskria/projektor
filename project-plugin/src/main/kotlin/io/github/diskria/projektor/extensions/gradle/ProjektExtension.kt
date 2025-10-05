@@ -62,8 +62,11 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
                 create(plugin.id) {
                     id = plugin.id
                     implementationClass = plugin.packageName.appendPackageName(plugin.classNameBase + "GradlePlugin")
+                    println("id: $id")
+                    println("implementationClass: $implementationClass")
+                    println("plugin.classNameBase: ${plugin.classNameBase}")
 
-                    displayName = plugin.repo
+                    displayName = plugin.name
                     description = plugin.description
 
                     tags.set(plugin.tags.toNullIfEmpty())
@@ -158,7 +161,9 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
     ) = script {
         requirePlugins("kotlin")
         group = projekt.namespace
+        println("group = $group")
         version = jarVersion
+        println("version = $version")
         runExtension<BasePluginExtension> {
             archivesName = jarBaseName
         }
