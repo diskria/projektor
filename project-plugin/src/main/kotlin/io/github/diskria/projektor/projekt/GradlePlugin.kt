@@ -9,7 +9,8 @@ import org.gradle.kotlin.dsl.provideDelegate
 
 open class GradlePlugin(private val projekt: IProjekt) : IProjekt by projekt {
 
-    val id: String = packageName
+    val id: String
+        get() = packageName
 
     var isSettingsPlugin: Boolean = false
     var tags: Set<String> = emptySet()

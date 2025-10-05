@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.version
+
 pluginManagement {
     repositories {
         mavenCentral()
@@ -13,7 +15,7 @@ plugins {
 
 projekt {
     description = "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
-    version = "2.1.1"
+    version = "2.2.0"
 
     gradlePlugin()
     minecraftMod()
