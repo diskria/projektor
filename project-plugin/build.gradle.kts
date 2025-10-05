@@ -1,5 +1,4 @@
 import io.github.diskria.projektor.licenses.MitLicense
-import io.github.diskria.projektor.owner.GithubProfile
 import io.github.diskria.projektor.publishing.GitHubPages
 
 plugins {
@@ -32,7 +31,6 @@ dependencies {
 }
 
 projekt {
-    owner = GithubProfile
     license = MitLicense
     publishingTarget = GitHubPages
 

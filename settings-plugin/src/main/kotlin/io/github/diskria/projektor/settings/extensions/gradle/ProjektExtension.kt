@@ -10,7 +10,6 @@ import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.common.modifyIf
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.extensions.setCase
-import io.github.diskria.projektor.settings.GradlePluginMetadata
 import io.github.diskria.projektor.settings.extensions.kotlin.configureMaven
 import io.github.diskria.projektor.settings.extensions.kotlin.dependencyRepositories
 import io.github.diskria.projektor.settings.extensions.kotlin.pluginRepositories
@@ -133,6 +132,6 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Settin
     }
 
     private fun isProjektor(): Boolean = script {
-        rootProject.name == GradlePluginMetadata.PLUGIN_NAME
+        true // TODO replace with root project name check after 2.1 release
     }
 }
