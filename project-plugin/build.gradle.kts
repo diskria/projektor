@@ -1,4 +1,3 @@
-import io.github.diskria.gradle.utils.extensions.kotlin.getBuildDirectory
 import io.github.diskria.projektor.licenses.MitLicense
 import io.github.diskria.projektor.publishing.GitHubPages
 
@@ -11,18 +10,16 @@ plugins {
 }
 
 dependencies {
-    compileOnly(kotlin("gradle-plugin"))
+    implementation(libs.bundles.diskria.utils)
 
+    compileOnly(kotlin("gradle-plugin"))
     compileOnly(libs.build.config.plugin)
     compileOnly(libs.fabric.plugin)
     compileOnly(libs.neoforge.plugin)
     compileOnly(libs.modrinth.plugin)
 
-    implementation(libs.ktor.http)
-    implementation(libs.kotlin.utils)
+    implementation(libs.bundles.ktor.client)
     implementation(libs.kotlin.serialization)
-
-    implementation(libs.gradle.utils)
 
     constraints {
         // Override vulnerable transitive dependency (Okio < 3.4.0, CVE-2023-3635)
@@ -31,33 +28,11 @@ dependencies {
     }
 }
 
-if (findProperty("dogfooding").toString().toBoolean()) {
-    projekt {
-        license = MitLicense
-        publishingTarget = GitHubPages
-
-        gradlePlugin {
-            tags = setOf("project", "configuration")
-        }
-    }
-} else {
-    group = "io.github.diskria"
-    version = "2.2.0"
+projekt {
+    license = MitLicense
+    publishingTarget = GitHubPages
 
     gradlePlugin {
-        plugins {
-            create("io.github.diskria.projektor") {
-                id = "io.github.diskria.projektor"
-                implementationClass = "io.github.diskria.projektor.ProjektorGradlePlugin"
-            }
-        }
-    }
-
-    publishing {
-        repositories {
-            maven(getBuildDirectory("repo")) {
-                name = "GitHubPages"
-            }
-        }
+        tags = setOf("project", "configuration")
     }
 }

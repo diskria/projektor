@@ -1,8 +1,8 @@
-package io.github.diskria.projektor.extensions.gradle
+package io.github.diskria.projektor
 
 import com.github.gmazzo.buildconfig.BuildConfigExtension
+import io.github.diskria.gradle.utils.extensions.*
 import io.github.diskria.gradle.utils.extensions.gradle.ProjectExtension
-import io.github.diskria.gradle.utils.extensions.kotlin.*
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.appendPackageName
 import io.github.diskria.kotlin.utils.extensions.capitalizeFirstChar
@@ -12,18 +12,25 @@ import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.extensions.serialization.serialize
 import io.github.diskria.kotlin.utils.properties.toAutoNamedProperty
-import io.github.diskria.projektor.extensions.kotlin.mappers.toInt
-import io.github.diskria.projektor.extensions.kotlin.mappings
-import io.github.diskria.projektor.extensions.kotlin.minecraft
-import io.github.diskria.projektor.extensions.kotlin.modImplementation
-import io.github.diskria.projektor.extensions.kotlin.toProjekt
+import io.github.diskria.projektor.extensions.mappers.toInt
+import io.github.diskria.projektor.extensions.mappings
+import io.github.diskria.projektor.extensions.minecraft
+import io.github.diskria.projektor.extensions.modImplementation
+import io.github.diskria.projektor.extensions.toProjekt
 import io.github.diskria.projektor.licenses.License
 import io.github.diskria.projektor.minecraft.*
 import io.github.diskria.projektor.minecraft.config.FabricModConfig
 import io.github.diskria.projektor.minecraft.config.MixinsConfig
 import io.github.diskria.projektor.minecraft.version.getVersion
 import io.github.diskria.projektor.projekt.*
+import io.github.diskria.projektor.projekt.common.IProjekt
+import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.publishing.PublishingTarget
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import kotlinx.coroutines.runBlocking
 import net.fabricmc.loom.api.LoomGradleExtensionAPI
 import net.fabricmc.loom.api.fabricapi.FabricApiExtension
 import org.gradle.api.file.DuplicatesStrategy
@@ -57,14 +64,11 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
         applyCommonConfiguration(plugin)
         runExtension<GradlePluginDevelopmentExtension> {
             website.set(plugin.getRepoUrl())
-            vcsUrl.set(plugin.getRepoPath(true))
+            vcsUrl.set(plugin.getRepoPath(isVcs = true))
             plugins {
                 create(plugin.id) {
                     id = plugin.id
                     implementationClass = plugin.packageName.appendPackageName(plugin.classNameBase + "GradlePlugin")
-                    println("id: $id")
-                    println("implementationClass: $implementationClass")
-                    println("plugin.classNameBase: ${plugin.classNameBase}")
 
                     displayName = plugin.name
                     description = plugin.description
@@ -149,9 +153,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
     }
 
     private fun buildProjekt(): Projekt = script {
-        toProjekt(
-            requireProperty(license, ::license.name)
-        )
+        toProjekt(requireProperty(license, ::license.name))
     }
 
     private fun applyCommonConfiguration(
@@ -161,11 +163,9 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
     ) = script {
         requirePlugins("kotlin")
         group = projekt.namespace
-        println("group = $group")
         version = jarVersion
-        println("version = $version")
         runExtension<BasePluginExtension> {
-            archivesName = jarBaseName
+            archivesName.assign(jarBaseName)
         }
         runExtension<JavaPluginExtension> {
             toolchain {
@@ -200,7 +200,6 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
         }
         val unpackJarTask = tasks.register<Sync>("unpackJar") {
             val jarTask = tasks.named<Jar>("jar")
-
             from(zipTree(jarTask.flatMap { it.archiveFile }))
             into(getBuildDirectory("unpacked"))
             dependsOn(jarTask)
@@ -211,7 +210,6 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
         runExtension<SourceSetContainer> {
             named("main") {
                 val generatedDirectory = "src/main/generated"
-
                 resources.srcDirs(generatedDirectory)
                 java.srcDirs("$generatedDirectory/java")
             }
@@ -231,8 +229,25 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
                 }
             }
         }
+        val licenseTag = "SPDX-License-Identifier: ${projekt.license.id}"
+        val licenseFile = rootDir.resolve("LICENSE")
+        if (!licenseFile.exists() || licenseFile.useLines { it.firstOrNull() }?.trim() != licenseTag) {
+            licenseFile.writeText(buildString {
+                append(licenseTag)
+                appendLine()
+                appendLine()
+                append(runBlocking { getLicenseText(projekt) })
+            })
+        }
         publishingTarget.orNull?.configure(this, projekt)
     }
+
+    private suspend fun getLicenseText(projekt: IProjekt): String =
+        HttpClient(CIO).use { client ->
+            val license = projekt.license
+            val template = client.get(license.url).bodyAsText()
+            license.fillTemplate(template, projekt)
+        }
 
     private fun minecraftFabricMod(mod: MinecraftMod, isFabricApiRequired: Boolean) = script {
         requirePlugins("fabric-loom")
@@ -294,12 +309,12 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
                                 ModSide.SERVER -> server()
                             }
                             programArgs("--username", "${mod.developer}-$sideName")
-                            vmArgs("-Xms2G", side.getMaxMemoryJvmArgument())
+                            vmArgs(side.getMinMemoryJvmArgument(), side.getMaxMemoryJvmArgument())
                         }
                     }
                 }
             }
-            accessWidenerPath.set(file("src/main/resources/${mod.id}.accesswidener"))
+            accessWidenerPath.set(file("src/main/resources/" + fileName(mod.id, "accesswidener")))
         }
         if (datagenClasses.isNotEmpty()) {
             runExtension<LoomGradleExtensionAPI> {
@@ -312,7 +327,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
                             "-Dfabric-api.datagen",
                             "-Dfabric-api.datagen.output-dir=${file("src/main/generated")}",
                             "-Dfabric-api.datagen.modid=${mod.id}",
-                            "-Xms2G",
+                            ModSide.SERVER.getMinMemoryJvmArgument(),
                             ModSide.SERVER.getMaxMemoryJvmArgument(),
                         )
                     }
@@ -324,7 +339,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
                 }
             }
         }
-        val generateFabricConfigTask by tasks.registering {
+        val generateFabricConfigTask = tasks.register("generateFabricConfig") {
             val modConfigFile = getBuildFile("generated/resources/${ModLoader.FABRIC.getConfigFilePath()}")
             val mixinsConfigFile = getBuildFile("generated/resources/${mod.mixinsConfigFileName}")
             outputs.files(modConfigFile, mixinsConfigFile)

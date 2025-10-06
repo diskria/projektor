@@ -1,4 +1,4 @@
-package io.github.diskria.projektor.projekt
+package io.github.diskria.projektor.projekt.common
 
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.Semver
@@ -7,6 +7,8 @@ import io.github.diskria.kotlin.utils.extensions.common.*
 import io.github.diskria.kotlin.utils.poet.Property
 import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.projektor.licenses.License
+import io.github.diskria.projektor.repo.host.GitHub
+import io.github.diskria.projektor.repo.host.RepoHost
 import io.ktor.http.*
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -65,7 +67,7 @@ interface IProjekt {
         URLBuilder().apply {
             protocol = URLProtocol.HTTPS
             host = repoHost.hostname.modifyIf(isPackages) { it.appendPrefix("maven.pkg.") }
-            path(owner, repo.modifyIf(isVcs) { it.appendSuffix(".${repoHost.vcs.name}") })
+            path(owner, repo.modifyIf(isVcs) { it.appendSuffix(".${repoHost.versionControlSystem.name}") })
             block()
         }.build()
 }

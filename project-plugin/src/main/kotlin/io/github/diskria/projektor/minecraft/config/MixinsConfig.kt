@@ -1,7 +1,7 @@
 package io.github.diskria.projektor.minecraft.config
 
 import io.github.diskria.kotlin.utils.extensions.appendPackageName
-import io.github.diskria.projektor.extensions.kotlin.mappers.toInt
+import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.minecraft.SourceSet
 import io.github.diskria.projektor.projekt.MinecraftMod
 import kotlinx.serialization.SerialName

@@ -1,13 +1,13 @@
 package io.github.diskria.projektor.publishing
 
-import io.github.diskria.gradle.utils.extensions.kotlin.common.gradleError
-import io.github.diskria.gradle.utils.extensions.kotlin.getBuildDirectory
-import io.github.diskria.gradle.utils.extensions.kotlin.runExtension
+import io.github.diskria.gradle.utils.extensions.common.gradleError
+import io.github.diskria.gradle.utils.extensions.getBuildDirectory
+import io.github.diskria.gradle.utils.extensions.runExtension
 import io.github.diskria.kotlin.utils.extensions.common.className
+import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.projekt.AndroidLibrary
-import io.github.diskria.projektor.projekt.IProjekt
 import io.github.diskria.projektor.projekt.KotlinLibrary
-import io.github.diskria.projektor.projekt.Secrets
+import io.github.diskria.projektor.projekt.common.IProjekt
 import org.gradle.api.Project
 import org.gradle.api.publish.Publication
 import org.gradle.api.publish.PublishingExtension
@@ -46,7 +46,7 @@ data object MavenCentral : PublishingTarget {
                     licenses {
                         license {
                             projekt.license.let { license ->
-                                name.set(license.name)
+                                name.set(license.id)
                                 url.set(license.url)
                             }
                         }
@@ -62,9 +62,15 @@ data object MavenCentral : PublishingTarget {
                     }
                     scm {
                         url.set(projekt.getRepoUrl())
-                        connection.set(projekt.repoHost.vcs.buildUri(projekt.getRepoUrl(true)))
+                        connection.set(
+                            projekt.repoHost.versionControlSystem.buildScmUri(
+                                projekt.getRepoUrl(isVcs = true)
+                            )
+                        )
                         developerConnection.set(
-                            projekt.repoHost.vcs.buildUri(projekt.repoHost.sshAuthority, projekt.getRepoPath(true))
+                            projekt.repoHost.versionControlSystem.buildScmUri(
+                                projekt.repoHost.sshAuthority, projekt.getRepoPath(isVcs = true)
+                            )
                         )
                     }
                 }

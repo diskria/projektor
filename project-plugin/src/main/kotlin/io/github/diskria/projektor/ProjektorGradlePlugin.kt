@@ -1,7 +1,6 @@
 package io.github.diskria.projektor
 
-import io.github.diskria.gradle.utils.extensions.kotlin.registerExtension
-import io.github.diskria.projektor.extensions.gradle.ProjektExtension
+import io.github.diskria.gradle.utils.extensions.registerExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 

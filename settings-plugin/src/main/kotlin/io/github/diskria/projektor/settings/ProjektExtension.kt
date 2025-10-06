@@ -1,7 +1,7 @@
-package io.github.diskria.projektor.settings.extensions.gradle
+package io.github.diskria.projektor.settings
 
 import io.github.diskria.gradle.utils.extensions.gradle.SettingsExtension
-import io.github.diskria.gradle.utils.extensions.kotlin.common.gradleError
+import io.github.diskria.gradle.utils.extensions.isCI
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.appendPrefix
 import io.github.diskria.kotlin.utils.extensions.asDirectory
@@ -10,10 +10,11 @@ import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.common.modifyIf
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.extensions.setCase
-import io.github.diskria.projektor.settings.extensions.kotlin.configureMaven
-import io.github.diskria.projektor.settings.extensions.kotlin.dependencyRepositories
-import io.github.diskria.projektor.settings.extensions.kotlin.pluginRepositories
-import io.github.diskria.projektor.settings.extensions.kotlin.repositories
+import io.github.diskria.kotlin.utils.properties.AutoNamedEnvironmentVariable
+import io.github.diskria.projektor.settings.extensions.configureMaven
+import io.github.diskria.projektor.settings.extensions.dependencyRepositories
+import io.github.diskria.projektor.settings.extensions.pluginRepositories
+import io.github.diskria.projektor.settings.extensions.repositories
 import io.github.diskria.projektor.settings.minecraft.ModLoader
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.model.ObjectFactory
@@ -24,7 +25,8 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Settin
 
     val description: Property<String> = objects.property(String::class.java)
     val version: Property<String> = objects.property(String::class.java)
-    val versionCatalog: Property<ConfigurableFileCollection> = objects.property(ConfigurableFileCollection::class.java)
+
+    val catalog: Property<ConfigurableFileCollection> = objects.property(ConfigurableFileCollection::class.java)
 
     private var isCommonConfigurationApplied: Boolean = false
 
@@ -93,13 +95,9 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Settin
         if (isCommonConfigurationApplied) {
             return@script
         }
-        val (owner, repo) = if (providers.environmentVariable("CI").isPresent) {
-            val githubOwner = providers.environmentVariable("GITHUB_OWNER").orNull ?: gradleError(
-                "Environment variable GITHUB_OWNER must be set"
-            )
-            val githubRepo = providers.environmentVariable("GITHUB_REPO").orNull ?: gradleError(
-                "Environment variable GITHUB_REPO must be set"
-            )
+        val (owner, repo) = if (providers.isCI) {
+            val githubOwner by AutoNamedEnvironmentVariable(isRequired = true)
+            val githubRepo by AutoNamedEnvironmentVariable(isRequired = true)
             githubOwner to githubRepo
         } else {
             rootDir.parentFile.asDirectory().name to rootDir.name
@@ -114,12 +112,16 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Settin
             version = requireProperty(this@ProjektExtension.version, this@ProjektExtension::version.name)
         }
         repositories {
+            configureMaven(
+                "Maven Central Mirror",
+                "https://repo1.maven.org/maven2"
+            )
             mavenCentral()
         }
         pluginRepositories {
             gradlePluginPortal()
         }
-        versionCatalog.orNull?.let { files ->
+        catalog.orNull?.let { files ->
             dependencyResolutionManagement {
                 versionCatalogs {
                     create("libs") {
@@ -132,6 +134,6 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Settin
     }
 
     private fun isProjektor(): Boolean = script {
-        true // TODO replace with root project name check after 2.1 release
+        rootProject.name == ProjektMetadata.PLUGIN_NAME
     }
 }

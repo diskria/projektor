@@ -1,4 +1,4 @@
-package io.github.diskria.projektor.projekt
+package io.github.diskria.projektor
 
 import io.github.diskria.kotlin.utils.extensions.common.SCREAMING_SNAKE_CASE
 import io.github.diskria.kotlin.utils.extensions.common.camelCase

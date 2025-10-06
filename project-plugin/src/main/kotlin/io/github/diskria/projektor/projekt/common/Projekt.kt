@@ -1,7 +1,8 @@
-package io.github.diskria.projektor.projekt
+package io.github.diskria.projektor.projekt.common
 
 import io.github.diskria.kotlin.utils.Semver
 import io.github.diskria.projektor.licenses.License
+import io.github.diskria.projektor.projekt.*
 import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 

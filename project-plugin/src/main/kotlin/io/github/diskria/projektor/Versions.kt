@@ -1,4 +1,4 @@
-package io.github.diskria.projektor.projekt
+package io.github.diskria.projektor
 
 object Versions {
     const val JAVA = 24

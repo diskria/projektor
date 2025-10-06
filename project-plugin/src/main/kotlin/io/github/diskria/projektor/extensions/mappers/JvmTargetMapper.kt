@@ -1,4 +1,4 @@
-package io.github.diskria.projektor.extensions.kotlin.mappers
+package io.github.diskria.projektor.extensions.mappers
 
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 

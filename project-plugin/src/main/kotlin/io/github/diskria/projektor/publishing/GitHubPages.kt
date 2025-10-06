@@ -1,8 +1,8 @@
 package io.github.diskria.projektor.publishing
 
-import io.github.diskria.gradle.utils.extensions.kotlin.getBuildDirectory
-import io.github.diskria.gradle.utils.extensions.kotlin.runExtension
-import io.github.diskria.projektor.projekt.IProjekt
+import io.github.diskria.gradle.utils.extensions.getBuildDirectory
+import io.github.diskria.gradle.utils.extensions.runExtension
+import io.github.diskria.projektor.projekt.common.IProjekt
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.kotlin.dsl.maven

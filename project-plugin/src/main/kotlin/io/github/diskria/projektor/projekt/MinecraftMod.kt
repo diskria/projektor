@@ -6,12 +6,13 @@ import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.mappers.toEnum
 import io.github.diskria.kotlin.utils.poet.Property
 import io.github.diskria.kotlin.utils.properties.toAutoNamedProperty
-import io.github.diskria.projektor.extensions.kotlin.mappers.toJvmTarget
+import io.github.diskria.projektor.extensions.mappers.toJvmTarget
 import io.github.diskria.projektor.minecraft.ModEnvironment
 import io.github.diskria.projektor.minecraft.ModLoader
 import io.github.diskria.projektor.minecraft.utils.ModrinthUtils
 import io.github.diskria.projektor.minecraft.version.MinecraftVersion
 import io.github.diskria.projektor.minecraft.version.getMinJavaVersion
+import io.github.diskria.projektor.projekt.common.IProjekt
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.provideDelegate
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
