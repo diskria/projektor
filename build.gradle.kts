@@ -9,12 +9,3 @@ tasks.register<Sync>(taskName) {
     }
     into(repoPath)
 }
-
-// TODO remove after 2.3.0 release
-subprojects {
-    rootProject.extensions.extraProperties.properties.forEach { (key, value) ->
-        if (key.startsWith("projekt") && !extensions.extraProperties.has(key)) {
-            extensions.extraProperties.set(key, value)
-        }
-    }
-}
