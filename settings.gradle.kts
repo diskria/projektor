@@ -16,12 +16,12 @@ pluginManagement {
 
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
-    id("io.github.diskria.projektor.settings") version "2.+"
+    id("io.github.diskria.projektor.settings") version "unspecified"
 }
 
 projekt {
     description = "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
-    version = "2.2.4"
+    version = "2.2.5"
     license = MIT
 
     gradlePlugin()

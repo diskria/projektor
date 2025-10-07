@@ -1,6 +1,3 @@
-import io.github.diskria.gradle.utils.extensions.runExtension
-import io.github.diskria.kotlin.utils.extensions.appendPackageName
-import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
 import io.github.diskria.projektor.publishing.LocalMaven
 
 plugins {
@@ -33,6 +30,5 @@ dependencies {
 projekt {
     publishingTarget = LocalMaven
 
-    val plugin = gradlePlugin()
-    plugin.publishingTarget?.configure(plugin, project)
+    gradlePlugin()
 }
