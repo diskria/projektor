@@ -9,13 +9,21 @@ import io.github.diskria.projektor.settings.projekt.common.AbstractProjekt
 import io.github.diskria.projektor.settings.projekt.common.IProjekt
 import org.gradle.api.initialization.Settings
 
-class MinecraftMod(projekt: IProjekt, val settings: Settings) : AbstractProjekt(projekt), IProjekt by projekt {
+class MinecraftMod(
+    projekt: IProjekt,
+    settingsProvider: () -> Settings
+) : AbstractProjekt(
+    projekt,
+    settingsProvider
+), IProjekt by projekt {
 
     override fun configureRepositories() {
-        applyRepositories(settings)
+        script {
+            applyRepositories(this)
+        }
     }
 
-    override fun configureProjects() = with(settings) {
+    override fun configureProjects() = script {
         include(":common")
         ModLoader.entries.forEach { modLoader ->
             val modLoaderName = modLoader.getName()

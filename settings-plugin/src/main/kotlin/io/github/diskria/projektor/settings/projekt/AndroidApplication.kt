@@ -4,10 +4,18 @@ import io.github.diskria.projektor.settings.projekt.common.AbstractProjekt
 import io.github.diskria.projektor.settings.projekt.common.IProjekt
 import org.gradle.api.initialization.Settings
 
-class AndroidApplication(projekt: IProjekt, val settings: Settings) : AbstractProjekt(projekt), IProjekt by projekt {
+class AndroidApplication(
+    projekt: IProjekt,
+    settingsProvider: () -> Settings
+) : AbstractProjekt(
+    projekt,
+    settingsProvider
+), IProjekt by projekt {
 
     override fun configureRepositories() {
-        applyRepositories(settings)
+        script {
+            applyRepositories(this)
+        }
     }
 
     companion object {

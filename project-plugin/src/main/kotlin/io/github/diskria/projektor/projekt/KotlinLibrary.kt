@@ -15,9 +15,15 @@ import org.gradle.kotlin.dsl.kotlin
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.provideDelegate
 
-class KotlinLibrary(projekt: IProjekt, val project: Project) : AbstractProjekt(projekt), IProjekt by projekt {
+class KotlinLibrary(
+    projekt: IProjekt,
+    projectProvider: () -> Project
+) : AbstractProjekt(
+    projekt,
+    projectProvider
+), IProjekt by projekt {
 
-    override fun configureProject() = with(project) {
+    override fun configureProject() = script {
         dependencies {
             testImplementation(kotlin("test"))
             testImplementation("org.junit.jupiter:junit-jupiter:${Versions.JUNIT}")

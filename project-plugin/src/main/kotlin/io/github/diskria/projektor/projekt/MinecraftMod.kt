@@ -40,15 +40,25 @@ import org.gradle.language.jvm.tasks.ProcessResources
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import kotlin.properties.Delegates
 
-class MinecraftMod(projekt: IProjekt, val project: Project) : AbstractProjekt(projekt), IProjekt by projekt {
+class MinecraftMod(
+    projekt: IProjekt,
+    projectProvider: () -> Project
+) : AbstractProjekt(
+    projekt,
+    projectProvider
+), IProjekt by projekt {
 
     val id: String = projekt.repo
     val mixinsConfigFileName: String = fileName(id, "mixins", Constants.File.Extension.JSON)
-    val minecraftVersion: MinecraftVersion = MinecraftVersion.of(project.projectDir.name)
-    val modLoader: ModLoader = project.projectDir.parentFile.name.toEnum<ModLoader>()
 
     val modrinthProjectUrl: String
         get() = ModrinthUtils.getProjectUrl(modrinthProjectId)
+
+    val minecraftVersion: MinecraftVersion
+        get() = script { MinecraftVersion.of(projectDir.name) }
+
+    val modLoader: ModLoader
+        get() = script { projectDir.parentFile.name.toEnum<ModLoader>() }
 
     var modrinthProjectId: String by Delegates.notNull()
     var environment: ModEnvironment by Delegates.notNull()
@@ -67,7 +77,7 @@ class MinecraftMod(projekt: IProjekt, val project: Project) : AbstractProjekt(pr
             append(minecraftVersion.getVersion())
         }
 
-    override fun configureProject() = with(project) {
+    override fun configureProject() = script {
         requirePlugins("org.jetbrains.kotlin.plugin.serialization")
         tasks.named<Jar>("jar") {
             manifest {
@@ -100,7 +110,7 @@ class MinecraftMod(projekt: IProjekt, val project: Project) : AbstractProjekt(pr
         }
     }
 
-    private fun configureFabricMod(mod: MinecraftMod) = with(project) {
+    private fun configureFabricMod(mod: MinecraftMod) = script {
         requirePlugins("fabric-loom")
         val loaderVersion = Versions.FABRIC_LOADER
         val mixins = environment.getSourceSets().mapNotNull { sourceSet ->

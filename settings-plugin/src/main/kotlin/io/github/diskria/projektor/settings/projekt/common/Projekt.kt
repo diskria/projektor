@@ -15,18 +15,18 @@ open class Projekt(
     override val tags: Set<String>,
 ) : IProjekt {
 
-    fun toGradlePlugin(settings: Settings): GradlePlugin =
-        GradlePlugin(this, settings)
+    fun toGradlePlugin(settingsProvider: () -> Settings): GradlePlugin =
+        GradlePlugin(this, settingsProvider)
 
-    fun toKotlinLibrary(settings: Settings): KotlinLibrary =
-        KotlinLibrary(this, settings)
+    fun toKotlinLibrary(settingsProvider: () -> Settings): KotlinLibrary =
+        KotlinLibrary(this, settingsProvider)
 
-    fun toAndroidLibrary(settings: Settings): AndroidLibrary =
-        AndroidLibrary(this, settings)
+    fun toAndroidLibrary(settingsProvider: () -> Settings): AndroidLibrary =
+        AndroidLibrary(this, settingsProvider)
 
-    fun toAndroidApplication(settings: Settings): AndroidApplication =
-        AndroidApplication(this, settings)
+    fun toAndroidApplication(settingsProvider: () -> Settings): AndroidApplication =
+        AndroidApplication(this, settingsProvider)
 
-    fun toMinecraftMod(settings: Settings): MinecraftMod =
-        MinecraftMod(this, settings)
+    fun toMinecraftMod(settingsProvider: () -> Settings): MinecraftMod =
+        MinecraftMod(this, settingsProvider)
 }

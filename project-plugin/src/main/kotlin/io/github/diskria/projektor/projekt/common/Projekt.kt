@@ -20,18 +20,18 @@ data class Projekt(
     override val kotlinVersion: String,
 ) : IProjekt {
 
-    fun toGradlePlugin(project: Project): GradlePlugin =
-        GradlePlugin(this, project)
+    fun toGradlePlugin(projectProvider: () -> Project): GradlePlugin =
+        GradlePlugin(this, projectProvider)
 
-    fun toKotlinLibrary(project: Project): KotlinLibrary =
-        KotlinLibrary(this, project)
+    fun toKotlinLibrary(projectProvider: () -> Project): KotlinLibrary =
+        KotlinLibrary(this, projectProvider)
 
-    fun toAndroidLibrary(project: Project): AndroidLibrary =
-        AndroidLibrary(this, project)
+    fun toAndroidLibrary(projectProvider: () -> Project): AndroidLibrary =
+        AndroidLibrary(this, projectProvider)
 
-    fun toAndroidApplication(project: Project): AndroidApplication =
-        AndroidApplication(this, project)
+    fun toAndroidApplication(projectProvider: () -> Project): AndroidApplication =
+        AndroidApplication(this, projectProvider)
 
-    fun toMinecraftMod(project: Project): MinecraftMod =
-        MinecraftMod(this, project)
+    fun toMinecraftMod(projectProvider: () -> Project): MinecraftMod =
+        MinecraftMod(this, projectProvider)
 }

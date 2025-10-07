@@ -33,33 +33,33 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Settin
     private var projekt: IProjekt? = null
 
     fun gradlePlugin(block: GradlePlugin.() -> Unit = {}): GradlePlugin =
-        buildProjekt().toGradlePlugin(settings).apply {
+        buildProjekt().toGradlePlugin { settings }.apply {
             block()
-            configure(settings, versionCatalogPath.orNull)
+            configure(versionCatalogPath.orNull)
         }
 
     fun kotlinLibrary(block: KotlinLibrary.() -> Unit = {}): KotlinLibrary =
-        buildProjekt().toKotlinLibrary(settings).apply {
+        buildProjekt().toKotlinLibrary { settings }.apply {
             block()
-            configure(settings, versionCatalogPath.orNull)
+            configure(versionCatalogPath.orNull)
         }
 
     fun androidLibrary(block: AndroidLibrary.() -> Unit = {}): AndroidLibrary =
-        buildProjekt().toAndroidLibrary(settings).apply {
+        buildProjekt().toAndroidLibrary { settings }.apply {
             block()
-            configure(settings, versionCatalogPath.orNull)
+            configure(versionCatalogPath.orNull)
         }
 
     fun androidApplication(block: AndroidApplication.() -> Unit = {}): AndroidApplication =
-        buildProjekt().toAndroidApplication(settings).apply {
+        buildProjekt().toAndroidApplication { settings }.apply {
             block()
-            configure(settings, versionCatalogPath.orNull)
+            configure(versionCatalogPath.orNull)
         }
 
     fun minecraftMod(block: MinecraftMod.() -> Unit = {}): MinecraftMod =
-        buildProjekt().toMinecraftMod(settings).apply {
+        buildProjekt().toMinecraftMod { settings }.apply {
             block()
-            configure(settings, versionCatalogPath.orNull)
+            configure(versionCatalogPath.orNull)
         }
 
     private fun buildProjekt(): Projekt {

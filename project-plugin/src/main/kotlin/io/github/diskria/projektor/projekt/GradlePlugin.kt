@@ -13,7 +13,13 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 
-class GradlePlugin(projekt: IProjekt, val project: Project) : AbstractProjekt(projekt), IProjekt by projekt {
+class GradlePlugin(
+    projekt: IProjekt,
+    projectProvider: () -> Project
+) : AbstractProjekt(
+    projekt,
+    projectProvider
+), IProjekt by projekt {
 
     val id: String
         get() = getPackageName()
@@ -23,7 +29,7 @@ class GradlePlugin(projekt: IProjekt, val project: Project) : AbstractProjekt(pr
     override fun getPackageName(): String =
         projekt.getPackageName().modifyIf(isSettingsPlugin) { it.appendPackageName("settings") }
 
-    override fun configureProject() = with(project) {
+    override fun configureProject() = script {
         val plugin = this@GradlePlugin
         runExtension<GradlePluginDevelopmentExtension> {
             website.set(getRepoUrl())

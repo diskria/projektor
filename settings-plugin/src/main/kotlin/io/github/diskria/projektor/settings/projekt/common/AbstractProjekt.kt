@@ -14,7 +14,10 @@ import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.initialization.Settings
 
-abstract class AbstractProjekt(val projekt: IProjekt) : IProjekt {
+abstract class AbstractProjekt(val projekt: IProjekt, val settingsProvider: () -> Settings) : IProjekt {
+
+    protected fun <R> script(block: Settings.() -> R): R =
+        settingsProvider().block()
 
     open fun configureRepositories() {
 
@@ -24,8 +27,8 @@ abstract class AbstractProjekt(val projekt: IProjekt) : IProjekt {
 
     }
 
-    fun configure(settings: Settings, versionCatalogPath: String?) = with(settings) {
-        applyCommonConfiguration(settings)
+    fun configure(versionCatalogPath: String?) = script {
+        applyCommonConfiguration()
         configureRepositories()
         configureProjects()
         versionCatalogPath?.let { path ->
@@ -39,7 +42,7 @@ abstract class AbstractProjekt(val projekt: IProjekt) : IProjekt {
         }
     }
 
-    private fun applyCommonConfiguration(settings: Settings) = with(settings) {
+    private fun applyCommonConfiguration() = script {
         rootProject.name = name.modifyIf(owner.first().isUpperCase()) {
             it.appendPrefix(owner + Constants.Char.SPACE)
         }

@@ -20,16 +20,19 @@ import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-abstract class AbstractProjekt(val projekt: IProjekt) {
+abstract class AbstractProjekt(val projekt: IProjekt, val projectProvider: () -> Project) {
+
+    protected fun <R> script(block: Project.() -> R): R =
+        projectProvider().block()
 
     open fun configureProject(): Any? = null
 
-    fun configure(project: Project) {
-        applyCommonConfiguration(project)
+    fun configure() {
+        applyCommonConfiguration()
         configureProject()
     }
 
-    private fun applyCommonConfiguration(project: Project) = with(project) {
+    private fun applyCommonConfiguration() = script {
         requirePlugins("kotlin")
         group = projekt.getNamespace()
         version = projekt.getJarVersion()
