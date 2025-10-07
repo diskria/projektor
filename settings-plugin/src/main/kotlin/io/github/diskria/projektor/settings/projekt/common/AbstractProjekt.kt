@@ -56,16 +56,16 @@ abstract class AbstractProjekt(val projekt: IProjekt, val settingsProvider: () -
         configureRepositories(RepositoriesFilterType.PLUGINS) {
             gradlePluginPortal()
         }
-//        val licenseTag = "SPDX ID: ${license.id}"
-//        val licenseFile = rootDir.resolve("LICENSE")
-//        if (!licenseFile.exists() || licenseFile.readLines().lastOrNull { it.isNotBlank() }?.trim() != licenseTag) {
-//            licenseFile.writeText(buildString {
-//                append(runBlocking { getLicenseText() })
-//                appendLine()
-//                append(licenseTag)
-//                appendLine()
-//            })
-//        }
+        val licenseTag = "SPDX ID: ${license.id}"
+        val licenseFile = rootDir.resolve("LICENSE")
+        if (!licenseFile.exists() || licenseFile.readLines().lastOrNull { it.isNotBlank() }?.trim() != licenseTag) {
+            licenseFile.writeText(buildString {
+                append(runBlocking { getLicenseText() })
+                appendLine()
+                append(licenseTag)
+                appendLine()
+            })
+        }
     }
 
     private suspend fun getLicenseText(): String =

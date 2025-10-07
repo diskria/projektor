@@ -1,5 +1,3 @@
-import io.github.diskria.gradle.utils.extensions.getBuildDirectory
-import io.github.diskria.gradle.utils.extensions.runExtension
 import io.github.diskria.projektor.publishing.LocalMaven
 
 plugins {
@@ -30,16 +28,7 @@ dependencies {
 }
 
 projekt {
-//    publishingTarget = LocalMaven
+    publishingTarget = LocalMaven
 
     gradlePlugin()
-
-}
-
-runExtension<PublishingExtension> {
-    repositories {
-        maven(getBuildDirectory("localMaven")) {
-            name = "LocalMaven"
-        }
-    }
 }
