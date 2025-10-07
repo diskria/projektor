@@ -1,6 +1,7 @@
 package io.github.diskria.projektor.publishing
 
 import io.github.diskria.gradle.utils.extensions.runExtension
+import io.github.diskria.kotlin.utils.extensions.toNullIfEmpty
 import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.projekt.common.IProjekt
 import org.gradle.api.Project
@@ -12,7 +13,7 @@ import org.gradle.kotlin.dsl.withType
 data object GitHubPackages : PublishingTarget {
 
     override val configure: Project.(IProjekt) -> Unit = configure@{ projekt ->
-        val githubPackagesToken = Secrets.githubPackagesToken ?: return@configure
+        val githubPackagesToken = Secrets.githubPackagesToken.toNullIfEmpty() ?: return@configure
         runExtension<PublishingExtension> {
             publications.withType<MavenPublication> {
                 artifactId = projekt.repo

@@ -1,4 +1,4 @@
-import io.github.diskria.projektor.licenses.MitLicense
+import io.github.diskria.projektor.licenses.MIT
 import io.github.diskria.projektor.publishing.GitHubPages
 
 plugins {
@@ -29,7 +29,7 @@ dependencies {
 }
 
 projekt {
-    license = MitLicense
+    license = MIT
     publishingTarget = GitHubPages
 
     gradlePlugin {

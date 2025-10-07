@@ -165,7 +165,7 @@ class FabricModConfig(
             FabricModConfig(
                 schemaVersion = 1,
                 id = mod.id,
-                version = mod.semver.toString(),
+                version = mod.version.toString(),
                 name = mod.name,
                 description = mod.description,
                 authors = listOf(mod.developer),

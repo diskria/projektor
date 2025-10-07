@@ -1,34 +1,36 @@
 package io.github.diskria.projektor.projekt.common
 
-import io.github.diskria.kotlin.utils.Semver
 import io.github.diskria.projektor.licenses.License
 import io.github.diskria.projektor.projekt.*
+import io.github.diskria.projektor.publishing.PublishingTarget
 import org.gradle.api.Project
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 data class Projekt(
     override val owner: String,
-    override val repo: String,
-    override val description: String,
-    override val semver: Semver,
+    override val developer: String,
     override val email: String,
+    override val repo: String,
+    override val name: String,
+    override val description: String,
+    override val tags: Set<String>,
+    override val version: String,
     override val license: License,
+    override val publishingTarget: PublishingTarget?,
     override val javaVersion: Int,
-    override val jvmTarget: JvmTarget,
     override val kotlinVersion: String,
 ) : IProjekt {
 
-    fun toGradlePlugin(): GradlePlugin =
-        GradlePlugin(this)
+    fun toGradlePlugin(project: Project): GradlePlugin =
+        GradlePlugin(this, project)
 
-    fun toKotlinLibrary(): KotlinLibrary =
-        KotlinLibrary(this)
+    fun toKotlinLibrary(project: Project): KotlinLibrary =
+        KotlinLibrary(this, project)
 
-    fun toAndroidLibrary(): AndroidLibrary =
-        AndroidLibrary(this)
+    fun toAndroidLibrary(project: Project): AndroidLibrary =
+        AndroidLibrary(this, project)
 
-    fun toAndroidApplication(): AndroidApplication =
-        AndroidApplication(this)
+    fun toAndroidApplication(project: Project): AndroidApplication =
+        AndroidApplication(this, project)
 
     fun toMinecraftMod(project: Project): MinecraftMod =
         MinecraftMod(this, project)

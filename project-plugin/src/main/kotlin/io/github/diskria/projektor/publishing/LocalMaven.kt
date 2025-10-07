@@ -7,13 +7,13 @@ import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.kotlin.dsl.maven
 
-data object GitHubPages : PublishingTarget {
+data object LocalMaven : PublishingTarget {
 
     override val configure: Project.(IProjekt) -> Unit = configure@{ _ ->
         runExtension<PublishingExtension> {
             repositories {
-                maven(getBuildDirectory("repo")) {
-                    name = "GitHubPages"
+                maven(getBuildDirectory("localMaven")) {
+                    name = "LocalMaven"
                 }
             }
         }

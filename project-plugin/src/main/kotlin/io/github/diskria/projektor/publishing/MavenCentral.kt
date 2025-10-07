@@ -4,7 +4,9 @@ import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.gradle.utils.extensions.getBuildDirectory
 import io.github.diskria.gradle.utils.extensions.runExtension
 import io.github.diskria.kotlin.utils.extensions.common.className
+import io.github.diskria.kotlin.utils.extensions.toNullIfEmpty
 import io.github.diskria.projektor.Secrets
+import io.github.diskria.projektor.licenses.getUrl
 import io.github.diskria.projektor.projekt.AndroidLibrary
 import io.github.diskria.projektor.projekt.KotlinLibrary
 import io.github.diskria.projektor.projekt.common.IProjekt
@@ -20,9 +22,12 @@ import org.gradle.plugins.signing.SigningExtension
 data object MavenCentral : PublishingTarget {
 
     override val configure: Project.(IProjekt) -> Unit = configure@{ projekt ->
+        val gpgKey = Secrets.gpgKey.toNullIfEmpty() ?: return@configure
+        val gpgPassphrase = Secrets.gpgPassphrase.toNullIfEmpty() ?: return@configure
+
         val componentName = when (projekt) {
-            is AndroidLibrary -> "release"
             is KotlinLibrary -> "java"
+            is AndroidLibrary -> "release"
             else -> gradleError(
                 "Only Kotlin/Android library projects supported for publishing to Maven Central" +
                         ", but got " + projekt::class.className()
@@ -47,7 +52,7 @@ data object MavenCentral : PublishingTarget {
                         license {
                             projekt.license.let { license ->
                                 name.set(license.id)
-                                url.set(license.url)
+                                url.set(license.getUrl())
                             }
                         }
                     }
@@ -76,13 +81,9 @@ data object MavenCentral : PublishingTarget {
                 }
             }
         }
-        val gpgKey = Secrets.gpgKey
-        val gpgPassphrase = Secrets.gpgPassphrase
-        if (gpgKey != null && gpgPassphrase != null) {
-            runExtension<SigningExtension> {
-                useInMemoryPgpKeys(gpgKey, gpgPassphrase)
-                sign(publication)
-            }
+        runExtension<SigningExtension> {
+            useInMemoryPgpKeys(gpgKey, gpgPassphrase)
+            sign(publication)
         }
     }
 }

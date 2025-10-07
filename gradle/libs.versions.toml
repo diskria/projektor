@@ -9,8 +9,8 @@ okio = "3.16.0"
 kotlin = "2.2.20"
 kotlin-serialization = "1.9.0"
 ktor = "3.3.0"
-kotlin-utils = "0.5.3"
-gradle-utils = "0.3.2"
+kotlin-utils = "0.5.4"
+gradle-utils = "0.3.4"
 
 [plugins]
 projektor = { id = "io.github.diskria.projektor", version.ref = "projektor" }

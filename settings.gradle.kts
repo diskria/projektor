@@ -4,6 +4,11 @@ pluginManagement {
         gradlePluginPortal()
         maven("https://diskria.github.io/projektor")
     }
+    if (rootDir.resolve("build/repo").exists()) {
+        rootDir.resolve("test").listFiles()?.filter { it.isDirectory }?.forEach { testProjectDirectory ->
+            includeBuild("test/${testProjectDirectory.name}")
+        }
+    }
 }
 
 plugins {
@@ -13,7 +18,7 @@ plugins {
 
 projekt {
     description = "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
-    version = "2.2.1"
+    version = "2.2.2"
 
     gradlePlugin()
     minecraftMod()
