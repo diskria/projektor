@@ -34,17 +34,5 @@ projekt {
     publishingTarget = LocalMaven
 
     val plugin = gradlePlugin()
-    runExtension<GradlePluginDevelopmentExtension> {
-        website.set(plugin.getRepoUrl())
-        vcsUrl.set(plugin.getRepoPath(isVcs = true))
-        plugins {
-            create(plugin.id) {
-                id = plugin.id
-                implementationClass = plugin.packageName.appendPackageName(plugin.classNameBase + "GradlePlugin")
-                displayName = plugin.name
-                description = plugin.description
-                tags.set(plugin.tags.toNullIfEmpty())
-            }
-        }
-    }
+    plugin.publishingTarget?.configure(plugin, project)
 }

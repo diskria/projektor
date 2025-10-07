@@ -23,31 +23,31 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
     fun gradlePlugin(block: GradlePlugin.() -> Unit = {}): GradlePlugin =
         toProjekt().toGradlePlugin(project).apply {
             block()
-            configureProject()
+            configure()
         }
 
     fun kotlinLibrary(block: KotlinLibrary.() -> Unit = {}): KotlinLibrary =
         toProjekt().toKotlinLibrary(project).apply {
             block()
-            configureProject()
+            configure()
         }
 
     fun androidLibrary(block: AndroidLibrary.() -> Unit = {}): AndroidLibrary =
         toProjekt().toAndroidLibrary(project).apply {
             block()
-            configureProject()
+            configure()
         }
 
     fun androidApplication(block: AndroidApplication.() -> Unit = {}): AndroidApplication =
         toProjekt().toAndroidApplication(project).apply {
             block()
-            configureProject()
+            configure()
         }
 
     fun minecraftMod(block: MinecraftMod.() -> Unit = {}): MinecraftMod =
         toProjekt().toMinecraftMod(project).apply {
             block()
-            configureProject()
+            configure()
         }
 
     private fun toProjekt(): Projekt {
