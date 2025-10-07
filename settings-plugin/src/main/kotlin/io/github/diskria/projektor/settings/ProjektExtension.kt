@@ -35,31 +35,31 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Settin
     fun gradlePlugin(block: GradlePlugin.() -> Unit = {}): GradlePlugin =
         buildProjekt().toGradlePlugin(settings).apply {
             block()
-            configure(versionCatalogPath.orNull)
+            configure(settings, versionCatalogPath.orNull)
         }
 
     fun kotlinLibrary(block: KotlinLibrary.() -> Unit = {}): KotlinLibrary =
         buildProjekt().toKotlinLibrary(settings).apply {
             block()
-            configure(versionCatalogPath.orNull)
+            configure(settings, versionCatalogPath.orNull)
         }
 
     fun androidLibrary(block: AndroidLibrary.() -> Unit = {}): AndroidLibrary =
         buildProjekt().toAndroidLibrary(settings).apply {
             block()
-            configure(versionCatalogPath.orNull)
+            configure(settings, versionCatalogPath.orNull)
         }
 
     fun androidApplication(block: AndroidApplication.() -> Unit = {}): AndroidApplication =
         buildProjekt().toAndroidApplication(settings).apply {
             block()
-            configure(versionCatalogPath.orNull)
+            configure(settings, versionCatalogPath.orNull)
         }
 
     fun minecraftMod(block: MinecraftMod.() -> Unit = {}): MinecraftMod =
         buildProjekt().toMinecraftMod(settings).apply {
             block()
-            configure(versionCatalogPath.orNull)
+            configure(settings, versionCatalogPath.orNull)
         }
 
     private fun buildProjekt(): Projekt {

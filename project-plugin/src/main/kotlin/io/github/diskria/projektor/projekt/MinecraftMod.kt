@@ -40,10 +40,7 @@ import org.gradle.language.jvm.tasks.ProcessResources
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import kotlin.properties.Delegates
 
-open class MinecraftMod(
-    projekt: IProjekt,
-    project: Project
-) : AbstractProjekt(projekt, project), IProjekt by projekt {
+class MinecraftMod(projekt: IProjekt, val project: Project) : AbstractProjekt(projekt), IProjekt by projekt {
 
     val id: String = projekt.repo
     val mixinsConfigFileName: String = fileName(id, "mixins", Constants.File.Extension.JSON)

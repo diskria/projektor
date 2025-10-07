@@ -15,10 +15,7 @@ import org.gradle.kotlin.dsl.kotlin
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.provideDelegate
 
-open class KotlinLibrary(
-    projekt: IProjekt,
-    project: Project
-) : AbstractProjekt(projekt, project), IProjekt by projekt {
+class KotlinLibrary(projekt: IProjekt, val project: Project) : AbstractProjekt(projekt), IProjekt by projekt {
 
     override fun configureProject() = with(project) {
         dependencies {

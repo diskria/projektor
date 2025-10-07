@@ -13,10 +13,7 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 
-open class GradlePlugin(
-    projekt: IProjekt,
-    project: Project
-) : AbstractProjekt(projekt, project), IProjekt by projekt {
+class GradlePlugin(projekt: IProjekt, val project: Project) : AbstractProjekt(projekt), IProjekt by projekt {
 
     val id: String
         get() = getPackageName()

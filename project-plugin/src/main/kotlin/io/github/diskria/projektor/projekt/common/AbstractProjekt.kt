@@ -11,9 +11,7 @@ import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.Sync
-import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.compile.JavaCompile
-import org.gradle.api.tasks.testing.Test
 import org.gradle.jvm.tasks.Jar
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JvmImplementation
@@ -22,16 +20,16 @@ import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-abstract class AbstractProjekt(val projekt: IProjekt, val project: Project) {
+abstract class AbstractProjekt(val projekt: IProjekt) {
 
     open fun configureProject(): Any? = null
 
-    fun configure() {
-        applyCommonConfiguration()
+    fun configure(project: Project) {
+        applyCommonConfiguration(project)
         configureProject()
     }
 
-    private fun applyCommonConfiguration() = with(project) {
+    private fun applyCommonConfiguration(project: Project) = with(project) {
         requirePlugins("kotlin")
         group = projekt.getNamespace()
         version = projekt.getJarVersion()

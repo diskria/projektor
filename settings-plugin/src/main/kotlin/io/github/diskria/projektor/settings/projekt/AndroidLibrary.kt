@@ -5,10 +5,7 @@ import io.github.diskria.projektor.settings.projekt.common.AbstractProjekt
 import io.github.diskria.projektor.settings.projekt.common.IProjekt
 import org.gradle.api.initialization.Settings
 
-open class AndroidLibrary(
-    projekt: IProjekt,
-    settings: Settings
-) : AbstractProjekt(projekt, settings), IProjekt by projekt {
+class AndroidLibrary(projekt: IProjekt, val settings: Settings) : AbstractProjekt(projekt), IProjekt by projekt {
 
     override fun configureRepositories() {
         applyRepositories(settings)
