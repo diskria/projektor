@@ -13,9 +13,6 @@ data object LocalMaven : PublishingTarget {
 
     override fun configure(projekt: IProjekt, project: Project) = with(project) {
         runExtension<PublishingExtension> {
-            publications.withType<MavenPublication> {
-                artifactId = projekt.repo
-            }
             repositories {
                 maven(getBuildDirectory("localMaven")) {
                     name = "LocalMaven"

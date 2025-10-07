@@ -21,7 +21,7 @@ plugins {
 
 projekt {
     description = "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
-    version = "2.3.3"
+    version = "2.3.4"
     license = MIT
 
     gradlePlugin()
