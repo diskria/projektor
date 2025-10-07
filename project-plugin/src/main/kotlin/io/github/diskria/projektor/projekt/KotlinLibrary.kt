@@ -5,6 +5,7 @@ import io.github.diskria.kotlin.utils.extensions.common.SCREAMING_SNAKE_CASE
 import io.github.diskria.kotlin.utils.poet.Property
 import io.github.diskria.kotlin.utils.properties.toAutoNamedProperty
 import io.github.diskria.projektor.Versions
+import io.github.diskria.projektor.projekt.common.AbstractProjekt
 import io.github.diskria.projektor.projekt.common.IProjekt
 import org.gradle.api.Project
 import org.gradle.api.tasks.testing.Test
@@ -14,9 +15,12 @@ import org.gradle.kotlin.dsl.kotlin
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.provideDelegate
 
-data class KotlinLibrary(private val projekt: IProjekt, private val project: Project) : IProjekt by projekt {
+open class KotlinLibrary(
+    projekt: IProjekt,
+    project: Project
+) : AbstractProjekt(projekt, project), IProjekt by projekt {
 
-    override val configure: Project.() -> Unit = {
+    override fun configureProject() = with(project) {
         dependencies {
             testImplementation(kotlin("test"))
             testImplementation("org.junit.jupiter:junit-jupiter:${Versions.JUNIT}")

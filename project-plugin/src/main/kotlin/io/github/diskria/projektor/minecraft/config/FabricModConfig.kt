@@ -73,9 +73,10 @@ class FabricModConfig(
     ) {
         companion object {
             fun of(mod: MinecraftMod, datagenClasses: List<String>): EntryPoints {
-                val mainEntryPoints = entryPoints(mod.packageName.appendPackageName(mod.classNameBase + "Mod"))
-                val clientEntryPoints = entryPoints(mod.packageName.appendPackageName(mod.classNameBase + "Client"))
-                val serverEntryPoints = entryPoints(mod.packageName.appendPackageName(mod.classNameBase + "Server"))
+                val classPathBase = mod.getPackageName().appendPackageName(mod.getClassNameBase())
+                val mainEntryPoints = entryPoints(classPathBase + "Mod")
+                val clientEntryPoints = entryPoints(classPathBase + "Client")
+                val serverEntryPoints = entryPoints(classPathBase + "Server")
                 val datagenEntryPoints = datagenClasses.map { EntryPoint.of(it) }.toNullIfEmpty()
 
                 return when (mod.environment) {
@@ -183,7 +184,7 @@ class FabricModConfig(
                     datagenClasses,
                 ),
                 dependencies = Dependencies.of(
-                    mod.jvmTarget.toInt(),
+                    mod.getJvmTarget().toInt(),
                     minecraftVersion,
                     loaderVersion,
                     isApiRequired,

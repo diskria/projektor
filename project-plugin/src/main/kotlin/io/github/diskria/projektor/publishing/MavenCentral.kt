@@ -21,7 +21,7 @@ import org.gradle.plugins.signing.SigningExtension
 
 data object MavenCentral : PublishingTarget {
 
-    override val configure: Project.(IProjekt) -> Unit = configure@{ projekt ->
+    override fun configure(projekt: IProjekt, project: Project) = with(project) {
         val gpgKey = Secrets.gpgKey.toNullIfEmpty() ?: return@configure
         val gpgPassphrase = Secrets.gpgPassphrase.toNullIfEmpty() ?: return@configure
 
@@ -68,13 +68,13 @@ data object MavenCentral : PublishingTarget {
                     scm {
                         url.set(projekt.getRepoUrl())
                         connection.set(
-                            projekt.repoHost.versionControlSystem.buildScmUri(
+                            projekt.getRepoHost().versionControlSystem.buildScmUri(
                                 projekt.getRepoUrl(isVcs = true)
                             )
                         )
                         developerConnection.set(
-                            projekt.repoHost.versionControlSystem.buildScmUri(
-                                projekt.repoHost.sshAuthority, projekt.getRepoPath(isVcs = true)
+                            projekt.getRepoHost().versionControlSystem.buildScmUri(
+                                projekt.getRepoHost().sshAuthority, projekt.getRepoPath(isVcs = true)
                             )
                         )
                     }

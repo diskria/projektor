@@ -45,10 +45,10 @@ class MixinsConfig(
 
     companion object {
         fun of(mod: MinecraftMod, mixins: Map<SourceSet, List<String>>): MixinsConfig {
-            val javaTargetVersion = "JAVA_${mod.jvmTarget.toInt()}"
+            val javaTargetVersion = "JAVA_${mod.getJvmTarget().toInt()}"
             return MixinsConfig(
                 isRequired = true,
-                packageName = mod.packageName.appendPackageName("mixins"),
+                packageName = mod.getPackageName().appendPackageName("mixins"),
                 javaTargetVersion = javaTargetVersion,
                 injectorConfig = InjectorConfig(
                     defaultRequire = 1

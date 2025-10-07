@@ -11,7 +11,7 @@ import org.gradle.api.Project
 
 data object Modrinth : PublishingTarget {
 
-    override val configure: Project.(IProjekt) -> Unit = configure@{ projekt ->
+    override fun configure(projekt: IProjekt, project: Project) = with(project) {
         val mod = projekt as? MinecraftMod ?: gradleError(
             "Only Minecraft mod projects supported for publishing to Modrinth" +
                     ", but got " + projekt::class.className()

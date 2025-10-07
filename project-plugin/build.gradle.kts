@@ -1,5 +1,7 @@
-import io.github.diskria.projektor.licenses.MIT
-import io.github.diskria.projektor.publishing.GitHubPages
+import io.github.diskria.gradle.utils.extensions.runExtension
+import io.github.diskria.kotlin.utils.extensions.appendPackageName
+import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
+import io.github.diskria.projektor.publishing.LocalMaven
 
 plugins {
     `kotlin-dsl`
@@ -29,10 +31,20 @@ dependencies {
 }
 
 projekt {
-    license = MIT
-    publishingTarget = GitHubPages
+    publishingTarget = LocalMaven
 
-    gradlePlugin {
-        tags = setOf("project", "configuration")
+    val plugin = gradlePlugin()
+    runExtension<GradlePluginDevelopmentExtension> {
+        website.set(plugin.getRepoUrl())
+        vcsUrl.set(plugin.getRepoPath(isVcs = true))
+        plugins {
+            create(plugin.id) {
+                id = plugin.id
+                implementationClass = plugin.packageName.appendPackageName(plugin.classNameBase + "GradlePlugin")
+                displayName = plugin.name
+                description = plugin.description
+                tags.set(plugin.tags.toNullIfEmpty())
+            }
+        }
     }
 }

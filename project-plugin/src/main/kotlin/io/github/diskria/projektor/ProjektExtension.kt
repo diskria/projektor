@@ -23,44 +23,45 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
     fun gradlePlugin(block: GradlePlugin.() -> Unit = {}): GradlePlugin =
         toProjekt().toGradlePlugin(project).apply {
             block()
-            configure(project)
+            configureProject()
         }
 
     fun kotlinLibrary(block: KotlinLibrary.() -> Unit = {}): KotlinLibrary =
         toProjekt().toKotlinLibrary(project).apply {
             block()
-            configure(project)
+            configureProject()
         }
 
     fun androidLibrary(block: AndroidLibrary.() -> Unit = {}): AndroidLibrary =
         toProjekt().toAndroidLibrary(project).apply {
             block()
-            configure(project)
+            configureProject()
         }
 
     fun androidApplication(block: AndroidApplication.() -> Unit = {}): AndroidApplication =
         toProjekt().toAndroidApplication(project).apply {
             block()
-            configure(project)
+            configureProject()
         }
 
     fun minecraftMod(block: MinecraftMod.() -> Unit = {}): MinecraftMod =
         toProjekt().toMinecraftMod(project).apply {
             block()
-            configure(project)
+            configureProject()
         }
 
     private fun toProjekt(): Projekt {
         if (projekt != null) {
             gradleError("Projekt already configured!")
         }
-        val extras = project.extra.properties
+        val rootProject = project.rootProject
+        val extras = rootProject.extra.properties
         val projektOwner: String by extras
         val projektDeveloper: String by extras
         val projektRepo: String by extras
         val projektName: String by extras
-        val projektDescription = project.rootProject.description.toNullIfEmpty() ?: gradleError("Description not set!")
-        val projektVersion = project.rootProject.version.toString().toNullIfEmpty() ?: gradleError("Version not set!")
+        val projektDescription = rootProject.description.toNullIfEmpty() ?: gradleError("Description not set!")
+        val projektVersion = rootProject.version.toString().toNullIfEmpty() ?: gradleError("Version not set!")
         val projektTags: Set<String> by extras
         val projektLicenseId: String by extras
         return Projekt(

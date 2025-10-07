@@ -9,7 +9,7 @@ import org.gradle.kotlin.dsl.maven
 
 data object LocalMaven : PublishingTarget {
 
-    override val configure: Project.(IProjekt) -> Unit = configure@{ _ ->
+    override fun configure(projekt: IProjekt, project: Project) = with(project) {
         runExtension<PublishingExtension> {
             repositories {
                 maven(getBuildDirectory("localMaven")) {

@@ -5,14 +5,20 @@ import io.github.diskria.projektor.settings.RepositoriesFilterType
 import io.github.diskria.projektor.settings.extensions.configureMaven
 import io.github.diskria.projektor.settings.extensions.configureRepositories
 import io.github.diskria.projektor.settings.minecraft.ModLoader
+import io.github.diskria.projektor.settings.projekt.common.AbstractProjekt
 import io.github.diskria.projektor.settings.projekt.common.IProjekt
 import org.gradle.api.initialization.Settings
 
-data class MinecraftMod(private val projekt: IProjekt, private val settings: Settings) : IProjekt by projekt {
+open class MinecraftMod(
+    projekt: IProjekt,
+    settings: Settings
+) : AbstractProjekt(projekt, settings), IProjekt by projekt {
 
-    override val configureRepositories: Settings.() -> Unit = applyRepositories
+    override fun configureRepositories() {
+        applyRepositories(settings)
+    }
 
-    override val configureProjects: Settings.() -> Unit = {
+    override fun configureProjects() = with(settings) {
         include(":common")
         ModLoader.entries.forEach { modLoader ->
             val modLoaderName = modLoader.getName()
@@ -26,7 +32,7 @@ data class MinecraftMod(private val projekt: IProjekt, private val settings: Set
     }
 
     companion object {
-        val applyRepositories: Settings.() -> Unit = {
+        fun applyRepositories(settings: Settings) = with(settings) {
             configureRepositories(RepositoriesFilterType.DEPENDENCIES) {
                 configureMaven(
                     name = "Minecraft",

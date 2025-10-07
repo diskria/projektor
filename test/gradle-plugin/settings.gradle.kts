@@ -2,8 +2,8 @@ import io.github.diskria.projektor.settings.licenses.MIT
 
 pluginManagement {
     repositories {
-        maven(uri("../../build/repo"))
         mavenCentral()
+        maven(uri("../../build/localMaven"))
     }
 }
 

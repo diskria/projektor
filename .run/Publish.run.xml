@@ -10,7 +10,7 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value="publishAllPublicationsToGitHubPagesRepository" />
+          <option value="publishAllPublicationsToLocalMavenRepository" />
         </list>
       </option>
       <option name="vmOptions" />

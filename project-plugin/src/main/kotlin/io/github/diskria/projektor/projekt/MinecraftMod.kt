@@ -24,6 +24,7 @@ import io.github.diskria.projektor.minecraft.utils.ModrinthUtils
 import io.github.diskria.projektor.minecraft.version.MinecraftVersion
 import io.github.diskria.projektor.minecraft.version.getMinJavaVersion
 import io.github.diskria.projektor.minecraft.version.getVersion
+import io.github.diskria.projektor.projekt.common.AbstractProjekt
 import io.github.diskria.projektor.projekt.common.IProjekt
 import net.fabricmc.loom.api.LoomGradleExtensionAPI
 import net.fabricmc.loom.api.fabricapi.FabricApiExtension
@@ -39,7 +40,10 @@ import org.gradle.language.jvm.tasks.ProcessResources
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import kotlin.properties.Delegates
 
-data class MinecraftMod(private val projekt: IProjekt, private val project: Project) : IProjekt by projekt {
+open class MinecraftMod(
+    projekt: IProjekt,
+    project: Project
+) : AbstractProjekt(projekt, project), IProjekt by projekt {
 
     val id: String = projekt.repo
     val mixinsConfigFileName: String = fileName(id, "mixins", Constants.File.Extension.JSON)
@@ -53,11 +57,11 @@ data class MinecraftMod(private val projekt: IProjekt, private val project: Proj
     var environment: ModEnvironment by Delegates.notNull()
     var isFabricApiRequired: Boolean by Delegates.notNull()
 
-    override val jvmTarget: JvmTarget
-        get() = minecraftVersion.getMinJavaVersion().toJvmTarget()
+    override fun getJvmTarget(): JvmTarget =
+        minecraftVersion.getMinJavaVersion().toJvmTarget()
 
-    override val jarVersion: String
-        get() = buildString {
+    override fun getJarVersion(): String =
+        buildString {
             append(modLoader.getName())
             append(Constants.Char.HYPHEN)
             append(version)
@@ -66,7 +70,7 @@ data class MinecraftMod(private val projekt: IProjekt, private val project: Proj
             append(minecraftVersion.getVersion())
         }
 
-    override val configure: Project.() -> Unit = {
+    override fun configureProject() = with(project) {
         requirePlugins("org.jetbrains.kotlin.plugin.serialization")
         tasks.named<Jar>("jar") {
             manifest {
@@ -74,7 +78,7 @@ data class MinecraftMod(private val projekt: IProjekt, private val project: Proj
                 val specificationTitle by id.toAutoNamedProperty(`Train-Case`)
                 val specificationVendor by developer.toAutoNamedProperty(`Train-Case`)
 
-                val implementationVersion by jarVersion.toAutoNamedProperty(`Train-Case`)
+                val implementationVersion by getJarVersion().toAutoNamedProperty(`Train-Case`)
                 val implementationTitle by name.toAutoNamedProperty(`Train-Case`)
                 val implementationVendor by developer.toAutoNamedProperty(`Train-Case`)
 
@@ -99,19 +103,19 @@ data class MinecraftMod(private val projekt: IProjekt, private val project: Proj
         }
     }
 
-    private val configureFabricMod: Project.(MinecraftMod) -> Unit = { mod ->
+    private fun configureFabricMod(mod: MinecraftMod) = with(project) {
         requirePlugins("fabric-loom")
         val loaderVersion = Versions.FABRIC_LOADER
         val mixins = environment.getSourceSets().mapNotNull { sourceSet ->
             val logicalName = sourceSet.logicalName()
-            val pathBase = "src/$logicalName/java/${packagePath}/mixins"
+            val pathBase = "src/$logicalName/java/${getPackagePath()}/mixins"
             getFileNames(
                 if (sourceSet == SourceSet.MAIN) pathBase
                 else "$pathBase/$logicalName"
             ).toNullIfEmpty()?.let { sourceSet to it }
         }.toMap()
-        val datagenClasses = getFileNames("src/datagen/kotlin/${packagePath}").map {
-            packageName + Constants.Char.DOT + it
+        val datagenClasses = getFileNames("src/datagen/kotlin/${getPackagePath()}").map {
+            getPackageName() + Constants.Char.DOT + it
         }
         val minecraftVersionString = minecraftVersion.getVersion()
         dependencies {

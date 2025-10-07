@@ -4,7 +4,7 @@ import io.github.diskria.projektor.settings.licenses.License
 import io.github.diskria.projektor.settings.projekt.*
 import org.gradle.api.initialization.Settings
 
-data class Projekt(
+open class Projekt(
     override val owner: String,
     override val developer: String,
     override val repo: String,

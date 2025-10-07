@@ -12,7 +12,7 @@ import org.gradle.kotlin.dsl.withType
 
 data object GitHubPackages : PublishingTarget {
 
-    override val configure: Project.(IProjekt) -> Unit = configure@{ projekt ->
+    override fun configure(projekt: IProjekt, project: Project) = with(project) {
         val githubPackagesToken = Secrets.githubPackagesToken.toNullIfEmpty() ?: return@configure
         runExtension<PublishingExtension> {
             publications.withType<MavenPublication> {

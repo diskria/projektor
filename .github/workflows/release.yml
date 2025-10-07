@@ -23,7 +23,7 @@ jobs:
           distribution: temurin
 
       - name: Build & publish locally
-        run: ./gradlew publishAllPublicationsToGitHubPagesRepository --stacktrace
+        run: ./gradlew publishAllPublicationsToLocalMavenRepository --stacktrace
         env:
           GITHUB_OWNER: ${{ github.repository_owner }}
           GITHUB_REPO: ${{ github.event.repository.name }}
@@ -32,5 +32,5 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: build/repo
+          publish_dir: build/localMaven
           force_orphan: true
