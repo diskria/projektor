@@ -19,6 +19,7 @@ data object Modrinth : PublishingTarget {
         requirePlugins("com.modrinth.minotaur")
         runExtension<ModrinthExtension> {
             projectId.set(mod.id)
+            TODO()
         }
     }
 }

@@ -31,26 +31,26 @@ interface IProjekt {
     val javaVersion: Int
     val kotlinVersion: String
 
-    fun getNamespace(): String =
-        "io.github".appendPackageName(developer)
+    val namespace: String
+        get() = "io.github".appendPackageName(developer)
 
-    fun getPackageName(): String =
-        getNamespace().appendPackageName(repo.setCase(`kebab-case`, `dot․case`))
+    val packageName: String
+        get() = namespace.appendPackageName(repo.setCase(`kebab-case`, `dot․case`))
 
-    fun getPackagePath(): String =
-        getPackageName().setCase(`dot․case`, `path∕case`)
+    val packagePath: String
+        get() = packageName.setCase(`dot․case`, `path∕case`)
 
-    fun getClassNameBase(): String =
-        repo.setCase(`kebab-case`, PascalCase)
+    val classNameBase: String
+        get() = repo.setCase(`kebab-case`, PascalCase)
 
-    fun getJvmTarget(): JvmTarget =
-        javaVersion.toJvmTarget()
+    val jvmTarget: JvmTarget
+        get() = javaVersion.toJvmTarget()
 
-    fun getJarVersion(): String =
-        version
+    val jarVersion: String
+        get() = version
 
-    fun getRepoHost(): RepoHost =
-        GitHub
+    val repoHost: RepoHost
+        get() = GitHub
 
     val githubPackagesUrl: String
         get() = buildGithubUrl(isPackages = true).toString()
@@ -58,13 +58,13 @@ interface IProjekt {
     val githubIssuesUrl: String
         get() = buildGithubUrl { path("issues") }.toString()
 
+    fun getMetadata(): List<Property<String>> = emptyList()
+
     fun getRepoUrl(isVcs: Boolean = false): String =
         buildGithubUrl(isVcs).toString()
 
     fun getRepoPath(isVcs: Boolean = false): String =
         buildGithubUrl(isVcs = isVcs).encodedPath.removePrefix(Constants.Char.SLASH)
-
-    fun getMetadata(): List<Property<String>> = emptyList()
 
     private fun buildGithubUrl(
         isVcs: Boolean = false,
@@ -73,8 +73,8 @@ interface IProjekt {
     ): Url =
         URLBuilder().apply {
             protocol = URLProtocol.HTTPS
-            host = getRepoHost().hostname.modifyIf(isPackages) { it.appendPrefix("maven.pkg.") }
-            path(owner, repo.modifyIf(isVcs) { it.appendSuffix(".${getRepoHost().versionControlSystem.name}") })
+            host = repoHost.hostname.modifyIf(isPackages) { it.appendPrefix("maven.pkg.") }
+            path(owner, repo.modifyIf(isVcs) { it.appendSuffix(".${repoHost.versionControlSystem.name}") })
             block()
         }.build()
 }

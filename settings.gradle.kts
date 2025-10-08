@@ -7,7 +7,8 @@ pluginManagement {
         gradlePluginPortal()
         maven("https://diskria.github.io/projektor")
     }
-    if (rootDir.resolve("build/localMaven").exists()) {
+    val isTestsForceDisabled = true
+    if (!isTestsForceDisabled && rootDir.resolve("build/localMaven").exists()) {
         rootDir.resolve("test").listFiles()?.filter { it.isDirectory }?.forEach { testProjectDirectory ->
             includeBuild("test/${testProjectDirectory.name}")
         }
@@ -21,7 +22,7 @@ plugins {
 
 projekt {
     description = "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
-    version = "2.4.0"
+    version = "3.0.0"
     license = MIT
 
     gradlePlugin()

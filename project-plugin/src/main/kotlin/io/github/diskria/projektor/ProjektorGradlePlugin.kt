@@ -7,6 +7,12 @@ import org.gradle.api.Project
 class ProjektorGradlePlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        project.registerExtension<ProjektExtension>()
+        val extension = project.registerExtension<ProjektExtension>()
+        extension.onConfiguratorReady { configurator ->
+            configurator.configure(project, extension.buildProjekt(project.rootProject))
+        }
+        project.afterEvaluate {
+            extension.onProjectEvaluated()
+        }
     }
 }

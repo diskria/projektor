@@ -1,13 +1,9 @@
 package io.github.diskria.projektor.projekt
 
-import io.github.diskria.projektor.projekt.common.AbstractProjekt
+import io.github.diskria.projektor.configurations.AndroidApplicationConfiguration
 import io.github.diskria.projektor.projekt.common.IProjekt
-import org.gradle.api.Project
 
-class AndroidApplication(
+open class AndroidApplication(
     projekt: IProjekt,
-    projectProvider: () -> Project
-) : AbstractProjekt(
-    projekt,
-    projectProvider
-), IProjekt by projekt
+    val config: AndroidApplicationConfiguration
+) : IProjekt by projekt

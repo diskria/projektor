@@ -73,13 +73,13 @@ class FabricModConfig(
     ) {
         companion object {
             fun of(mod: MinecraftMod, datagenClasses: List<String>): EntryPoints {
-                val classPathBase = mod.getPackageName().appendPackageName(mod.getClassNameBase())
+                val classPathBase = mod.packageName.appendPackageName(mod.classNameBase)
                 val mainEntryPoints = entryPoints(classPathBase + "Mod")
                 val clientEntryPoints = entryPoints(classPathBase + "Client")
                 val serverEntryPoints = entryPoints(classPathBase + "Server")
                 val datagenEntryPoints = datagenClasses.map { EntryPoint.of(it) }.toNullIfEmpty()
 
-                return when (mod.environment) {
+                return when (mod.config.environment) {
                     ModEnvironment.CLIENT_SERVER -> EntryPoints(
                         mainEntryPoints = mainEntryPoints,
                         clientEntryPoints = clientEntryPoints,
@@ -166,13 +166,13 @@ class FabricModConfig(
             FabricModConfig(
                 schemaVersion = 1,
                 id = mod.id,
-                version = mod.version.toString(),
+                version = mod.version,
                 name = mod.name,
                 description = mod.description,
                 authors = listOf(mod.developer),
                 license = mod.license.id,
                 icon = "assets/${mod.id}/${fileName("icon", Constants.File.Extension.PNG)}",
-                environment = mod.environment.fabricConfigValue,
+                environment = mod.config.environment.fabricConfigValue,
                 accessWidener = fileName(mod.id, "accesswidener"),
                 mixins = listOf(mod.mixinsConfigFileName),
                 links = Links.of(
@@ -184,7 +184,7 @@ class FabricModConfig(
                     datagenClasses,
                 ),
                 dependencies = Dependencies.of(
-                    mod.getJvmTarget().toInt(),
+                    mod.jvmTarget.toInt(),
                     minecraftVersion,
                     loaderVersion,
                     isApiRequired,

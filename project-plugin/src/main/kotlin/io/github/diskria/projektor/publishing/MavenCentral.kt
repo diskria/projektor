@@ -68,13 +68,13 @@ data object MavenCentral : PublishingTarget {
                     scm {
                         url.set(projekt.getRepoUrl())
                         connection.set(
-                            projekt.getRepoHost().versionControlSystem.buildScmUri(
+                            projekt.repoHost.versionControlSystem.buildScmUri(
                                 projekt.getRepoUrl(isVcs = true)
                             )
                         )
                         developerConnection.set(
-                            projekt.getRepoHost().versionControlSystem.buildScmUri(
-                                projekt.getRepoHost().sshAuthority, projekt.getRepoPath(isVcs = true)
+                            projekt.repoHost.versionControlSystem.buildScmUri(
+                                projekt.repoHost.sshAuthority, projekt.getRepoPath(isVcs = true)
                             )
                         )
                     }
