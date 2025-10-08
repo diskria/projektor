@@ -1,3 +1,4 @@
+import io.github.diskria.projektor.settings.configurators.MinecraftModConfigurator
 import io.github.diskria.projektor.settings.extensions.configureMaven
 import io.github.diskria.projektor.settings.extensions.configureRepositories
 import io.github.diskria.projektor.settings.licenses.MIT
@@ -24,33 +25,11 @@ plugins {
 
 projekt {
     description = "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
-    version = "3.0.2"
+    version = "3.0.3"
     license = MIT
 
     gradlePlugin()
-}
-
-configureRepositories(DependencyRepositories) {
-    configureMaven(
-        name = "Minecraft",
-        url = "https://libraries.minecraft.net"
-    )
-    configureMaven(
-        name = "SpongePowered",
-        url = "https://repo.spongepowered.org/repository/maven-public",
-    )
-    configureMaven(
-        name = "Modrinth",
-        url = "https://api.modrinth.com/maven",
-        group = "maven.modrinth",
-        includeSubgroups = false
-    )
-}
-configureRepositories {
-    configureMaven(
-        name = "Fabric",
-        url = "https://maven.fabricmc.net"
-    )
+    MinecraftModConfigurator.applyRepositories(settings)
 }
 
 include(":project-plugin", ":settings-plugin")
