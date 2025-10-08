@@ -13,9 +13,15 @@ open class AndroidApplicationConfigurator(
     override fun configure(settings: Settings, projekt: IProjekt): AndroidApplication = with(settings) {
         val androidApplication = AndroidApplication(projekt, config)
         applyCommonConfiguration(settings, androidApplication)
-        configureRepositories {
-            google()
-        }
+        applyRepositories(this)
         return androidApplication
+    }
+
+    companion object {
+        fun applyRepositories(settings: Settings) = with(settings) {
+            configureRepositories {
+                google()
+            }
+        }
     }
 }

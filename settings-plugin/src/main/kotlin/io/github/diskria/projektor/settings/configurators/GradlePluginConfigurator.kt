@@ -14,9 +14,15 @@ open class GradlePluginConfigurator(
     override fun configure(settings: Settings, projekt: IProjekt): GradlePlugin = with(settings) {
         val gradlePlugin = GradlePlugin(projekt, config)
         applyCommonConfiguration(settings, gradlePlugin)
-        configureRepositories(DependencyRepositories) {
-            gradlePluginPortal()
-        }
+        applyRepositories(this)
         return gradlePlugin
+    }
+
+    companion object {
+        fun applyRepositories(settings: Settings) = with(settings) {
+            configureRepositories(DependencyRepositories) {
+                gradlePluginPortal()
+            }
+        }
     }
 }

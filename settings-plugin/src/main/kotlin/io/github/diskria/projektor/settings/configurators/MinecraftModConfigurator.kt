@@ -17,28 +17,7 @@ open class MinecraftModConfigurator(
     override fun configure(settings: Settings, projekt: IProjekt): MinecraftMod = with(settings) {
         val minecraftMod = MinecraftMod(projekt, config)
         applyCommonConfiguration(settings, minecraftMod)
-        configureRepositories(DependencyRepositories) {
-            configureMaven(
-                name = "Minecraft",
-                url = "https://libraries.minecraft.net"
-            )
-            configureMaven(
-                name = "SpongePowered",
-                url = "https://repo.spongepowered.org/repository/maven-public",
-            )
-            configureMaven(
-                name = "Modrinth",
-                url = "https://api.modrinth.com/maven",
-                group = "maven.modrinth",
-                includeSubgroups = false
-            )
-        }
-        configureRepositories {
-            configureMaven(
-                name = "Fabric",
-                url = "https://maven.fabricmc.net"
-            )
-        }
+        applyRepositories(settings)
         include(":common")
         ModLoader.entries.forEach { modLoader ->
             val modLoaderName = modLoader.getName()
@@ -50,5 +29,32 @@ open class MinecraftModConfigurator(
             }
         }
         return minecraftMod
+    }
+
+    companion object {
+        fun applyRepositories(settings: Settings) = with(settings) {
+            configureRepositories(DependencyRepositories) {
+                configureMaven(
+                    name = "Minecraft",
+                    url = "https://libraries.minecraft.net"
+                )
+                configureMaven(
+                    name = "SpongePowered",
+                    url = "https://repo.spongepowered.org/repository/maven-public",
+                )
+                configureMaven(
+                    name = "Modrinth",
+                    url = "https://api.modrinth.com/maven",
+                    group = "maven.modrinth",
+                    includeSubgroups = false
+                )
+            }
+            configureRepositories {
+                configureMaven(
+                    name = "Fabric",
+                    url = "https://maven.fabricmc.net"
+                )
+            }
+        }
     }
 }
