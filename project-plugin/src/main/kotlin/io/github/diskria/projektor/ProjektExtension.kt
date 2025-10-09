@@ -46,7 +46,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
         setConfigurator(MinecraftModConfigurator(MinecraftModConfiguration().apply(block)))
     }
 
-    fun buildProjekt(rootProject: Project): Projekt = with(rootProject) {
+    fun buildProjekt(rootProject: Project): Projekt {
         val extras = rootProject.extra.properties
         val projektOwner: String by extras
         val projektDeveloper: String by extras
@@ -58,7 +58,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
         val projektDescription = rootProject.description.toNullIfEmpty() ?: gradleError("Description not set!")
         val projektVersion = rootProject.version.toString().toNullIfEmpty() ?: gradleError("Version not set!")
 
-        Projekt(
+        return Projekt(
             owner = projektOwner,
             developer = projektDeveloper,
             email = "diskria@proton.me",

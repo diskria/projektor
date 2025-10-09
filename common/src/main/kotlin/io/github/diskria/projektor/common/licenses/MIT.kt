@@ -1,6 +1,6 @@
-package io.github.diskria.projektor.settings.licenses
+package io.github.diskria.projektor.common.licenses
 
-import io.github.diskria.projektor.settings.projekt.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.ProjektMetadata
 import java.time.Year
 
 object MIT : License("MIT") {

@@ -3,13 +3,15 @@ package io.github.diskria.projektor.settings
 import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.gradle.utils.extensions.gradle.GradleExtension
 import io.github.diskria.gradle.utils.extensions.isCI
+import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.asDirectory
+import io.github.diskria.kotlin.utils.extensions.common.`Title Case`
+import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
+import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.kotlin.utils.properties.AutoNamedEnvironmentVariable
-import io.github.diskria.projektor.settings.configurations.*
 import io.github.diskria.projektor.settings.configurators.*
 import io.github.diskria.projektor.settings.licenses.License
-import io.github.diskria.projektor.settings.projekt.common.IProjekt
-import io.github.diskria.projektor.settings.projekt.common.Projekt
+import io.github.diskria.projektor.settings.projekt.ProjektMetadata
 import org.gradle.api.initialization.Settings
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
@@ -24,34 +26,34 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Gradle
     val license: Property<License> = objects.property(License::class.java)
     val versionCatalogPath: Property<String> = objects.property(String::class.java)
 
-    private var configurator: Configurator<*>? = null
-    private var onConfiguratorReadyCallback: ((Configurator<*>) -> Unit)? = null
+    private var configurator: Configurator? = null
+    private var onConfiguratorReadyCallback: ((Configurator) -> Unit)? = null
 
-    fun onConfiguratorReady(callback: (Configurator<*>) -> Unit) {
+    fun onConfiguratorReady(callback: (Configurator) -> Unit) {
         onConfiguratorReadyCallback = callback
     }
 
-    fun gradlePlugin(block: GradlePluginConfiguration.() -> Unit = {}) {
-        setConfigurator(GradlePluginConfigurator(GradlePluginConfiguration().apply(block)))
+    fun gradlePlugin() {
+        setConfigurator(GradlePluginConfigurator())
     }
 
-    fun kotlinLibrary(block: KotlinLibraryConfiguration.() -> Unit = {}) {
-        setConfigurator(KotlinLibraryConfigurator(KotlinLibraryConfiguration().apply(block)))
+    fun kotlinLibrary() {
+        setConfigurator(KotlinLibraryConfigurator())
     }
 
-    fun androidLibrary(block: AndroidLibraryConfiguration.() -> Unit = {}) {
-        setConfigurator(AndroidLibraryConfigurator(AndroidLibraryConfiguration().apply(block)))
+    fun androidLibrary() {
+        setConfigurator(AndroidLibraryConfigurator())
     }
 
-    fun androidApplication(block: AndroidApplicationConfiguration.() -> Unit = {}) {
-        setConfigurator(AndroidApplicationConfigurator(AndroidApplicationConfiguration().apply(block)))
+    fun androidApplication() {
+        setConfigurator(AndroidApplicationConfigurator())
     }
 
-    fun minecraftMod(block: MinecraftModConfiguration.() -> Unit = {}) {
-        setConfigurator(MinecraftModConfigurator(MinecraftModConfiguration().apply(block)))
+    fun minecraftMod() {
+        setConfigurator(MinecraftModConfigurator())
     }
 
-    fun buildProjekt(settings: Settings): IProjekt = with(settings) {
+    fun buildProjekt(settings: Settings): ProjektMetadata = with(settings) {
         val (owner, repo) = if (providers.isCI) {
             val githubOwner by AutoNamedEnvironmentVariable(isRequired = true)
             val githubRepo by AutoNamedEnvironmentVariable(isRequired = true)
@@ -61,9 +63,11 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Gradle
             val localRepo = rootDir.name
             localOwner to localRepo
         }
-        Projekt(
+        ProjektMetadata(
             owner = owner,
+            developer = owner.substringBefore(Constants.Char.HYPHEN),
             repo = repo,
+            name = repo.setCase(`kebab-case`, `Title Case`),
             description = requireProperty(description, ::description.name),
             version = requireProperty(version, ::version.name),
             license = requireProperty(license, ::license.name),
@@ -79,7 +83,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Gradle
         onConfiguratorReadyCallback = null
     }
 
-    private fun setConfigurator(configurator: Configurator<*>) {
+    private fun setConfigurator(configurator: Configurator) {
         if (this.configurator != null) {
             gradleError("Projekt already configured!")
         }

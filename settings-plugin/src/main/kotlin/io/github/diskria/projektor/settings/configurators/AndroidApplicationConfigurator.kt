@@ -1,27 +1,14 @@
 package io.github.diskria.projektor.settings.configurators
 
-import io.github.diskria.projektor.settings.configurations.AndroidApplicationConfiguration
-import io.github.diskria.projektor.settings.extensions.configureRepositories
-import io.github.diskria.projektor.settings.projekt.AndroidApplication
-import io.github.diskria.projektor.settings.projekt.common.IProjekt
+import io.github.diskria.projektor.settings.extensions.repositories
 import org.gradle.api.initialization.Settings
 
-open class AndroidApplicationConfigurator(
-    val config: AndroidApplicationConfiguration
-) : Configurator<AndroidApplication>() {
+open class AndroidApplicationConfigurator : Configurator() {
 
-    override fun configure(settings: Settings, projekt: IProjekt): AndroidApplication = with(settings) {
-        val androidApplication = AndroidApplication(projekt, config)
-        applyCommonConfiguration(settings, androidApplication)
-        applyRepositories(this)
-        return androidApplication
-    }
-
-    companion object {
-        fun applyRepositories(settings: Settings) = with(settings) {
-            configureRepositories {
-                google()
-            }
+    override fun configureRepositories(settings: Settings) = with(settings) {
+        super.configureRepositories(settings)
+        repositories {
+            google()
         }
     }
 }

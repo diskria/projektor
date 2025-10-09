@@ -3,12 +3,8 @@ package io.github.diskria.projektor.publishing
 import io.github.diskria.gradle.utils.extensions.getBuildDirectory
 import io.github.diskria.gradle.utils.extensions.runExtension
 import io.github.diskria.kotlin.utils.Constants
-import io.github.diskria.kotlin.utils.extensions.appendPrefix
 import io.github.diskria.kotlin.utils.extensions.appendSuffix
-import io.github.diskria.kotlin.utils.extensions.common.`Title Case`
-import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.common.modifyIf
-import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.projektor.projekt.common.IProjekt
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension

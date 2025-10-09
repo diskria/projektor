@@ -84,7 +84,7 @@ sealed class Configurator<T : IProjekt> {
             requirePlugins("com.github.gmazzo.buildconfig")
             runExtension<BuildConfigExtension> {
                 packageName(projekt.packageName)
-                className("ProjektMetadata")
+                className("ProjektBuildConfig")
                 metadata.forEach { field ->
                     buildConfigField(field.name, field.value)
                 }

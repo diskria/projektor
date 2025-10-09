@@ -1,4 +1,4 @@
-package io.github.diskria.projektor.settings.licenses
+package io.github.diskria.projektor.common.licenses
 
 import io.github.diskria.kotlin.utils.BracketsType
 import io.github.diskria.kotlin.utils.Constants
@@ -6,7 +6,7 @@ import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.generics.foldChain
 import io.github.diskria.kotlin.utils.extensions.wrapWithBrackets
-import io.github.diskria.projektor.settings.projekt.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.ProjektMetadata
 import io.ktor.http.*
 
 sealed class License(val id: String) {

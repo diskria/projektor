@@ -17,7 +17,8 @@ class ProjektorGradlePlugin : Plugin<Settings> {
     override fun apply(settings: Settings) {
         val extension = settings.registerExtension<ProjektExtension>()
         extension.onConfiguratorReady { configurator ->
-            val projekt = configurator.configure(settings, extension.buildProjekt(settings))
+            val projekt = extension.buildProjekt(settings)
+            configurator.configure(settings, projekt)
             settings.gradle.rootProject {
                 description = projekt.description
                 version = projekt.version

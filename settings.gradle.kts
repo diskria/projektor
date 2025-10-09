@@ -1,8 +1,5 @@
 import io.github.diskria.projektor.settings.configurators.MinecraftModConfigurator
-import io.github.diskria.projektor.settings.extensions.configureMaven
-import io.github.diskria.projektor.settings.extensions.configureRepositories
 import io.github.diskria.projektor.settings.licenses.MIT
-import io.github.diskria.projektor.settings.repositories.DependencyRepositories
 
 pluginManagement {
     repositories {
@@ -25,11 +22,11 @@ plugins {
 
 projekt {
     description = "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
-    version = "3.0.3"
+    version = "3.0.4"
     license = MIT
 
     gradlePlugin()
     MinecraftModConfigurator.applyRepositories(settings)
 }
 
-include(":project-plugin", ":settings-plugin")
+include(":common", ":settings-plugin", ":project-plugin")

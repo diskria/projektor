@@ -13,18 +13,19 @@ fun RepositoryHandler.configureMaven(
     maven(url) {
         this.name = name
     }.also { repository ->
-        if (group != null) {
-            exclusiveContent {
-                forRepository {
-                    repository
-                }
-                filter {
-                    if (includeSubgroups) {
-                        @Suppress("UnstableApiUsage")
-                        includeGroupAndSubgroups(group)
-                    } else {
-                        includeGroup(group)
-                    }
+        if (group == null) {
+            return@also
+        }
+        exclusiveContent {
+            forRepository {
+                repository
+            }
+            filter {
+                if (includeSubgroups) {
+                    @Suppress("UnstableApiUsage")
+                    includeGroupAndSubgroups(group)
+                } else {
+                    includeGroup(group)
                 }
             }
         }
