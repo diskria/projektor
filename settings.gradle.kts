@@ -1,7 +1,7 @@
+import io.github.diskria.projektor.common.licenses.MIT
 import io.github.diskria.projektor.settings.extensions.configureMaven
 import io.github.diskria.projektor.settings.extensions.dependencyRepositories
 import io.github.diskria.projektor.settings.extensions.repositories
-import io.github.diskria.projektor.settings.licenses.MIT
 
 pluginManagement {
     repositories {
@@ -28,7 +28,7 @@ plugins {
 
 projekt {
     description = "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
-    version = "3.1.0"
+    version = "3.1.1"
     license = MIT
 
     gradlePlugin()

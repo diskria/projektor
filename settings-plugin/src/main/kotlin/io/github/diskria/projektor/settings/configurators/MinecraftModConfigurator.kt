@@ -22,29 +22,35 @@ open class MinecraftModConfigurator : Configurator() {
         }
     }
 
-    override fun configureRepositories(settings: Settings) = with(settings) {
+    override fun configureRepositories(settings: Settings) {
         super.configureRepositories(settings)
-        dependencyRepositories {
-            configureMaven(
-                name = "Minecraft",
-                url = "https://libraries.minecraft.net"
-            )
-            configureMaven(
-                name = "SpongePowered",
-                url = "https://repo.spongepowered.org/repository/maven-public",
-            )
-            configureMaven(
-                name = "Modrinth",
-                url = "https://api.modrinth.com/maven",
-                group = "maven.modrinth",
-                includeSubgroups = false
-            )
-        }
-        repositories {
-            configureMaven(
-                name = "Fabric",
-                url = "https://maven.fabricmc.net"
-            )
+        applyRepositories(settings)
+    }
+
+    companion object {
+        fun applyRepositories(settings: Settings) = with(settings) {
+            dependencyRepositories {
+                configureMaven(
+                    name = "Minecraft",
+                    url = "https://libraries.minecraft.net"
+                )
+                configureMaven(
+                    name = "SpongePowered",
+                    url = "https://repo.spongepowered.org/repository/maven-public",
+                )
+                configureMaven(
+                    name = "Modrinth",
+                    url = "https://api.modrinth.com/maven",
+                    group = "maven.modrinth",
+                    includeSubgroups = false
+                )
+            }
+            repositories {
+                configureMaven(
+                    name = "Fabric",
+                    url = "https://maven.fabricmc.net"
+                )
+            }
         }
     }
 }

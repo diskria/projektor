@@ -5,10 +5,16 @@ import org.gradle.api.initialization.Settings
 
 open class AndroidLibraryConfigurator : Configurator() {
 
-    override fun configureRepositories(settings: Settings) = with(settings) {
+    override fun configureRepositories(settings: Settings) {
         super.configureRepositories(settings)
-        repositories {
-            google()
+        applyRepositories(settings)
+    }
+
+    companion object {
+        fun applyRepositories(settings: Settings) = with(settings) {
+            repositories {
+                google()
+            }
         }
     }
 }

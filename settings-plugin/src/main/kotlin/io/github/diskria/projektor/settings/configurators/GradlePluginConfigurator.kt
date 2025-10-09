@@ -5,10 +5,16 @@ import org.gradle.api.initialization.Settings
 
 open class GradlePluginConfigurator : Configurator() {
 
-    override fun configureRepositories(settings: Settings) = with(settings) {
+    override fun configureRepositories(settings: Settings) {
         super.configureRepositories(settings)
-        dependencyRepositories {
-            gradlePluginPortal()
+        applyRepositories(settings)
+    }
+
+    companion object {
+        fun applyRepositories(settings: Settings) = with(settings) {
+            dependencyRepositories {
+                gradlePluginPortal()
+            }
         }
     }
 }
