@@ -1,4 +1,4 @@
-name: Publish plugins to GitHub Pages Maven
+name: Release to GitHub Pages Maven
 
 on:
   workflow_dispatch:
@@ -22,7 +22,7 @@ jobs:
           java-version: 25
           distribution: temurin
 
-      - name: Build & publish locally
+      - name: Build & Publish to Local Maven
         run: ./gradlew publishAllPublicationsToLocalMavenRepository --stacktrace
         env:
           GITHUB_OWNER: ${{ github.repository_owner }}
