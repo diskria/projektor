@@ -2,17 +2,13 @@ package io.github.diskria.projektor
 
 import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.gradle.utils.extensions.gradle.ProjectExtension
-import io.github.diskria.kotlin.utils.extensions.toNullIfEmpty
+import io.github.diskria.projektor.common.projekt.ProjektMetadata
 import io.github.diskria.projektor.configurations.*
 import io.github.diskria.projektor.configurators.*
-import io.github.diskria.projektor.licenses.License
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.publishing.PublishingTarget
-import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
-import org.gradle.internal.extensions.core.extra
-import org.gradle.kotlin.dsl.provideDelegate
 import javax.inject.Inject
 
 open class ProjektExtension @Inject constructor(objects: ObjectFactory) : ProjectExtension() {
@@ -46,40 +42,26 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Projec
         setConfigurator(MinecraftModConfigurator(MinecraftModConfiguration().apply(block)))
     }
 
-    fun buildProjekt(rootProject: Project): Projekt {
-        val extras = rootProject.extra.properties
-        val projektOwner: String by extras
-        val projektDeveloper: String by extras
-        val projektRepo: String by extras
-        val projektName: String by extras
-        val projektTags: Set<String> by extras
-        val projektLicenseId: String by extras
-
-        val projektDescription = rootProject.description.toNullIfEmpty() ?: gradleError("Description not set!")
-        val projektVersion = rootProject.version.toString().toNullIfEmpty() ?: gradleError("Version not set!")
-
-        return Projekt(
-            owner = projektOwner,
-            developer = projektDeveloper,
+    fun buildProjekt(metadata: ProjektMetadata): Projekt =
+        Projekt(
+            owner = metadata.owner,
+            developer = metadata.developer,
             email = "diskria@proton.me",
-            repo = projektRepo,
-            name = projektName,
-            description = projektDescription,
-            version = projektVersion,
-            tags = projektTags,
-            license = License.of(projektLicenseId),
+            repo = metadata.repo,
+            name = metadata.name,
+            description = metadata.description,
+            version = metadata.version,
+            tags = metadata.tags,
+            license = metadata.license,
             publishingTarget = publishingTarget.orNull,
             javaVersion = Versions.JAVA,
             kotlinVersion = Versions.KOTLIN,
         )
-    }
 
-    fun onProjectEvaluated() {
+    fun checkNotConfigured() {
         if (configurator == null) {
             gradleError("Projekt not configured!")
         }
-        configurator = null
-        onConfiguratorReadyCallback = null
     }
 
     private fun setConfigurator(configurator: Configurator<*>) {

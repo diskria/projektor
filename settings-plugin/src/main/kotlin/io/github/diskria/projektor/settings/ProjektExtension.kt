@@ -9,9 +9,9 @@ import io.github.diskria.kotlin.utils.extensions.common.`Title Case`
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.kotlin.utils.properties.AutoNamedEnvironmentVariable
+import io.github.diskria.projektor.common.licenses.License
+import io.github.diskria.projektor.common.projekt.ProjektMetadata
 import io.github.diskria.projektor.settings.configurators.*
-import io.github.diskria.projektor.settings.licenses.License
-import io.github.diskria.projektor.settings.projekt.ProjektMetadata
 import org.gradle.api.initialization.Settings
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
@@ -53,7 +53,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Gradle
         setConfigurator(MinecraftModConfigurator())
     }
 
-    fun buildProjekt(settings: Settings): ProjektMetadata = with(settings) {
+    fun buildMetadata(settings: Settings): ProjektMetadata = with(settings) {
         val (owner, repo) = if (providers.isCI) {
             val githubOwner by AutoNamedEnvironmentVariable(isRequired = true)
             val githubRepo by AutoNamedEnvironmentVariable(isRequired = true)
@@ -75,12 +75,10 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Gradle
         )
     }
 
-    fun onSettingsEvaluated() {
+    fun checkNotConfigured() {
         if (configurator == null) {
             gradleError("Projekt not configured!")
         }
-        configurator = null
-        onConfiguratorReadyCallback = null
     }
 
     private fun setConfigurator(configurator: Configurator) {

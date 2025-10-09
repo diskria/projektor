@@ -1,15 +1,14 @@
 package io.github.diskria.projektor.settings
 
 import io.github.diskria.gradle.utils.extensions.files
-import io.github.diskria.kotlin.utils.extensions.common.camelCase
-import io.github.diskria.kotlin.utils.extensions.common.className
-import io.github.diskria.kotlin.utils.extensions.setCase
+import io.github.diskria.gradle.utils.extensions.registerExtension
+import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.kotlin.utils.extensions.appendPrefix
+import io.github.diskria.kotlin.utils.extensions.common.modifyIf
 import io.github.diskria.kotlin.utils.properties.toAutoNamedProperty
-import io.github.diskria.kotlin.utils.words.PascalCase
+import io.github.diskria.projektor.common.projekt.ProjektMetadata
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
-import org.gradle.api.plugins.ExtensionAware
-import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.extra
 
 class ProjektorGradlePlugin : Plugin<Settings> {
@@ -17,35 +16,29 @@ class ProjektorGradlePlugin : Plugin<Settings> {
     override fun apply(settings: Settings) {
         val extension = settings.registerExtension<ProjektExtension>()
         extension.onConfiguratorReady { configurator ->
-            val projekt = extension.buildProjekt(settings)
-            configurator.configure(settings, projekt)
-            settings.gradle.rootProject {
-                description = projekt.description
-                version = projekt.version
+            val metadata = extension.buildMetadata(settings)
+            configureRootProject(settings, metadata)
+            configurator.configure(settings, metadata)
 
-                val projektOwner by projekt.owner.toAutoNamedProperty()
-                val projektDeveloper by projekt.developer.toAutoNamedProperty()
-                val projektRepo by projekt.repo.toAutoNamedProperty()
-                val projektName by projekt.name.toAutoNamedProperty()
-                val projektTags by projekt.tags.toAutoNamedProperty()
-                val projektLicenseId by projekt.license.id.toAutoNamedProperty()
-                listOf(
-                    projektOwner,
-                    projektDeveloper,
-                    projektRepo,
-                    projektName,
-                    projektTags,
-                    projektLicenseId,
-                ).forEach {
-                    extra[it.name] = it.value
-                }
-            }
             if (extension.versionCatalogPath.isPresent) {
                 configureVersionCatalog(settings, extension.versionCatalogPath.get())
             }
         }
         settings.gradle.settingsEvaluated {
-            extension.onSettingsEvaluated()
+            extension.checkNotConfigured()
+        }
+    }
+
+    private fun configureRootProject(settings: Settings, metadata: ProjektMetadata) = with(settings) {
+        rootProject.name = metadata.name.modifyIf(metadata.owner.first().isUpperCase()) {
+            it.appendPrefix(metadata.owner + Constants.Char.SPACE)
+        }
+        gradle.rootProject {
+            description = metadata.description
+            version = metadata.version
+
+            val projektMetadata by metadata.toAutoNamedProperty()
+            extra[projektMetadata.name] = projektMetadata.value
         }
     }
 
@@ -58,7 +51,4 @@ class ProjektorGradlePlugin : Plugin<Settings> {
             }
         }
     }
-
-    private inline fun <reified T : Any> ExtensionAware.registerExtension(vararg arguments: Any): T =
-        extensions.create<T>(T::class.className().removeSuffix("Extension").setCase(PascalCase, camelCase), *arguments)
 }

@@ -1,12 +1,9 @@
 package io.github.diskria.projektor.settings.configurators
 
-import io.github.diskria.kotlin.utils.Constants
-import io.github.diskria.kotlin.utils.extensions.appendPrefix
-import io.github.diskria.kotlin.utils.extensions.common.modifyIf
+import io.github.diskria.projektor.common.projekt.ProjektMetadata
 import io.github.diskria.projektor.settings.extensions.configureMaven
 import io.github.diskria.projektor.settings.extensions.pluginRepositories
 import io.github.diskria.projektor.settings.extensions.repositories
-import io.github.diskria.projektor.settings.projekt.ProjektMetadata
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
@@ -17,7 +14,6 @@ import org.gradle.api.initialization.Settings
 sealed class Configurator {
 
     open fun configure(settings: Settings, metadata: ProjektMetadata) {
-        configureRootProject(settings, metadata)
         configureRepositories(settings)
         configureProjects(settings)
         configureLicense(settings, metadata)
@@ -25,6 +21,10 @@ sealed class Configurator {
 
     protected open fun configureRepositories(settings: Settings) = with(settings) {
         repositories {
+            configureMaven(
+                "Projektor",
+                "https://diskria.github.io/projektor"
+            )
             configureMaven(
                 "MavenCentralMirror",
                 "https://repo1.maven.org/maven2"
@@ -38,12 +38,6 @@ sealed class Configurator {
 
     protected open fun configureProjects(settings: Settings) {
 
-    }
-
-    private fun configureRootProject(settings: Settings, metadata: ProjektMetadata) = with(settings) {
-        rootProject.name = metadata.name.modifyIf(metadata.owner.first().isUpperCase()) {
-            it.appendPrefix(metadata.owner + Constants.Char.SPACE)
-        }
     }
 
     private fun configureLicense(settings: Settings, metadata: ProjektMetadata) = with(settings) {

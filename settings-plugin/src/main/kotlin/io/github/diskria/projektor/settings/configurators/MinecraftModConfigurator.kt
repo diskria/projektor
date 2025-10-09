@@ -1,10 +1,10 @@
 package io.github.diskria.projektor.settings.configurators
 
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
+import io.github.diskria.projektor.common.minecraft.ModLoader
 import io.github.diskria.projektor.settings.extensions.configureMaven
 import io.github.diskria.projektor.settings.extensions.dependencyRepositories
 import io.github.diskria.projektor.settings.extensions.repositories
-import io.github.diskria.projektor.settings.minecraft.ModLoader
 import org.gradle.api.initialization.Settings
 
 open class MinecraftModConfigurator : Configurator() {

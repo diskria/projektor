@@ -1,4 +1,4 @@
-import io.github.diskria.projektor.settings.licenses.MIT
+import io.github.diskria.projektor.common.licenses.MIT
 
 pluginManagement {
     repositories {

@@ -8,8 +8,8 @@ import io.github.diskria.kotlin.utils.extensions.common.modifyIf
 import io.github.diskria.kotlin.utils.extensions.common.`path∕case`
 import io.github.diskria.kotlin.utils.poet.Property
 import io.github.diskria.kotlin.utils.words.PascalCase
+import io.github.diskria.projektor.common.licenses.License
 import io.github.diskria.projektor.extensions.mappers.toJvmTarget
-import io.github.diskria.projektor.licenses.License
 import io.github.diskria.projektor.publishing.PublishingTarget
 import io.github.diskria.projektor.repo.host.GitHub
 import io.github.diskria.projektor.repo.host.RepoHost

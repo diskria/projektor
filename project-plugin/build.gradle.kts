@@ -9,6 +9,7 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.projektor.common)
     implementation(libs.bundles.diskria.utils)
 
     compileOnly(kotlin("gradle-plugin"))

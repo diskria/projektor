@@ -1,6 +1,6 @@
 package io.github.diskria.projektor.projekt.common
 
-import io.github.diskria.projektor.licenses.License
+import io.github.diskria.projektor.common.licenses.License
 import io.github.diskria.projektor.publishing.PublishingTarget
 
 data class Projekt(

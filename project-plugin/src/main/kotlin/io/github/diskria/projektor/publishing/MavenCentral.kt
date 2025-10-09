@@ -6,7 +6,6 @@ import io.github.diskria.gradle.utils.extensions.runExtension
 import io.github.diskria.kotlin.utils.extensions.common.className
 import io.github.diskria.kotlin.utils.extensions.toNullIfEmpty
 import io.github.diskria.projektor.Secrets
-import io.github.diskria.projektor.licenses.getUrl
 import io.github.diskria.projektor.projekt.AndroidLibrary
 import io.github.diskria.projektor.projekt.KotlinLibrary
 import io.github.diskria.projektor.projekt.common.IProjekt
@@ -52,7 +51,7 @@ data object MavenCentral : PublishingTarget {
                         license {
                             projekt.license.let { license ->
                                 name.set(license.id)
-                                url.set(license.getUrl())
+                                url.set(license.url)
                             }
                         }
                     }

@@ -10,6 +10,8 @@ import io.github.diskria.kotlin.utils.extensions.mappers.toEnum
 import io.github.diskria.kotlin.utils.extensions.serialization.serialize
 import io.github.diskria.kotlin.utils.properties.toAutoNamedProperty
 import io.github.diskria.projektor.Versions
+import io.github.diskria.projektor.common.minecraft.ModLoader
+import io.github.diskria.projektor.common.minecraft.getConfigFilePath
 import io.github.diskria.projektor.configurations.MinecraftModConfiguration
 import io.github.diskria.projektor.extensions.mappings
 import io.github.diskria.projektor.extensions.minecraft
@@ -38,12 +40,9 @@ open class MinecraftModConfigurator(
 ) : Configurator<MinecraftMod>() {
 
     override fun configure(project: Project, projekt: IProjekt): MinecraftMod = with(project) {
-        val minecraftMod = MinecraftMod(
-            projekt,
-            config,
-            MinecraftVersion.of(projectDir.name),
-            projectDir.parentFile.name.toEnum<ModLoader>()
-        )
+        val modLoader = projectDir.parentFile.name.toEnum<ModLoader>()
+        val minecraftVersion = MinecraftVersion.of(projectDir.name)
+        val minecraftMod = MinecraftMod(projekt, config, modLoader, minecraftVersion)
         applyCommonConfiguration(project, minecraftMod)
         requirePlugins("org.jetbrains.kotlin.plugin.serialization")
         tasks.named<Jar>("jar") {

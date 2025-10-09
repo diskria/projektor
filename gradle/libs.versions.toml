@@ -24,6 +24,8 @@ gradle-utils = { group = "io.github.diskria", name = "gradle-utils", version.ref
 ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
 ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
 
+projektor-common = { group = "io.github.diskria", name = "projektor-common", version.ref = "projektor" }
+
 build-config-plugin = { group = "com.github.gmazzo.buildconfig", name = "plugin", version.ref = "build-config" }
 fabric-plugin = { group = "fabric-loom", name = "fabric-loom.gradle.plugin", version.ref = "fabric-plugin" }
 neoforge-plugin = { group = "net.neoforged.moddev.repositories", name = "net.neoforged.moddev.repositories.gradle.plugin", version.ref = "neoforge-plugin" }

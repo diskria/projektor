@@ -8,6 +8,7 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.projektor.common)
     implementation(libs.bundles.diskria.utils)
     implementation(libs.bundles.ktor.client)
 }
