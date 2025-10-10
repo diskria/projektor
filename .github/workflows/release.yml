@@ -1,4 +1,4 @@
-name: Release to GitHub Pages Maven
+name: Release
 
 on:
   workflow_dispatch:
@@ -15,23 +15,5 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
-
-      - name: Set up JDK
-        uses: actions/setup-java@v5
-        with:
-          java-version: 25
-          distribution: temurin
-
-      - name: Build & Publish to Local Maven
-        run: ./gradlew publishAllPublicationsToLocalMavenRepository --stacktrace
-        env:
-          GITHUB_OWNER: ${{ github.repository_owner }}
-          GITHUB_REPO: ${{ github.event.repository.name }}
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: build/localMaven
-          publish_branch: maven
-          force_orphan: true
+      - uses: projektorlab/setup-java-temurin@25
+      - uses: projektorlab/publish@github-pages-maven
