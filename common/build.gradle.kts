@@ -1,4 +1,4 @@
-import io.github.diskria.projektor.publishing.LocalMaven
+import io.github.diskria.projektor.publishing.GithubPages
 
 plugins {
     `kotlin-dsl`
@@ -15,7 +15,7 @@ dependencies {
 }
 
 projekt {
-    publishingTarget = LocalMaven
+    publishingTarget = GithubPages
 
     kotlinLibrary()
 }

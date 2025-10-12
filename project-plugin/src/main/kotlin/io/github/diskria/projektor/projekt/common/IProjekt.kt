@@ -13,9 +13,9 @@ import io.github.diskria.projektor.extensions.mappers.toJvmTarget
 import io.github.diskria.projektor.publishing.PublishingTarget
 import io.github.diskria.projektor.repo.host.GitHub
 import io.github.diskria.projektor.repo.host.RepoHost
-import io.github.diskria.projektor.markdown.shields.LatestGithubReleaseShield
-import io.github.diskria.projektor.markdown.shields.LicenseShield
-import io.github.diskria.projektor.markdown.shields.ReadmeShield
+import io.github.diskria.projektor.readme.shields.LatestGithubReleaseShield
+import io.github.diskria.projektor.readme.shields.LicenseShield
+import io.github.diskria.projektor.readme.shields.ReadmeShield
 import io.ktor.http.*
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 

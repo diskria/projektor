@@ -4,8 +4,8 @@ import io.github.diskria.gradle.utils.extensions.runExtension
 import io.github.diskria.kotlin.utils.extensions.toNullIfEmpty
 import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.projekt.common.IProjekt
-import io.github.diskria.projektor.markdown.shields.LatestGithubPackageShield
-import io.github.diskria.projektor.markdown.shields.ReadmeShield
+import io.github.diskria.projektor.readme.shields.LatestGithubPackageShield
+import io.github.diskria.projektor.readme.shields.ReadmeShield
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication

@@ -3,12 +3,9 @@ package io.github.diskria.projektor
 import io.github.diskria.gradle.utils.extensions.*
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.fileName
-import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
-import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
-import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.projektor.common.projekt.ProjektMetadata
-import io.github.diskria.projektor.markdown.MarkdownHelper
+import io.github.diskria.projektor.readme.MarkdownHelper
 import io.github.diskria.projektor.projekt.common.IProjekt
 import io.github.diskria.projektor.projekt.metadata.GithubMetadata
 import io.github.diskria.projektor.projekt.metadata.PublishingMetadata

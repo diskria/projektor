@@ -6,8 +6,8 @@ import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.appendSuffix
 import io.github.diskria.kotlin.utils.extensions.common.modifyIf
 import io.github.diskria.projektor.projekt.common.IProjekt
-import io.github.diskria.projektor.markdown.shields.GithubPagesMavenShield
-import io.github.diskria.projektor.markdown.shields.ReadmeShield
+import io.github.diskria.projektor.readme.shields.GithubPagesMavenShield
+import io.github.diskria.projektor.readme.shields.ReadmeShield
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication

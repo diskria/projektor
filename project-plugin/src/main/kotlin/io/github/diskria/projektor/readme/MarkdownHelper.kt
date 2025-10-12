@@ -1,4 +1,4 @@
-package io.github.diskria.projektor.markdown
+package io.github.diskria.projektor.readme
 
 import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.kotlin.utils.BracketsType

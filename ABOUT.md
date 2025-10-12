@@ -22,6 +22,6 @@ Add to your `settings.gradle.kts` or `build.gradle.kts`:
 
 ```kotlin
 plugins {
-    id("io.github.diskria.projektor") version "2.+"
+    id("io.github.diskria.projektor") version "3.+"
 }
 ```

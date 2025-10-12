@@ -1,4 +1,11 @@
-val taskName = "publishAllPublicationsToLocalMavenRepository"
+plugins {
+    `kotlin-dsl`
+    `maven-publish`
+    alias(libs.plugins.projektor)
+    alias(libs.plugins.build.config) apply false
+}
+
+val taskName = "publishAllPublicationsToGithubPagesRepository"
 val repoPath = "build/localMaven"
 
 tasks.register<Sync>(taskName) {

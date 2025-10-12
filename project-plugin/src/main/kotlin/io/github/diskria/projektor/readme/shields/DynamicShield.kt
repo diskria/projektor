@@ -1,4 +1,4 @@
-package io.github.diskria.projektor.markdown.shields
+package io.github.diskria.projektor.readme.shields
 
 import io.github.diskria.kotlin.utils.extensions.appendSuffix
 import io.ktor.http.*

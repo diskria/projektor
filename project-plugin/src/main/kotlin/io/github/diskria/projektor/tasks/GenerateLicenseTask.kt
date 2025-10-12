@@ -38,7 +38,7 @@ abstract class GenerateLicenseTask : GradleTask() {
 
     private suspend fun getLicenseText(metadata: ProjektMetadata): String =
         HttpClient(CIO).use { client ->
-            val template = client.get(metadata.license.url).bodyAsText()
+            val template = client.get(metadata.license.templateUrl).bodyAsText()
             metadata.license.fillTemplate(template, metadata)
         }
 

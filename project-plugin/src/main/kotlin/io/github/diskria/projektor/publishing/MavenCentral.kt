@@ -9,8 +9,8 @@ import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.projekt.AndroidLibrary
 import io.github.diskria.projektor.projekt.KotlinLibrary
 import io.github.diskria.projektor.projekt.common.IProjekt
-import io.github.diskria.projektor.markdown.shields.MavenCentralShield
-import io.github.diskria.projektor.markdown.shields.ReadmeShield
+import io.github.diskria.projektor.readme.shields.MavenCentralShield
+import io.github.diskria.projektor.readme.shields.ReadmeShield
 import org.gradle.api.Project
 import org.gradle.api.publish.Publication
 import org.gradle.api.publish.PublishingExtension
