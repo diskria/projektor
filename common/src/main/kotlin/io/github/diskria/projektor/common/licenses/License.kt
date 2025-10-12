@@ -11,9 +11,14 @@ import io.ktor.http.*
 
 sealed class License(val id: String) {
 
-    val url: String
-        get() = buildUrl("raw.githubusercontent.com") {
+    val templateUrl: String
+        get() = buildUrl("raw.githubusercontent.com", URLProtocol.HTTPS) {
             path("spdx", "license-list-data", "main", "text", fileName(id, Constants.File.Extension.TXT))
+        }
+
+    val url: String
+        get() = buildUrl("spdx.org", URLProtocol.HTTPS) {
+            path("licenses", id)
         }
 
     open fun getPlaceholders(metadata: ProjektMetadata): Map<String, String> = emptyMap()

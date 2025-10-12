@@ -8,7 +8,7 @@ import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
 import io.github.diskria.kotlin.utils.extensions.mappers.toEnum
 import io.github.diskria.kotlin.utils.extensions.serialization.serialize
-import io.github.diskria.kotlin.utils.properties.toAutoNamedProperty
+import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.Versions
 import io.github.diskria.projektor.common.minecraft.ModLoader
 import io.github.diskria.projektor.common.minecraft.getConfigFilePath
@@ -47,13 +47,13 @@ open class MinecraftModConfigurator(
         requirePlugins("org.jetbrains.kotlin.plugin.serialization")
         tasks.named<Jar>("jar") {
             manifest {
-                val specificationVersion by 1.toString().toAutoNamedProperty(`Train-Case`)
-                val specificationTitle by minecraftMod.id.toAutoNamedProperty(`Train-Case`)
-                val specificationVendor by minecraftMod.developer.toAutoNamedProperty(`Train-Case`)
+                val specificationVersion by 1.toString().autoNamedProperty(`Train-Case`)
+                val specificationTitle by minecraftMod.id.autoNamedProperty(`Train-Case`)
+                val specificationVendor by minecraftMod.developer.autoNamedProperty(`Train-Case`)
 
-                val implementationVersion by minecraftMod.jarVersion.toAutoNamedProperty(`Train-Case`)
-                val implementationTitle by name.toAutoNamedProperty(`Train-Case`)
-                val implementationVendor by minecraftMod.developer.toAutoNamedProperty(`Train-Case`)
+                val implementationVersion by minecraftMod.jarVersion.autoNamedProperty(`Train-Case`)
+                val implementationTitle by name.autoNamedProperty(`Train-Case`)
+                val implementationVendor by minecraftMod.developer.autoNamedProperty(`Train-Case`)
 
                 attributes(
                     listOf(

@@ -4,6 +4,8 @@ import io.github.diskria.gradle.utils.extensions.runExtension
 import io.github.diskria.kotlin.utils.extensions.toNullIfEmpty
 import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.projekt.common.IProjekt
+import io.github.diskria.projektor.markdown.shields.LatestGithubPackageShield
+import io.github.diskria.projektor.markdown.shields.ReadmeShield
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
@@ -20,7 +22,7 @@ data object GitHubPackages : PublishingTarget {
             }
             repositories {
                 maven(projekt.githubPackagesUrl) {
-                    name = "GitHubPackages"
+                    name = getTypeName()
                     credentials {
                         username = projekt.developer
                         password = githubPackagesToken
@@ -29,4 +31,7 @@ data object GitHubPackages : PublishingTarget {
             }
         }
     }
+
+    override fun getReadmeShield(projekt: IProjekt): ReadmeShield =
+        LatestGithubPackageShield(projekt)
 }

@@ -27,7 +27,7 @@ open class GradlePluginConfigurator(
                     )
                     displayName = gradlePlugin.name
                     description = gradlePlugin.description
-                    tags.set(gradlePlugin.tags.toNullIfEmpty())
+                    tags.set(gradlePlugin.tags)
                 }
             }
         }

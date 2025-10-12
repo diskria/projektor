@@ -18,7 +18,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import javax.inject.Inject
 
-open class ProjektExtension @Inject constructor(objects: ObjectFactory) : GradleExtension<Settings>() {
+open class ProjektExtension @Inject constructor(objects: ObjectFactory) : GradleExtension() {
 
     val description: Property<String> = objects.property(String::class.java)
     val tags: SetProperty<String> = objects.setProperty(String::class.java)
@@ -71,7 +71,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Gradle
             description = requireProperty(description, ::description.name),
             version = requireProperty(version, ::version.name),
             license = requireProperty(license, ::license.name),
-            tags = requireProperty(tags, ::tags.name),
+            tags = requireProperty(tags, ::tags.name).ifEmpty { gradleError("Projekt tags must not be empty!") },
         )
     }
 

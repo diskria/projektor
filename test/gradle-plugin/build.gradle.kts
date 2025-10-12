@@ -1,4 +1,4 @@
-import io.github.diskria.projektor.publishing.LocalMaven
+import io.github.diskria.projektor.publishing.MavenCentral
 
 plugins {
     `kotlin-dsl`
@@ -8,7 +8,6 @@ plugins {
 }
 
 projekt {
-    publishingTarget = LocalMaven
 
     gradlePlugin()
 }

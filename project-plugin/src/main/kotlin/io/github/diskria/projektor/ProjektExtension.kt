@@ -1,7 +1,7 @@
 package io.github.diskria.projektor
 
 import io.github.diskria.gradle.utils.extensions.common.gradleError
-import io.github.diskria.gradle.utils.extensions.gradle.ProjectExtension
+import io.github.diskria.gradle.utils.extensions.gradle.GradleExtension
 import io.github.diskria.projektor.common.projekt.ProjektMetadata
 import io.github.diskria.projektor.configurations.*
 import io.github.diskria.projektor.configurators.*
@@ -11,7 +11,7 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import javax.inject.Inject
 
-open class ProjektExtension @Inject constructor(objects: ObjectFactory) : ProjectExtension() {
+open class ProjektExtension @Inject constructor(objects: ObjectFactory) : GradleExtension() {
 
     val publishingTarget: Property<PublishingTarget> = objects.property(PublishingTarget::class.java)
 

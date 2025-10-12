@@ -5,7 +5,7 @@ import io.github.diskria.kotlin.utils.extensions.common.SCREAMING_SNAKE_CASE
 import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.poet.Property
-import io.github.diskria.kotlin.utils.properties.toAutoNamedProperty
+import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.common.minecraft.ModLoader
 import io.github.diskria.projektor.configurations.MinecraftModConfiguration
 import io.github.diskria.projektor.extensions.mappers.toJvmTarget
@@ -40,9 +40,9 @@ open class MinecraftMod(
             append(minecraftVersion.getVersion())
         }
 
-    override fun getMetadata(): List<Property<String>> {
-        val modId by id.toAutoNamedProperty(SCREAMING_SNAKE_CASE)
-        val modName by name.toAutoNamedProperty(SCREAMING_SNAKE_CASE)
+    override fun getBuildConfigFields(): List<Property<String>> {
+        val modId by id.autoNamedProperty(SCREAMING_SNAKE_CASE)
+        val modName by name.autoNamedProperty(SCREAMING_SNAKE_CASE)
         return listOf(modId, modName)
     }
 

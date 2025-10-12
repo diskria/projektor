@@ -1,7 +1,7 @@
 package io.github.diskria.projektor.minecraft.version
 
 import io.github.diskria.kotlin.utils.extensions.common.failWithDetails
-import io.github.diskria.kotlin.utils.properties.toAutoNamedProperty
+import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.minecraft.era.MinecraftEra
 
 interface MinecraftVersion {
@@ -18,8 +18,8 @@ interface MinecraftVersion {
                 ?: MinecraftEra.RELEASE
             return era.versions.find { version == it.getVersionInternal() }
                 ?: failWithDetails("Unknown Minecraft version") {
-                    val era by era.name.toAutoNamedProperty()
-                    val version by version.toAutoNamedProperty()
+                    val era by era.name.autoNamedProperty()
+                    val version by version.autoNamedProperty()
                     listOf(era, version)
                 }
         }
@@ -75,8 +75,8 @@ fun MinecraftVersion.getMinDataPackFormat(): Int =
         this >= Release.V_1_15 -> 5
         this >= Release.V_1_13 -> 4
         else -> failWithDetails("Unsupported version") {
-            val minecraftVersion by this.toAutoNamedProperty()
-            val minSupportedVersion by Release.V_1_13.toAutoNamedProperty()
+            val minecraftVersion by this.autoNamedProperty()
+            val minSupportedVersion by Release.V_1_13.autoNamedProperty()
             listOf(minecraftVersion, minSupportedVersion)
         }
     }
@@ -104,8 +104,8 @@ fun MinecraftVersion.getMinResourcePackFormat(): Int =
         this >= Release.V_1_9 -> 2
         this >= Release.V_1_6_1 -> 1
         else -> failWithDetails("Unsupported version") {
-            val minecraftVersion by this.toAutoNamedProperty()
-            val minSupportedVersion by Release.V_1_6_1.toAutoNamedProperty()
+            val minecraftVersion by this.autoNamedProperty()
+            val minSupportedVersion by Release.V_1_6_1.autoNamedProperty()
             listOf(minecraftVersion, minSupportedVersion)
         }
     }

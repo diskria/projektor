@@ -6,7 +6,7 @@ import io.ktor.http.*
 object ModrinthUtils {
 
     fun getProjectUrl(id: String): String =
-        buildUrl("modrinth.com") {
+        buildUrl("modrinth.com", URLProtocol.HTTPS) {
             path("project", id)
         }
 }

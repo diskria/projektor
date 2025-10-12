@@ -7,6 +7,7 @@ import io.github.diskria.gradle.utils.extensions.runExtension
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.projekt.common.IProjekt
+import io.github.diskria.projektor.tasks.GenerateLicenseTask
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.JavaPluginExtension
@@ -35,8 +36,8 @@ sealed class Configurator<T : IProjekt> {
         runExtension<JavaPluginExtension> {
             toolchain {
                 languageVersion.set(JavaLanguageVersion.of(projekt.javaVersion))
-                vendor.set(JvmVendorSpec.ADOPTIUM)
                 implementation.set(JvmImplementation.VENDOR_SPECIFIC)
+                vendor.set(JvmVendorSpec.ADOPTIUM)
             }
             withSourcesJar()
             withJavadocJar()
@@ -55,22 +56,19 @@ sealed class Configurator<T : IProjekt> {
                 jvmTarget.set(projekt.jvmTarget)
             }
         }
-        tasks.named<Jar>("jar") {
-            from("LICENSE") {
-                rename { oldName ->
-                    oldName + Constants.Char.UNDERSCORE + projekt.repo
-                }
+        val jarTask = tasks.named<Jar>("jar") {
+            from(GenerateLicenseTask.FILE_NAME) {
+                rename { it + Constants.Char.UNDERSCORE + projekt.repo }
             }
             archiveVersion.set(projekt.jarVersion)
         }
-        val unpackJarTask = tasks.register<Sync>("unpackJar") {
-            val jarTask = tasks.named<Jar>("jar")
+        val unpackJar by tasks.registering(Sync::class) {
             from(zipTree(jarTask.flatMap { it.archiveFile }))
             into(getBuildDirectory("unpacked"))
             dependsOn(jarTask)
         }
         tasks.named("build") {
-            finalizedBy(unpackJarTask)
+            finalizedBy(unpackJar)
         }
         runExtension<SourceSetContainer> {
             named("main") {
@@ -79,13 +77,13 @@ sealed class Configurator<T : IProjekt> {
                 java.srcDirs("$generatedDirectory/java")
             }
         }
-        val metadata = projekt.getMetadata()
-        if (metadata.isNotEmpty()) {
+        val buildConfigFields = projekt.getBuildConfigFields()
+        if (buildConfigFields.isNotEmpty()) {
             requirePlugins("com.github.gmazzo.buildconfig")
             runExtension<BuildConfigExtension> {
                 packageName(projekt.packageName)
                 className("ProjektBuildConfig")
-                metadata.forEach { field ->
+                buildConfigFields.forEach { field ->
                     buildConfigField(field.name, field.value)
                 }
                 useKotlinOutput {

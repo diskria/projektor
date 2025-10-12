@@ -13,6 +13,9 @@ import io.github.diskria.projektor.extensions.mappers.toJvmTarget
 import io.github.diskria.projektor.publishing.PublishingTarget
 import io.github.diskria.projektor.repo.host.GitHub
 import io.github.diskria.projektor.repo.host.RepoHost
+import io.github.diskria.projektor.markdown.shields.LatestGithubReleaseShield
+import io.github.diskria.projektor.markdown.shields.LicenseShield
+import io.github.diskria.projektor.markdown.shields.ReadmeShield
 import io.ktor.http.*
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -58,7 +61,18 @@ interface IProjekt {
     val githubIssuesUrl: String
         get() = buildGithubUrl { path("issues") }.toString()
 
-    fun getMetadata(): List<Property<String>> = emptyList()
+    val githubHomepage: String?
+        get() = null
+
+    fun getReadmeShields(): List<ReadmeShield> =
+        listOfNotNull(
+            publishingTarget?.getReadmeShield(this) ?: LatestGithubReleaseShield(this),
+            LicenseShield(license),
+        )
+
+    fun getGithubTopics(): Set<String> = emptySet()
+
+    fun getBuildConfigFields(): List<Property<String>> = emptyList()
 
     fun getRepoUrl(isVcs: Boolean = false): String =
         buildGithubUrl(isVcs).toString()

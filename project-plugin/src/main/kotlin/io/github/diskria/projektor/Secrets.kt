@@ -1,9 +1,10 @@
 package io.github.diskria.projektor
 
-import io.github.diskria.kotlin.utils.properties.AutoNamedEnvironmentVariable
+import io.github.diskria.kotlin.utils.properties.common.autoNamed
+import io.github.diskria.kotlin.utils.properties.common.environmentVariable
 
 object Secrets {
-    val githubPackagesToken: String by AutoNamedEnvironmentVariable()
-    val gpgKey: String by AutoNamedEnvironmentVariable()
-    val gpgPassphrase: String by AutoNamedEnvironmentVariable()
+    val githubPackagesToken: String by autoNamed.environmentVariable()
+    val gpgKey: String by autoNamed.environmentVariable()
+    val gpgPassphrase: String by autoNamed.environmentVariable()
 }

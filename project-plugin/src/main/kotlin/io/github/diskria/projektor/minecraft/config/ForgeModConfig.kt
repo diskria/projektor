@@ -59,7 +59,7 @@ class ForgeModConfig(
             ): ForgeMod =
                 ForgeMod(
                     description = mod.description,
-                    version = mod.version.toString(),
+                    version = mod.version,
                     authors = mod.developer,
                     id = mod.id,
                     name = mod.id,

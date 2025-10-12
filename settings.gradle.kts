@@ -8,10 +8,12 @@ pluginManagement {
         gradlePluginPortal()
         maven("https://diskria.github.io/projektor")
     }
-    val isTestsForceDisabled = false
-    if (!isTestsForceDisabled && rootDir.resolve("build/localMaven").exists()) {
-        rootDir.resolve("test").listFiles()?.filter { it.isDirectory }?.forEach { testProjectDirectory ->
-            includeBuild("test/${testProjectDirectory.name}")
+
+    val shouldIncludeTestProjects = false
+    if (shouldIncludeTestProjects && rootDir.resolve("build/localMaven").exists()) {
+        val testProjectsRoot = rootDir.resolve("test")
+        testProjectsRoot.listFiles()?.filter { it.isDirectory }?.forEach { testProjectDirectory ->
+            includeBuild(testProjectsRoot.resolve(testProjectDirectory.name))
         }
     }
 }
@@ -27,8 +29,9 @@ plugins {
 
 projekt {
     description = "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
-    version = "3.1.2"
+    version = "3.2.0"
     license = MIT
+    tags = setOf("configuration")
 
     gradlePlugin()
     MinecraftModConfigurator.applyRepositories(settings)

@@ -9,6 +9,8 @@ import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.projekt.AndroidLibrary
 import io.github.diskria.projektor.projekt.KotlinLibrary
 import io.github.diskria.projektor.projekt.common.IProjekt
+import io.github.diskria.projektor.markdown.shields.MavenCentralShield
+import io.github.diskria.projektor.markdown.shields.ReadmeShield
 import org.gradle.api.Project
 import org.gradle.api.publish.Publication
 import org.gradle.api.publish.PublishingExtension
@@ -35,7 +37,7 @@ data object MavenCentral : PublishingTarget {
         runExtension<PublishingExtension> {
             repositories {
                 maven(getBuildDirectory("staging-repo").get().asFile) {
-                    name = "MavenCentral"
+                    name = getTypeName()
                 }
             }
         }
@@ -85,4 +87,7 @@ data object MavenCentral : PublishingTarget {
             sign(publication)
         }
     }
+
+    override fun getReadmeShield(projekt: IProjekt): ReadmeShield =
+        MavenCentralShield(projekt)
 }

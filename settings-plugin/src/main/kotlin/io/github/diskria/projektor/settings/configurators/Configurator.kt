@@ -4,11 +4,6 @@ import io.github.diskria.projektor.common.projekt.ProjektMetadata
 import io.github.diskria.projektor.settings.extensions.configureMaven
 import io.github.diskria.projektor.settings.extensions.pluginRepositories
 import io.github.diskria.projektor.settings.extensions.repositories
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import kotlinx.coroutines.runBlocking
 import org.gradle.api.initialization.Settings
 
 sealed class Configurator {
@@ -16,7 +11,6 @@ sealed class Configurator {
     open fun configure(settings: Settings, metadata: ProjektMetadata) {
         configureRepositories(settings)
         configureProjects(settings)
-        configureLicense(settings, metadata)
     }
 
     protected open fun configureRepositories(settings: Settings) = with(settings) {
@@ -39,24 +33,4 @@ sealed class Configurator {
     protected open fun configureProjects(settings: Settings) {
 
     }
-
-    private fun configureLicense(settings: Settings, metadata: ProjektMetadata) = with(settings) {
-        val licenseTag = "SPDX ID: ${metadata.license.id}"
-        val licenseFile = rootDir.resolve("LICENSE")
-        if (licenseFile.exists() && licenseFile.readLines().lastOrNull { it.isNotBlank() }?.trim() == licenseTag) {
-            return
-        }
-        licenseFile.writeText(buildString {
-            append(runBlocking { getLicenseText(metadata) })
-            appendLine()
-            append(licenseTag)
-            appendLine()
-        })
-    }
-
-    private suspend fun getLicenseText(metadata: ProjektMetadata): String =
-        HttpClient(CIO).use { client ->
-            val template = client.get(metadata.license.url).bodyAsText()
-            metadata.license.fillTemplate(template, metadata)
-        }
 }

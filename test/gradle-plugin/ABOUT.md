@@ -1,0 +1,1 @@
+About of test gradle plugin.
