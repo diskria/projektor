@@ -1,4 +1,4 @@
-import io.github.diskria.projektor.publishing.maven.GithubPages
+import io.github.diskria.projektor.publishing.maven.MavenCentral
 
 plugins {
     `kotlin-dsl`
@@ -6,7 +6,7 @@ plugins {
 }
 
 projekt {
-    publishingTarget = GithubPages
+    publishingTarget = MavenCentral
 
-    gradlePlugin()
+    kotlinLibrary()
 }

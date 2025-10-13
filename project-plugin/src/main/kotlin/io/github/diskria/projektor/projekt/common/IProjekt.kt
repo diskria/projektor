@@ -10,7 +10,7 @@ import io.github.diskria.kotlin.utils.poet.Property
 import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.projektor.common.licenses.License
 import io.github.diskria.projektor.extensions.mappers.toJvmTarget
-import io.github.diskria.projektor.publishing.PublishingTarget
+import io.github.diskria.projektor.publishing.common.PublishingTarget
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
 import io.github.diskria.projektor.readme.shields.dynamic.GithubLatestReleaseShield
 import io.github.diskria.projektor.readme.shields.static.LicenseShield

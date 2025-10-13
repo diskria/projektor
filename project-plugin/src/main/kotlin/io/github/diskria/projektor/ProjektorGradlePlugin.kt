@@ -17,6 +17,7 @@ import io.github.diskria.projektor.tasks.GenerateReadmeTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.internal.extensions.core.extra
+import org.gradle.kotlin.dsl.withType
 
 class ProjektorGradlePlugin : Plugin<Project> {
 
@@ -30,6 +31,7 @@ class ProjektorGradlePlugin : Plugin<Project> {
             val projekt by configuredProjekt.autoNamedProperty()
             rootProject.extra[projekt.name] = projekt.value
         }
+        project.tasks.withType<GenerateLicenseTask>().isEmpty()
         if (project.isRootProject()) {
             project.registerTask<GenerateLicenseTask> {
                 metadata.set(projektMetadata)

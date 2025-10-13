@@ -6,7 +6,7 @@ import io.github.diskria.projektor.common.projekt.ProjektMetadata
 import io.github.diskria.projektor.configurations.*
 import io.github.diskria.projektor.configurators.*
 import io.github.diskria.projektor.projekt.common.Projekt
-import io.github.diskria.projektor.publishing.PublishingTarget
+import io.github.diskria.projektor.publishing.common.PublishingTarget
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import javax.inject.Inject

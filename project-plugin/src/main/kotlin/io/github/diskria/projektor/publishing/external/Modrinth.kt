@@ -1,13 +1,14 @@
-package io.github.diskria.projektor.publishing
+package io.github.diskria.projektor.publishing.external
 
 import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.kotlin.utils.extensions.common.className
 import io.github.diskria.projektor.extensions.modrinth
 import io.github.diskria.projektor.projekt.MinecraftMod
 import io.github.diskria.projektor.projekt.common.IProjekt
+import io.github.diskria.projektor.publishing.external.common.ExternalPublishingTarget
 import org.gradle.api.Project
 
-data object Modrinth : PublishingTarget {
+data object Modrinth : ExternalPublishingTarget() {
 
     override fun configure(projekt: IProjekt, project: Project) = with(project) {
         val mod = projekt as? MinecraftMod ?: gradleError(
@@ -21,6 +22,8 @@ data object Modrinth : PublishingTarget {
     }
 
     override fun publish(projekt: IProjekt, project: Project) {
-
+        TODO()
     }
+
+    override fun getPublishTaskName(): String = TODO()
 }

@@ -1,7 +1,7 @@
 package io.github.diskria.projektor.projekt.common
 
 import io.github.diskria.projektor.common.licenses.License
-import io.github.diskria.projektor.publishing.PublishingTarget
+import io.github.diskria.projektor.publishing.common.PublishingTarget
 
 data class Projekt(
     override val owner: String,

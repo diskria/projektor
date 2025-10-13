@@ -1,17 +1,16 @@
+import io.github.diskria.gradle.utils.extensions.getBuildDirectory
+
 plugins {
     `kotlin-dsl`
-    `maven-publish`
     alias(libs.plugins.projektor)
 }
 
 val taskName = "publishAllPublicationsToGithubPagesRepository"
-val repoPath = "build/localMaven"
-
 tasks.register<Sync>(taskName) {
     group = "publishing"
-    childProjects.keys.forEach { projectName ->
+    childProjects.forEach { (projectName, project) ->
         dependsOn(":$projectName:$taskName")
-        from("$projectName/$repoPath")
+        from(project.getBuildDirectory("localMaven"))
     }
-    into(repoPath)
+    into(getBuildDirectory("localMaven"))
 }

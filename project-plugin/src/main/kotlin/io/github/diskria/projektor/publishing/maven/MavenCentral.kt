@@ -16,6 +16,8 @@ import org.gradle.kotlin.dsl.get
 
 data object MavenCentral : LocalMaven() {
 
+    override val shouldCreatePublication: Boolean = true
+
     override fun configurePublication(
         publication: MavenPublication,
         projekt: IProjekt,
@@ -29,8 +31,6 @@ data object MavenCentral : LocalMaven() {
                         ", but got " + projekt::class.className()
             )
         }
-        val gpgKey = Secrets.gpgKey.toNullIfEmpty() ?: return
-        val gpgPassphrase = Secrets.gpgPassphrase.toNullIfEmpty() ?: return
         with(publication) {
             from(components[componentName])
             pom {
@@ -69,6 +69,8 @@ data object MavenCentral : LocalMaven() {
                 }
             }
         }
+        val gpgKey = Secrets.gpgKey.toNullIfEmpty() ?: return
+        val gpgPassphrase = Secrets.gpgPassphrase.toNullIfEmpty() ?: return
         signing {
             useInMemoryPgpKeys(gpgKey, gpgPassphrase)
             sign(publication)
