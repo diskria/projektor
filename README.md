@@ -2,7 +2,7 @@
 
 Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations.
 
-[![GitHub Pages Maven](https://img.shields.io/github/v/release/diskria/projektor.svg?sort=semver&label=GitHub+Pages+Maven&style=for-the-badge)](https://diskria.github.io/projektor) [![License: MIT](https://img.shields.io/static/v1?message=MIT&color=yellow&label=License&style=for-the-badge)](https://spdx.org/licenses/MIT)
+[![GitHub Pages](https://img.shields.io/github/v/tag/diskria/projektor.svg?sort=semver&label=GitHub+Pages&style=for-the-badge)](https://diskria.github.io/projektor) [![License: MIT](https://img.shields.io/static/v1?message=MIT&color=yellow&label=License&style=for-the-badge)](https://spdx.org/licenses/MIT)
 
 ---
 
@@ -30,7 +30,7 @@ Add to your `settings.gradle.kts` or `build.gradle.kts`:
 
 ```kotlin
 plugins {
-    id("io.github.diskria.projektor") version "2.+"
+    id("io.github.diskria.projektor") version "3.+"
 }
 ```
 

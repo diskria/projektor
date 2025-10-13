@@ -13,7 +13,7 @@ import io.github.diskria.projektor.extensions.mappers.toJvmTarget
 import io.github.diskria.projektor.publishing.PublishingTarget
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
 import io.github.diskria.projektor.readme.shields.dynamic.GithubLatestReleaseShield
-import io.github.diskria.projektor.readme.shields.simple.LicenseShield
+import io.github.diskria.projektor.readme.shields.static.LicenseShield
 import io.github.diskria.projektor.repo.host.GitHub
 import io.github.diskria.projektor.repo.host.RepoHost
 import io.ktor.http.*

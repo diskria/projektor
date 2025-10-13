@@ -2,9 +2,8 @@ import io.github.diskria.projektor.common.licenses.MIT
 
 pluginManagement {
     repositories {
-        maven("https://repo1.maven.org/maven2")
-        mavenCentral()
         maven(uri("../../build/localMaven"))
+        gradlePluginPortal()
     }
 }
 

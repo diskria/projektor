@@ -1,11 +1,8 @@
-import io.github.diskria.projektor.publishing.GithubPages
+import io.github.diskria.projektor.publishing.maven.GithubPages
 
 plugins {
     `kotlin-dsl`
-    `maven-publish`
     alias(libs.plugins.projektor)
-    alias(libs.plugins.build.config)
-    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {
@@ -13,14 +10,13 @@ dependencies {
     implementation(libs.bundles.diskria.utils)
 
     compileOnly(kotlin("gradle-plugin"))
-    compileOnly(libs.fabric.plugin)
+    compileOnly(libs.fabric.loom.plugin)
     implementation(libs.build.config.plugin)
     implementation(libs.kotlin.serialization.plugin)
-    implementation(libs.neoforge.plugin)
-    implementation(libs.modrinth.plugin)
+    implementation(libs.neoforge.moddev.plugin)
+    implementation(libs.modrinth.minotaur.plugin)
 
     implementation(libs.bundles.ktor.client)
-    implementation(libs.kotlin.serialization)
 
     constraints {
         // Override vulnerable transitive dependency (Okio < 3.4.0, CVE-2023-3635)

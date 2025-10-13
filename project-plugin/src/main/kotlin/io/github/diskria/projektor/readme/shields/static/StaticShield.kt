@@ -1,10 +1,10 @@
-package io.github.diskria.projektor.readme.shields.simple
+package io.github.diskria.projektor.readme.shields.static
 
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
 import io.ktor.http.*
 
-sealed class SimpleShield(
+sealed class StaticShield(
     label: String,
     val message: String,
     val color: String,

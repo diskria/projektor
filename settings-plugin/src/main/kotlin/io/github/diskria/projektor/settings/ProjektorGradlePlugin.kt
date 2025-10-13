@@ -27,6 +27,7 @@ class ProjektorGradlePlugin : Plugin<Settings> {
         settings.gradle.settingsEvaluated {
             extension.checkNotConfigured()
         }
+        settings.pluginManager.apply("org.gradle.toolchains.foojay-resolver-convention")
     }
 
     private fun configureRootProject(settings: Settings, metadata: ProjektMetadata) = with(settings) {
