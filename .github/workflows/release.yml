@@ -16,6 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: projektorlab/setup-java-temurin@25
-      - uses: projektorlab/publish@github-pages-maven
+      - uses: projektorlab/publish@github-pages
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

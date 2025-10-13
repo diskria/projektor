@@ -58,12 +58,6 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Gradle
             kotlinVersion = Versions.KOTLIN,
         )
 
-    fun checkNotConfigured() {
-        if (configurator == null) {
-            gradleError("Projekt not configured!")
-        }
-    }
-
     private fun setConfigurator(configurator: Configurator<*>) {
         if (this.configurator != null) {
             gradleError("Projekt already configured!")

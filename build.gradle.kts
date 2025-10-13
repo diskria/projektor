@@ -2,7 +2,7 @@ plugins {
     `kotlin-dsl`
     `maven-publish`
     alias(libs.plugins.projektor)
-    alias(libs.plugins.build.config) apply false
+    alias(libs.plugins.build.config)
 }
 
 val taskName = "publishAllPublicationsToGithubPagesRepository"

@@ -13,10 +13,11 @@ dependencies {
     implementation(libs.bundles.diskria.utils)
 
     compileOnly(kotlin("gradle-plugin"))
-    compileOnly(libs.build.config.plugin)
     compileOnly(libs.fabric.plugin)
-    compileOnly(libs.neoforge.plugin)
-    compileOnly(libs.modrinth.plugin)
+    implementation(libs.build.config.plugin)
+    implementation(libs.kotlin.serialization.plugin)
+    implementation(libs.neoforge.plugin)
+    implementation(libs.modrinth.plugin)
 
     implementation(libs.bundles.ktor.client)
     implementation(libs.kotlin.serialization)

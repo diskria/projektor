@@ -9,8 +9,9 @@ pluginManagement {
         maven("https://diskria.github.io/projektor")
     }
 
-    val shouldIncludeTestProjects = false
-    if (shouldIncludeTestProjects && rootDir.resolve("build/localMaven").exists()) {
+    val shouldIncludeTestProjects = true
+    val isPublishingGradleTaskRunning = gradle.startParameter.taskNames.firstOrNull()?.contains("publish") == true
+    if (shouldIncludeTestProjects && !isPublishingGradleTaskRunning && rootDir.resolve("build/localMaven").exists()) {
         val testProjectsRoot = rootDir.resolve("test")
         testProjectsRoot.listFiles()?.filter { it.isDirectory }?.forEach { testProjectDirectory ->
             includeBuild(testProjectsRoot.resolve(testProjectDirectory.name))
@@ -29,7 +30,7 @@ plugins {
 
 projekt {
     description = "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
-    version = "3.2.1"
+    version = "3.2.2"
     license = MIT
     tags = setOf("configuration")
 

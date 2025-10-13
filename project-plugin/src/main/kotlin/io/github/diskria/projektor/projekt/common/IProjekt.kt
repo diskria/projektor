@@ -11,11 +11,11 @@ import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.projektor.common.licenses.License
 import io.github.diskria.projektor.extensions.mappers.toJvmTarget
 import io.github.diskria.projektor.publishing.PublishingTarget
+import io.github.diskria.projektor.readme.shields.common.ReadmeShield
+import io.github.diskria.projektor.readme.shields.dynamic.GithubLatestReleaseShield
+import io.github.diskria.projektor.readme.shields.simple.LicenseShield
 import io.github.diskria.projektor.repo.host.GitHub
 import io.github.diskria.projektor.repo.host.RepoHost
-import io.github.diskria.projektor.readme.shields.LatestGithubReleaseShield
-import io.github.diskria.projektor.readme.shields.LicenseShield
-import io.github.diskria.projektor.readme.shields.ReadmeShield
 import io.ktor.http.*
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -66,7 +66,7 @@ interface IProjekt {
 
     fun getReadmeShields(): List<ReadmeShield> =
         listOfNotNull(
-            publishingTarget?.getReadmeShield(this) ?: LatestGithubReleaseShield(this),
+            publishingTarget?.getReadmeShield(this) ?: GithubLatestReleaseShield(this),
             LicenseShield(license),
         )
 

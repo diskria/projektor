@@ -2,7 +2,7 @@ package io.github.diskria.projektor.projekt.metadata
 
 import io.github.diskria.projektor.common.licenses.License
 import io.github.diskria.projektor.projekt.common.IProjekt
-import io.github.diskria.projektor.readme.shields.ReadmeShield
+import io.github.diskria.projektor.readme.shields.common.ReadmeShield
 
 data class ReadmeMetadata(
     val name: String,

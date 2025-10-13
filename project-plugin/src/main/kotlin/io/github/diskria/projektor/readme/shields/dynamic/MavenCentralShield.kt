@@ -1,4 +1,4 @@
-package io.github.diskria.projektor.readme.shields
+package io.github.diskria.projektor.readme.shields.dynamic
 
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.projektor.projekt.common.IProjekt

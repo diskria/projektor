@@ -1,6 +1,7 @@
-package io.github.diskria.projektor.readme.shields
+package io.github.diskria.projektor.readme.shields.dynamic
 
 import io.github.diskria.kotlin.utils.extensions.appendSuffix
+import io.github.diskria.projektor.readme.shields.common.ReadmeShield
 import io.ktor.http.*
 
 sealed class DynamicShield(
@@ -15,10 +16,8 @@ sealed class DynamicShield(
             val segments = pathParts.toTypedArray()
             segments[segments.lastIndex] = segments.last().appendSuffix(".svg")
             path(*segments)
-            parameters.apply {
-                extraParameters.forEach { (name, value) ->
-                    append(name, value.orEmpty())
-                }
+            extraParameters.forEach { (name, value) ->
+                parameters.append(name, value.orEmpty())
             }
         }
 

@@ -3,8 +3,8 @@ package io.github.diskria.projektor.tasks
 import io.github.diskria.gradle.utils.extensions.tasks.GradleTask
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.generics.joinBySpace
-import io.github.diskria.projektor.readme.MarkdownHelper
 import io.github.diskria.projektor.projekt.metadata.ReadmeMetadata
+import io.github.diskria.projektor.readme.MarkdownHelper
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.InputFile

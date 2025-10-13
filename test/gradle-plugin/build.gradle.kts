@@ -1,13 +1,12 @@
-import io.github.diskria.projektor.publishing.MavenCentral
+import io.github.diskria.projektor.publishing.maven.GithubPages
 
 plugins {
     `kotlin-dsl`
-    `maven-publish`
     alias(libs.plugins.projektor)
-    alias(libs.plugins.build.config)
 }
 
 projekt {
+    publishingTarget = GithubPages
 
     gradlePlugin()
 }

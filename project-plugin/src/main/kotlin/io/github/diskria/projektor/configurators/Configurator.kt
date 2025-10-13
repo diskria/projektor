@@ -1,17 +1,14 @@
 package io.github.diskria.projektor.configurators
 
-import com.github.gmazzo.buildconfig.BuildConfigExtension
-import io.github.diskria.gradle.utils.extensions.getBuildDirectory
-import io.github.diskria.gradle.utils.extensions.requirePlugins
-import io.github.diskria.gradle.utils.extensions.runExtension
+import io.github.diskria.gradle.utils.extensions.ensurePluginApplied
+import io.github.diskria.gradle.utils.extensions.implementation
 import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.projektor.Versions
+import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.projekt.common.IProjekt
 import io.github.diskria.projektor.tasks.GenerateLicenseTask
 import org.gradle.api.Project
-import org.gradle.api.plugins.BasePluginExtension
-import org.gradle.api.plugins.JavaPluginExtension
-import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.tasks.Jar
@@ -19,7 +16,6 @@ import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JvmImplementation
 import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.*
-import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 sealed class Configurator<T : IProjekt> {
@@ -27,13 +23,16 @@ sealed class Configurator<T : IProjekt> {
     abstract fun configure(project: Project, projekt: IProjekt): T
 
     protected fun applyCommonConfiguration(project: Project, projekt: IProjekt) = with(project) {
-        requirePlugins("kotlin")
+        ensurePluginApplied("org.jetbrains.kotlin.plugin.serialization")
+        dependencies {
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.KOTLIN_SERIALIZATION}")
+        }
         group = projekt.namespace
         version = projekt.jarVersion
-        runExtension<BasePluginExtension> {
+        base {
             archivesName = projekt.repo
         }
-        runExtension<JavaPluginExtension> {
+        java {
             toolchain {
                 languageVersion.set(JavaLanguageVersion.of(projekt.javaVersion))
                 implementation.set(JvmImplementation.VENDOR_SPECIFIC)
@@ -42,7 +41,7 @@ sealed class Configurator<T : IProjekt> {
             withSourcesJar()
             withJavadocJar()
         }
-        runExtension<KotlinProjectExtension> {
+        kotlin {
             jvmToolchain(projekt.javaVersion)
         }
         tasks.withType<JavaCompile>().configureEach {
@@ -62,15 +61,16 @@ sealed class Configurator<T : IProjekt> {
             }
             archiveVersion.set(projekt.jarVersion)
         }
-        val unpackJar by tasks.registering(Sync::class) {
-            from(zipTree(jarTask.flatMap { it.archiveFile }))
-            into(getBuildDirectory("unpacked"))
+        val unarchiveArtifact by tasks.registering(Sync::class) {
+            val jarFile = jarTask.flatMap { it.archiveFile }.get().asFile
+            from(zipTree(jarFile))
+            into(jarFile.parentFile.resolve(jarFile.nameWithoutExtension))
             dependsOn(jarTask)
         }
         tasks.named("build") {
-            finalizedBy(unpackJar)
+            finalizedBy(unarchiveArtifact)
         }
-        runExtension<SourceSetContainer> {
+        sourceSets {
             named("main") {
                 val generatedDirectory = "src/main/generated"
                 resources.srcDirs(generatedDirectory)
@@ -79,8 +79,7 @@ sealed class Configurator<T : IProjekt> {
         }
         val buildConfigFields = projekt.getBuildConfigFields()
         if (buildConfigFields.isNotEmpty()) {
-            requirePlugins("com.github.gmazzo.buildconfig")
-            runExtension<BuildConfigExtension> {
+            buildConfig {
                 packageName(projekt.packageName)
                 className("ProjektBuildConfig")
                 buildConfigFields.forEach { field ->

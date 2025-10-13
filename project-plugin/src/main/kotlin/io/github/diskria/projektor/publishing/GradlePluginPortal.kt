@@ -14,4 +14,8 @@ data object GradlePluginPortal : PublishingTarget {
                     ", but got " + projekt::class.className()
         )
     }
+
+    override fun publish(projekt: IProjekt, project: Project) {
+
+    }
 }

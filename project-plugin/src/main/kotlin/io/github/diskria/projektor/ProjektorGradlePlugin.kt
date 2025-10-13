@@ -5,11 +5,11 @@ import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.common.projekt.ProjektMetadata
-import io.github.diskria.projektor.readme.MarkdownHelper
 import io.github.diskria.projektor.projekt.common.IProjekt
 import io.github.diskria.projektor.projekt.metadata.GithubMetadata
 import io.github.diskria.projektor.projekt.metadata.PublishingMetadata
 import io.github.diskria.projektor.projekt.metadata.ReadmeMetadata
+import io.github.diskria.projektor.readme.MarkdownHelper
 import io.github.diskria.projektor.tasks.GenerateGithubMetadataTask
 import io.github.diskria.projektor.tasks.GenerateLicenseTask
 import io.github.diskria.projektor.tasks.GeneratePublishingMetadataTask

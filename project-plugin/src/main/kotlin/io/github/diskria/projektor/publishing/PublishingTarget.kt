@@ -2,11 +2,12 @@ package io.github.diskria.projektor.publishing
 
 import io.github.diskria.kotlin.utils.extensions.common.className
 import io.github.diskria.projektor.projekt.common.IProjekt
-import io.github.diskria.projektor.readme.shields.ReadmeShield
+import io.github.diskria.projektor.readme.shields.common.ReadmeShield
 import org.gradle.api.Project
 
-sealed interface PublishingTarget {
-    fun configure(projekt: IProjekt, project: Project)
+interface PublishingTarget {
     fun getTypeName(): String = this::class.className()
+    fun configure(projekt: IProjekt, project: Project)
+    fun publish(projekt: IProjekt, project: Project)
     fun getReadmeShield(projekt: IProjekt): ReadmeShield? = null
 }

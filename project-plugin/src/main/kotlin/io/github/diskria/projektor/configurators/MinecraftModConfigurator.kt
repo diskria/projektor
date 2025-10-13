@@ -13,9 +13,7 @@ import io.github.diskria.projektor.Versions
 import io.github.diskria.projektor.common.minecraft.ModLoader
 import io.github.diskria.projektor.common.minecraft.getConfigFilePath
 import io.github.diskria.projektor.configurations.MinecraftModConfiguration
-import io.github.diskria.projektor.extensions.mappings
-import io.github.diskria.projektor.extensions.minecraft
-import io.github.diskria.projektor.extensions.modImplementation
+import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.minecraft.*
 import io.github.diskria.projektor.minecraft.config.FabricModConfig
 import io.github.diskria.projektor.minecraft.config.MixinsConfig
@@ -23,11 +21,8 @@ import io.github.diskria.projektor.minecraft.version.MinecraftVersion
 import io.github.diskria.projektor.minecraft.version.getVersion
 import io.github.diskria.projektor.projekt.MinecraftMod
 import io.github.diskria.projektor.projekt.common.IProjekt
-import net.fabricmc.loom.api.LoomGradleExtensionAPI
-import net.fabricmc.loom.api.fabricapi.FabricApiExtension
 import org.gradle.api.Project
 import org.gradle.api.file.DuplicatesStrategy
-import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.dependencies
@@ -44,7 +39,6 @@ open class MinecraftModConfigurator(
         val minecraftVersion = MinecraftVersion.of(projectDir.name)
         val minecraftMod = MinecraftMod(projekt, config, modLoader, minecraftVersion)
         applyCommonConfiguration(project, minecraftMod)
-        requirePlugins("org.jetbrains.kotlin.plugin.serialization")
         tasks.named<Jar>("jar") {
             manifest {
                 val specificationVersion by 1.toString().autoNamedProperty(`Train-Case`)
@@ -78,7 +72,6 @@ open class MinecraftModConfigurator(
     }
 
     private fun configureFabricMod(project: Project, minecraftMod: MinecraftMod) = with(project) {
-        requirePlugins("fabric-loom")
         val loaderVersion = Versions.FABRIC_LOADER
         val mixins = minecraftMod.config.environment.getSourceSets().mapNotNull { sourceSet ->
             val logicalName = sourceSet.logicalName()
@@ -108,11 +101,11 @@ open class MinecraftModConfigurator(
                 modImplementation("net.fabricmc.fabric-api:fabric-api:$apiVersion")
             }
         }
-        runExtension<LoomGradleExtensionAPI> {
+        loom {
             splitEnvironmentSourceSets()
             mods {
                 create(minecraftMod.id) {
-                    runExtension<SourceSetContainer> {
+                    sourceSets {
                         minecraftMod.config.environment.getSourceSets().forEach { sourceSet ->
                             sourceSet(getByName(sourceSet.logicalName()))
                         }
@@ -141,7 +134,7 @@ open class MinecraftModConfigurator(
             accessWidenerPath.set(file("src/main/resources/" + fileName(minecraftMod.id, "accesswidener")))
         }
         if (datagenClasses.isNotEmpty()) {
-            runExtension<LoomGradleExtensionAPI> {
+            loom {
                 runs {
                     create("data") {
                         name = "Datagen"
@@ -157,7 +150,7 @@ open class MinecraftModConfigurator(
                     }
                 }
             }
-            runExtension<FabricApiExtension> {
+            fabric {
                 configureDataGeneration {
                     client = true
                 }

@@ -1,10 +1,10 @@
-package io.github.diskria.projektor.readme.shields
+package io.github.diskria.projektor.readme.shields.common
 
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.projektor.readme.MarkdownHelper
 import io.ktor.http.*
 
-sealed class ReadmeShield(val label: String, val url: String) {
+abstract class ReadmeShield(val label: String, val url: String) {
 
     abstract val urlBuilder: URLBuilder.() -> Unit
 
