@@ -11,7 +11,7 @@ import org.gradle.api.Project
 
 data object GithubPages : LocalMaven() {
 
-    private const val MAVEN_DIRECTORY_NAME: String = "github-pages-maven"
+    private const val MAVEN_DIRECTORY_NAME: String = "docs"
 
     override fun configure(projekt: IProjekt, project: Project) {
         super.configure(projekt, project)
