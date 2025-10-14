@@ -2,7 +2,7 @@ package io.github.diskria.projektor
 
 import io.github.diskria.gradle.utils.extensions.*
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
-import io.github.diskria.projektor.common.projekt.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.projekt.common.IProjekt
 import io.github.diskria.projektor.projekt.metadata.GithubMetadata
 import io.github.diskria.projektor.projekt.metadata.ReadmeMetadata

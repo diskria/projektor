@@ -10,7 +10,7 @@ import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.kotlin.utils.properties.AutoNamedEnvironmentVariable
 import io.github.diskria.projektor.common.licenses.License
-import io.github.diskria.projektor.common.projekt.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.settings.configurators.*
 import org.gradle.api.initialization.Settings
 import org.gradle.api.model.ObjectFactory
@@ -66,6 +66,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Gradle
         ProjektMetadata(
             owner = owner,
             developer = owner.substringBefore(Constants.Char.HYPHEN),
+            email = "diskria@proton.me",
             repo = repo,
             name = repo.setCase(`kebab-case`, `Title Case`),
             description = requireProperty(description, ::description.name),

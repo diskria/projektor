@@ -1,6 +1,6 @@
 package io.github.diskria.projektor.tasks.generate
 
-import io.github.diskria.projektor.common.projekt.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*

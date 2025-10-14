@@ -1,6 +1,9 @@
 package io.github.diskria.projektor.configurators
 
-import io.github.diskria.gradle.utils.extensions.*
+import io.github.diskria.gradle.utils.extensions.getBuildFile
+import io.github.diskria.gradle.utils.extensions.getFile
+import io.github.diskria.gradle.utils.extensions.getFileNames
+import io.github.diskria.gradle.utils.extensions.resolveCatalogVersion
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.capitalizeFirstChar
 import io.github.diskria.kotlin.utils.extensions.common.`Train-Case`

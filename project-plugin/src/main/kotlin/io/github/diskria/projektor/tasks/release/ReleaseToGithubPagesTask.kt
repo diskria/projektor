@@ -2,7 +2,7 @@ package io.github.diskria.projektor.tasks.release
 
 import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.kotlin.shell.dsl.GitShell
-import io.github.diskria.projektor.common.projekt.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.publishing.maven.GithubPages
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.DuplicatesStrategy
@@ -29,6 +29,7 @@ abstract class ReleaseToGithubPagesTask : Copy() {
 
     @TaskAction
     fun release() {
+        val metadata = metadata.get()
         val localMavenDirectory = localMavenDirectory.get().asFile
         val githubPagesMavenDirectory = githubPagesMavenDirectory.get().asFile
         if (!localMavenDirectory.exists()) {
@@ -39,7 +40,7 @@ abstract class ReleaseToGithubPagesTask : Copy() {
         }
         with(GitShell.open(githubPagesMavenDirectory.parentFile)) {
             stage(githubPagesMavenDirectory.name)
-//            configureUser(metadata.get().owner, )
+            configureUser(metadata.owner, metadata.email)
             commit("feat: release to GitHub Pages")
             push()
         }

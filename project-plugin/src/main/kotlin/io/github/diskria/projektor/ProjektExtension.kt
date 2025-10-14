@@ -2,7 +2,7 @@ package io.github.diskria.projektor
 
 import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.gradle.utils.extensions.gradle.GradleExtension
-import io.github.diskria.projektor.common.projekt.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.configurations.*
 import io.github.diskria.projektor.configurators.*
 import io.github.diskria.projektor.projekt.common.Projekt
@@ -46,7 +46,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Gradle
         Projekt(
             owner = metadata.owner,
             developer = metadata.developer,
-            email = "diskria@proton.me",
+            email = metadata.email,
             repo = metadata.repo,
             name = metadata.name,
             description = metadata.description,

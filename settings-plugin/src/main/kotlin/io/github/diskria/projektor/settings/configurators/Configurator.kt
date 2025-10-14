@@ -1,6 +1,6 @@
 package io.github.diskria.projektor.settings.configurators
 
-import io.github.diskria.projektor.common.projekt.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.settings.extensions.configureMaven
 import io.github.diskria.projektor.settings.extensions.dependencyRepositories
 import io.github.diskria.projektor.settings.extensions.pluginRepositories
