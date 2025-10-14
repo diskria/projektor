@@ -22,7 +22,6 @@ abstract class ReleaseToGithubPagesTask : Copy() {
 
     init {
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
-        dependsOn(GithubPages.getConfigurePublicationTaskName())
         from(localMavenDirectory)
         into(githubPagesMavenDirectory)
     }

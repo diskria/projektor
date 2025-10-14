@@ -16,6 +16,7 @@ data object GithubPages : LocalMaven() {
     override fun configure(projekt: IProjekt, project: Project) {
         super.configure(projekt, project)
         project.registerTask<ReleaseToGithubPagesTask> {
+            dependsOn(getConfigurePublicationTaskName())
             localMavenDirectory.set(project.rootProject.getBuildDirectory(DIRECTORY_NAME))
             githubPagesMavenDirectory.set(project.rootProject.getDirectory(MAVEN_DIRECTORY_NAME))
         }
