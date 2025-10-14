@@ -20,3 +20,5 @@ projekt {
 
     gradlePlugin()
 }
+
+include(":moduleA", ":moduleB")

@@ -28,15 +28,15 @@ class ProjektorGradlePlugin : Plugin<Project> {
         if (!rootProject.hasTask<GenerateLicenseTask>()) {
             rootProject.registerTask<GenerateLicenseTask> {
                 metadata.set(projektMetadata)
-                licenseFile.set(project.getFile(GenerateLicenseTask.FILE_NAME))
+                licenseFile.set(rootProject.getFile(GenerateLicenseTask.FILE_NAME))
             }
         }
         if (!rootProject.hasTask<GenerateReadmeTask>()) {
             rootProject.registerTask<GenerateReadmeTask> {
                 val projekt: IProjekt by rootProject.extra.properties
                 metadata.set(ReadmeMetadata.of(projekt))
-                aboutFile.set(project.getFile(GenerateReadmeTask.ABOUT_FILE_NAME))
-                readmeFile.set(project.getFile(GenerateReadmeTask.FILE_NAME))
+                aboutFile.set(rootProject.getFile(GenerateReadmeTask.ABOUT_FILE_NAME))
+                readmeFile.set(rootProject.getFile(GenerateReadmeTask.FILE_NAME))
             }
         }
         val metadataDirectory = project.getBuildDirectory("metadata").get().asFile
