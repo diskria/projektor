@@ -1,10 +1,11 @@
-package io.github.diskria.projektor.common.projekt
+package io.github.diskria.projektor.common.projekt.metadata
 
 import io.github.diskria.projektor.common.licenses.License
 
 data class ProjektMetadata(
     val owner: String,
     val developer: String,
+    val email: String,
     val repo: String,
     val name: String,
     val description: String,
