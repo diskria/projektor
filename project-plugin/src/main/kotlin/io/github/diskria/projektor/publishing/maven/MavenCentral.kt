@@ -77,10 +77,6 @@ data object MavenCentral : LocalMaven() {
         }
     }
 
-    override fun publish(projekt: IProjekt, project: Project) {
-
-    }
-
     override fun getReadmeShield(projekt: IProjekt): ReadmeShield =
         MavenCentralShield(projekt)
 }

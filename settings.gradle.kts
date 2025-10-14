@@ -7,24 +7,28 @@ pluginManagement {
         gradlePluginPortal()
     }
 
-    val shouldIncludeTestProjects = true
+    fun File.forEachDirectory(action: (File) -> Unit) {
+        listFiles()?.filter { it.isDirectory && !it.isHidden }.orEmpty().forEach(action)
+    }
+
+    val shouldIncludeTestProjects = false
     val isPublishingGradleTaskRunning = gradle.startParameter.taskNames.firstOrNull()?.startsWith("publish") == true
     if (shouldIncludeTestProjects && !isPublishingGradleTaskRunning && rootDir.resolve("build/localMaven").exists()) {
-        val testProjectsRoot = rootDir.resolve("test")
-        testProjectsRoot.listFiles()?.filter { it.isDirectory }?.forEach { testProjectDirectory ->
-            includeBuild(testProjectsRoot.resolve(testProjectDirectory.name))
+        rootDir.resolve("test-projects").forEachDirectory { publishingTargetDirectory ->
+            publishingTargetDirectory.forEachDirectory { testProjectDirectory ->
+                includeBuild(publishingTargetDirectory.resolve(testProjectDirectory.name))
+            }
         }
     }
 }
 
 plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
     id("io.github.diskria.projektor.settings") version "3.+"
 }
 
 projekt {
     description = "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
-    version = "3.2.4"
+    version = "3.2.5"
     license = MIT
     tags = setOf("configuration")
 

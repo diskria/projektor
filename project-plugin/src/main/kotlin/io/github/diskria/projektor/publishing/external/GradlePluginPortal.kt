@@ -17,9 +17,5 @@ data object GradlePluginPortal : ExternalPublishingTarget() {
         TODO()
     }
 
-    override fun publish(projekt: IProjekt, project: Project) {
-        TODO()
-    }
-
-    override fun getPublishTaskName(): String = TODO()
+    override fun getConfigurePublicationTaskName(): String = TODO()
 }

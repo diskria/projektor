@@ -2,6 +2,7 @@ import io.github.diskria.gradle.utils.extensions.getBuildDirectory
 
 plugins {
     `kotlin-dsl`
+    alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.projektor)
 }
 

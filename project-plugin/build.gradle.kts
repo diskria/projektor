@@ -12,6 +12,7 @@ dependencies {
     compileOnly(kotlin("gradle-plugin"))
     compileOnly(libs.fabric.loom.plugin)
     implementation(libs.build.config.plugin)
+    implementation(libs.kotlin.jvm.plugin)
     implementation(libs.kotlin.serialization.plugin)
     implementation(libs.neoforge.moddev.plugin)
     implementation(libs.modrinth.minotaur.plugin)

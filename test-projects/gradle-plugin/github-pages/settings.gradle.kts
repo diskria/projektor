@@ -2,7 +2,7 @@ import io.github.diskria.projektor.common.licenses.MIT
 
 pluginManagement {
     repositories {
-        maven(uri("../../build/localMaven"))
+        maven(uri("../../../build/localMaven"))
         gradlePluginPortal()
     }
 }
@@ -12,11 +12,11 @@ plugins {
 }
 
 projekt {
-    description = "Description of test gradle plugin."
+    description = "Test Gradle plugin for GitHub Pages publication."
     version = "0.1.0"
     license = MIT
-    tags = setOf("test")
-    versionCatalogPath = "../../gradle/libs.versions.toml"
+    tags = setOf("sample")
+    versionCatalogPath = "../../../gradle/libs.versions.toml"
 
     gradlePlugin()
 }

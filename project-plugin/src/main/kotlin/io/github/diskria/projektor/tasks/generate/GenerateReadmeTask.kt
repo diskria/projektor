@@ -1,17 +1,18 @@
-package io.github.diskria.projektor.tasks
+package io.github.diskria.projektor.tasks.generate
 
-import io.github.diskria.gradle.utils.extensions.tasks.GradleTask
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.generics.joinBySpace
 import io.github.diskria.projektor.projekt.metadata.ReadmeMetadata
 import io.github.diskria.projektor.readme.MarkdownHelper
+import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.TaskAction
 
-abstract class GenerateReadmeTask : GradleTask() {
+abstract class GenerateReadmeTask : DefaultTask() {
 
     @get:Internal
     abstract val metadata: Property<ReadmeMetadata>
@@ -22,7 +23,8 @@ abstract class GenerateReadmeTask : GradleTask() {
     @get:OutputFile
     abstract val readmeFile: RegularFileProperty
 
-    override fun runTask() {
+    @TaskAction
+    fun generate() {
         val metadata = metadata.get()
         val aboutFile = aboutFile.get().asFile
         val readmeFile = readmeFile.get().asFile
@@ -51,5 +53,10 @@ abstract class GenerateReadmeTask : GradleTask() {
                 appendLine()
             }
         )
+    }
+
+    companion object {
+        val FILE_NAME: String = MarkdownHelper.fileName("README")
+        val ABOUT_FILE_NAME: String = MarkdownHelper.fileName("ABOUT")
     }
 }

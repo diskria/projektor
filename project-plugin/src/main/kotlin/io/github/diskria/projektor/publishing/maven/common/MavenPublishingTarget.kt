@@ -46,7 +46,9 @@ abstract class MavenPublishingTarget : PublishingTarget {
             }
             configureMaven(repositories, projekt, project)
         }
+
     }
 
-    override fun getPublishTaskName(): String = "publishAllPublicationsTo${getTypeName()}Repository"
+    override fun getConfigurePublicationTaskName(): String =
+        "publishAllPublicationsTo${getTypeName()}Repository"
 }

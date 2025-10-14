@@ -27,10 +27,6 @@ data object GithubPackages : MavenPublishingTarget() {
         }
     }
 
-    override fun publish(projekt: IProjekt, project: Project) {
-
-    }
-
     override fun getReadmeShield(projekt: IProjekt): ReadmeShield =
         GithubPackageShield(projekt)
 }
