@@ -42,8 +42,7 @@ abstract class ReleaseToGithubPagesTask : Sync() {
                 "https://x-access-token:${githubToken}@github.com/${metadata.owner}/${metadata.repo}.git"
             )
             stage("--all")
-            commit("feat: release to GitHub Pages")
-            runGit(repoDirectory, "commit", "-m", "feat: release to GitHub Pages")
+            runGit(repoDirectory, "commit", "-m", "feat: release to GitHub Pages", "--allow-empty")
             push()
         }
     }
