@@ -1,0 +1,199 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.github.diskria",
+    "module": "projektor-project-plugin",
+    "version": "3.3.8",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.1.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 24,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "projektor-project-plugin-3.3.8.jar",
+          "url": "projektor-project-plugin-3.3.8.jar",
+          "size": 365327,
+          "sha512": "c6ec6f78074570d0c579a841892773a9d77551306435735f61d8cfc3f9b7bedb148b1952f3fa8ceb29094650b8e116c5075890142b7cbc5695dfdd96a38ea2b9",
+          "sha256": "ec2dedcdc3eba6e4403be4ed68f0b80c8cc817e249d73f0a503d3e1b2b994156",
+          "sha1": "8434f617537e82632702d97411ade8340d9db192",
+          "md5": "de49c2d213548715514f7252094911a6"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 24,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "io.github.diskria",
+          "module": "projektor-common",
+          "version": {
+            "requires": "3.+"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "kotlin-utils",
+          "version": {
+            "requires": "0.6.0"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "gradle-utils",
+          "version": {
+            "requires": "0.4.5"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "kotlin-shell-dsl",
+          "version": {
+            "requires": "0.3.3"
+          }
+        },
+        {
+          "group": "com.github.gmazzo.buildconfig",
+          "module": "plugin",
+          "version": {
+            "requires": "5.7.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin.jvm",
+          "module": "org.jetbrains.kotlin.jvm.gradle.plugin",
+          "version": {
+            "requires": "2.2.20"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin.plugin.serialization",
+          "module": "org.jetbrains.kotlin.plugin.serialization.gradle.plugin",
+          "version": {
+            "requires": "2.2.20"
+          }
+        },
+        {
+          "group": "net.neoforged.moddev.repositories",
+          "module": "net.neoforged.moddev.repositories.gradle.plugin",
+          "version": {
+            "requires": "2.0.115"
+          }
+        },
+        {
+          "group": "com.modrinth.minotaur",
+          "module": "Minotaur",
+          "version": {
+            "requires": "2.8.10"
+          }
+        },
+        {
+          "group": "io.ktor",
+          "module": "ktor-client-core",
+          "version": {
+            "requires": "3.3.1"
+          }
+        },
+        {
+          "group": "io.ktor",
+          "module": "ktor-client-cio",
+          "version": {
+            "requires": "3.3.1"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-serialization-json",
+          "version": {
+            "requires": "1.9.0"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "com.squareup.okio",
+          "module": "okio-jvm",
+          "version": {
+            "requires": "3.16.1"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "projektor-project-plugin-3.3.8.jar",
+          "url": "projektor-project-plugin-3.3.8.jar",
+          "size": 365327,
+          "sha512": "c6ec6f78074570d0c579a841892773a9d77551306435735f61d8cfc3f9b7bedb148b1952f3fa8ceb29094650b8e116c5075890142b7cbc5695dfdd96a38ea2b9",
+          "sha256": "ec2dedcdc3eba6e4403be4ed68f0b80c8cc817e249d73f0a503d3e1b2b994156",
+          "sha1": "8434f617537e82632702d97411ade8340d9db192",
+          "md5": "de49c2d213548715514f7252094911a6"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "projektor-project-plugin-3.3.8-sources.jar",
+          "url": "projektor-project-plugin-3.3.8-sources.jar",
+          "size": 55925,
+          "sha512": "75dbd6675ba581422f9791993d748b074897822cfd4966d26c7c48bea6fc6d53bda6f810f8022b05bc0c4140d89f217c8919ab8e2408939458ee9e8ef53348bf",
+          "sha256": "67a15946bcd2ed63542e2e8a90632ae1dc6d687e8e761e2ed3bc6eb1e4b36936",
+          "sha1": "3d0fe3c49a63812c16925212c9c6233ef10a12ff",
+          "md5": "2954e026dedc7f799d099f483a51a029"
+        }
+      ]
+    },
+    {
+      "name": "javadocElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "javadoc",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "projektor-project-plugin-3.3.8-javadoc.jar",
+          "url": "projektor-project-plugin-3.3.8-javadoc.jar",
+          "size": 261,
+          "sha512": "1487e5a20c9e4d74f298e07c42e96a61be11b7a768c3fbc199ee138cd68e1fc2267d1cfe3f11f288acc05df755315344d052cc5f6f751f126ab4fe1caa5125ea",
+          "sha256": "c6deada2fac53b8ea6523dbda77597b128006674616f140f04df23264c6d1aa3",
+          "sha1": "2ad14aed781c4a73ed4dbb421966d408a0a06686",
+          "md5": "f43436d6bec321290f6af228ad602604"
+        }
+      ]
+    }
+  ]
+}
