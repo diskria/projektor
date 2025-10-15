@@ -1,22 +1,40 @@
 package io.github.diskria.projektor.publishing.maven
 
 import io.github.diskria.gradle.utils.extensions.common.gradleError
+import io.github.diskria.gradle.utils.extensions.getBuildDirectory
+import io.github.diskria.gradle.utils.extensions.hasTask
+import io.github.diskria.gradle.utils.extensions.registerTask
 import io.github.diskria.kotlin.utils.extensions.common.className
 import io.github.diskria.kotlin.utils.extensions.toNullIfEmpty
 import io.github.diskria.projektor.Secrets
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.signing
 import io.github.diskria.projektor.projekt.AndroidLibrary
 import io.github.diskria.projektor.projekt.KotlinLibrary
 import io.github.diskria.projektor.projekt.common.IProjekt
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
 import io.github.diskria.projektor.readme.shields.dynamic.MavenCentralShield
+import io.github.diskria.projektor.tasks.release.ReleaseToMavenCentralTask
 import org.gradle.api.Project
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.internal.extensions.core.extra
 import org.gradle.kotlin.dsl.get
 
 data object MavenCentral : LocalMaven() {
 
     override val shouldCreatePublication: Boolean = true
+
+    override fun configure(projekt: IProjekt, project: Project) {
+        super.configure(projekt, project)
+        val rootProject = project.rootProject
+        if (!rootProject.hasTask<ReleaseToMavenCentralTask>()) {
+            rootProject.registerTask<ReleaseToMavenCentralTask> {
+                val projektMetadata: ProjektMetadata by rootProject.extra.properties
+                metadata.set(projektMetadata)
+                localMavenDirectory.set(rootProject.getBuildDirectory(DIRECTORY_NAME))
+            }
+        }
+    }
 
     override fun configurePublication(
         publication: MavenPublication,

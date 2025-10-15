@@ -42,4 +42,8 @@ abstract class ReleaseToGithubPagesTask : Sync() {
             }
         }
     }
+
+    companion object {
+        const val GITHUB_PAGES_MAVEN_DIRECTORY_NAME: String = "docs"
+    }
 }

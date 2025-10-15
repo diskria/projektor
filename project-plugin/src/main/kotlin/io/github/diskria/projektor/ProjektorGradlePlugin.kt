@@ -6,9 +6,11 @@ import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.projekt.common.IProjekt
 import io.github.diskria.projektor.projekt.metadata.GithubMetadata
 import io.github.diskria.projektor.projekt.metadata.ReadmeMetadata
+import io.github.diskria.projektor.publishing.maven.LocalMaven.Companion.DIRECTORY_NAME
 import io.github.diskria.projektor.tasks.generate.GenerateGithubMetadataTask
 import io.github.diskria.projektor.tasks.generate.GenerateLicenseTask
 import io.github.diskria.projektor.tasks.generate.GenerateReadmeTask
+import io.github.diskria.projektor.tasks.release.ReleaseToMavenCentralTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.internal.extensions.core.extra

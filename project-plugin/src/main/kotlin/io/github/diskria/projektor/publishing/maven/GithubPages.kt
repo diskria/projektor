@@ -14,8 +14,6 @@ import org.gradle.internal.extensions.core.extra
 
 data object GithubPages : LocalMaven() {
 
-    private const val MAVEN_DIRECTORY_NAME: String = "docs"
-
     override fun configure(projekt: IProjekt, project: Project) {
         super.configure(projekt, project)
         val rootProject = project.rootProject
@@ -25,7 +23,9 @@ data object GithubPages : LocalMaven() {
                 metadata.set(projektMetadata)
                 repoDirectory.set(rootProject.rootDir)
                 localMavenDirectory.set(rootProject.getBuildDirectory(DIRECTORY_NAME))
-                githubPagesMavenDirectory.set(rootProject.getDirectory(MAVEN_DIRECTORY_NAME))
+                githubPagesMavenDirectory.set(
+                    rootProject.getDirectory(ReleaseToGithubPagesTask.GITHUB_PAGES_MAVEN_DIRECTORY_NAME)
+                )
             }
         }
     }
