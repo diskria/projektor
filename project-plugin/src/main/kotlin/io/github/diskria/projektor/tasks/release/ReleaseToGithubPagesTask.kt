@@ -6,9 +6,9 @@ import io.github.diskria.kotlin.utils.extensions.toNullIfEmpty
 import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
+import java.io.File
 
 abstract class ReleaseToGithubPagesTask : Sync() {
 
@@ -25,48 +25,53 @@ abstract class ReleaseToGithubPagesTask : Sync() {
     abstract val githubPagesMavenDirectory: DirectoryProperty
 
     init {
-        duplicatesStrategy = DuplicatesStrategy.INCLUDE
         from(localMavenDirectory)
         into(githubPagesMavenDirectory)
     }
 
     @TaskAction
     fun release() {
-        val githubToken = Secrets.githubToken.toNullIfEmpty() ?: return
+        val githubToken = Secrets.githubToken.toNullIfEmpty()
+            ?: return println("⚠️ No GitHub token provided")
 
         val metadata = metadata.get()
         val repoDirectory = repoDirectory.get().asFile
-        val localMavenDirectory = localMavenDirectory.get().asFile
         val githubPagesMavenDirectory = githubPagesMavenDirectory.get().asFile
-        if (!localMavenDirectory.exists() || localMavenDirectory.listFiles().isEmpty()) {
-            gradleError("Local maven directory does not exist")
-        }
+
+        println("→ Sync done. Preparing to commit docs in ${repoDirectory.absolutePath}")
+        runGit(repoDirectory, "status")
+
         with(GitShell.open(repoDirectory)) {
-            println("pwd = ${pwd()}")
             configureUser(metadata.owner, metadata.email)
             setRemoteUrl(
                 GitShell.ORIGIN_REMOTE_NAME,
                 "https://x-access-token:${githubToken}@github.com/${metadata.owner}/${metadata.repo}.git"
             )
-            println("Git working dir: ${repoDirectory.absolutePath}")
-            println("Git pwd()        : ${GitShell.open(repoDirectory).pwd()}")
-            println("Path to add      : ${githubPagesMavenDirectory.relativeTo(repoDirectory).path}")
-            stage(".")
-            val process = Runtime.getRuntime().exec(
-                arrayOf("git", "add", githubPagesMavenDirectory.relativeTo(repoDirectory).path),
-                null,
-                repoDirectory
-            )
-            val exitCode = process.waitFor()
-            println("Manual git add exit code: $exitCode")
-            println(process.inputStream.bufferedReader().readText())
-            println(process.errorStream.bufferedReader().readText())
 
-            commit("feat: release to GitHub Pages")
-            push()
+            // add and commit
+            runGit(repoDirectory, "add", "--all")
+            runGit(repoDirectory, "status")
+            runGit(repoDirectory, "rev-parse", "--abbrev-ref", "HEAD")
+
+            runGit(repoDirectory, "commit", "-m", "feat: release to GitHub Pages", "--allow-empty")
+            runGit(repoDirectory, "push", "origin", "main")
+
+            println("✅ Pushed to main/docs successfully.")
         }
+
         println("Files in docs:")
         githubPagesMavenDirectory.walkTopDown().forEach { println(it) }
+    }
 
+    private fun runGit(repo: File, vararg args: String) {
+        val process = ProcessBuilder(listOf("git") + args)
+            .directory(repo)
+            .redirectErrorStream(true)
+            .start()
+        process.inputStream.bufferedReader().useLines { lines ->
+            lines.forEach { println("[git] $it") }
+        }
+        val code = process.waitFor()
+        println("[git] exit=$code\n")
     }
 }
