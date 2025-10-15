@@ -32,7 +32,7 @@ abstract class ReleaseToGithubPagesTask : Sync() {
 //                "https://x-access-token:${githubToken}@github.com/${metadata.owner}/${metadata.repo}.git"
 //            )
             stage("--all")
-            commit("feat: release ${metadata.version}")
+            commit("chore: deploy ${metadata.version} release to GitHub Pages")
             push()
         }
     }

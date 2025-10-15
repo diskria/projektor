@@ -28,7 +28,7 @@ plugins {
 
 projekt {
     description = "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
-    version = "3.3.7"
+    version = "3.3.8"
     license = MIT
     tags = setOf("configuration")
 
