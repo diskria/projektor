@@ -10,7 +10,7 @@ import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 
-abstract class ReleaseToGithubPagesTask : Copy() {
+abstract class ReleaseToGithubPagesTask : Sync() {
 
     @get:Internal
     abstract val metadata: Property<ProjektMetadata>
@@ -40,9 +40,6 @@ abstract class ReleaseToGithubPagesTask : Copy() {
         val githubPagesMavenDirectory = githubPagesMavenDirectory.get().asFile
         if (!localMavenDirectory.exists() || localMavenDirectory.listFiles().isEmpty()) {
             gradleError("Local maven directory does not exist")
-        }
-        if (githubPagesMavenDirectory.exists()) {
-            githubPagesMavenDirectory.deleteRecursively()
         }
         with(GitShell.open(repoDirectory)) {
             println("pwd = ${pwd()}")
