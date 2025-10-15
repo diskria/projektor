@@ -6,20 +6,6 @@ pluginManagement {
         maven("https://diskria.github.io/projektor")
         gradlePluginPortal()
     }
-
-    fun File.forEachDirectory(action: (File) -> Unit) {
-        listFiles()?.filter { it.isDirectory && !it.isHidden }.orEmpty().forEach(action)
-    }
-
-    val shouldIncludeTestProjects = true
-    val isPublishingGradleTaskRunning = gradle.startParameter.taskNames.firstOrNull()?.startsWith("publish") == true
-    if (shouldIncludeTestProjects && !isPublishingGradleTaskRunning && rootDir.resolve("build/localMaven").exists()) {
-        rootDir.resolve("test-projects").forEachDirectory { publishingTargetDirectory ->
-            publishingTargetDirectory.forEachDirectory { testProjectDirectory ->
-                includeBuild(publishingTargetDirectory.resolve(testProjectDirectory.name))
-            }
-        }
-    }
 }
 
 plugins {
@@ -28,7 +14,7 @@ plugins {
 
 projekt {
     description = "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
-    version = "3.4.2"
+    version = "3.4.3"
     license = MIT
     tags = setOf("configuration")
 
