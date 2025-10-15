@@ -31,15 +31,10 @@ abstract class ReleaseToGithubPagesTask : Sync() {
 
     @TaskAction
     fun release() {
-        val githubToken = Secrets.githubToken.toNullIfEmpty()
-            ?: return println("⚠️ No GitHub token provided")
+        val githubToken = Secrets.githubToken.toNullIfEmpty() ?: return
 
         val metadata = metadata.get()
         val repoDirectory = repoDirectory.get().asFile
-        val githubPagesMavenDirectory = githubPagesMavenDirectory.get().asFile
-
-        println("→ Sync done. Preparing to commit docs in ${repoDirectory.absolutePath}")
-        runGit(repoDirectory, "status")
 
         with(GitShell.open(repoDirectory)) {
             configureUser(metadata.owner, metadata.email)
@@ -47,20 +42,11 @@ abstract class ReleaseToGithubPagesTask : Sync() {
                 GitShell.ORIGIN_REMOTE_NAME,
                 "https://x-access-token:${githubToken}@github.com/${metadata.owner}/${metadata.repo}.git"
             )
-
-            // add and commit
             runGit(repoDirectory, "add", "--all")
-            runGit(repoDirectory, "status")
-            runGit(repoDirectory, "rev-parse", "--abbrev-ref", "HEAD")
-
-            runGit(repoDirectory, "commit", "-m", "feat: release to GitHub Pages", "--allow-empty")
+            commit("feat: release to GitHub Pages")
             runGit(repoDirectory, "push", "origin", "main")
-
-            println("✅ Pushed to main/docs successfully.")
+//            push()
         }
-
-        println("Files in docs:")
-        githubPagesMavenDirectory.walkTopDown().forEach { println(it) }
     }
 
     private fun runGit(repo: File, vararg args: String) {
