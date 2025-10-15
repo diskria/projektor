@@ -22,13 +22,15 @@ data object GithubPages : LocalMaven() {
         val rootProject = project.rootProject
         if (!rootProject.hasTask<ReleaseToGithubPagesTask>()) {
             rootProject.registerTask<ReleaseToGithubPagesTask> {
-                dependsOn(getConfigurePublicationTaskName())
-
                 val projektMetadata: ProjektMetadata by rootProject.extra.properties
                 metadata.set(projektMetadata)
                 repoDirectory.set(rootProject.rootDir)
                 localMavenDirectory.set(rootProject.getBuildDirectory(DIRECTORY_NAME))
                 githubPagesMavenDirectory.set(rootProject.getDirectory(MAVEN_DIRECTORY_NAME))
+
+                dependsOn(getConfigurePublicationTaskName())
+                from(localMavenDirectory)
+                into(githubPagesMavenDirectory)
             }
         }
     }
