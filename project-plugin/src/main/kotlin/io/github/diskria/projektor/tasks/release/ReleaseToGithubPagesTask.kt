@@ -23,17 +23,15 @@ abstract class ReleaseToGithubPagesTask : Sync() {
     @get:OutputDirectory
     abstract val githubPagesMavenDirectory: DirectoryProperty
 
-    init {
-        from(localMavenDirectory)
-        into(githubPagesMavenDirectory)
-    }
-
     @TaskAction
     fun release() {
         val githubToken = Secrets.githubToken.toNullIfEmpty() ?: return
 
         val metadata = metadata.get()
         val repoDirectory = repoDirectory.get().asFile
+
+        from(localMavenDirectory)
+        into(githubPagesMavenDirectory)
 
         with(GitShell.open(repoDirectory)) {
             configureUser(metadata.owner, metadata.email)
@@ -42,7 +40,7 @@ abstract class ReleaseToGithubPagesTask : Sync() {
                 "https://x-access-token:${githubToken}@github.com/${metadata.owner}/${metadata.repo}.git"
             )
             stage("--all")
-            runGit(repoDirectory, "commit", "-m", "feat: release to GitHub Pages", "--allow-empty")
+            runGit(repoDirectory, "commit", "-m", "feat: release to GitHub Pages")
             push()
         }
     }
