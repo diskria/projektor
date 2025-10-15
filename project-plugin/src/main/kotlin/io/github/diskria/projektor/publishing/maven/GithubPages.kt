@@ -11,7 +11,6 @@ import io.github.diskria.projektor.readme.shields.dynamic.GithubPagesShield
 import io.github.diskria.projektor.tasks.release.ReleaseToGithubPagesTask
 import org.gradle.api.Project
 import org.gradle.internal.extensions.core.extra
-import kotlin.collections.getValue
 
 data object GithubPages : LocalMaven() {
 
@@ -22,13 +21,11 @@ data object GithubPages : LocalMaven() {
         val rootProject = project.rootProject
         if (!rootProject.hasTask<ReleaseToGithubPagesTask>()) {
             rootProject.registerTask<ReleaseToGithubPagesTask> {
-                dependsOn(getConfigurePublicationTaskName())
-                from(rootProject.getBuildDirectory(DIRECTORY_NAME))
-                into(rootProject.getDirectory(MAVEN_DIRECTORY_NAME))
-
                 val projektMetadata: ProjektMetadata by rootProject.extra.properties
                 metadata.set(projektMetadata)
                 repoDirectory.set(rootProject.rootDir)
+                localMavenDirectory.set(rootProject.getBuildDirectory(DIRECTORY_NAME))
+                githubPagesMavenDirectory.set(rootProject.getDirectory(MAVEN_DIRECTORY_NAME))
             }
         }
     }

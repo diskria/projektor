@@ -4,7 +4,6 @@ import io.github.diskria.kotlin.utils.properties.common.autoNamed
 import io.github.diskria.kotlin.utils.properties.common.environmentVariable
 
 object Secrets {
-    val githubToken: String by autoNamed.environmentVariable()
     val githubPackagesToken: String by autoNamed.environmentVariable()
     val gpgKey: String by autoNamed.environmentVariable()
     val gpgPassphrase: String by autoNamed.environmentVariable()
