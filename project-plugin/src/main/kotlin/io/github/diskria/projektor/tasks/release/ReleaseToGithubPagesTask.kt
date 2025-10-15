@@ -16,6 +16,9 @@ abstract class ReleaseToGithubPagesTask : Copy() {
     abstract val metadata: Property<ProjektMetadata>
 
     @get:InputDirectory
+    abstract val repoDirectory: DirectoryProperty
+
+    @get:InputDirectory
     abstract val localMavenDirectory: DirectoryProperty
 
     @get:OutputDirectory
@@ -32,21 +35,23 @@ abstract class ReleaseToGithubPagesTask : Copy() {
         val githubToken = Secrets.githubToken.toNullIfEmpty() ?: return
 
         val metadata = metadata.get()
+        val repoDirectory = repoDirectory.get().asFile
         val localMavenDirectory = localMavenDirectory.get().asFile
         val githubPagesMavenDirectory = githubPagesMavenDirectory.get().asFile
-        if (!localMavenDirectory.exists()) {
+        if (!localMavenDirectory.exists() || localMavenDirectory.listFiles().isEmpty()) {
             gradleError("Local maven directory does not exist")
         }
         if (githubPagesMavenDirectory.exists()) {
             githubPagesMavenDirectory.deleteRecursively()
         }
-        with(GitShell.open(githubPagesMavenDirectory.parentFile)) {
+        with(GitShell.open(repoDirectory)) {
+            println("pwd = ${pwd()}")
             configureUser(metadata.owner, metadata.email)
             setRemoteUrl(
                 GitShell.ORIGIN_REMOTE_NAME,
                 "https://x-access-token:${githubToken}@github.com/${metadata.owner}/${metadata.repo}.git"
             )
-            stage(githubPagesMavenDirectory.name)
+            stage(githubPagesMavenDirectory.relativeTo(repoDirectory).path)
             commit("feat: release to GitHub Pages")
             push()
         }
