@@ -51,9 +51,25 @@ abstract class ReleaseToGithubPagesTask : Copy() {
                 GitShell.ORIGIN_REMOTE_NAME,
                 "https://x-access-token:${githubToken}@github.com/${metadata.owner}/${metadata.repo}.git"
             )
-            stage(githubPagesMavenDirectory.relativeTo(repoDirectory).path)
+            println("Git working dir: ${repoDirectory.absolutePath}")
+            println("Git pwd()        : ${GitShell.open(repoDirectory).pwd()}")
+            println("Path to add      : ${githubPagesMavenDirectory.relativeTo(repoDirectory).path}")
+            stage(".")
+            val process = Runtime.getRuntime().exec(
+                arrayOf("git", "add", githubPagesMavenDirectory.relativeTo(repoDirectory).path),
+                null,
+                repoDirectory
+            )
+            val exitCode = process.waitFor()
+            println("Manual git add exit code: $exitCode")
+            println(process.inputStream.bufferedReader().readText())
+            println(process.errorStream.bufferedReader().readText())
+
             commit("feat: release to GitHub Pages")
             push()
         }
+        println("Files in docs:")
+        githubPagesMavenDirectory.walkTopDown().forEach { println(it) }
+
     }
 }
