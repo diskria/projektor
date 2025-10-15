@@ -7,7 +7,6 @@ import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
-import java.io.File
 
 abstract class ReleaseToGithubPagesTask : Sync() {
 
@@ -23,6 +22,11 @@ abstract class ReleaseToGithubPagesTask : Sync() {
     @get:OutputDirectory
     abstract val githubPagesMavenDirectory: DirectoryProperty
 
+    init {
+        from(localMavenDirectory)
+        into(githubPagesMavenDirectory)
+    }
+
     @TaskAction
     fun release() {
         val githubToken = Secrets.githubToken.toNullIfEmpty() ?: return
@@ -30,30 +34,15 @@ abstract class ReleaseToGithubPagesTask : Sync() {
         val metadata = metadata.get()
         val repoDirectory = repoDirectory.get().asFile
 
-        from(localMavenDirectory)
-        into(githubPagesMavenDirectory)
-
         with(GitShell.open(repoDirectory)) {
             configureUser(metadata.owner, metadata.email)
-            setRemoteUrl(
-                GitShell.ORIGIN_REMOTE_NAME,
-                "https://x-access-token:${githubToken}@github.com/${metadata.owner}/${metadata.repo}.git"
-            )
+//            setRemoteUrl(
+//                GitShell.ORIGIN_REMOTE_NAME,
+//                "https://x-access-token:${githubToken}@github.com/${metadata.owner}/${metadata.repo}.git"
+//            )
             stage("--all")
-            runGit(repoDirectory, "commit", "-m", "feat: release to GitHub Pages")
+            commit("feat: release to GitHub Pages")
             push()
         }
-    }
-
-    private fun runGit(repo: File, vararg args: String) {
-        val process = ProcessBuilder(listOf("git") + args)
-            .directory(repo)
-            .redirectErrorStream(true)
-            .start()
-        process.inputStream.bufferedReader().useLines { lines ->
-            lines.forEach { println("[git] $it") }
-        }
-        val code = process.waitFor()
-        println("[git] exit=$code\n")
     }
 }
