@@ -1,6 +1,5 @@
 package io.github.diskria.projektor.tasks.release
 
-import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.kotlin.shell.dsl.GitShell
 import io.github.diskria.kotlin.utils.extensions.toNullIfEmpty
 import io.github.diskria.projektor.Secrets
@@ -43,9 +42,8 @@ abstract class ReleaseToGithubPagesTask : Sync() {
                 "https://x-access-token:${githubToken}@github.com/${metadata.owner}/${metadata.repo}.git"
             )
             runGit(repoDirectory, "add", "--all")
-            commit("feat: release to GitHub Pages")
+            runGit(repoDirectory, "commit", "-m", "feat: release to GitHub Pages", "--allow-empty")
             runGit(repoDirectory, "push", "origin", "main")
-//            push()
         }
     }
 
