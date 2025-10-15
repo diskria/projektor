@@ -7,6 +7,7 @@ import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
+import java.io.File
 
 abstract class ReleaseToGithubPagesTask : Sync() {
 
@@ -41,8 +42,21 @@ abstract class ReleaseToGithubPagesTask : Sync() {
                 "https://x-access-token:${githubToken}@github.com/${metadata.owner}/${metadata.repo}.git"
             )
             stage("--all")
-            commit("Release to GitHub Pages")
+            commit("feat: release to GitHub Pages")
+            runGit(repoDirectory, "commit", "-m", "feat: release to GitHub Pages")
             push()
         }
+    }
+
+    private fun runGit(repo: File, vararg args: String) {
+        val process = ProcessBuilder(listOf("git") + args)
+            .directory(repo)
+            .redirectErrorStream(true)
+            .start()
+        process.inputStream.bufferedReader().useLines { lines ->
+            lines.forEach { println("[git] $it") }
+        }
+        val code = process.waitFor()
+        println("[git] exit=$code\n")
     }
 }

@@ -11,7 +11,7 @@ kotlin = "2.2.20"
 ktor = "3.3.1"
 kotlin-utils = "0.6.0"
 gradle-utils = "0.4.5"
-kotlin-shell-dsl = "0.3.2"
+kotlin-shell-dsl = "0.3.3"
 
 [plugins]
 projektor = { id = "io.github.diskria.projektor", version.ref = "projektor" }
