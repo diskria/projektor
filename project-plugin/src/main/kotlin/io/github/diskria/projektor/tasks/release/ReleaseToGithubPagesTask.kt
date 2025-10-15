@@ -41,9 +41,9 @@ abstract class ReleaseToGithubPagesTask : Sync() {
                 GitShell.ORIGIN_REMOTE_NAME,
                 "https://x-access-token:${githubToken}@github.com/${metadata.owner}/${metadata.repo}.git"
             )
-            runGit(repoDirectory, "add", "--all")
+            stage("--all")
             runGit(repoDirectory, "commit", "-m", "feat: release to GitHub Pages", "--allow-empty")
-            runGit(repoDirectory, "push", "origin", "main")
+            push()
         }
     }
 
