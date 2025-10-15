@@ -8,5 +8,7 @@ plugins {
 projekt {
     publishingTarget = GithubPages
 
-    gradlePlugin()
+    gradlePlugin {
+        isSettingsPlugin = true
+    }
 }

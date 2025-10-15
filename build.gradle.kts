@@ -1,16 +1,18 @@
 import io.github.diskria.gradle.utils.extensions.getBuildDirectory
+import io.github.diskria.projektor.publishing.maven.GithubPages
+import io.github.diskria.projektor.publishing.maven.LocalMaven
 
 plugins {
     `kotlin-dsl`
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.projektor) apply false
 }
 
-val taskName = "publishAllPublicationsToGithubPagesRepository"
+val taskName = GithubPages.getConfigurePublicationTaskName()
 tasks.register<Sync>(taskName) {
-    group = "publishing"
     childProjects.forEach { (projectName, project) ->
         dependsOn(":$projectName:$taskName")
-        from(project.getBuildDirectory("localMaven"))
+        from(project.getBuildDirectory(LocalMaven.DIRECTORY_NAME))
     }
-    into(getBuildDirectory("localMaven"))
+    into(getBuildDirectory(LocalMaven.DIRECTORY_NAME))
 }

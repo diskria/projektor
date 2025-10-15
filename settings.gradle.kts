@@ -11,7 +11,7 @@ pluginManagement {
         listFiles()?.filter { it.isDirectory && !it.isHidden }.orEmpty().forEach(action)
     }
 
-    val shouldIncludeTestProjects = false
+    val shouldIncludeTestProjects = true
     val isPublishingGradleTaskRunning = gradle.startParameter.taskNames.firstOrNull()?.startsWith("publish") == true
     if (shouldIncludeTestProjects && !isPublishingGradleTaskRunning && rootDir.resolve("build/localMaven").exists()) {
         rootDir.resolve("test-projects").forEachDirectory { publishingTargetDirectory ->
@@ -28,7 +28,7 @@ plugins {
 
 projekt {
     description = "Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations."
-    version = "3.2.10"
+    version = "3.2.11"
     license = MIT
     tags = setOf("configuration")
 
