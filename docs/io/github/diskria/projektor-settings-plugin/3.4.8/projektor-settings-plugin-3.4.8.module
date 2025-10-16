@@ -29,11 +29,11 @@
         {
           "name": "projektor-settings-plugin-3.4.8.jar",
           "url": "projektor-settings-plugin-3.4.8.jar",
-          "size": 43562,
-          "sha512": "24f7e42a6613241fc40cda8c70dccc15ff7611e25cdc0c651651ccc2b881afd5d3791f1c55f6690bfc62848a2553119b968076eb6dfe4052df812a976c5bb5a0",
-          "sha256": "f57ef2f857acd883f7241b8be75c5af9e9ff373f3f1ed5914bf6d3a10bb0e371",
-          "sha1": "ebd166ce67daf0ddc22a6986d32d91bfb3dd4670",
-          "md5": "4f7a46e738a3da53489c02edc0d6e289"
+          "size": 43519,
+          "sha512": "e0973513dcf63406e1c8894d8927fd12394ce2f123f52b0979c39cd6186c02977f61de11ed33becae94e99f4ae36e1981150b26bcd0456887c30f1d19929ec53",
+          "sha256": "d0fcf3e83018813d67d01ab683e537a4e6630601482a4efd69c4495fbbb9aa1c",
+          "sha1": "9180a2137abf57dea2a3891da25626b6b4d3c7bb",
+          "md5": "85d2496e3ceb2cf786a6bca0ff07686c"
         }
       ]
     },
@@ -110,11 +110,11 @@
         {
           "name": "projektor-settings-plugin-3.4.8.jar",
           "url": "projektor-settings-plugin-3.4.8.jar",
-          "size": 43562,
-          "sha512": "24f7e42a6613241fc40cda8c70dccc15ff7611e25cdc0c651651ccc2b881afd5d3791f1c55f6690bfc62848a2553119b968076eb6dfe4052df812a976c5bb5a0",
-          "sha256": "f57ef2f857acd883f7241b8be75c5af9e9ff373f3f1ed5914bf6d3a10bb0e371",
-          "sha1": "ebd166ce67daf0ddc22a6986d32d91bfb3dd4670",
-          "md5": "4f7a46e738a3da53489c02edc0d6e289"
+          "size": 43519,
+          "sha512": "e0973513dcf63406e1c8894d8927fd12394ce2f123f52b0979c39cd6186c02977f61de11ed33becae94e99f4ae36e1981150b26bcd0456887c30f1d19929ec53",
+          "sha256": "d0fcf3e83018813d67d01ab683e537a4e6630601482a4efd69c4495fbbb9aa1c",
+          "sha1": "9180a2137abf57dea2a3891da25626b6b4d3c7bb",
+          "md5": "85d2496e3ceb2cf786a6bca0ff07686c"
         }
       ]
     },
@@ -130,11 +130,11 @@
         {
           "name": "projektor-settings-plugin-3.4.8-sources.jar",
           "url": "projektor-settings-plugin-3.4.8-sources.jar",
-          "size": 8958,
-          "sha512": "a7677071051f45a459da7399fbdfd85800918d880773eceaad2a002b0e6d7a4281f2cfa78f2a9de691214b8050518c9e14f4af441de1e61b41e4508eaa5301c5",
-          "sha256": "b2bf5b197be40cfad41f0d9055183e6ae695f03b94d70e45a4b9d105f8011c54",
-          "sha1": "1de47bea32c29e9c821aab46e84b6e55d92a44f8",
-          "md5": "2911507877e63dc3de23a78ad0bcfd84"
+          "size": 8948,
+          "sha512": "c08bb04e33d016e69b2024b35a9316370c25ca0ed274c5bca24665f74af2236b4c17dc16182fe20e205a2dd6617c56db658b76a3aa86e946a171071ae785fb87",
+          "sha256": "d0e3ced8d6d6f9908ba5c3a5f637fe78e5365100689647faad56e04e26fa7780",
+          "sha1": "e2da12c3c84c97ff6b99d0be4c3221e4a6de98f7",
+          "md5": "fb4aba0c4ad7d68afa2bdc96a8becfdf"
         }
       ]
     },
