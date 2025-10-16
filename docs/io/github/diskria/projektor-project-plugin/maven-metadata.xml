@@ -3,11 +3,11 @@
   <groupId>io.github.diskria</groupId>
   <artifactId>projektor-project-plugin</artifactId>
   <versioning>
-    <latest>3.4.7</latest>
-    <release>3.4.7</release>
+    <latest>3.4.8</latest>
+    <release>3.4.8</release>
     <versions>
-      <version>3.4.7</version>
+      <version>3.4.8</version>
     </versions>
-    <lastUpdated>20251016101615</lastUpdated>
+    <lastUpdated>20251016104122</lastUpdated>
   </versioning>
 </metadata>
