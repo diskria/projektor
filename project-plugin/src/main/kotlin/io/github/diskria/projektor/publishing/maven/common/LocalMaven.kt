@@ -1,8 +1,7 @@
-package io.github.diskria.projektor.publishing.maven
+package io.github.diskria.projektor.publishing.maven.common
 
 import io.github.diskria.gradle.utils.extensions.getBuildDirectory
 import io.github.diskria.projektor.projekt.common.IProjekt
-import io.github.diskria.projektor.publishing.maven.common.MavenPublishingTarget
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository

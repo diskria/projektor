@@ -5,10 +5,10 @@ import io.github.diskria.gradle.utils.extensions.put
 import io.github.diskria.gradle.utils.extensions.registerExtension
 import io.github.diskria.gradle.utils.helpers.VersionCatalogsHelper
 import io.github.diskria.kotlin.utils.Constants
-import io.github.diskria.kotlin.utils.extensions.appendPrefix
 import io.github.diskria.kotlin.utils.extensions.common.modifyIf
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
-import io.github.diskria.projektor.common.projekt.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.OwnerType
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.settings.extensions.mappers.mapToModel
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
@@ -20,7 +20,7 @@ class ProjektorGradlePlugin : Plugin<Settings> {
         settings.pluginManager.apply("org.gradle.toolchains.foojay-resolver-convention")
 
         val extension = settings.registerExtension<ProjektExtension>()
-        extension.onTypeReady { type ->
+        extension.onConfigured { type ->
             val metadata = extension.buildMetadata(settings, type)
             configureRootProject(settings, metadata)
             type.mapToModel().configure(settings, metadata)
@@ -33,14 +33,14 @@ class ProjektorGradlePlugin : Plugin<Settings> {
             }
         }
         settings.gradle.settingsEvaluated {
-            extension.checkNotConfigured()
+            extension.ensureConfigured()
         }
     }
 
     private fun configureRootProject(settings: Settings, metadata: ProjektMetadata) = with(settings) {
-        val isBrand = metadata.owner.first().isUpperCase()
-        rootProject.name = metadata.name.modifyIf(isBrand) {
-            it.appendPrefix(metadata.owner + Constants.Char.SPACE)
+        val owner = metadata.repository.owner
+        rootProject.name = metadata.name.modifyIf(owner.type == OwnerType.BRAND) {
+            owner.name + Constants.Char.SPACE + it
         }
         gradle.rootProject {
             description = metadata.description

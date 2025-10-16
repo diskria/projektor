@@ -3,10 +3,13 @@ package io.github.diskria.projektor.extensions
 import com.github.gmazzo.buildconfig.BuildConfigExtension
 import com.modrinth.minotaur.ModrinthExtension
 import io.github.diskria.gradle.utils.extensions.ensurePluginApplied
+import io.github.diskria.gradle.utils.extensions.hasTask
+import io.github.diskria.gradle.utils.extensions.registerTask
 import io.github.diskria.gradle.utils.extensions.runExtension
 import net.fabricmc.loom.api.LoomGradleExtensionAPI
 import net.fabricmc.loom.api.fabricapi.FabricApiExtension
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.publish.PublishingExtension
@@ -57,6 +60,13 @@ fun Project.fabric(block: FabricApiExtension.() -> Unit) {
 
 fun Project.modrinth(block: ModrinthExtension.() -> Unit) {
     withPluginExtension<ModrinthExtension>("com.modrinth.minotaur", block)
+}
+
+inline fun <reified T : Task> Project.ensureTaskRegistered(noinline configuration: T.() -> Unit = {}) {
+    if (hasTask<T>()) {
+        return
+    }
+    registerTask<T>(configuration)
 }
 
 private inline fun <reified E : Any> Project.withPluginExtension(pluginId: String, block: E.() -> Unit) {

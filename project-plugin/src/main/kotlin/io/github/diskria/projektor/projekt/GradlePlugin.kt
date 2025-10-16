@@ -21,7 +21,7 @@ open class GradlePlugin(
 
     override fun getBuildConfigFields(): List<Property<String>> {
         val pluginId by id.autoNamedProperty(SCREAMING_SNAKE_CASE)
-        val pluginName by name.autoNamedProperty(SCREAMING_SNAKE_CASE)
+        val pluginName by metadata.name.autoNamedProperty(SCREAMING_SNAKE_CASE)
         return listOf(pluginId, pluginName)
     }
 }

@@ -1,6 +1,8 @@
 package io.github.diskria.projektor.publishing.external
 
 import io.github.diskria.gradle.utils.extensions.common.gradleError
+import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
+import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.extensions.modrinth
 import io.github.diskria.projektor.projekt.MinecraftMod
 import io.github.diskria.projektor.projekt.common.IProjekt
@@ -12,7 +14,7 @@ data object Modrinth : ExternalPublishingTarget() {
     override fun configure(projekt: IProjekt, project: Project) = with(project) {
         val mod = projekt as? MinecraftMod ?: gradleError(
             "Only Minecraft mod projects supported for publishing to Modrinth" +
-                    ", but got " + projekt.typeName
+                    ", but got " + projekt.metadata.type.getName(`kebab-case`)
         )
         modrinth {
             projectId.set(mod.id)

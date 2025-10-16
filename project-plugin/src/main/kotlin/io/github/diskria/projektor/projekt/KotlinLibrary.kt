@@ -16,7 +16,7 @@ open class KotlinLibrary(
         get() = config.jvmTarget ?: super.jvmTarget
 
     override fun getBuildConfigFields(): List<Property<String>> {
-        val libraryName by name.autoNamedProperty(SCREAMING_SNAKE_CASE)
+        val libraryName by metadata.name.autoNamedProperty(SCREAMING_SNAKE_CASE)
         return listOf(libraryName)
     }
 }

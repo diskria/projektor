@@ -10,7 +10,7 @@ data object Forge : ModLoader {
     override fun getConfigFilePath(): String =
         "META-INF/" + fileName("mods", Constants.File.Extension.TOML)
 
-    override fun configureMod(project: Project, minecraftMod: MinecraftMod) = with(project) {
+    override fun configureMod(project: Project, mod: MinecraftMod) = with(project) {
         TODO()
     }
 }

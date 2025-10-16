@@ -51,10 +51,10 @@ sealed class Configurator<T : IProjekt> {
                 showStandardStreams = true
             }
         }
-        group = projekt.namespace
-        version = projekt.jarVersion
+        group = projekt.metadata.repository.owner.namespace
+        version = projekt.archiveVersion
         base {
-            archivesName = projekt.repo
+            archivesName = projekt.metadata.repository.name
         }
         java {
             toolchain {
@@ -80,10 +80,10 @@ sealed class Configurator<T : IProjekt> {
             }
         }
         val jarTask = tasks.named<Jar>("jar") {
-            from(GenerateLicenseTask.FILE_NAME) {
-                rename { it + Constants.Char.UNDERSCORE + projekt.repo }
+            from(GenerateLicenseTask.OUTPUT_FILE_NAME) {
+                rename { it + Constants.Char.UNDERSCORE + projekt.metadata.repository.name }
             }
-            archiveVersion.set(projekt.jarVersion)
+            archiveVersion.set(projekt.archiveVersion)
         }
         val unarchiveArtifact by tasks.registering(Sync::class) {
             val jarFile = jarTask.flatMap { it.archiveFile }.get().asFile
@@ -115,6 +115,6 @@ sealed class Configurator<T : IProjekt> {
                 }
             }
         }
-        projekt.publishingTarget?.configure(projekt, project)
+        projekt.publishingTarget.configure(projekt, project)
     }
 }

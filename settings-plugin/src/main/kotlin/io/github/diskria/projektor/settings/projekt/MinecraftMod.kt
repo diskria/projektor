@@ -1,11 +1,13 @@
 package io.github.diskria.projektor.settings.projekt
 
+import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.common.minecraft.ModLoaderType
 import io.github.diskria.projektor.settings.extensions.configureMaven
 import io.github.diskria.projektor.settings.extensions.dependencyRepositories
 import io.github.diskria.projektor.settings.extensions.repositories
 import io.github.diskria.projektor.settings.projekt.common.Projekt
+import io.ktor.http.*
 import org.gradle.api.initialization.Settings
 
 data object MinecraftMod : Projekt() {
@@ -14,15 +16,19 @@ data object MinecraftMod : Projekt() {
         dependencyRepositories {
             configureMaven(
                 name = "Minecraft",
-                url = "https://libraries.minecraft.net"
+                url = buildUrl("libraries.minecraft.net")
             )
             configureMaven(
                 name = "SpongePowered",
-                url = "https://repo.spongepowered.org/repository/maven-public",
+                url = buildUrl("repo.spongepowered.org") {
+                    path("repository", "maven-public")
+                },
             )
             configureMaven(
                 name = "Modrinth",
-                url = "https://api.modrinth.com/maven",
+                url = buildUrl("api.modrinth.com") {
+                    path("maven")
+                },
                 group = "maven.modrinth",
                 includeSubgroups = false
             )
@@ -30,7 +36,7 @@ data object MinecraftMod : Projekt() {
         repositories {
             configureMaven(
                 name = "Fabric",
-                url = "https://maven.fabricmc.net"
+                url = buildUrl("maven.fabricmc.net")
             )
         }
     }

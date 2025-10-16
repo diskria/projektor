@@ -1,8 +1,6 @@
 package io.github.diskria.projektor.common.projekt.metadata.github
 
 import io.github.diskria.kotlin.utils.Constants
-import io.github.diskria.kotlin.utils.extensions.appendPrefix
-import io.github.diskria.kotlin.utils.extensions.appendSuffix
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.common.modifyIf
 import io.github.diskria.kotlin.utils.extensions.generics.joinToString
@@ -28,15 +26,13 @@ data class GithubRepository(val owner: GithubOwner, val name: String) {
         buildGithubUrl(isPackagesMaven = true).toString()
 
     fun getPagesUrl(): String =
-        buildUrl("${owner.developerName}.${RepositoryHost.GITHUB.shortName}.io", URLProtocol.HTTPS) {
-            path(name)
-        }
+        getPagesUrl(owner.developerName, name)
 
     fun buildScmUri(vararg parts: String): String =
-        listOf("scm", VersionControlSystem.GIT.shortName, *parts).joinToString(Constants.Char.COLON)
+        listOf("scm", VERSION_CONTROL_SYSTEM.shortName, *parts).joinToString(Constants.Char.COLON)
 
     fun getSshAuthority(): String =
-        VersionControlSystem.GIT.shortName + Constants.Char.AT_SIGN + RepositoryHost.GITHUB.hostname
+        VERSION_CONTROL_SYSTEM.shortName + Constants.Char.AT_SIGN + RepositoryHost.GITHUB.hostName
 
     private fun buildGithubUrl(
         isVcs: Boolean = false,
@@ -45,15 +41,22 @@ data class GithubRepository(val owner: GithubOwner, val name: String) {
     ): Url =
         URLBuilder().apply {
             protocol = URLProtocol.HTTPS
-            host = RepositoryHost.GITHUB.hostname.modifyIf(isPackagesMaven) { it.appendPrefix(PACKAGES_MAVEN_PREFIX) }
+            host = RepositoryHost.GITHUB.hostName.modifyIf(isPackagesMaven) { PACKAGES_MAVEN_PREFIX + it }
             path(
                 owner.name,
-                name.modifyIf(isVcs) { it.appendSuffix(Constants.Char.DOT + VersionControlSystem.GIT.shortName) }
+                name.modifyIf(isVcs) { it + Constants.Char.DOT + VERSION_CONTROL_SYSTEM.shortName }
             )
             block()
         }.build()
 
     companion object {
-        private const val PACKAGES_MAVEN_PREFIX = "maven.pkg."
+
+        private const val PACKAGES_MAVEN_PREFIX: String = "maven.pkg."
+        private val VERSION_CONTROL_SYSTEM: VersionControlSystem = RepositoryHost.GITHUB.versionControlSystem
+
+        fun getPagesUrl(developerName: String, repositoryName: String): String =
+            buildUrl("$developerName.${RepositoryHost.GITHUB.shortName}.io") {
+                path(repositoryName)
+            }
     }
 }

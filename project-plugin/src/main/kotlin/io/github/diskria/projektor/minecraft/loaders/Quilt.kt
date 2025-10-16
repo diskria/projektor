@@ -10,7 +10,7 @@ data object Quilt : ModLoader {
     override fun getConfigFilePath(): String =
         fileName(getName(), "mod", Constants.File.Extension.JSON)
 
-    override fun configureMod(project: Project, minecraftMod: MinecraftMod) = with(project) {
+    override fun configureMod(project: Project, mod: MinecraftMod) = with(project) {
         TODO()
     }
 }

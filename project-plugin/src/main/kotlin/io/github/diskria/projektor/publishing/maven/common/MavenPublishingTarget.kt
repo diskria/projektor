@@ -2,7 +2,6 @@ package io.github.diskria.projektor.publishing.maven.common
 
 import io.github.diskria.gradle.utils.extensions.isRootProject
 import io.github.diskria.kotlin.utils.Constants
-import io.github.diskria.kotlin.utils.extensions.appendSuffix
 import io.github.diskria.kotlin.utils.extensions.common.modifyUnless
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.words.PascalCase
@@ -32,12 +31,12 @@ abstract class MavenPublishingTarget : PublishingTarget {
     ): MavenArtifactRepository
 
     override fun configure(projekt: IProjekt, project: Project) = with(project) {
-        val fixedArtifactId = projekt.repo.modifyUnless(isRootProject()) {
-            it.appendSuffix(Constants.Char.HYPHEN + name)
+        val fixedArtifactId = projekt.metadata.repository.name.modifyUnless(isRootProject()) {
+            it + Constants.Char.HYPHEN + name
         }
         publishing {
             if (shouldCreatePublication) {
-                publications.create<MavenPublication>(projekt.repo) {
+                publications.create<MavenPublication>(projekt.metadata.repository.name) {
                     configurePublication(this, projekt, project)
                 }
             }

@@ -1,43 +1,32 @@
 package io.github.diskria.projektor.tasks.release
 
+import io.github.diskria.gradle.utils.extensions.getBuildDirectory
+import io.github.diskria.gradle.utils.extensions.getDirectory
 import io.github.diskria.kotlin.shell.dsl.GitShell
-import io.github.diskria.projektor.common.projekt.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.publishing.maven.GithubPages
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.OutputDirectory
+import io.github.diskria.projektor.publishing.maven.common.LocalMaven.Companion.LOCAL_MAVEN_DIRECTORY_NAME
 import org.gradle.api.tasks.Sync
+import org.gradle.internal.extensions.core.extra
 
 abstract class ReleaseToGithubPagesTask : Sync() {
 
-    @get:Internal
-    abstract val metadata: Property<ProjektMetadata>
-
-    @get:InputDirectory
-    abstract val repoDirectory: DirectoryProperty
-
-    @get:InputDirectory
-    abstract val localMavenDirectory: DirectoryProperty
-
-    @get:OutputDirectory
-    abstract val githubPagesMavenDirectory: DirectoryProperty
-
     init {
+        val projektMetadata: ProjektMetadata by project.extra.properties
+
         dependsOn(GithubPages.getConfigurePublicationTaskName())
-        from(localMavenDirectory)
-        into(githubPagesMavenDirectory)
+
+        from(project.getBuildDirectory(LOCAL_MAVEN_DIRECTORY_NAME))
+        into(project.getDirectory(GITHUB_PAGES_MAVEN_DIRECTORY_NAME))
+
+        val repositoryDirectory = project.rootDir
+        val owner = projektMetadata.repository.owner
 
         doLast {
-            val metadata = metadata.get()
-            val repoDirectory = repoDirectory.get().asFile
-            val githubPagesMavenDirectory = githubPagesMavenDirectory.get().asFile
-
-            with(GitShell.open(repoDirectory)) {
-                configureUser(metadata.owner, metadata.email)
-                stage(githubPagesMavenDirectory.relativeTo(repoDirectory).path)
-                commit("chore: deploy ${metadata.version} release to GitHub Pages")
+            with(GitShell.open(repositoryDirectory)) {
+                configureUser(owner.name, owner.email)
+                stage(destinationDir.relativeTo(repositoryDirectory).path)
+                commit("chore: deploy ${projektMetadata.version} release to GitHub Pages")
                 push()
             }
         }

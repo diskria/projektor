@@ -20,17 +20,17 @@ open class GradlePluginConfigurator(
         val gradlePlugin = GradlePlugin(projekt, config)
         applyCommonConfiguration(project, gradlePlugin)
         gradlePlugin {
-            website.set(gradlePlugin.getRepoUrl())
-            vcsUrl.set(gradlePlugin.getRepoPath(isVcs = true))
+            website.set(gradlePlugin.metadata.repository.getUrl())
+            vcsUrl.set(gradlePlugin.metadata.repository.getPath(isVcs = true))
             plugins {
                 create(gradlePlugin.id) {
                     id = gradlePlugin.id
                     implementationClass = gradlePlugin.packageName.appendPackageName(
-                        gradlePlugin.classNameBase + "GradlePlugin"
+                        gradlePlugin.classNamePrefix + "GradlePlugin"
                     )
-                    displayName = gradlePlugin.name
-                    description = gradlePlugin.description
-                    tags.set(gradlePlugin.tags)
+                    displayName = gradlePlugin.metadata.name
+                    description = gradlePlugin.metadata.description
+                    tags.set(gradlePlugin.metadata.tags)
                 }
             }
         }

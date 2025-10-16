@@ -57,9 +57,9 @@ class ForgeModConfig(
                 modrinthProjectUrl: String,
             ): ForgeMod =
                 ForgeMod(
-                    description = mod.description,
-                    version = mod.version,
-                    authors = mod.developer,
+                    description = mod.metadata.description,
+                    version = mod.metadata.version,
+                    authors = mod.metadata.repository.owner.developerName,
                     id = mod.id,
                     name = mod.id,
                     icon = fileName("icon", Constants.File.Extension.PNG),
@@ -127,7 +127,7 @@ class ForgeModConfig(
                 mods = mods,
                 dependencies = mods.associate { it.id to it.dependencies },
                 loader = "javafml",
-                issueTrackerUrl = mod.githubIssuesUrl,
+                issueTrackerUrl = mod.metadata.repository.getIssuesUrl(),
                 isClientSideOnly = environment == ModEnvironment.CLIENT_SIDE_ONLY,
             )
         }

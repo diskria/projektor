@@ -7,6 +7,6 @@ object Secrets {
     val githubPackagesToken: String by autoNamed.environmentVariable()
     val gpgKey: String by autoNamed.environmentVariable()
     val gpgPassphrase: String by autoNamed.environmentVariable()
-    val sonatypeUsername: String by autoNamed.environmentVariable(true)
-    val sonatypePassword: String by autoNamed.environmentVariable(true)
+    val sonatypeUsername: String by autoNamed.environmentVariable(isRequired = true)
+    val sonatypePassword: String by autoNamed.environmentVariable(isRequired = true)
 }

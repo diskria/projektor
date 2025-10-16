@@ -5,6 +5,3 @@ enum class SourceSet {
     CLIENT,
     SERVER,
 }
-
-fun SourceSet.logicalName(): String =
-    name.lowercase()

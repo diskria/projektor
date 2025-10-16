@@ -1,7 +1,9 @@
 package io.github.diskria.projektor.settings.projekt.common
 
-import io.github.diskria.projektor.common.projekt.ProjektMetadata
+import io.github.diskria.kotlin.utils.extensions.common.buildUrl
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.settings.extensions.*
+import io.ktor.http.*
 import org.gradle.api.initialization.Settings
 
 abstract class Projekt {
@@ -24,7 +26,9 @@ abstract class Projekt {
         repositories {
             configureMaven(
                 "MavenCentralMirror",
-                "https://repo1.maven.org/maven2"
+                buildUrl("repo1.maven.org") {
+                    path("maven2")
+                }
             )
             mavenCentral()
         }

@@ -7,11 +7,17 @@ import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.asDirectory
 import io.github.diskria.kotlin.utils.extensions.common.`Title Case`
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
+import io.github.diskria.kotlin.utils.extensions.ensureDirectoryExists
+import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.extensions.setCase
-import io.github.diskria.kotlin.utils.properties.AutoNamedEnvironmentVariable
+import io.github.diskria.kotlin.utils.properties.common.autoNamed
+import io.github.diskria.kotlin.utils.properties.common.environmentVariable
 import io.github.diskria.projektor.common.licenses.LicenseType
-import io.github.diskria.projektor.common.projekt.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.OwnerType
 import io.github.diskria.projektor.common.projekt.ProjektType
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.metadata.github.GithubOwner
+import io.github.diskria.projektor.common.projekt.metadata.github.GithubRepository
 import io.github.diskria.projektor.common.publishing.PublishingTargetType
 import org.gradle.api.initialization.Settings
 import org.gradle.api.model.ObjectFactory
@@ -31,69 +37,80 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Gradle
     private var type: ProjektType? = null
     private var onTypeReadyCallback: ((ProjektType) -> Unit)? = null
 
-    fun onTypeReady(callback: (ProjektType) -> Unit) {
+    fun onConfigured(callback: (ProjektType) -> Unit) {
         onTypeReadyCallback = callback
     }
 
     fun gradlePlugin() {
-        setType(ProjektType.GRADLE_PLUGIN)
+        setProjektType(ProjektType.GRADLE_PLUGIN)
     }
 
     fun kotlinLibrary() {
-        setType(ProjektType.KOTLIN_LIBRARY)
+        setProjektType(ProjektType.KOTLIN_LIBRARY)
     }
 
     fun androidLibrary() {
-        setType(ProjektType.ANDROID_LIBRARY)
+        setProjektType(ProjektType.ANDROID_LIBRARY)
     }
 
     fun androidApplication() {
-        setType(ProjektType.ANDROID_APPLICATION)
+        setProjektType(ProjektType.ANDROID_APPLICATION)
     }
 
     fun minecraftMod() {
-        setType(ProjektType.MINECRAFT_MOD)
+        setProjektType(ProjektType.MINECRAFT_MOD)
     }
 
     fun buildMetadata(settings: Settings, type: ProjektType): ProjektMetadata = with(settings) {
-        val (owner, repo) = if (providers.isCI) {
-            val githubOwner by AutoNamedEnvironmentVariable(isRequired = true)
-            val githubRepo by AutoNamedEnvironmentVariable(isRequired = true)
+        val (ownerName, repositoryName) = if (providers.isCI) {
+            val githubOwner by autoNamed.environmentVariable(isRequired = true)
+            val githubRepo by autoNamed.environmentVariable(isRequired = true)
             githubOwner to githubRepo
         } else {
-            val owner = rootDir.parentFile.asDirectory().name
-            val repo = rootDir.name
-            owner to repo
+            val ownerName = rootDir.parentFile.asDirectory().name
+            val repositoryName = rootDir.name
+            ownerName to repositoryName
         }
-        val repoDirectory = settings.rootDir
-        val aboutDirectory = repoDirectory.resolve("about")
-
-        val tagsFile = aboutDirectory.resolve("TAGS.md")
-        if (!tagsFile.exists()) {
-            tagsFile.mkdirs()
-            tagsFile.createNewFile()
-        }
-        val tags = tagsFile.readLines().filter { it.isNotBlank() }.toSet().ifEmpty {
-            gradleError("File $tagsFile is empty. You must to describe some tags that most relative to projekt idea.")
+        val ownerType = when {
+            ownerName.first().isUpperCase() -> OwnerType.BRAND
+            ownerName.contains(Constants.Char.HYPHEN) -> OwnerType.DOMAIN
+            else -> OwnerType.PROFILE
         }
 
-        val englishAboutDirectory = aboutDirectory.resolve("en")
-        val descriptionFile = englishAboutDirectory.resolve("DESCRIPTION.md")
-        if (!descriptionFile.exists()) {
-            descriptionFile.mkdirs()
-            descriptionFile.createNewFile()
-        }
+        val repositoryDirectory = settings.rootDir
+        val aboutDirectory = repositoryDirectory.resolve("about").ensureDirectoryExists()
+
+        val descriptionFile = aboutDirectory.resolve("DESCRIPTION.md").ensureFileExists()
         val description = descriptionFile.readText().trim().ifEmpty {
-            gradleError("File $descriptionFile is empty. You must to describe in him short description of projekt")
+            gradleError(
+                "You must to describe projekt short description " +
+                        "in ${descriptionFile.relativeTo(repositoryDirectory).path} file."
+            )
+        }
+
+        val detailsFile = aboutDirectory.resolve("DETAILS.md").ensureFileExists()
+        detailsFile.readText().trim().ifEmpty {
+            gradleError(
+                "You must to describe projekt full description " +
+                        "in ${detailsFile.relativeTo(repositoryDirectory).path} file."
+            )
+        }
+
+        val tagsFile = aboutDirectory.resolve("TAGS.md").ensureFileExists()
+        val tags = tagsFile.readLines().filter { it.isNotBlank() }.toSet().ifEmpty {
+            gradleError(
+                "You must to describe projekt relevant tags " +
+                        "in ${tagsFile.relativeTo(repositoryDirectory).path} file."
+            )
         }
 
         ProjektMetadata(
             type = type,
-            owner = owner,
-            developer = owner.substringBefore(Constants.Char.HYPHEN),
-            email = "diskria@proton.me",
-            repo = repo,
-            name = repo.setCase(`kebab-case`, `Title Case`),
+            repository = GithubRepository(
+                GithubOwner(ownerType, ownerName, "diskria@proton.me"),
+                repositoryName
+            ),
+            name = repositoryName.setCase(`kebab-case`, `Title Case`),
             description = description,
             version = requireProperty(version, ::version.name),
             license = requireProperty(license, ::license.name),
@@ -102,15 +119,15 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Gradle
         )
     }
 
-    fun checkNotConfigured() {
+    fun ensureConfigured() {
         if (type == null) {
-            gradleError("Projekt type not configured!")
+            gradleError("Projekt not configured!")
         }
     }
 
-    private fun setType(type: ProjektType) {
+    private fun setProjektType(type: ProjektType) {
         if (this.type != null) {
-            gradleError("Projekt type already configured!")
+            gradleError("Projekt already configured!")
         }
         this.type = type
         onTypeReadyCallback?.invoke(type)

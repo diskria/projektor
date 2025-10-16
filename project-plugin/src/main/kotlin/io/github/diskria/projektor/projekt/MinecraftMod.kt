@@ -22,18 +22,18 @@ open class MinecraftMod(
     val minecraftVersion: MinecraftVersion,
 ) : IProjekt by projekt {
 
-    val id: String = repo
+    val id: String = metadata.repository.name
     val mixinsConfigFileName: String = fileName(id, "mixins", Constants.File.Extension.JSON)
-    val modrinthProjectUrl: String = ModrinthUtils.getProjectUrl(config.modrinthProjectId)
+    val modrinthUrl: String = ModrinthUtils.getModUrl(id)
 
     override val jvmTarget: JvmTarget
         get() = minecraftVersion.getMinJavaVersion().toJvmTarget()
 
-    override val jarVersion: String
+    override val archiveVersion: String
         get() = buildString {
             append(loader.getName())
             append(Constants.Char.HYPHEN)
-            append(version)
+            append(metadata.version)
             append(Constants.Char.PLUS)
             append(SHORT_MINECRAFT_NAME)
             append(minecraftVersion.getVersion())
@@ -41,7 +41,7 @@ open class MinecraftMod(
 
     override fun getBuildConfigFields(): List<Property<String>> {
         val modId by id.autoNamedProperty(SCREAMING_SNAKE_CASE)
-        val modName by name.autoNamedProperty(SCREAMING_SNAKE_CASE)
+        val modName by metadata.name.autoNamedProperty(SCREAMING_SNAKE_CASE)
         return listOf(modId, modName)
     }
 

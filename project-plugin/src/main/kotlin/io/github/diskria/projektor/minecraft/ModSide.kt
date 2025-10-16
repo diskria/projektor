@@ -14,6 +14,3 @@ fun ModSide.getMinMemoryJvmArgument(): String =
 
 fun ModSide.getMaxMemoryJvmArgument(): String =
     "-Xmx${maxMemoryGigabytes}G"
-
-fun ModSide.logicalName(): String =
-    name.lowercase()

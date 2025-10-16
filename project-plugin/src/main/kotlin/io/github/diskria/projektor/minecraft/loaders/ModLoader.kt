@@ -6,7 +6,8 @@ import io.github.diskria.projektor.projekt.MinecraftMod
 import org.gradle.api.Project
 
 sealed interface ModLoader {
-    fun getName(): String = mapToEnum().getName()
     fun getConfigFilePath(): String
-    fun configureMod(project: Project, minecraftMod: MinecraftMod): Any
+    fun configureMod(project: Project, mod: MinecraftMod): Any
+
+    fun getName(): String = mapToEnum().getName()
 }

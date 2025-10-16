@@ -73,10 +73,10 @@ class FabricModConfig(
     ) {
         companion object {
             fun of(mod: MinecraftMod, datagenClasses: List<String>): EntryPoints {
-                val classPathBase = mod.packageName.appendPackageName(mod.classNameBase)
-                val mainEntryPoints = entryPoints(classPathBase + "Mod")
-                val clientEntryPoints = entryPoints(classPathBase + "Client")
-                val serverEntryPoints = entryPoints(classPathBase + "Server")
+                val classPathPrefix = mod.packageName.appendPackageName(mod.classNamePrefix)
+                val mainEntryPoints = entryPoints(classPathPrefix + "Mod")
+                val clientEntryPoints = entryPoints(classPathPrefix + "Client")
+                val serverEntryPoints = entryPoints(classPathPrefix + "Server")
                 val datagenEntryPoints = datagenClasses.map { EntryPoint.of(it) }.toNullIfEmpty()
 
                 return when (mod.config.environment) {
@@ -166,18 +166,18 @@ class FabricModConfig(
             FabricModConfig(
                 schemaVersion = 1,
                 id = mod.id,
-                version = mod.version,
-                name = mod.name,
-                description = mod.description,
-                authors = listOf(mod.developer),
+                version = mod.metadata.version,
+                name = mod.metadata.name,
+                description = mod.metadata.description,
+                authors = listOf(mod.metadata.repository.owner.developerName),
                 license = mod.license.id,
                 icon = "assets/${mod.id}/${fileName("icon", Constants.File.Extension.PNG)}",
                 environment = mod.config.environment.fabricConfigValue,
                 accessWidener = fileName(mod.id, "accesswidener"),
                 mixins = listOf(mod.mixinsConfigFileName),
                 links = Links.of(
-                    modrinthProjectUrl = mod.modrinthProjectUrl,
-                    sourceCodeUrl = mod.getRepoUrl(),
+                    modrinthProjectUrl = mod.modrinthUrl,
+                    sourceCodeUrl = mod.metadata.repository.getUrl(),
                 ),
                 entryPoints = EntryPoints.of(
                     mod,

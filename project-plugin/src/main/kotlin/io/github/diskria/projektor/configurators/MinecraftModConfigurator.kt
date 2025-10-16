@@ -25,13 +25,15 @@ open class MinecraftModConfigurator(
         applyCommonConfiguration(project, minecraftMod)
         tasks.named<Jar>("jar") {
             manifest {
+                val developerName = minecraftMod.metadata.repository.owner.developerName
+
                 val specificationVersion by 1.toString().autoNamedProperty(`Train-Case`)
                 val specificationTitle by minecraftMod.id.autoNamedProperty(`Train-Case`)
-                val specificationVendor by minecraftMod.developer.autoNamedProperty(`Train-Case`)
+                val specificationVendor by developerName.autoNamedProperty(`Train-Case`)
 
-                val implementationVersion by minecraftMod.jarVersion.autoNamedProperty(`Train-Case`)
+                val implementationVersion by minecraftMod.archiveVersion.autoNamedProperty(`Train-Case`)
                 val implementationTitle by name.autoNamedProperty(`Train-Case`)
-                val implementationVendor by minecraftMod.developer.autoNamedProperty(`Train-Case`)
+                val implementationVendor by developerName.autoNamedProperty(`Train-Case`)
 
                 attributes(
                     listOf(

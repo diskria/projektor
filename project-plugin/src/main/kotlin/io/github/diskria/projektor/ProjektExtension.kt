@@ -10,7 +10,7 @@ open class ProjektExtension : GradleExtension() {
     private var configurator: Configurator<*>? = null
     private var onConfiguratorReadyCallback: ((Configurator<*>) -> Unit)? = null
 
-    fun onConfiguratorReady(callback: (Configurator<*>) -> Unit) {
+    fun onConfigured(callback: (Configurator<*>) -> Unit) {
         onConfiguratorReadyCallback = callback
     }
 
@@ -32,6 +32,12 @@ open class ProjektExtension : GradleExtension() {
 
     fun minecraftMod(block: MinecraftModConfiguration.() -> Unit = {}) {
         setConfigurator(MinecraftModConfigurator(MinecraftModConfiguration().apply(block)))
+    }
+
+    fun ensureConfigured() {
+        if (configurator == null) {
+            gradleError("Projekt not configured!")
+        }
     }
 
     private fun setConfigurator(configurator: Configurator<*>) {
