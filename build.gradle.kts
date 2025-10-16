@@ -12,7 +12,7 @@ val taskName = GithubPages.getConfigurePublicationTaskName()
 tasks.register<Sync>(taskName) {
     childProjects.forEach { (projectName, project) ->
         dependsOn(":$projectName:$taskName")
-        from(project.getBuildDirectory(LocalMaven.DIRECTORY_NAME))
+        from(project.getBuildDirectory(LocalMaven.LOCAL_MAVEN_DIRECTORY_NAME))
     }
-    into(getBuildDirectory(LocalMaven.DIRECTORY_NAME))
+    into(getBuildDirectory(LocalMaven.LOCAL_MAVEN_DIRECTORY_NAME))
 }

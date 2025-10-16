@@ -1,0 +1,1 @@
+Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations.

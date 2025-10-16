@@ -67,19 +67,20 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Gradle
         }
         val repoDirectory = settings.rootDir
         val aboutDirectory = repoDirectory.resolve("about")
+
         val tagsFile = aboutDirectory.resolve("TAGS.md")
         if (!tagsFile.exists()) {
+            tagsFile.mkdirs()
             tagsFile.createNewFile()
         }
-        val tags = tagsFile.readLines().filter { it.isBlank() }.toSet().ifEmpty {
+        val tags = tagsFile.readLines().filter { it.isNotBlank() }.toSet().ifEmpty {
             gradleError("File $tagsFile is empty. You must to describe some tags that most relative to projekt idea.")
         }
 
         val englishAboutDirectory = aboutDirectory.resolve("en")
-        englishAboutDirectory.mkdirs()
-
         val descriptionFile = englishAboutDirectory.resolve("DESCRIPTION.md")
         if (!descriptionFile.exists()) {
+            descriptionFile.mkdirs()
             descriptionFile.createNewFile()
         }
         val description = descriptionFile.readText().trim().ifEmpty {
