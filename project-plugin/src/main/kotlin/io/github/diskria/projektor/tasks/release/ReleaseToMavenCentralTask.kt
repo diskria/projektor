@@ -3,11 +3,11 @@ package io.github.diskria.projektor.tasks.release
 import io.github.diskria.gradle.utils.extensions.getBuildDirectory
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
-import io.github.diskria.kotlin.utils.extensions.setCase
+import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.extensions.wrapWithDoubleQuote
-import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.projektor.Secrets
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.ProjektMetadata
+import io.github.diskria.projektor.extensions.mappers.mapToEnum
 import io.github.diskria.projektor.publishing.maven.MavenCentral
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -34,7 +34,7 @@ abstract class ReleaseToMavenCentralTask : Zip() {
         archiveBaseName.set(metadata.map { it.repo })
         archiveVersion.set(metadata.map { it.version })
         destinationDirectory.set(
-            project.getBuildDirectory(MavenCentral.getTypeName().setCase(PascalCase, `kebab-case`))
+            project.getBuildDirectory(MavenCentral.mapToEnum().getName(`kebab-case`))
         )
         from(localMavenDirectory)
         doLast {

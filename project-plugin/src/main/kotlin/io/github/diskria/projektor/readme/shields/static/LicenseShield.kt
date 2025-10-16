@@ -1,6 +1,6 @@
 package io.github.diskria.projektor.readme.shields.static
 
-import io.github.diskria.projektor.common.licenses.License
+import io.github.diskria.projektor.licenses.License
 
 class LicenseShield(val license: License) : StaticShield(
     label = "License",

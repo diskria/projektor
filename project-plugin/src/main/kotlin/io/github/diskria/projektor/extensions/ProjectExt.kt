@@ -59,7 +59,7 @@ fun Project.modrinth(block: ModrinthExtension.() -> Unit) {
     withPluginExtension<ModrinthExtension>("com.modrinth.minotaur", block)
 }
 
-private inline fun <reified E : Any> Project.withPluginExtension(pluginId: String, crossinline block: E.() -> Unit) {
+private inline fun <reified E : Any> Project.withPluginExtension(pluginId: String, block: E.() -> Unit) {
     ensurePluginApplied(pluginId)
     runExtension<E>(block)
 }

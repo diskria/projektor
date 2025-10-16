@@ -15,19 +15,19 @@ import org.gradle.api.tasks.TaskAction
 abstract class GenerateReadmeTask : DefaultTask() {
 
     @get:Internal
-    abstract val metadata: Property<ReadmeMetadata>
-
-    @get:InputFile
-    abstract val aboutFile: RegularFileProperty
+    abstract val readmeMetadata: Property<ReadmeMetadata>
 
     @get:OutputFile
     abstract val readmeFile: RegularFileProperty
 
+    @get:InputFile
+    abstract val aboutFile: RegularFileProperty
+
     @TaskAction
     fun generate() {
-        val metadata = metadata.get()
-        val aboutFile = aboutFile.get().asFile
+        val metadata = readmeMetadata.get()
         val readmeFile = readmeFile.get().asFile
+        val aboutFile = aboutFile.get().asFile
 
         val projectSection = buildString {
             append(MarkdownHelper.header(metadata.name, 1))

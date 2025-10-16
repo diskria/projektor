@@ -15,7 +15,7 @@ object MarkdownHelper {
     }
 
     fun fileName(name: String): String =
-        fileName(name, "md")
+        fileName(name, Constants.File.Extension.MARKDOWN)
 
     fun header(text: String, level: Int): String =
         buildString {

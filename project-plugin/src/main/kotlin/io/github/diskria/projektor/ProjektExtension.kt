@@ -2,18 +2,10 @@ package io.github.diskria.projektor
 
 import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.gradle.utils.extensions.gradle.GradleExtension
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.configurations.*
 import io.github.diskria.projektor.configurators.*
-import io.github.diskria.projektor.projekt.common.Projekt
-import io.github.diskria.projektor.publishing.common.PublishingTarget
-import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.Property
-import javax.inject.Inject
 
-open class ProjektExtension @Inject constructor(objects: ObjectFactory) : GradleExtension() {
-
-    val publishingTarget: Property<PublishingTarget> = objects.property(PublishingTarget::class.java)
+open class ProjektExtension : GradleExtension() {
 
     private var configurator: Configurator<*>? = null
     private var onConfiguratorReadyCallback: ((Configurator<*>) -> Unit)? = null
@@ -41,22 +33,6 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Gradle
     fun minecraftMod(block: MinecraftModConfiguration.() -> Unit = {}) {
         setConfigurator(MinecraftModConfigurator(MinecraftModConfiguration().apply(block)))
     }
-
-    fun buildProjekt(metadata: ProjektMetadata): Projekt =
-        Projekt(
-            owner = metadata.owner,
-            developer = metadata.developer,
-            email = metadata.email,
-            repo = metadata.repo,
-            name = metadata.name,
-            description = metadata.description,
-            version = metadata.version,
-            tags = metadata.tags,
-            license = metadata.license,
-            publishingTarget = publishingTarget.orNull,
-            javaVersion = Versions.JAVA,
-            kotlinVersion = Versions.KOTLIN,
-        )
 
     private fun setConfigurator(configurator: Configurator<*>) {
         if (this.configurator != null) {

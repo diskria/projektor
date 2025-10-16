@@ -6,10 +6,12 @@ import io.github.diskria.kotlin.utils.extensions.common.`dot․case`
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.common.modifyIf
 import io.github.diskria.kotlin.utils.extensions.common.`path∕case`
+import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.poet.Property
 import io.github.diskria.kotlin.utils.words.PascalCase
-import io.github.diskria.projektor.common.licenses.License
+import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.extensions.mappers.toJvmTarget
+import io.github.diskria.projektor.licenses.License
 import io.github.diskria.projektor.publishing.common.PublishingTarget
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
 import io.github.diskria.projektor.readme.shields.dynamic.GithubLatestReleaseShield
@@ -21,6 +23,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 interface IProjekt {
 
+    val type: ProjektType
     val owner: String
     val developer: String
     val email: String
@@ -33,6 +36,9 @@ interface IProjekt {
     val publishingTarget: PublishingTarget?
     val javaVersion: Int
     val kotlinVersion: String
+
+    val typeName: String
+        get() = type.getName(`kebab-case`)
 
     val namespace: String
         get() = "io.github".appendPackageName(developer)
@@ -55,12 +61,6 @@ interface IProjekt {
     val repoHost: RepoHost
         get() = GitHub
 
-    val githubPackagesUrl: String
-        get() = buildGithubUrl(isPackages = true).toString()
-
-    val githubIssuesUrl: String
-        get() = buildGithubUrl { path("issues") }.toString()
-
     val githubHomepage: String?
         get() = null
 
@@ -73,6 +73,13 @@ interface IProjekt {
     fun getGithubTopics(): Set<String> = emptySet()
 
     fun getBuildConfigFields(): List<Property<String>> = emptyList()
+
+    val githubPackagesUrl: String
+        get() = buildGithubUrl(isPackages = true).toString()
+
+    val githubIssuesUrl: String
+        get() = buildGithubUrl { path("issues") }.toString()
+
 
     fun getRepoUrl(isVcs: Boolean = false): String =
         buildGithubUrl(isVcs).toString()

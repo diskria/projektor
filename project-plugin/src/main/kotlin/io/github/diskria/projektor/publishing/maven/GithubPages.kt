@@ -4,7 +4,7 @@ import io.github.diskria.gradle.utils.extensions.getBuildDirectory
 import io.github.diskria.gradle.utils.extensions.getDirectory
 import io.github.diskria.gradle.utils.extensions.hasTask
 import io.github.diskria.gradle.utils.extensions.registerTask
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.ProjektMetadata
 import io.github.diskria.projektor.projekt.common.IProjekt
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
 import io.github.diskria.projektor.readme.shields.dynamic.GithubPagesShield
@@ -22,7 +22,7 @@ data object GithubPages : LocalMaven() {
                 val projektMetadata: ProjektMetadata by rootProject.extra.properties
                 metadata.set(projektMetadata)
                 repoDirectory.set(rootProject.rootDir)
-                localMavenDirectory.set(rootProject.getBuildDirectory(DIRECTORY_NAME))
+                localMavenDirectory.set(rootProject.getBuildDirectory(LOCAL_MAVEN_DIRECTORY_NAME))
                 githubPagesMavenDirectory.set(
                     rootProject.getDirectory(ReleaseToGithubPagesTask.GITHUB_PAGES_MAVEN_DIRECTORY_NAME)
                 )

@@ -1,7 +1,7 @@
 package io.github.diskria.projektor.tasks.release
 
 import io.github.diskria.kotlin.shell.dsl.GitShell
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.ProjektMetadata
 import io.github.diskria.projektor.publishing.maven.GithubPages
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property

@@ -15,12 +15,12 @@ abstract class LocalMaven : MavenPublishingTarget() {
         projekt: IProjekt,
         project: Project,
     ): MavenArtifactRepository = with(repositories) {
-        maven(project.getBuildDirectory(DIRECTORY_NAME)) {
-            name = getTypeName()
+        maven(project.getBuildDirectory(LOCAL_MAVEN_DIRECTORY_NAME)) {
+            name = getRepositoryName()
         }
     }
 
     companion object {
-        const val DIRECTORY_NAME: String = "localMaven"
+        const val LOCAL_MAVEN_DIRECTORY_NAME: String = "localMaven"
     }
 }

@@ -4,6 +4,9 @@ import io.github.diskria.gradle.utils.extensions.isRootProject
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.appendSuffix
 import io.github.diskria.kotlin.utils.extensions.common.modifyUnless
+import io.github.diskria.kotlin.utils.extensions.mappers.getName
+import io.github.diskria.kotlin.utils.words.PascalCase
+import io.github.diskria.projektor.extensions.mappers.mapToEnum
 import io.github.diskria.projektor.extensions.publishing
 import io.github.diskria.projektor.projekt.common.IProjekt
 import io.github.diskria.projektor.publishing.common.PublishingTarget
@@ -46,9 +49,11 @@ abstract class MavenPublishingTarget : PublishingTarget {
             }
             configureMaven(repositories, projekt, project)
         }
-
     }
 
     override fun getConfigurePublicationTaskName(): String =
-        "publishAllPublicationsTo${getTypeName()}Repository"
+        "publishAllPublicationsTo${getRepositoryName()}Repository"
+
+    protected fun getRepositoryName(): String =
+        mapToEnum().getName(PascalCase)
 }

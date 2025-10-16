@@ -19,7 +19,7 @@ data object GithubPackages : MavenPublishingTarget() {
         project: Project,
     ): MavenArtifactRepository = with(repositories) {
         maven(projekt.githubPackagesUrl) {
-            name = getTypeName()
+            name = getRepositoryName()
             credentials {
                 username = projekt.developer
                 password = Secrets.githubPackagesToken.toNullIfEmpty()

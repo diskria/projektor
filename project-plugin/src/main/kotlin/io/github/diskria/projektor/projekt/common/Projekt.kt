@@ -1,9 +1,11 @@
 package io.github.diskria.projektor.projekt.common
 
-import io.github.diskria.projektor.common.licenses.License
+import io.github.diskria.projektor.common.projekt.ProjektType
+import io.github.diskria.projektor.licenses.License
 import io.github.diskria.projektor.publishing.common.PublishingTarget
 
 data class Projekt(
+    override val type: ProjektType,
     override val owner: String,
     override val developer: String,
     override val email: String,

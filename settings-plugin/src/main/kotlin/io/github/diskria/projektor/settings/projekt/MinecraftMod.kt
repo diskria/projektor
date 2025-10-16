@@ -1,0 +1,50 @@
+package io.github.diskria.projektor.settings.projekt
+
+import io.github.diskria.kotlin.utils.extensions.mappers.getName
+import io.github.diskria.projektor.common.minecraft.ModLoaderType
+import io.github.diskria.projektor.settings.extensions.configureMaven
+import io.github.diskria.projektor.settings.extensions.dependencyRepositories
+import io.github.diskria.projektor.settings.extensions.repositories
+import io.github.diskria.projektor.settings.projekt.common.Projekt
+import org.gradle.api.initialization.Settings
+
+data object MinecraftMod : Projekt() {
+
+    override fun configureRepositories(settings: Settings) = with(settings) {
+        dependencyRepositories {
+            configureMaven(
+                name = "Minecraft",
+                url = "https://libraries.minecraft.net"
+            )
+            configureMaven(
+                name = "SpongePowered",
+                url = "https://repo.spongepowered.org/repository/maven-public",
+            )
+            configureMaven(
+                name = "Modrinth",
+                url = "https://api.modrinth.com/maven",
+                group = "maven.modrinth",
+                includeSubgroups = false
+            )
+        }
+        repositories {
+            configureMaven(
+                name = "Fabric",
+                url = "https://maven.fabricmc.net"
+            )
+        }
+    }
+
+    override fun configureProjects(settings: Settings) = with(settings) {
+        include(":common")
+        ModLoaderType.entries.forEach { loader ->
+            val loaderName = loader.getName()
+            val loaderDirectory = rootDir.resolve(loaderName)
+            if (loaderDirectory.isDirectory) {
+                loaderDirectory.listFiles()?.filter { it.isDirectory }?.forEach { versionDirectory ->
+                    include(":$loaderName:${versionDirectory.name}")
+                }
+            }
+        }
+    }
+}

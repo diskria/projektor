@@ -1,5 +1,8 @@
 package io.github.diskria.projektor.settings.extensions
 
+import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
+import io.github.diskria.kotlin.utils.extensions.setCase
+import io.github.diskria.kotlin.utils.words.PascalCase
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.kotlin.dsl.maven
@@ -30,3 +33,10 @@ fun RepositoryHandler.configureMaven(
             }
         }
     }
+
+fun RepositoryHandler.configureGithubPagesMaven(owner: String, repo: String) {
+    configureMaven(
+        repo.setCase(`kebab-case`, PascalCase),
+        "https://$owner.github.io/$repo"
+    )
+}

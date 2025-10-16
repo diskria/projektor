@@ -1,15 +1,16 @@
 package io.github.diskria.projektor.common.projekt.metadata
 
-import io.github.diskria.projektor.common.licenses.License
+import io.github.diskria.projektor.common.licenses.LicenseType
+import io.github.diskria.projektor.common.projekt.metadata.github.GithubRepository
+import io.github.diskria.projektor.common.publishing.PublishingTargetType
 
 data class ProjektMetadata(
-    val owner: String,
-    val developer: String,
+    val repository: GithubRepository,
     val email: String,
-    val repo: String,
     val name: String,
     val description: String,
     val version: String,
-    val license: License,
+    val license: LicenseType,
+    val publishingTarget: PublishingTargetType,
     val tags: Set<String>,
 )
