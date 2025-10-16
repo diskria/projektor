@@ -4,6 +4,7 @@ import io.github.diskria.projektor.common.licenses.LicenseType
 import io.github.diskria.projektor.common.publishing.PublishingTargetType
 
 data class ProjektMetadata(
+    val type: ProjektType,
     val owner: String,
     val developer: String,
     val email: String,
