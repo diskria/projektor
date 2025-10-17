@@ -29,11 +29,11 @@
         {
           "name": "projektor-settings-plugin-3.4.14.jar",
           "url": "projektor-settings-plugin-3.4.14.jar",
-          "size": 49194,
-          "sha512": "1faf829bc33f9aec000240b9ffa6524e37bc2d565faf8416e2949efee42d22f27cccba932ef79df46183e61ac533fb3610b1985a7f8fb6093a12e455b9684502",
-          "sha256": "a787eb7382a637d805e6fd1a94b62ae16701d5dade8393a4abb0325039c71a9d",
-          "sha1": "fb25f884e6e4c06cc338612d09827b6f6fa0a081",
-          "md5": "57dfd0f126b6316e3daa5f33d0cd3f55"
+          "size": 49004,
+          "sha512": "53c62f253c2e67c329d700726f98bc05aff9bd3f5594b3828fc341f1fc43da83cfcec0adac7d8bc0923ab021d3f81bfccfd3ecee86608bc8f6186fb8637c2a95",
+          "sha256": "c7313573eea18f90f220e232184d2ad6a18c86be16599816a0b6a97a4266dbab",
+          "sha1": "a8fb4004a684e376d300b5ba0f2c7c1f79c1c831",
+          "md5": "29d86a1358f072fcf999532bacbf7ba6"
         }
       ]
     },
@@ -110,11 +110,11 @@
         {
           "name": "projektor-settings-plugin-3.4.14.jar",
           "url": "projektor-settings-plugin-3.4.14.jar",
-          "size": 49194,
-          "sha512": "1faf829bc33f9aec000240b9ffa6524e37bc2d565faf8416e2949efee42d22f27cccba932ef79df46183e61ac533fb3610b1985a7f8fb6093a12e455b9684502",
-          "sha256": "a787eb7382a637d805e6fd1a94b62ae16701d5dade8393a4abb0325039c71a9d",
-          "sha1": "fb25f884e6e4c06cc338612d09827b6f6fa0a081",
-          "md5": "57dfd0f126b6316e3daa5f33d0cd3f55"
+          "size": 49004,
+          "sha512": "53c62f253c2e67c329d700726f98bc05aff9bd3f5594b3828fc341f1fc43da83cfcec0adac7d8bc0923ab021d3f81bfccfd3ecee86608bc8f6186fb8637c2a95",
+          "sha256": "c7313573eea18f90f220e232184d2ad6a18c86be16599816a0b6a97a4266dbab",
+          "sha1": "a8fb4004a684e376d300b5ba0f2c7c1f79c1c831",
+          "md5": "29d86a1358f072fcf999532bacbf7ba6"
         }
       ]
     },

@@ -1,10 +1,12 @@
 package io.github.diskria.projektor.settings.extensions.gradle
 
+import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.kotlin.utils.extensions.common.`Title Case`
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.setCase
-import io.github.diskria.projektor.common.extensions.gradle.IProjektExtension
+import io.github.diskria.projektor.common.extensions.gradle.AbstractProjektExtension
 import io.github.diskria.projektor.common.licenses.LicenseType
+import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.common.projekt.metadata.AboutMetadata
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.projekt.metadata.github.GithubRepository
@@ -18,24 +20,18 @@ import javax.inject.Inject
 
 open class ProjektExtension @Inject constructor(
     objects: ObjectFactory
-) : IProjektExtension<
-        SettingsConfigurator,
-        GradlePluginConfiguration,
-        KotlinLibraryConfiguration,
-        AndroidLibraryConfiguration,
-        AndroidApplicationConfiguration,
-        MinecraftModConfiguration,
-        >() {
+) : AbstractProjektExtension<SettingsConfigurator>() {
 
     val version: Property<String> = objects.property(String::class.java)
     val license: Property<LicenseType> = objects.property(LicenseType::class.java)
     val publish: Property<PublishingTargetType> = objects.property(PublishingTargetType::class.java)
-
     val versionCatalogPath: Property<String> = objects.property(String::class.java)
+
+    private var projektType: ProjektType? = null
 
     fun buildMetadata(repository: GithubRepository, about: AboutMetadata): ProjektMetadata =
         ProjektMetadata(
-            type = getProjektType(),
+            type = projektType ?: gradleError("Projekt type not initialized"),
             repository = repository,
             name = repository.name.setCase(`kebab-case`, `Title Case`),
             version = requireProperty(version, ::version.name),
@@ -45,23 +41,28 @@ open class ProjektExtension @Inject constructor(
             tags = about.tags,
         )
 
-    override fun configureGradlePlugin(configuration: GradlePluginConfiguration.() -> Unit) {
+    fun gradlePlugin(configuration: GradlePluginConfiguration.() -> Unit) {
         setConfigurator(GradlePluginConfigurator(GradlePluginConfiguration().apply(configuration)))
+        projektType = ProjektType.GRADLE_PLUGIN
     }
 
-    override fun configureKotlinLibrary(configuration: KotlinLibraryConfiguration.() -> Unit) {
+    fun kotlinLibrary(configuration: KotlinLibraryConfiguration.() -> Unit) {
         setConfigurator(KotlinLibraryConfigurator(KotlinLibraryConfiguration().apply(configuration)))
+        projektType = ProjektType.KOTLIN_LIBRARY
     }
 
-    override fun configureAndroidLibrary(configuration: AndroidLibraryConfiguration.() -> Unit) {
+    fun androidLibrary(configuration: AndroidLibraryConfiguration.() -> Unit) {
         setConfigurator(AndroidLibraryConfigurator(AndroidLibraryConfiguration().apply(configuration)))
+        projektType = ProjektType.ANDROID_LIBRARY
     }
 
-    override fun configureAndroidApplication(configuration: AndroidApplicationConfiguration.() -> Unit) {
+    fun androidApplication(configuration: AndroidApplicationConfiguration.() -> Unit) {
         setConfigurator(AndroidApplicationConfigurator(AndroidApplicationConfiguration().apply(configuration)))
+        projektType = ProjektType.ANDROID_APPLICATION
     }
 
-    override fun configureMinecraftMod(configuration: MinecraftModConfiguration.() -> Unit) {
+    fun minecraftMod(configuration: MinecraftModConfiguration.() -> Unit) {
         setConfigurator(MinecraftModConfigurator(MinecraftModConfiguration().apply(configuration)))
+        projektType = ProjektType.MINECRAFT_MOD
     }
 }

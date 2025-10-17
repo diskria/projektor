@@ -26,7 +26,7 @@ class ProjektorGradlePlugin : Plugin<Settings> {
         settings.pluginManager.apply("org.gradle.toolchains.foojay-resolver-convention")
 
         val extension = settings.registerExtension<ProjektExtension>()
-        extension.onConfigurationReady { configurator ->
+        extension.onConfiguratorReady { configurator ->
             configurator.configure(settings)
 
             configureRootProject(

@@ -1,36 +1,29 @@
 package io.github.diskria.projektor.extensions.gradle
 
-import io.github.diskria.projektor.common.extensions.gradle.IProjektExtension
+import io.github.diskria.projektor.common.extensions.gradle.AbstractProjektExtension
 import io.github.diskria.projektor.configurations.*
 import io.github.diskria.projektor.configurators.*
 import io.github.diskria.projektor.configurators.common.ProjectConfigurator
 
-open class ProjektExtension : IProjektExtension<
-        ProjectConfigurator<*>,
-        GradlePluginConfiguration,
-        KotlinLibraryConfiguration,
-        AndroidLibraryConfiguration,
-        AndroidApplicationConfiguration,
-        MinecraftModConfiguration,
-        >() {
+open class ProjektExtension : AbstractProjektExtension<ProjectConfigurator<*>>() {
 
-    override fun configureGradlePlugin(configuration: GradlePluginConfiguration.() -> Unit) {
+    fun gradlePlugin(configuration: GradlePluginConfiguration.() -> Unit) {
         setConfigurator(GradlePluginConfigurator(GradlePluginConfiguration().apply(configuration)))
     }
 
-    override fun configureKotlinLibrary(configuration: KotlinLibraryConfiguration.() -> Unit) {
+    fun kotlinLibrary(configuration: KotlinLibraryConfiguration.() -> Unit) {
         setConfigurator(KotlinLibraryConfigurator(KotlinLibraryConfiguration().apply(configuration)))
     }
 
-    override fun configureAndroidLibrary(configuration: AndroidLibraryConfiguration.() -> Unit) {
+    fun androidLibrary(configuration: AndroidLibraryConfiguration.() -> Unit) {
         setConfigurator(AndroidLibraryConfigurator(AndroidLibraryConfiguration().apply(configuration)))
     }
 
-    override fun configureAndroidApplication(configuration: AndroidApplicationConfiguration.() -> Unit) {
+    fun androidApplication(configuration: AndroidApplicationConfiguration.() -> Unit) {
         setConfigurator(AndroidApplicationConfigurator(AndroidApplicationConfiguration().apply(configuration)))
     }
 
-    override fun configureMinecraftMod(configuration: MinecraftModConfiguration.() -> Unit) {
+    fun minecraftMod(configuration: MinecraftModConfiguration.() -> Unit) {
         setConfigurator(MinecraftModConfigurator(MinecraftModConfiguration().apply(configuration)))
     }
 }

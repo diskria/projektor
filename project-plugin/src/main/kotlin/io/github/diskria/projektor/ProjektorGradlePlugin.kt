@@ -13,7 +13,7 @@ class ProjektorGradlePlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         val extension = project.registerExtension<ProjektExtension>()
-        extension.onConfigurationReady { configurator ->
+        extension.onConfiguratorReady { configurator ->
             configurator.configure(project)
         }
 

@@ -1,7 +1,3 @@
 package io.github.diskria.projektor.settings.configurations
 
-import io.github.diskria.projektor.common.configurations.IKotlinLibraryConfiguration
-
-open class KotlinLibraryConfiguration : IKotlinLibraryConfiguration {
-
-}
+open class KotlinLibraryConfiguration
