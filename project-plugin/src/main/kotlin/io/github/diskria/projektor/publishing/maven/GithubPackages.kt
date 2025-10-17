@@ -1,7 +1,7 @@
 package io.github.diskria.projektor.publishing.maven
 
 import io.github.diskria.kotlin.utils.extensions.toNullIfEmpty
-import io.github.diskria.projektor.Secrets
+import io.github.diskria.projektor.Environment
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.projekt.common.IProjekt
 import io.github.diskria.projektor.publishing.maven.common.MavenPublishingTarget
@@ -21,9 +21,11 @@ data object GithubPackages : MavenPublishingTarget() {
     ): MavenArtifactRepository = with(repositories) {
         maven(projekt.metadata.repository.getPackagesMavenUrl()) {
             name = getRepositoryName()
-            credentials {
-                username = projekt.metadata.repository.owner.developerName
-                password = Secrets.githubPackagesToken.toNullIfEmpty()
+            if (Environment.isCI()) {
+                credentials {
+                    username = projekt.metadata.repository.owner.developerName
+                    password = Environment.Secrets.githubPackagesToken
+                }
             }
         }
     }

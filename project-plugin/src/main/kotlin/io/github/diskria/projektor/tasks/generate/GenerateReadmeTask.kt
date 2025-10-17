@@ -7,6 +7,7 @@ import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.generics.joinBySpace
 import io.github.diskria.projektor.common.projekt.metadata.AboutMetadata
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.extensions.getMetadata
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.readme.MarkdownHelper
 import io.github.diskria.projektor.readme.shields.static.LicenseShield
@@ -31,9 +32,7 @@ abstract class GenerateReadmeTask : DefaultTask() {
     abstract val outputFile: RegularFileProperty
 
     init {
-        val projektMetadata: ProjektMetadata by project.extra.properties
-
-        metadata.convention(projektMetadata)
+        metadata.convention(project.getMetadata())
         repositoryDirectory.convention(project.layout.projectDirectory)
         outputFile.convention(project.getFile(OUTPUT_FILE_NAME))
     }

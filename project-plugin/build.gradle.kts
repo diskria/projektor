@@ -7,6 +7,7 @@ dependencies {
     implementation(libs.projektor.common)
     implementation(libs.bundles.diskria.utils)
     implementation(libs.bundles.ktor.client)
+    implementation(libs.kotlin.html)
 
     compileOnly(kotlin("gradle-plugin"))
     compileOnly(libs.fabric.loom.plugin)

@@ -9,6 +9,7 @@ okio = "3.16.1"
 
 kotlin = "2.2.20"
 ktor = "3.3.1"
+kotlin-html = "0.12.0"
 kotlin-utils = "0.6.3"
 gradle-utils = "0.4.5"
 kotlin-shell-dsl = "0.3.3"
@@ -24,6 +25,8 @@ kotlin-shell-dsl = { group = "io.github.diskria", name = "kotlin-shell-dsl", ver
 
 ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
 ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
+
+kotlin-html = { group = "org.jetbrains.kotlinx", name = "kotlinx-html-jvm", version.ref = "kotlin-html" }
 
 projektor-common = { group = "io.github.diskria", name = "projektor-common", version.ref = "projektor" }
 foojay-resolver-plugin = { group = "org.gradle.toolchains.foojay-resolver-convention", name = "org.gradle.toolchains.foojay-resolver-convention.gradle.plugin", version.ref = "foojay-resolver" }

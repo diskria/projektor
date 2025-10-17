@@ -3,8 +3,7 @@ package io.github.diskria.projektor.publishing.maven
 import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
-import io.github.diskria.kotlin.utils.extensions.toNullIfEmpty
-import io.github.diskria.projektor.Secrets
+import io.github.diskria.projektor.Environment
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.ensureTaskRegistered
 import io.github.diskria.projektor.extensions.signing
@@ -74,11 +73,11 @@ data object MavenCentral : LocalMaven() {
                 }
             }
         }
-        val gpgKey = Secrets.gpgKey.toNullIfEmpty() ?: return
-        val gpgPassphrase = Secrets.gpgPassphrase.toNullIfEmpty() ?: return
-        signing {
-            useInMemoryPgpKeys(gpgKey, gpgPassphrase)
-            sign(publication)
+        if (Environment.isCI()) {
+            signing {
+                useInMemoryPgpKeys(Environment.Secrets.gpgKey, Environment.Secrets.gpgPassphrase)
+                sign(publication)
+            }
         }
     }
 

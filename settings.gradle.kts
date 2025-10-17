@@ -7,6 +7,13 @@ pluginManagement {
         maven("https://diskria.github.io/projektor")
         gradlePluginPortal()
     }
+
+    val shouldIncludeTestProjects = true
+    val isPublishingGradleTaskRunning = gradle.startParameter.taskNames.firstOrNull()?.startsWith("publish") == true
+    if (shouldIncludeTestProjects && !isPublishingGradleTaskRunning && rootDir.resolve("build/localMaven").exists()) {
+        includeBuild("test-gradle-plugin")
+        includeBuild("test-kotlin-library")
+    }
 }
 
 plugins {
@@ -14,7 +21,7 @@ plugins {
 }
 
 projekt {
-    version = "3.4.10"
+    version = "3.4.11"
     license = MIT
     publish = GITHUB_PAGES
 

@@ -3,6 +3,7 @@ package io.github.diskria.projektor.tasks.generate
 import io.github.diskria.gradle.utils.extensions.getFile
 import io.github.diskria.kotlin.shell.dsl.GitShell
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.extensions.getMetadata
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.licenses.License
 import io.ktor.client.*
@@ -17,7 +18,6 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import org.gradle.internal.extensions.core.extra
 
 abstract class GenerateLicenseTask : DefaultTask() {
 
@@ -31,9 +31,7 @@ abstract class GenerateLicenseTask : DefaultTask() {
     abstract val outputFile: RegularFileProperty
 
     init {
-        val projektMetadata: ProjektMetadata by project.extra.properties
-
-        metadata.convention(projektMetadata)
+        metadata.convention(project.getMetadata())
         repositoryDirectory.convention(project.layout.projectDirectory)
         outputFile.convention(project.getFile(OUTPUT_FILE_NAME))
     }

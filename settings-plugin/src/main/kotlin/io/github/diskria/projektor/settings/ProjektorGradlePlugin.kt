@@ -1,14 +1,21 @@
 package io.github.diskria.projektor.settings
 
 import io.github.diskria.gradle.utils.extensions.files
+import io.github.diskria.gradle.utils.extensions.isCI
 import io.github.diskria.gradle.utils.extensions.put
 import io.github.diskria.gradle.utils.extensions.registerExtension
 import io.github.diskria.gradle.utils.helpers.VersionCatalogsHelper
 import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.kotlin.utils.extensions.asDirectory
 import io.github.diskria.kotlin.utils.extensions.common.modifyIf
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
+import io.github.diskria.kotlin.utils.properties.common.autoNamed
+import io.github.diskria.kotlin.utils.properties.common.environmentVariable
 import io.github.diskria.projektor.common.projekt.OwnerType
+import io.github.diskria.projektor.common.projekt.metadata.AboutMetadata
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.metadata.github.GithubOwner
+import io.github.diskria.projektor.common.projekt.metadata.github.GithubRepository
 import io.github.diskria.projektor.settings.extensions.mappers.mapToModel
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
@@ -20,10 +27,14 @@ class ProjektorGradlePlugin : Plugin<Settings> {
         settings.pluginManager.apply("org.gradle.toolchains.foojay-resolver-convention")
 
         val extension = settings.registerExtension<ProjektExtension>()
-        extension.onConfigured { type ->
-            val metadata = extension.buildMetadata(settings, type)
+        extension.onConfigurationReady { projektType ->
+            val metadata = extension.buildMetadata(
+                projektType,
+                buildGithubRepository(settings),
+                AboutMetadata.of(settings.rootDir)
+            )
             configureRootProject(settings, metadata)
-            type.mapToModel().configure(settings, metadata)
+            projektType.mapToModel().configure(settings, metadata)
 
             if (extension.versionCatalogPath.isPresent) {
                 configureCatalog(settings, extension.versionCatalogPath.get())
@@ -59,5 +70,26 @@ class ProjektorGradlePlugin : Plugin<Settings> {
                 }
             }
         }
+    }
+
+    private fun buildGithubRepository(settings: Settings): GithubRepository = with(settings) {
+        val (ownerName, repositoryName) = if (providers.isCI) {
+            val githubOwner by autoNamed.environmentVariable(isRequired = true)
+            val githubRepo by autoNamed.environmentVariable(isRequired = true)
+            githubOwner to githubRepo
+        } else {
+            val ownerName = rootDir.parentFile.asDirectory().name
+            val repositoryName = rootDir.name
+            ownerName to repositoryName
+        }
+        val ownerType = when {
+            ownerName.first().isUpperCase() -> OwnerType.BRAND
+            ownerName.contains(Constants.Char.HYPHEN) -> OwnerType.DOMAIN
+            else -> OwnerType.PROFILE
+        }
+        return GithubRepository(
+            GithubOwner(ownerType, ownerName, "diskria@proton.me"),
+            repositoryName
+        )
     }
 }
