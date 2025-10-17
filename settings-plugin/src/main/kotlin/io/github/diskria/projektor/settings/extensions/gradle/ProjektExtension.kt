@@ -42,27 +42,27 @@ open class ProjektExtension @Inject constructor(
         )
 
     fun gradlePlugin(configuration: GradlePluginConfiguration.() -> Unit) {
-        setConfigurator(GradlePluginConfigurator(GradlePluginConfiguration().apply(configuration)))
         projektType = ProjektType.GRADLE_PLUGIN
+        setConfigurator(GradlePluginConfigurator(GradlePluginConfiguration().apply(configuration)))
     }
 
     fun kotlinLibrary(configuration: KotlinLibraryConfiguration.() -> Unit) {
-        setConfigurator(KotlinLibraryConfigurator(KotlinLibraryConfiguration().apply(configuration)))
         projektType = ProjektType.KOTLIN_LIBRARY
+        setConfigurator(KotlinLibraryConfigurator(KotlinLibraryConfiguration().apply(configuration)))
     }
 
     fun androidLibrary(configuration: AndroidLibraryConfiguration.() -> Unit) {
-        setConfigurator(AndroidLibraryConfigurator(AndroidLibraryConfiguration().apply(configuration)))
         projektType = ProjektType.ANDROID_LIBRARY
+        setConfigurator(AndroidLibraryConfigurator(AndroidLibraryConfiguration().apply(configuration)))
     }
 
     fun androidApplication(configuration: AndroidApplicationConfiguration.() -> Unit) {
-        setConfigurator(AndroidApplicationConfigurator(AndroidApplicationConfiguration().apply(configuration)))
         projektType = ProjektType.ANDROID_APPLICATION
+        setConfigurator(AndroidApplicationConfigurator(AndroidApplicationConfiguration().apply(configuration)))
     }
 
     fun minecraftMod(configuration: MinecraftModConfiguration.() -> Unit) {
-        setConfigurator(MinecraftModConfigurator(MinecraftModConfiguration().apply(configuration)))
         projektType = ProjektType.MINECRAFT_MOD
+        setConfigurator(MinecraftModConfigurator(MinecraftModConfiguration().apply(configuration)))
     }
 }
