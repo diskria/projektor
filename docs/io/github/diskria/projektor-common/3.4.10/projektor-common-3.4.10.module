@@ -1,0 +1,148 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.github.diskria",
+    "module": "projektor-common",
+    "version": "3.4.10",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.1.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 24,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "projektor-common-3.4.10.jar",
+          "url": "projektor-common-3.4.10.jar",
+          "size": 30919,
+          "sha512": "a1e5b2b26b2c6940005757860d46d324f239d4f080e0512317267cd6edf758d20fe40abb3fc7aee302a0477aa53aecfe822a86133ef5e361e63257d73757bb3e",
+          "sha256": "01c61ced30c66e5a7f09ba7e88f020d3efea255a85aa9a85d0984d3f6c78d92d",
+          "sha1": "94ed041ad19745aff1de19ddf94beb3d633031e3",
+          "md5": "5d9bc63d9f92c5c0c2b61415ccc1f557"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 24,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "io.github.diskria",
+          "module": "kotlin-utils",
+          "version": {
+            "requires": "0.6.3"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "gradle-utils",
+          "version": {
+            "requires": "0.4.5"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "kotlin-shell-dsl",
+          "version": {
+            "requires": "0.3.3"
+          }
+        },
+        {
+          "group": "io.ktor",
+          "module": "ktor-client-core",
+          "version": {
+            "requires": "3.3.1"
+          }
+        },
+        {
+          "group": "io.ktor",
+          "module": "ktor-client-cio",
+          "version": {
+            "requires": "3.3.1"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-serialization-json",
+          "version": {
+            "requires": "1.9.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "projektor-common-3.4.10.jar",
+          "url": "projektor-common-3.4.10.jar",
+          "size": 30919,
+          "sha512": "a1e5b2b26b2c6940005757860d46d324f239d4f080e0512317267cd6edf758d20fe40abb3fc7aee302a0477aa53aecfe822a86133ef5e361e63257d73757bb3e",
+          "sha256": "01c61ced30c66e5a7f09ba7e88f020d3efea255a85aa9a85d0984d3f6c78d92d",
+          "sha1": "94ed041ad19745aff1de19ddf94beb3d633031e3",
+          "md5": "5d9bc63d9f92c5c0c2b61415ccc1f557"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "projektor-common-3.4.10-sources.jar",
+          "url": "projektor-common-3.4.10-sources.jar",
+          "size": 8261,
+          "sha512": "5bb94495b0dfe4c067321ee36b090975fda1b4611d163d0c4ebc066a3eb2c12a3dc15d3af0ac1a388e4094ad746339371b3c4a59a8dc31f4c1e207235a6c07b4",
+          "sha256": "fb330e846a939ed49f85cd1b29a54a6c6c7b00851c77847e805f54103c6b5999",
+          "sha1": "ad813b0f82c9ccc6cf4c0fab8c9e7a71bcd6a89b",
+          "md5": "b0914552cf1a395062c056880de46559"
+        }
+      ]
+    },
+    {
+      "name": "javadocElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "javadoc",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "projektor-common-3.4.10-javadoc.jar",
+          "url": "projektor-common-3.4.10-javadoc.jar",
+          "size": 261,
+          "sha512": "1487e5a20c9e4d74f298e07c42e96a61be11b7a768c3fbc199ee138cd68e1fc2267d1cfe3f11f288acc05df755315344d052cc5f6f751f126ab4fe1caa5125ea",
+          "sha256": "c6deada2fac53b8ea6523dbda77597b128006674616f140f04df23264c6d1aa3",
+          "sha1": "2ad14aed781c4a73ed4dbb421966d408a0a06686",
+          "md5": "f43436d6bec321290f6af228ad602604"
+        }
+      ]
+    }
+  ]
+}
