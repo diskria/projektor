@@ -3,7 +3,6 @@ package io.github.diskria.projektor.readme
 import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.kotlin.utils.BracketsType
 import io.github.diskria.kotlin.utils.Constants
-import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.primitives.repeat
 import io.github.diskria.kotlin.utils.extensions.wrap
 import io.github.diskria.kotlin.utils.extensions.wrapWithBrackets
@@ -13,9 +12,6 @@ object MarkdownHelper {
     val SEPARATOR: String by lazy {
         Constants.Char.HYPHEN.repeat(3).wrap(Constants.Char.NEW_LINE.repeat(2))
     }
-
-    fun fileName(name: String): String =
-        fileName(name, Constants.File.Extension.MARKDOWN)
 
     fun header(text: String, level: Int): String =
         buildString {

@@ -1,15 +1,19 @@
 package io.github.diskria.projektor.tasks.generate
 
 import io.github.diskria.gradle.utils.extensions.getFile
+import io.github.diskria.kotlin.shell.dsl.GitShell
+import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.generics.joinBySpace
+import io.github.diskria.projektor.common.projekt.metadata.AboutMetadata
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.readme.MarkdownHelper
 import io.github.diskria.projektor.readme.shields.static.LicenseShield
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
@@ -20,11 +24,8 @@ abstract class GenerateReadmeTask : DefaultTask() {
     @get:Internal
     abstract val metadata: Property<ProjektMetadata>
 
-    @get:OutputFile
-    abstract val descriptionFile: RegularFileProperty
-
-    @get:InputFile
-    abstract val detailsFile: RegularFileProperty
+    @get:Internal
+    abstract val repositoryDirectory: DirectoryProperty
 
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
@@ -33,46 +34,58 @@ abstract class GenerateReadmeTask : DefaultTask() {
         val projektMetadata: ProjektMetadata by project.extra.properties
 
         metadata.convention(projektMetadata)
-        descriptionFile.convention(project.getFile(DESCRIPTION_FILE_NAME))
-        detailsFile.convention(project.getFile(DETAILS_FILE_NAME))
-        outputFile.convention(project.getFile(README_FILE_NAME))
+        repositoryDirectory.convention(project.layout.projectDirectory)
+        outputFile.convention(project.getFile(OUTPUT_FILE_NAME))
     }
 
     @TaskAction
     fun generate() {
         val metadata = metadata.get()
+        val repositoryDirectory = repositoryDirectory.get().asFile
+        val outputFile = outputFile.get().asFile
+
+        val about = AboutMetadata.of(repositoryDirectory)
         val shields = listOfNotNull(
             metadata.publishingTarget.mapToModel().getReadmeShield(metadata),
             LicenseShield(metadata.license.mapToModel())
         )
         val header = buildString {
             append(MarkdownHelper.header(metadata.name, 1))
-            append(descriptionFile.get().asFile.readText().trim())
+            append(about.description)
             appendLine()
             appendLine()
             append(shields.map { it.buildMarkdown() }.joinBySpace())
         }
-        val details = detailsFile.get().asFile.readText().trim()
-        val license = metadata.license.mapToModel()
         val footer = buildString {
+            val license = metadata.license.mapToModel()
             val licenseLink = MarkdownHelper.link(license.url, "${license.id} License")
             append(MarkdownHelper.header("License", 2))
             append("This project is licensed under the $licenseLink.")
         }
-        val readme = buildString {
+        val readmeText = buildString {
             append(header)
             append(MarkdownHelper.SEPARATOR)
-            append(details)
+            append(about.details)
             append(MarkdownHelper.SEPARATOR)
             append(footer)
             appendLine()
         }
-        outputFile.get().asFile.writeText(readme)
+        if (outputFile.exists() && outputFile.readText() == readmeText) {
+            return
+        }
+        outputFile.writeText(readmeText)
+
+        val readmePath = outputFile.relativeTo(repositoryDirectory).path
+        with(GitShell.open(repositoryDirectory)) {
+            val owner = metadata.repository.owner
+            configureUser(owner.name, owner.email)
+            stage(readmePath)
+            commit("docs: update $OUTPUT_FILE_NAME")
+            push()
+        }
     }
 
     companion object {
-        private val DESCRIPTION_FILE_NAME: String = MarkdownHelper.fileName("DESCRIPTION")
-        private val DETAILS_FILE_NAME: String = MarkdownHelper.fileName("DETAILS")
-        private val README_FILE_NAME: String = MarkdownHelper.fileName("README")
+        private val OUTPUT_FILE_NAME: String = fileName("README", Constants.File.Extension.MARKDOWN)
     }
 }

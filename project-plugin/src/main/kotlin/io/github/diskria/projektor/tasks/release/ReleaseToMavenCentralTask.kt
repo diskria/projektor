@@ -42,6 +42,7 @@ abstract class ReleaseToMavenCentralTask : Zip() {
     }
 
     suspend fun uploadBundleToSonatype() {
+        val bundleFile = archiveFile.get().asFile
         val bearer = Base64.encode(
             (Secrets.sonatypeUsername + Constants.Char.COLON + Secrets.sonatypePassword).toByteArray()
         )
@@ -57,7 +58,7 @@ abstract class ReleaseToMavenCentralTask : Zip() {
         val disposition = listOf(
             "form-data",
             "name=" + "bundle".wrapWithDoubleQuote(),
-            "filename=" + archiveFileName.map { it.wrapWithDoubleQuote() }
+            "filename=" + bundleFile.name.wrapWithDoubleQuote(),
         ).joinToString("; ")
 
         val bodyPrefix = buildString {
@@ -79,7 +80,7 @@ abstract class ReleaseToMavenCentralTask : Zip() {
             append(lineBreak)
         }.toByteArray()
 
-        val body = bodyPrefix + archiveFile.get().asFile.readBytes() + bodySuffix
+        val body = bodyPrefix + bundleFile.readBytes() + bodySuffix
         HttpClient(CIO).use { client ->
             client.post(url) {
                 header(

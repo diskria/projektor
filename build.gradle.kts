@@ -1,6 +1,6 @@
 import io.github.diskria.gradle.utils.extensions.getBuildDirectory
 import io.github.diskria.projektor.publishing.maven.GithubPages
-import io.github.diskria.projektor.publishing.maven.LocalMaven
+import io.github.diskria.projektor.publishing.maven.common.LocalMaven
 
 plugins {
     `kotlin-dsl`

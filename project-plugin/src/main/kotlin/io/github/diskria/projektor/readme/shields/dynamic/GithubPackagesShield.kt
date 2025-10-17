@@ -9,7 +9,7 @@ import io.ktor.http.*
 class GithubPackagesShield(repository: GithubRepository) : GithubLatestReleaseShield(
     repository = repository,
     publishingTarget = GithubPackages,
-    url = buildUrl(RepositoryHost.GITHUB.hostname) {
+    url = buildUrl(RepositoryHost.GITHUB.hostName) {
         path(repository.owner.name, repository.name, "packages", "latest")
     },
 )

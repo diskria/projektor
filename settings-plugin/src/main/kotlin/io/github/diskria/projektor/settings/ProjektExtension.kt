@@ -7,14 +7,13 @@ import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.asDirectory
 import io.github.diskria.kotlin.utils.extensions.common.`Title Case`
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
-import io.github.diskria.kotlin.utils.extensions.ensureDirectoryExists
-import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.kotlin.utils.properties.common.autoNamed
 import io.github.diskria.kotlin.utils.properties.common.environmentVariable
 import io.github.diskria.projektor.common.licenses.LicenseType
 import io.github.diskria.projektor.common.projekt.OwnerType
 import io.github.diskria.projektor.common.projekt.ProjektType
+import io.github.diskria.projektor.common.projekt.metadata.AboutMetadata
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.projekt.metadata.github.GithubOwner
 import io.github.diskria.projektor.common.projekt.metadata.github.GithubRepository
@@ -76,34 +75,7 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Gradle
             ownerName.contains(Constants.Char.HYPHEN) -> OwnerType.DOMAIN
             else -> OwnerType.PROFILE
         }
-
-        val repositoryDirectory = settings.rootDir
-        val aboutDirectory = repositoryDirectory.resolve("about").ensureDirectoryExists()
-
-        val descriptionFile = aboutDirectory.resolve("DESCRIPTION.md").ensureFileExists()
-        val description = descriptionFile.readText().trim().ifEmpty {
-            gradleError(
-                "You must to describe projekt short description " +
-                        "in ${descriptionFile.relativeTo(repositoryDirectory).path} file."
-            )
-        }
-
-        val detailsFile = aboutDirectory.resolve("DETAILS.md").ensureFileExists()
-        detailsFile.readText().trim().ifEmpty {
-            gradleError(
-                "You must to describe projekt full description " +
-                        "in ${detailsFile.relativeTo(repositoryDirectory).path} file."
-            )
-        }
-
-        val tagsFile = aboutDirectory.resolve("TAGS.md").ensureFileExists()
-        val tags = tagsFile.readLines().filter { it.isNotBlank() }.toSet().ifEmpty {
-            gradleError(
-                "You must to describe projekt relevant tags " +
-                        "in ${tagsFile.relativeTo(repositoryDirectory).path} file."
-            )
-        }
-
+        val about = AboutMetadata.of(rootDir)
         ProjektMetadata(
             type = type,
             repository = GithubRepository(
@@ -111,11 +83,11 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Gradle
                 repositoryName
             ),
             name = repositoryName.setCase(`kebab-case`, `Title Case`),
-            description = description,
+            description = about.description,
             version = requireProperty(version, ::version.name),
             license = requireProperty(license, ::license.name),
             publishingTarget = requireProperty(publish, ::publish.name),
-            tags = tags,
+            tags = about.tags,
         )
     }
 
