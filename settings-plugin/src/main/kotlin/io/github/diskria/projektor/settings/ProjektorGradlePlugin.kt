@@ -6,6 +6,7 @@ import io.github.diskria.gradle.utils.extensions.registerExtension
 import io.github.diskria.gradle.utils.helpers.VersionCatalogsHelper
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.asDirectory
+import io.github.diskria.kotlin.utils.extensions.common.buildEmail
 import io.github.diskria.kotlin.utils.extensions.common.modifyIf
 import io.github.diskria.kotlin.utils.properties.common.autoNamed
 import io.github.diskria.kotlin.utils.properties.common.environmentVariable
@@ -16,7 +17,7 @@ import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.projekt.metadata.github.GithubOwner
 import io.github.diskria.projektor.common.projekt.metadata.github.GithubRepository
 import io.github.diskria.projektor.settings.extensions.gradle.ProjektExtension
-import io.github.diskria.projektor.settings.extensions.mappers.mapToModel
+import io.github.diskria.projektor.settings.extensions.mappers.mapToConfigurator
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
 
@@ -26,17 +27,22 @@ class ProjektorGradlePlugin : Plugin<Settings> {
         settings.pluginManager.apply("org.gradle.toolchains.foojay-resolver-convention")
 
         val extension = settings.registerExtension<ProjektExtension>()
-        extension.onConfigurationReady { projektType ->
-            val metadata = extension.buildMetadata(buildGithubRepository(settings), AboutMetadata.of(settings.rootDir))
-            configureRootProject(settings, metadata)
-            projektType.mapToModel().configure(settings, metadata)
+        extension.onConfigurationReady { configurator ->
+            configurator.configure(settings)
 
-            if (extension.versionCatalogPath.isPresent) {
-                configureCatalog(settings, extension.versionCatalogPath.get())
+            with(configurator.configuration) {
+                versionCatalogPath?.let {
+                    configureCatalog(settings, it)
+                }
+                extraRepositories.forEach {
+                    it.mapToConfigurator().configureRepositories(settings)
+                }
             }
-            extension.extraRepositories.get().forEach { type ->
-                type.mapToModel().configureRepositories(settings)
-            }
+
+            configureRootProject(
+                settings,
+                extension.buildMetadata(buildGithubRepository(settings), AboutMetadata.of(settings.rootDir))
+            )
         }
         settings.gradle.settingsEvaluated {
             extension.ensureConfigured()
@@ -82,7 +88,7 @@ class ProjektorGradlePlugin : Plugin<Settings> {
             else -> OwnerType.PROFILE
         }
         return GithubRepository(
-            GithubOwner(ownerType, ownerName, "diskria@proton.me"),
+            GithubOwner(ownerType, ownerName, buildEmail("diskria", "proton.me")),
             repositoryName
         )
     }

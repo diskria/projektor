@@ -1,37 +1,35 @@
 package io.github.diskria.projektor.extensions.gradle
 
-import io.github.diskria.projektor.common.extensions.gradle.ConfigurationExtension
-import io.github.diskria.projektor.configurations.AndroidApplicationConfiguration
-import io.github.diskria.projektor.configurations.AndroidLibraryConfiguration
-import io.github.diskria.projektor.configurations.GradlePluginConfiguration
-import io.github.diskria.projektor.configurations.KotlinLibraryConfiguration
-import io.github.diskria.projektor.configurations.MinecraftModConfiguration
-import io.github.diskria.projektor.configurators.AndroidApplicationConfigurator
-import io.github.diskria.projektor.configurators.AndroidLibraryConfigurator
-import io.github.diskria.projektor.configurators.Configurator
-import io.github.diskria.projektor.configurators.GradlePluginConfigurator
-import io.github.diskria.projektor.configurators.KotlinLibraryConfigurator
-import io.github.diskria.projektor.configurators.MinecraftModConfigurator
+import io.github.diskria.projektor.common.extensions.gradle.IProjektExtension
+import io.github.diskria.projektor.configurations.*
+import io.github.diskria.projektor.configurators.*
 
-open class ProjektExtension : ConfigurationExtension<Configurator<*>>() {
+open class ProjektExtension : IProjektExtension<
+        Configurator<*>,
+        GradlePluginConfiguration,
+        KotlinLibraryConfiguration,
+        AndroidLibraryConfiguration,
+        AndroidApplicationConfiguration,
+        MinecraftModConfiguration,
+        >() {
 
-    fun gradlePlugin(block: GradlePluginConfiguration.() -> Unit = {}) {
-        configure(GradlePluginConfigurator(GradlePluginConfiguration().apply(block)))
+    override fun configureGradlePlugin(configuration: GradlePluginConfiguration.() -> Unit) {
+        setConfigurator(GradlePluginConfigurator(GradlePluginConfiguration().apply(configuration)))
     }
 
-    fun kotlinLibrary(block: KotlinLibraryConfiguration.() -> Unit = {}) {
-        configure(KotlinLibraryConfigurator(KotlinLibraryConfiguration().apply(block)))
+    override fun configureKotlinLibrary(configuration: KotlinLibraryConfiguration.() -> Unit) {
+        setConfigurator(KotlinLibraryConfigurator(KotlinLibraryConfiguration().apply(configuration)))
     }
 
-    fun androidLibrary(block: AndroidLibraryConfiguration.() -> Unit = {}) {
-        configure(AndroidLibraryConfigurator(AndroidLibraryConfiguration().apply(block)))
+    override fun configureAndroidLibrary(configuration: AndroidLibraryConfiguration.() -> Unit) {
+        setConfigurator(AndroidLibraryConfigurator(AndroidLibraryConfiguration().apply(configuration)))
     }
 
-    fun androidApplication(block: AndroidApplicationConfiguration.() -> Unit = {}) {
-        configure(AndroidApplicationConfigurator(AndroidApplicationConfiguration().apply(block)))
+    override fun configureAndroidApplication(configuration: AndroidApplicationConfiguration.() -> Unit) {
+        setConfigurator(AndroidApplicationConfigurator(AndroidApplicationConfiguration().apply(configuration)))
     }
 
-    fun minecraftMod(block: MinecraftModConfiguration.() -> Unit = {}) {
-        configure(MinecraftModConfigurator(MinecraftModConfiguration().apply(block)))
+    override fun configureMinecraftMod(configuration: MinecraftModConfiguration.() -> Unit) {
+        setConfigurator(MinecraftModConfigurator(MinecraftModConfiguration().apply(configuration)))
     }
 }

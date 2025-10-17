@@ -1,16 +1,19 @@
-package io.github.diskria.projektor.settings.projekt
+package io.github.diskria.projektor.settings.configurators
 
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.common.minecraft.ModLoaderType
+import io.github.diskria.projektor.settings.configurations.MinecraftModConfiguration
 import io.github.diskria.projektor.settings.extensions.configureMaven
 import io.github.diskria.projektor.settings.extensions.dependencyRepositories
 import io.github.diskria.projektor.settings.extensions.repositories
-import io.github.diskria.projektor.settings.projekt.common.Projekt
+import io.github.diskria.projektor.settings.configurators.common.Configurator
 import io.ktor.http.*
 import org.gradle.api.initialization.Settings
 
-data object MinecraftMod : Projekt() {
+open class MinecraftModConfigurator(
+    config: MinecraftModConfiguration = MinecraftModConfiguration()
+) : Configurator(config) {
 
     override fun configureRepositories(settings: Settings) = with(settings) {
         dependencyRepositories {

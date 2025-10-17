@@ -1,3 +1,5 @@
 package io.github.diskria.projektor.configurations
 
-open class AndroidApplicationConfiguration
+import io.github.diskria.projektor.common.configurations.IAndroidApplicationConfiguration
+
+open class AndroidApplicationConfiguration : IAndroidApplicationConfiguration

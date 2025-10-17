@@ -6,6 +6,7 @@ import io.github.diskria.gradle.utils.extensions.test
 import io.github.diskria.gradle.utils.extensions.testImplementation
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.projektor.Versions
+import io.github.diskria.projektor.common.configurators.IProjektConfigurator
 import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.projekt.GradlePlugin
@@ -23,7 +24,7 @@ import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-sealed class Configurator<T : IProjekt> {
+sealed class Configurator<T : IProjekt> : IProjektConfigurator {
 
     abstract fun configure(project: Project, projekt: IProjekt): T
 

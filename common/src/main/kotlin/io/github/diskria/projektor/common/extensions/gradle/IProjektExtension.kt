@@ -28,6 +28,10 @@ abstract class IProjektExtension<C, GP, KL, AL, AA, MM> : GradleExtension()
         onConfiguratorReadyCallback = callback
     }
 
+    fun onConfiguratorReady(callback: (C) -> Unit) {
+        onConfiguratorReadyCallback = callback
+    }
+
     fun gradlePlugin(configuration: GP.() -> Unit = {}) {
         setProjektType(ProjektType.GRADLE_PLUGIN)
         configureGradlePlugin(configuration)
