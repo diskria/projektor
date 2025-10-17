@@ -6,32 +6,26 @@ import io.github.diskria.kotlin.shell.dsl.GitShell
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.publishing.maven.GithubPages
 import io.github.diskria.projektor.publishing.maven.common.LocalMaven.Companion.LOCAL_MAVEN_DIRECTORY_NAME
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Sync
 import org.gradle.internal.extensions.core.extra
 
 abstract class ReleaseToGithubPagesTask : Sync() {
 
-    @get:Internal
-    abstract val repositoryDirectory: DirectoryProperty
-
     init {
         dependsOn(GithubPages.getConfigurePublicationTaskName())
 
-        repositoryDirectory.convention(project.layout.projectDirectory)
+        val projektMetadata: ProjektMetadata by project.extra.properties
+        val repositoryDirectory = project.rootDir
+        val githubPagesMavenDirectory = project.getDirectory(GITHUB_PAGES_MAVEN_DIRECTORY_NAME).asFile
 
         from(project.getBuildDirectory(LOCAL_MAVEN_DIRECTORY_NAME))
-        into(project.getDirectory(GITHUB_PAGES_MAVEN_DIRECTORY_NAME))
+        into(githubPagesMavenDirectory)
 
         doLast {
-            val projektMetadata: ProjektMetadata by project.extra.properties
-            val repositoryDirectory = repositoryDirectory.get().asFile
-
             with(GitShell.open(repositoryDirectory)) {
                 val owner = projektMetadata.repository.owner
                 configureUser(owner.name, owner.email)
-                stage(destinationDir.relativeTo(repositoryDirectory).path)
+                stage(githubPagesMavenDirectory.relativeTo(repositoryDirectory).path)
                 commit("chore: deploy ${projektMetadata.version} release to GitHub Pages")
                 push()
             }
