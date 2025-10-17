@@ -3,6 +3,7 @@ package io.github.diskria.projektor
 import io.github.diskria.gradle.utils.extensions.registerExtension
 import io.github.diskria.projektor.extensions.ensureTaskRegistered
 import io.github.diskria.projektor.extensions.getMetadata
+import io.github.diskria.projektor.extensions.gradle.ProjektExtension
 import io.github.diskria.projektor.extensions.mappers.mapToProjekt
 import io.github.diskria.projektor.tasks.generate.GenerateLicenseTask
 import io.github.diskria.projektor.tasks.generate.GenerateReadmeTask

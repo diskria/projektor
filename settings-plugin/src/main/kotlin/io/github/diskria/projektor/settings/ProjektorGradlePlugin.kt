@@ -2,24 +2,23 @@ package io.github.diskria.projektor.settings
 
 import io.github.diskria.gradle.utils.extensions.files
 import io.github.diskria.gradle.utils.extensions.isCI
-import io.github.diskria.gradle.utils.extensions.put
 import io.github.diskria.gradle.utils.extensions.registerExtension
 import io.github.diskria.gradle.utils.helpers.VersionCatalogsHelper
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.asDirectory
 import io.github.diskria.kotlin.utils.extensions.common.modifyIf
-import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.kotlin.utils.properties.common.autoNamed
 import io.github.diskria.kotlin.utils.properties.common.environmentVariable
+import io.github.diskria.projektor.common.extensions.setMetadata
 import io.github.diskria.projektor.common.projekt.OwnerType
 import io.github.diskria.projektor.common.projekt.metadata.AboutMetadata
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.projekt.metadata.github.GithubOwner
 import io.github.diskria.projektor.common.projekt.metadata.github.GithubRepository
+import io.github.diskria.projektor.settings.extensions.gradle.ProjektExtension
 import io.github.diskria.projektor.settings.extensions.mappers.mapToModel
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
-import org.gradle.kotlin.dsl.extra
 
 class ProjektorGradlePlugin : Plugin<Settings> {
 
@@ -28,11 +27,7 @@ class ProjektorGradlePlugin : Plugin<Settings> {
 
         val extension = settings.registerExtension<ProjektExtension>()
         extension.onConfigurationReady { projektType ->
-            val metadata = extension.buildMetadata(
-                projektType,
-                buildGithubRepository(settings),
-                AboutMetadata.of(settings.rootDir)
-            )
+            val metadata = extension.buildMetadata(buildGithubRepository(settings), AboutMetadata.of(settings.rootDir))
             configureRootProject(settings, metadata)
             projektType.mapToModel().configure(settings, metadata)
 
@@ -57,8 +52,7 @@ class ProjektorGradlePlugin : Plugin<Settings> {
             description = metadata.description
             version = metadata.version
 
-            val projektMetadata by metadata.autoNamedProperty()
-            extra.put(projektMetadata)
+            setMetadata(metadata)
         }
     }
 

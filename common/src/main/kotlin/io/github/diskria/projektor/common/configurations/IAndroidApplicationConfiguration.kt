@@ -1,0 +1,3 @@
+package io.github.diskria.projektor.common.configurations
+
+interface IAndroidApplicationConfiguration

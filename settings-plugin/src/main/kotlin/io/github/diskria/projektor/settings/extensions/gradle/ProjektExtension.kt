@@ -1,9 +1,9 @@
-package io.github.diskria.projektor.settings
+package io.github.diskria.projektor.settings.extensions.gradle
 
 import io.github.diskria.kotlin.utils.extensions.common.`Title Case`
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.setCase
-import io.github.diskria.projektor.common.extensions.ConfigurationExtension
+import io.github.diskria.projektor.common.extensions.gradle.ConfigurationExtension
 import io.github.diskria.projektor.common.licenses.LicenseType
 import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.common.projekt.metadata.AboutMetadata
@@ -44,9 +44,9 @@ open class ProjektExtension @Inject constructor(objects: ObjectFactory) : Config
         configure(ProjektType.MINECRAFT_MOD)
     }
 
-    fun buildMetadata(type: ProjektType, repository: GithubRepository, about: AboutMetadata): ProjektMetadata =
+    fun buildMetadata(repository: GithubRepository, about: AboutMetadata): ProjektMetadata =
         ProjektMetadata(
-            type = type,
+            type = ensureConfigured(),
             repository = repository,
             name = repository.name.setCase(`kebab-case`, `Title Case`),
             description = about.description,
