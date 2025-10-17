@@ -1,7 +1,5 @@
 package io.github.diskria.projektor.configurations
 
-import io.github.diskria.projektor.common.configurations.IGradlePluginConfiguration
-
-open class GradlePluginConfiguration : IGradlePluginConfiguration {
+open class GradlePluginConfiguration {
     var isSettingsPlugin: Boolean = false
 }

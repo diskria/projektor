@@ -7,23 +7,23 @@ import io.github.diskria.projektor.configurators.common.ProjectConfigurator
 
 open class ProjektExtension : AbstractProjektExtension<ProjectConfigurator<*>>() {
 
-    fun gradlePlugin(configuration: GradlePluginConfiguration.() -> Unit) {
+    fun gradlePlugin(configuration: GradlePluginConfiguration.() -> Unit = {}) {
         setConfigurator(GradlePluginConfigurator(GradlePluginConfiguration().apply(configuration)))
     }
 
-    fun kotlinLibrary(configuration: KotlinLibraryConfiguration.() -> Unit) {
+    fun kotlinLibrary(configuration: KotlinLibraryConfiguration.() -> Unit = {}) {
         setConfigurator(KotlinLibraryConfigurator(KotlinLibraryConfiguration().apply(configuration)))
     }
 
-    fun androidLibrary(configuration: AndroidLibraryConfiguration.() -> Unit) {
+    fun androidLibrary(configuration: AndroidLibraryConfiguration.() -> Unit = {}) {
         setConfigurator(AndroidLibraryConfigurator(AndroidLibraryConfiguration().apply(configuration)))
     }
 
-    fun androidApplication(configuration: AndroidApplicationConfiguration.() -> Unit) {
+    fun androidApplication(configuration: AndroidApplicationConfiguration.() -> Unit = {}) {
         setConfigurator(AndroidApplicationConfigurator(AndroidApplicationConfiguration().apply(configuration)))
     }
 
-    fun minecraftMod(configuration: MinecraftModConfiguration.() -> Unit) {
+    fun minecraftMod(configuration: MinecraftModConfiguration.() -> Unit = {}) {
         setConfigurator(MinecraftModConfigurator(MinecraftModConfiguration().apply(configuration)))
     }
 }
