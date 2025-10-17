@@ -17,6 +17,7 @@ projekt {
     license = MIT
     publish = GITHUB_PAGES
 
-    versionCatalogPath = "../gradle/libs.versions.toml"
-    gradlePlugin()
+    gradlePlugin {
+        versionCatalogPath = "../gradle/libs.versions.toml"
+    }
 }

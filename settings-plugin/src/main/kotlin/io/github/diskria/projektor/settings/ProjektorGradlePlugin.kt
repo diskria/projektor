@@ -17,7 +17,6 @@ import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.projekt.metadata.github.GithubOwner
 import io.github.diskria.projektor.common.projekt.metadata.github.GithubRepository
 import io.github.diskria.projektor.settings.extensions.gradle.ProjektExtension
-import io.github.diskria.projektor.settings.extensions.mappers.mapToConfigurator
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
 
@@ -30,19 +29,17 @@ class ProjektorGradlePlugin : Plugin<Settings> {
         extension.onConfigurationReady { configurator ->
             configurator.configure(settings)
 
-            with(configurator.configuration) {
-                versionCatalogPath?.let {
-                    configureCatalog(settings, it)
-                }
-                extraRepositories.forEach {
-                    it.mapToConfigurator().configureRepositories(settings)
-                }
-            }
-
             configureRootProject(
                 settings,
-                extension.buildMetadata(buildGithubRepository(settings), AboutMetadata.of(settings.rootDir))
+                extension.buildMetadata(
+                    buildGithubRepository(settings),
+                    AboutMetadata.of(settings.rootDir)
+                )
             )
+
+            if (extension.versionCatalogPath.isPresent) {
+                configureCatalog(settings, extension.versionCatalogPath.get())
+            }
         }
         settings.gradle.settingsEvaluated {
             extension.ensureConfigured()

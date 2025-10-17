@@ -11,7 +11,7 @@ import io.github.diskria.projektor.common.projekt.metadata.github.GithubReposito
 import io.github.diskria.projektor.common.publishing.PublishingTargetType
 import io.github.diskria.projektor.settings.configurations.*
 import io.github.diskria.projektor.settings.configurators.*
-import io.github.diskria.projektor.settings.configurators.common.Configurator
+import io.github.diskria.projektor.settings.configurators.common.SettingsConfigurator
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import javax.inject.Inject
@@ -19,7 +19,7 @@ import javax.inject.Inject
 open class ProjektExtension @Inject constructor(
     objects: ObjectFactory
 ) : IProjektExtension<
-        Configurator,
+        SettingsConfigurator,
         GradlePluginConfiguration,
         KotlinLibraryConfiguration,
         AndroidLibraryConfiguration,
@@ -30,6 +30,8 @@ open class ProjektExtension @Inject constructor(
     val version: Property<String> = objects.property(String::class.java)
     val license: Property<LicenseType> = objects.property(LicenseType::class.java)
     val publish: Property<PublishingTargetType> = objects.property(PublishingTargetType::class.java)
+
+    val versionCatalogPath: Property<String> = objects.property(String::class.java)
 
     fun buildMetadata(repository: GithubRepository, about: AboutMetadata): ProjektMetadata =
         ProjektMetadata(

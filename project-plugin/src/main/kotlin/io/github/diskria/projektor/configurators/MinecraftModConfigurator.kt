@@ -5,6 +5,7 @@ import io.github.diskria.kotlin.utils.extensions.mappers.toEnum
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.common.minecraft.ModLoaderType
 import io.github.diskria.projektor.configurations.MinecraftModConfiguration
+import io.github.diskria.projektor.configurators.common.ProjectConfigurator
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.minecraft.version.MinecraftVersion
 import io.github.diskria.projektor.projekt.MinecraftMod
@@ -15,14 +16,13 @@ import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.provideDelegate
 
 open class MinecraftModConfigurator(
-    val config: MinecraftModConfiguration
-) : Configurator<MinecraftMod>() {
+    val config: MinecraftModConfiguration = MinecraftModConfiguration()
+) : ProjectConfigurator<MinecraftMod>() {
 
-    override fun configure(project: Project, projekt: IProjekt): MinecraftMod = with(project) {
+    override fun configureProject(project: Project, projekt: IProjekt): MinecraftMod = with(project) {
         val loader = projectDir.parentFile.name.toEnum<ModLoaderType>().mapToModel()
         val minecraftVersion = MinecraftVersion.of(projectDir.name)
         val minecraftMod = MinecraftMod(projekt, config, loader, minecraftVersion)
-        applyCommonConfiguration(project, minecraftMod)
         tasks.named<Jar>("jar") {
             manifest {
                 val developerName = minecraftMod.metadata.repository.owner.developerName

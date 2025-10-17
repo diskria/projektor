@@ -18,7 +18,6 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import org.gradle.internal.extensions.core.extra
 
 abstract class GenerateReadmeTask : DefaultTask() {
 

@@ -6,7 +6,6 @@ import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.Environment
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.getMetadata
 import io.github.diskria.projektor.extensions.mappers.mapToEnum
 import io.github.diskria.projektor.publishing.maven.MavenCentral
@@ -21,7 +20,6 @@ import io.ktor.util.*
 import io.ktor.util.cio.*
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.tasks.bundling.Zip
-import org.gradle.internal.extensions.core.extra
 
 abstract class ReleaseToMavenCentralTask : Zip() {
 

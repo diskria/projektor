@@ -1,6 +1,5 @@
 package io.github.diskria.projektor.publishing.maven
 
-import io.github.diskria.kotlin.utils.extensions.toNullIfEmpty
 import io.github.diskria.projektor.Environment
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.projekt.common.IProjekt

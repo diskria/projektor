@@ -1,9 +1,6 @@
-package io.github.diskria.projektor.configurators
+package io.github.diskria.projektor.configurators.common
 
-import io.github.diskria.gradle.utils.extensions.ensurePluginApplied
-import io.github.diskria.gradle.utils.extensions.implementation
-import io.github.diskria.gradle.utils.extensions.test
-import io.github.diskria.gradle.utils.extensions.testImplementation
+import io.github.diskria.gradle.utils.extensions.*
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.projektor.Versions
 import io.github.diskria.projektor.common.configurators.IProjektConfigurator
@@ -11,9 +8,10 @@ import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.projekt.GradlePlugin
 import io.github.diskria.projektor.projekt.common.IProjekt
+import io.github.diskria.projektor.projekt.common.Projekt
+import io.github.diskria.projektor.tasks.UnarchiveArtifactTask
 import io.github.diskria.projektor.tasks.generate.GenerateLicenseTask
 import org.gradle.api.Project
-import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
@@ -24,11 +22,17 @@ import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-sealed class Configurator<T : IProjekt> : IProjektConfigurator {
+abstract class ProjectConfigurator<T : IProjekt> : IProjektConfigurator {
 
-    abstract fun configure(project: Project, projekt: IProjekt): T
+    fun configure(project: Project): T {
+        val projekt = configureProject(project, Projekt.of(project))
+        applyCommonConfiguration(project, projekt)
+        return projekt
+    }
 
-    protected fun applyCommonConfiguration(project: Project, projekt: IProjekt) = with(project) {
+    abstract fun configureProject(project: Project, projekt: IProjekt): T
+
+    private fun applyCommonConfiguration(project: Project, projekt: IProjekt) = with(project) {
         if (projekt !is GradlePlugin) {
             ensurePluginApplied("org.jetbrains.kotlin.jvm")
         }
@@ -55,7 +59,7 @@ sealed class Configurator<T : IProjekt> : IProjektConfigurator {
         group = projekt.metadata.repository.owner.namespace
         version = projekt.archiveVersion
         base {
-            archivesName = projekt.metadata.repository.name
+            archivesName.assign(projekt.metadata.repository.name)
         }
         java {
             toolchain {
@@ -80,20 +84,15 @@ sealed class Configurator<T : IProjekt> : IProjektConfigurator {
                 jvmTarget.set(projekt.jvmTarget)
             }
         }
-        val jarTask = tasks.named<Jar>("jar") {
+        tasks.named<Jar>("jar") {
             from(GenerateLicenseTask.OUTPUT_FILE_NAME) {
                 rename { it + Constants.Char.UNDERSCORE + projekt.metadata.repository.name }
             }
             archiveVersion.set(projekt.archiveVersion)
         }
-        val unarchiveArtifact by tasks.registering(Sync::class) {
-            val jarFile = jarTask.flatMap { it.archiveFile }.get().asFile
-            from(zipTree(jarFile))
-            into(jarFile.parentFile.resolve(jarFile.nameWithoutExtension))
-            dependsOn(jarTask)
-        }
+        val unarchiveArtifactTask = registerTask<UnarchiveArtifactTask>()
         tasks.named("build") {
-            finalizedBy(unarchiveArtifact)
+            finalizedBy(unarchiveArtifactTask)
         }
         sourceSets {
             named("main") {
