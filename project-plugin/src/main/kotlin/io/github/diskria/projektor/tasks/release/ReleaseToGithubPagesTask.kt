@@ -11,6 +11,9 @@ import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.getMetadata
 import io.github.diskria.projektor.publishing.maven.GithubPages
 import io.github.diskria.projektor.publishing.maven.common.LocalMaven.Companion.LOCAL_MAVEN_DIRECTORY_NAME
+import io.github.diskria.projektor.tasks.generate.GenerateLicenseTask
+import io.github.diskria.projektor.tasks.generate.GenerateReadmeTask
+import io.github.diskria.projektor.tasks.generate.UpdateGithubRepositoryMetadataTask
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.gradle.api.file.DirectoryProperty
@@ -18,6 +21,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Sync
+import org.gradle.kotlin.dsl.withType
 import java.io.File
 
 abstract class ReleaseToGithubPagesTask : Sync() {
@@ -29,7 +33,17 @@ abstract class ReleaseToGithubPagesTask : Sync() {
     abstract val repositoryDirectory: DirectoryProperty
 
     init {
-        dependsOn(GithubPages.getConfigurePublicationTaskName())
+        val tasks = project.tasks
+        val generateLicense = tasks.withType<GenerateLicenseTask>()
+        val generateReadme = tasks.withType<GenerateReadmeTask>()
+        val configurePublication = tasks.named(GithubPages.getConfigurePublicationTaskName())
+        val updateGithubRepositoryMetadata = tasks.withType<UpdateGithubRepositoryMetadataTask>()
+
+        dependsOn(generateLicense, generateReadme, configurePublication)
+        configurePublication.configure {
+            mustRunAfter(generateLicense, generateReadme)
+        }
+        finalizedBy(updateGithubRepositoryMetadata)
 
         metadata.convention(project.getMetadata())
         repositoryDirectory.convention(project.layout.projectDirectory)
