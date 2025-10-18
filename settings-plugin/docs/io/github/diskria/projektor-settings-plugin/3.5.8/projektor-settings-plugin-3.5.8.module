@@ -3,7 +3,7 @@
   "component": {
     "group": "io.github.diskria",
     "module": "projektor-settings-plugin",
-    "version": "3.5.6",
+    "version": "3.5.8",
     "attributes": {
       "org.gradle.status": "release"
     }
@@ -27,13 +27,13 @@
       },
       "files": [
         {
-          "name": "projektor-settings-plugin-3.5.6.jar",
-          "url": "projektor-settings-plugin-3.5.6.jar",
+          "name": "projektor-settings-plugin-3.5.8.jar",
+          "url": "projektor-settings-plugin-3.5.8.jar",
           "size": 49976,
-          "sha512": "50133ff163c7e74d5e49caae8337594366ec192a4861baded56b692435f50f0587fa0d4e8037919a39df953c969bdbabe68eed444f8b54c8dd94d39270de6917",
-          "sha256": "872e44195087f6e44942f9a481ce11384b49505f1fb149b4fd3cc6e5ee0bc129",
-          "sha1": "983012f7fed34e9d19c067e8d8cb309d3b4236a9",
-          "md5": "7c2778afe45817ab84a2b74869437913"
+          "sha512": "036deb0cc79793a51f1b6a5092319d5eb555a0956ac642934f87be5a9e6bc91c8a7889dc293a9e8fbd8b68592692d410559421587f37b6c7e6e93fb7a4ed0035",
+          "sha256": "0632d1bfd0d5b1d736d5b06917c2a87dcc89659d5da8224606b0a8a69de5dac1",
+          "sha1": "d08964f93129524b5429f2e5ffd016b049cbaa37",
+          "md5": "ef3bba1964516249ba3a65489ab0487b"
         }
       ]
     },
@@ -108,13 +108,13 @@
       ],
       "files": [
         {
-          "name": "projektor-settings-plugin-3.5.6.jar",
-          "url": "projektor-settings-plugin-3.5.6.jar",
+          "name": "projektor-settings-plugin-3.5.8.jar",
+          "url": "projektor-settings-plugin-3.5.8.jar",
           "size": 49976,
-          "sha512": "50133ff163c7e74d5e49caae8337594366ec192a4861baded56b692435f50f0587fa0d4e8037919a39df953c969bdbabe68eed444f8b54c8dd94d39270de6917",
-          "sha256": "872e44195087f6e44942f9a481ce11384b49505f1fb149b4fd3cc6e5ee0bc129",
-          "sha1": "983012f7fed34e9d19c067e8d8cb309d3b4236a9",
-          "md5": "7c2778afe45817ab84a2b74869437913"
+          "sha512": "036deb0cc79793a51f1b6a5092319d5eb555a0956ac642934f87be5a9e6bc91c8a7889dc293a9e8fbd8b68592692d410559421587f37b6c7e6e93fb7a4ed0035",
+          "sha256": "0632d1bfd0d5b1d736d5b06917c2a87dcc89659d5da8224606b0a8a69de5dac1",
+          "sha1": "d08964f93129524b5429f2e5ffd016b049cbaa37",
+          "md5": "ef3bba1964516249ba3a65489ab0487b"
         }
       ]
     },
@@ -128,13 +128,13 @@
       },
       "files": [
         {
-          "name": "projektor-settings-plugin-3.5.6-sources.jar",
-          "url": "projektor-settings-plugin-3.5.6-sources.jar",
+          "name": "projektor-settings-plugin-3.5.8-sources.jar",
+          "url": "projektor-settings-plugin-3.5.8-sources.jar",
           "size": 10687,
-          "sha512": "eaea40ef62ab0e02c168181a433daf3b799c678c19c1b7a994cff34075181f91a6a711b48d9d12258859fc96efca8c8bea3cda26b9740306b9d0adc6142af556",
-          "sha256": "ab49ca72a22b0d07231b39ad191d3e4c5c618d24cb54e4ec2c85f6221947da28",
-          "sha1": "fc4494040de63d85981143de818e45533b9a1cec",
-          "md5": "3c7d0d5d5bae7e4ff36cba7a0a8b2412"
+          "sha512": "e525b75853c0da655b8d94a3f9b68786f216d781f8a0b020e977fea40a6a97287c71a5531cc76be57734f1c3c702acf75e19f2c1f965b59dc2ff73c61408c961",
+          "sha256": "cc97f931623cb9f33319d4eeecfd9a7ae6de124af4c93260cd13ca948a2d1906",
+          "sha1": "64988bfb1757298d7af4192bb23e4878fb3f0c11",
+          "md5": "3958729dd2d9fa9b980c5db25625d3d0"
         }
       ]
     },
@@ -148,8 +148,8 @@
       },
       "files": [
         {
-          "name": "projektor-settings-plugin-3.5.6-javadoc.jar",
-          "url": "projektor-settings-plugin-3.5.6-javadoc.jar",
+          "name": "projektor-settings-plugin-3.5.8-javadoc.jar",
+          "url": "projektor-settings-plugin-3.5.8-javadoc.jar",
           "size": 261,
           "sha512": "1487e5a20c9e4d74f298e07c42e96a61be11b7a768c3fbc199ee138cd68e1fc2267d1cfe3f11f288acc05df755315344d052cc5f6f751f126ab4fe1caa5125ea",
           "sha256": "c6deada2fac53b8ea6523dbda77597b128006674616f140f04df23264c6d1aa3",
