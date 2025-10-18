@@ -10,6 +10,7 @@ object Environment {
     fun isCI(): Boolean = ci.toBoolean()
 
     object Secrets {
+        val githubToken: String by autoNamed.environmentVariable(isRequired = true)
         val githubPackagesToken: String by autoNamed.environmentVariable(isRequired = true)
         val gpgKey: String by autoNamed.environmentVariable(isRequired = true)
         val gpgPassphrase: String by autoNamed.environmentVariable(isRequired = true)

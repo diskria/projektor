@@ -5,7 +5,7 @@ import io.github.diskria.projektor.extensions.ensureTaskRegistered
 import io.github.diskria.projektor.extensions.gradle.ProjektExtension
 import io.github.diskria.projektor.tasks.generate.GenerateLicenseTask
 import io.github.diskria.projektor.tasks.generate.GenerateReadmeTask
-import io.github.diskria.projektor.tasks.generate.UpdateGithubMetadataTask
+import io.github.diskria.projektor.tasks.generate.UpdateGithubRepositoryMetadataTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -20,7 +20,7 @@ class ProjektorGradlePlugin : Plugin<Project> {
         with(project.rootProject) {
             ensureTaskRegistered<GenerateLicenseTask>()
             ensureTaskRegistered<GenerateReadmeTask>()
-            ensureTaskRegistered<UpdateGithubMetadataTask>()
+            ensureTaskRegistered<UpdateGithubRepositoryMetadataTask>()
         }
 
         project.afterEvaluate {
