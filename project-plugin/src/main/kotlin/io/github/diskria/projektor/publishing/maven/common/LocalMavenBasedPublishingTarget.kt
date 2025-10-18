@@ -7,7 +7,7 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.kotlin.dsl.maven
 
-abstract class LocalMaven : MavenPublishingTarget() {
+abstract class LocalMavenBasedPublishingTarget : MavenPublishingTarget() {
 
     override fun configureMaven(
         repositories: RepositoryHandler,

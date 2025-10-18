@@ -16,7 +16,7 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.withType
 
-abstract class MavenPublishingTarget : PublishingTarget {
+abstract class MavenPublishingTarget : PublishingTarget() {
 
     open val shouldCreatePublication: Boolean = false
 
@@ -30,7 +30,7 @@ abstract class MavenPublishingTarget : PublishingTarget {
         project: Project
     ): MavenArtifactRepository
 
-    override fun configure(projekt: IProjekt, project: Project) = with(project) {
+    override fun configurePublishing(projekt: IProjekt, project: Project) = with(project) {
         val fixedArtifactId = projekt.metadata.repository.name.modifyUnless(isRootProject()) {
             it + Constants.Char.HYPHEN + name
         }

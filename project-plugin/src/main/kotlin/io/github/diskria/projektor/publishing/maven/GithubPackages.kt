@@ -29,6 +29,8 @@ data object GithubPackages : MavenPublishingTarget() {
         }
     }
 
+    override fun configureReleaseTask(project: Project) = TODO()
+
     override fun getReadmeShield(metadata: ProjektMetadata): ReadmeShield =
         GithubPackagesShield(metadata.repository)
 }

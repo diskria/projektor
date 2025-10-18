@@ -2,8 +2,8 @@ package io.github.diskria.projektor.extensions
 
 import com.github.gmazzo.buildconfig.BuildConfigExtension
 import com.modrinth.minotaur.ModrinthExtension
+import io.github.diskria.gradle.utils.extensions.displayName
 import io.github.diskria.gradle.utils.extensions.ensurePluginApplied
-import io.github.diskria.gradle.utils.extensions.hasTask
 import io.github.diskria.gradle.utils.extensions.registerTask
 import io.github.diskria.gradle.utils.extensions.runExtension
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
@@ -64,12 +64,8 @@ fun Project.modrinth(block: ModrinthExtension.() -> Unit) {
     withPluginExtension<ModrinthExtension>("com.modrinth.minotaur", block)
 }
 
-inline fun <reified T : Task> Project.ensureTaskRegistered(noinline configuration: T.() -> Unit = {}) {
-    if (hasTask<T>()) {
-        return
-    }
-    registerTask<T>(configuration)
-}
+inline fun <reified T : Task> Project.ensureTaskRegistered(noinline configuration: T.() -> Unit = {}): T =
+    tasks.findByName(T::class.displayName) as? T ?: registerTask<T>(configuration).get()
 
 private inline fun <reified E : Any> Project.withPluginExtension(pluginId: String, block: E.() -> Unit) {
     ensurePluginApplied(pluginId)

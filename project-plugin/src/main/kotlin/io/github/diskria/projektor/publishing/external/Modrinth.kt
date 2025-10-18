@@ -11,7 +11,7 @@ import org.gradle.api.Project
 
 data object Modrinth : ExternalPublishingTarget() {
 
-    override fun configure(projekt: IProjekt, project: Project) = with(project) {
+    override fun configurePublishing(projekt: IProjekt, project: Project) = with(project) {
         val mod = projekt as? MinecraftMod ?: gradleError(
             "Only Minecraft mod projects supported for publishing to Modrinth" +
                     ", but got " + projekt.metadata.type.getName(`kebab-case`)
@@ -21,6 +21,8 @@ data object Modrinth : ExternalPublishingTarget() {
         }
         TODO()
     }
+
+    override fun configureReleaseTask(project: Project) = TODO()
 
     override fun getConfigurePublicationTaskName(): String = TODO()
 }

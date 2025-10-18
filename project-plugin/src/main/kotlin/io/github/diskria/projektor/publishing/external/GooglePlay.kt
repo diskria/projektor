@@ -10,13 +10,15 @@ import org.gradle.api.Project
 
 data object GooglePlay : ExternalPublishingTarget() {
 
-    override fun configure(projekt: IProjekt, project: Project) = with(project) {
+    override fun configurePublishing(projekt: IProjekt, project: Project) = with(project) {
         val application = projekt as? AndroidApplication ?: gradleError(
             "Only Android application projects supported for publishing to Modrinth" +
                     ", but got " + projekt.metadata.type.getName(`kebab-case`)
         )
         TODO()
     }
+
+    override fun configureReleaseTask(project: Project) = TODO()
 
     override fun getConfigurePublicationTaskName(): String = TODO()
 }

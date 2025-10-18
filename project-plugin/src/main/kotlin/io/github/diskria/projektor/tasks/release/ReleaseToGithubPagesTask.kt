@@ -10,7 +10,7 @@ import io.github.diskria.projektor.Environment
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.getMetadata
 import io.github.diskria.projektor.publishing.maven.GithubPages
-import io.github.diskria.projektor.publishing.maven.common.LocalMaven.Companion.LOCAL_MAVEN_DIRECTORY_NAME
+import io.github.diskria.projektor.publishing.maven.common.LocalMavenBasedPublishingTarget.Companion.LOCAL_MAVEN_DIRECTORY_NAME
 import io.github.diskria.projektor.tasks.generate.GenerateLicenseTask
 import io.github.diskria.projektor.tasks.generate.GenerateReadmeTask
 import io.github.diskria.projektor.tasks.generate.UpdateGithubRepositoryMetadataTask

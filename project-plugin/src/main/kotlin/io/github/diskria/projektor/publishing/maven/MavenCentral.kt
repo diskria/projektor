@@ -10,22 +10,18 @@ import io.github.diskria.projektor.extensions.signing
 import io.github.diskria.projektor.projekt.AndroidLibrary
 import io.github.diskria.projektor.projekt.KotlinLibrary
 import io.github.diskria.projektor.projekt.common.IProjekt
-import io.github.diskria.projektor.publishing.maven.common.LocalMaven
+import io.github.diskria.projektor.publishing.maven.common.LocalMavenBasedPublishingTarget
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
 import io.github.diskria.projektor.readme.shields.dynamic.MavenCentralShield
 import io.github.diskria.projektor.tasks.release.ReleaseToMavenCentralTask
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.get
 
-data object MavenCentral : LocalMaven() {
+data object MavenCentral : LocalMavenBasedPublishingTarget() {
 
     override val shouldCreatePublication: Boolean = true
-
-    override fun configure(projekt: IProjekt, project: Project) {
-        super.configure(projekt, project)
-        project.rootProject.ensureTaskRegistered<ReleaseToMavenCentralTask>()
-    }
 
     override fun configurePublication(
         publication: MavenPublication,
@@ -80,6 +76,9 @@ data object MavenCentral : LocalMaven() {
             }
         }
     }
+
+    override fun configureReleaseTask(project: Project): Task =
+        project.ensureTaskRegistered<ReleaseToMavenCentralTask>()
 
     override fun getReadmeShield(metadata: ProjektMetadata): ReadmeShield =
         MavenCentralShield(metadata.repository)
