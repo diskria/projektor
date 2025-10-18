@@ -17,7 +17,7 @@ data object GithubPages : LocalMavenBasedPublishingTarget() {
     }
 
     override fun configureReleaseTask(project: Project): Task =
-        project.ensureTaskRegistered<ReleaseToGithubPagesTask>()
+        project.rootProject.ensureTaskRegistered<ReleaseToGithubPagesTask>()
 
     override fun getReadmeShield(metadata: ProjektMetadata): ReadmeShield =
         GithubPagesShield(metadata.repository)

@@ -1,7 +1,7 @@
 package io.github.diskria.projektor.publishing.common
 
-import io.github.diskria.gradle.utils.extensions.registerTask
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.extensions.ensureTaskRegistered
 import io.github.diskria.projektor.projekt.common.IProjekt
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
 import io.github.diskria.projektor.tasks.release.common.ReleaseTask
@@ -21,7 +21,7 @@ abstract class PublishingTarget {
     fun configure(projekt: IProjekt, project: Project) {
         configurePublishing(projekt, project)
         val releaseTask = configureReleaseTask(project)
-        project.registerTask<ReleaseTask> {
+        project.rootProject.ensureTaskRegistered<ReleaseTask> {
             targetTaskName.set(releaseTask.name)
         }
     }

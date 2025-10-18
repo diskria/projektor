@@ -78,7 +78,7 @@ data object MavenCentral : LocalMavenBasedPublishingTarget() {
     }
 
     override fun configureReleaseTask(project: Project): Task =
-        project.ensureTaskRegistered<ReleaseToMavenCentralTask>()
+        project.rootProject.ensureTaskRegistered<ReleaseToMavenCentralTask>()
 
     override fun getReadmeShield(metadata: ProjektMetadata): ReadmeShield =
         MavenCentralShield(metadata.repository)
