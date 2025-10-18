@@ -11,7 +11,6 @@ data class UpdateInfoRequest(
     val description: String,
     val homepage: String? = null,
 ) : IGithubRequest {
-    override fun getAcceptHeader(): String = "application/vnd.github+json"
     override fun getHttpMethod(): HttpMethod = HttpMethod.Patch
     override fun toJson(): String = serialize()
 }

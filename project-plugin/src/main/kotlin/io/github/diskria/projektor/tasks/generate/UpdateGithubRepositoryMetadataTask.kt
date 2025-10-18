@@ -82,7 +82,7 @@ abstract class UpdateGithubRepositoryMetadataTask : DefaultTask() {
                     HttpHeaders.UserAgent,
                     "${ProjektBuildConfig.PLUGIN_NAME}/1.0 (+${metadata.get().repository.getUrl()})"
                 )
-                header(HttpHeaders.Accept, request.getAcceptHeader())
+                header(HttpHeaders.Accept, "application/vnd.github+json")
                 contentType(ContentType.Application.Json)
                 setBody(request.toJson())
             }

@@ -39,11 +39,10 @@ abstract class ReleaseToGithubPagesTask : Sync() {
         val configurePublication = tasks.named(GithubPages.getConfigurePublicationTaskName())
         val updateGithubRepositoryMetadata = tasks.withType<UpdateGithubRepositoryMetadataTask>()
 
-        dependsOn(generateLicense, generateReadme, configurePublication)
+        dependsOn(generateLicense, generateReadme, configurePublication, updateGithubRepositoryMetadata)
         configurePublication.configure {
             mustRunAfter(generateLicense, generateReadme)
         }
-        finalizedBy(updateGithubRepositoryMetadata)
 
         metadata.convention(project.getMetadata())
         repositoryDirectory.convention(project.layout.projectDirectory)
