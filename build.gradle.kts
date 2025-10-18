@@ -1,6 +1,6 @@
 import io.github.diskria.gradle.utils.extensions.getBuildDirectory
 import io.github.diskria.projektor.publishing.maven.GithubPages
-import io.github.diskria.projektor.publishing.maven.common.LocalMaven
+import io.github.diskria.projektor.publishing.maven.common.LocalMavenBasedPublishingTarget
 
 plugins {
     `kotlin-dsl`
@@ -12,7 +12,7 @@ val taskName = GithubPages.getConfigurePublicationTaskName()
 tasks.register<Sync>(taskName) {
     childProjects.forEach { (projectName, project) ->
         dependsOn(":$projectName:$taskName")
-        from(project.getBuildDirectory(LocalMaven.LOCAL_MAVEN_DIRECTORY_NAME))
+        from(project.getBuildDirectory(LocalMavenBasedPublishingTarget.LOCAL_MAVEN_DIRECTORY_NAME))
     }
-    into(getBuildDirectory(LocalMaven.LOCAL_MAVEN_DIRECTORY_NAME))
+    into(getBuildDirectory(LocalMavenBasedPublishingTarget.LOCAL_MAVEN_DIRECTORY_NAME))
 }
