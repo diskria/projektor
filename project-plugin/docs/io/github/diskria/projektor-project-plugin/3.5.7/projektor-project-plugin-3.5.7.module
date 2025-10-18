@@ -3,7 +3,7 @@
   "component": {
     "group": "io.github.diskria",
     "module": "projektor-project-plugin",
-    "version": "3.5.6",
+    "version": "3.5.7",
     "attributes": {
       "org.gradle.status": "release"
     }
@@ -27,13 +27,13 @@
       },
       "files": [
         {
-          "name": "projektor-project-plugin-3.5.6.jar",
-          "url": "projektor-project-plugin-3.5.6.jar",
-          "size": 418757,
-          "sha512": "495588fc104e0b292a111a726bf91f22114d361f75d2931c2629152ba865b1d365b292f0a7571c0c428b0baf1b3ef1ed20433fe73ca6045d53551070bea9620c",
-          "sha256": "2ff299d5ca78ecfaa2259a8da848c71d628d0ddc190b7e3bfd3d446c8d8b9927",
-          "sha1": "39e6455100eef436a9cdc0ee1e748a43dc252ce8",
-          "md5": "44cd983d1f1fbe11b2bd9ddf865bede0"
+          "name": "projektor-project-plugin-3.5.7.jar",
+          "url": "projektor-project-plugin-3.5.7.jar",
+          "size": 418195,
+          "sha512": "bee9f6be51073afa4d8167a8f148ab2d4b8b03365b30b2e57de3caaa3c04412bda833f2b72abf0b379514cc107fe0aba93fd6a7119efd18d2607514eb501eef2",
+          "sha256": "483e52396b2eb7b2a539357723e16957b2dbef8f703ea2435e8345909b7cb303",
+          "sha1": "4d66182f93c73adc847b087ff8d7f8dd9cbf7df5",
+          "md5": "7c3d010909b555b9711a7e2675687b00"
         }
       ]
     },
@@ -152,13 +152,13 @@
       ],
       "files": [
         {
-          "name": "projektor-project-plugin-3.5.6.jar",
-          "url": "projektor-project-plugin-3.5.6.jar",
-          "size": 418757,
-          "sha512": "495588fc104e0b292a111a726bf91f22114d361f75d2931c2629152ba865b1d365b292f0a7571c0c428b0baf1b3ef1ed20433fe73ca6045d53551070bea9620c",
-          "sha256": "2ff299d5ca78ecfaa2259a8da848c71d628d0ddc190b7e3bfd3d446c8d8b9927",
-          "sha1": "39e6455100eef436a9cdc0ee1e748a43dc252ce8",
-          "md5": "44cd983d1f1fbe11b2bd9ddf865bede0"
+          "name": "projektor-project-plugin-3.5.7.jar",
+          "url": "projektor-project-plugin-3.5.7.jar",
+          "size": 418195,
+          "sha512": "bee9f6be51073afa4d8167a8f148ab2d4b8b03365b30b2e57de3caaa3c04412bda833f2b72abf0b379514cc107fe0aba93fd6a7119efd18d2607514eb501eef2",
+          "sha256": "483e52396b2eb7b2a539357723e16957b2dbef8f703ea2435e8345909b7cb303",
+          "sha1": "4d66182f93c73adc847b087ff8d7f8dd9cbf7df5",
+          "md5": "7c3d010909b555b9711a7e2675687b00"
         }
       ]
     },
@@ -172,13 +172,13 @@
       },
       "files": [
         {
-          "name": "projektor-project-plugin-3.5.6-sources.jar",
-          "url": "projektor-project-plugin-3.5.6-sources.jar",
-          "size": 63887,
-          "sha512": "1db8184e6a2cf56a803f84a224d21292405658bef681dc9eecf48c02bd462ae5671c9346624a9671bc88d93f290c5c21afe07ee16ddd80d9cd4e976df89f301c",
-          "sha256": "8e5ecb702413ce7c12deb97747698ef328d7a1c4c854b8ed08ce09efea77633c",
-          "sha1": "e12ac47b5c0444d53b9545397262d605d6d213f8",
-          "md5": "5806c897890c757325f81011d89ad115"
+          "name": "projektor-project-plugin-3.5.7-sources.jar",
+          "url": "projektor-project-plugin-3.5.7-sources.jar",
+          "size": 63901,
+          "sha512": "dfb7191a06406599a02af7bab4f4366d0ae5732586bd99084ec511703ebef8458c183c5762eaf36014ed7b17b28e7de8ca478cb5737dfb8f8666962670f310fe",
+          "sha256": "487581e210b4b5bc83880ecacd680eb978cbd56a675f56b2e630678104ab49a9",
+          "sha1": "84b8265bab5007b8918ab2f8ef53ce4d36560be5",
+          "md5": "f406adf37117d6ee8607f8b405e519f0"
         }
       ]
     },
@@ -192,8 +192,8 @@
       },
       "files": [
         {
-          "name": "projektor-project-plugin-3.5.6-javadoc.jar",
-          "url": "projektor-project-plugin-3.5.6-javadoc.jar",
+          "name": "projektor-project-plugin-3.5.7-javadoc.jar",
+          "url": "projektor-project-plugin-3.5.7-javadoc.jar",
           "size": 261,
           "sha512": "1487e5a20c9e4d74f298e07c42e96a61be11b7a768c3fbc199ee138cd68e1fc2267d1cfe3f11f288acc05df755315344d052cc5f6f751f126ab4fe1caa5125ea",
           "sha256": "c6deada2fac53b8ea6523dbda77597b128006674616f140f04df23264c6d1aa3",

@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.diskria.projektor</groupId>
   <artifactId>io.github.diskria.projektor.gradle.plugin</artifactId>
-  <version>3.5.6</version>
+  <version>3.5.7</version>
   <packaging>pom</packaging>
   <name>Projektor</name>
   <description>Gradle plugin with reusable conventions and helpers for projects from my GitHub organizations.</description>
@@ -11,7 +11,7 @@
     <dependency>
       <groupId>io.github.diskria</groupId>
       <artifactId>projektor-project-plugin</artifactId>
-      <version>3.5.6</version>
+      <version>3.5.7</version>
     </dependency>
   </dependencies>
 </project>
