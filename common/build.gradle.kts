@@ -1,6 +1,14 @@
+import io.github.diskria.gradle.utils.extensions.getBuildDirectory
+import io.github.diskria.gradle.utils.extensions.runExtension
+import io.github.diskria.projektor.extensions.gradle.ProjektExtension
+
 plugins {
     `kotlin-dsl`
-    alias(libs.plugins.projektor)
+    if (true) {
+        `maven-publish`
+    } else {
+        alias(libs.plugins.projektor)
+    }
 }
 
 dependencies {
@@ -8,6 +16,23 @@ dependencies {
     implementation(libs.bundles.ktor.client)
 }
 
-projekt {
-    kotlinLibrary()
+if (true) {
+    group = "io.github.diskria"
+    version = "3.5.12"
+    publishing {
+        publications.withType<MavenPublication> {
+            artifactId = "projektor-common"
+        }
+        repositories {
+            maven(getBuildDirectory("localMaven")) {
+                name = "GithubPages"
+            }
+        }
+    }
+} else {
+    pluginManager.withPlugin("io.github.diskria.projektor") {
+        runExtension<ProjektExtension> {
+            kotlinLibrary()
+        }
+    }
 }

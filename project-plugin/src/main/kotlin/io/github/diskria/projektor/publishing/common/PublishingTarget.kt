@@ -5,17 +5,33 @@ import io.github.diskria.projektor.extensions.ensureTaskRegistered
 import io.github.diskria.projektor.projekt.common.IProjekt
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
 import io.github.diskria.projektor.tasks.ReleaseTask
+import io.github.diskria.projektor.tasks.generate.GenerateLicenseTask
+import io.github.diskria.projektor.tasks.generate.GenerateReadmeTask
+import io.github.diskria.projektor.tasks.generate.UpdateGithubRepositoryMetadataTask
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.kotlin.dsl.withType
 
 abstract class PublishingTarget {
 
     fun configure(projekt: IProjekt, project: Project) {
         configurePublishing(projekt, project)
-        val distributeTask = configureDistributeTask(project)
-        project.rootProject.ensureTaskRegistered<ReleaseTask> {
-            publishTaskName.set(getPublishTaskName())
-            distributeTaskName.set(distributeTask.name)
+        val distribute = configureDistributeTask(project)
+        val publish = getPublishTaskName()
+
+        val rootProject = project.rootProject
+        rootProject.ensureTaskRegistered<ReleaseTask> {
+
+            val generateLicense = rootProject.tasks.withType<GenerateLicenseTask>().single()
+            val generateReadme = rootProject.tasks.withType<GenerateReadmeTask>().single()
+            val updateGithubRepositoryMetadata = rootProject.tasks.withType<UpdateGithubRepositoryMetadataTask>().single()
+
+            dependsOn(generateLicense, generateReadme, publish, distribute)
+            generateReadme.mustRunAfter(generateLicense)
+            rootProject.tasks.findByName(publish)?.mustRunAfter(generateReadme)
+            distribute.mustRunAfter(publish)
+
+            finalizedBy(updateGithubRepositoryMetadata)
         }
     }
 

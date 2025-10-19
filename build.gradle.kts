@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.projektor) apply false
 }
 
-val taskName = GithubPages.getConfigurePublicationTaskName()
+val taskName = GithubPages.getPublishTaskName()
 tasks.register<Sync>(taskName) {
     childProjects.forEach { (projectName, project) ->
         dependsOn(":$projectName:$taskName")

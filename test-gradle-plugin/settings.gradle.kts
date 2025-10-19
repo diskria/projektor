@@ -21,3 +21,5 @@ projekt {
         versionCatalogPath = "../gradle/libs.versions.toml"
     }
 }
+
+include(":moduleA", ":moduleB")

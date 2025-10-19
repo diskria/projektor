@@ -10,7 +10,7 @@
   <dependencies>
     <dependency>
       <groupId>io.github.projektor</groupId>
-      <artifactId>test-gradle-plugin</artifactId>
+      <artifactId>test-gradle-plugin-moduleB</artifactId>
       <version>0.1.0</version>
     </dependency>
   </dependencies>
