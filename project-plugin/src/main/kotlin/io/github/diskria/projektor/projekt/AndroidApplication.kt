@@ -6,4 +6,8 @@ import io.github.diskria.projektor.projekt.common.IProjekt
 open class AndroidApplication(
     projekt: IProjekt,
     val config: AndroidApplicationConfiguration
-) : IProjekt by projekt
+) : IProjekt by projekt {
+
+    val id: String
+        get() = packageName
+}

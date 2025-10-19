@@ -2,6 +2,7 @@ package io.github.diskria.projektor.tasks.generate
 
 import io.github.diskria.gradle.utils.extensions.getFile
 import io.github.diskria.kotlin.shell.dsl.GitShell
+import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.getMetadata
 import io.github.diskria.projektor.extensions.mappers.mapToModel
@@ -31,6 +32,8 @@ abstract class GenerateLicenseTask : DefaultTask() {
     abstract val outputFile: RegularFileProperty
 
     init {
+        group = ProjektorGradlePlugin.TASK_GROUP
+
         metadata.convention(project.getMetadata())
         repositoryDirectory.convention(project.layout.projectDirectory)
         outputFile.convention(project.getFile(OUTPUT_FILE_NAME))
@@ -39,7 +42,6 @@ abstract class GenerateLicenseTask : DefaultTask() {
     @TaskAction
     fun generate() {
         val metadata = metadata.get()
-        val repositoryDirectory = repositoryDirectory.get().asFile
         val outputFile = outputFile.get().asFile
 
         val license = metadata.license.mapToModel()
@@ -59,11 +61,10 @@ abstract class GenerateLicenseTask : DefaultTask() {
         }
         outputFile.writeText(licenseText)
 
-        val licensePath = outputFile.relativeTo(repositoryDirectory).path
-        with(GitShell.open(repositoryDirectory)) {
+        with(GitShell.open(repositoryDirectory.get().asFile)) {
             val owner = metadata.repository.owner
             configureUser(owner.name, owner.email)
-            stage(licensePath)
+            stage(outputFile.relativeTo(pwd()).path)
             commit("docs: update $OUTPUT_FILE_NAME")
             push()
         }

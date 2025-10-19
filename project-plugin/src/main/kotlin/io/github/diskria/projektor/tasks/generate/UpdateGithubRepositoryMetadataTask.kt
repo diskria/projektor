@@ -1,13 +1,17 @@
 package io.github.diskria.projektor.tasks.generate
 
+import io.github.diskria.kotlin.utils.BracketsType
+import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
+import io.github.diskria.kotlin.utils.extensions.wrapWithBrackets
 import io.github.diskria.projektor.Environment
 import io.github.diskria.projektor.ProjektBuildConfig
+import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
-import io.github.diskria.projektor.common.publishing.PublishingTargetType.*
 import io.github.diskria.projektor.extensions.getMetadata
+import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.requests.github.UpdateInfoRequest
 import io.github.diskria.projektor.requests.github.UpdateTopicsRequest
 import io.github.diskria.projektor.requests.github.common.IGithubRequest
@@ -27,35 +31,27 @@ abstract class UpdateGithubRepositoryMetadataTask : DefaultTask() {
     abstract val metadata: Property<ProjektMetadata>
 
     init {
+        group = ProjektorGradlePlugin.TASK_GROUP
+
         metadata.convention(project.getMetadata())
     }
 
     @TaskAction
     fun update() {
-        if (!Environment.isCI()) {
-            return
-        }
-        runBlocking {
-            updateInfo()
-            updateTopics()
+        if (Environment.isCI()) {
+            runBlocking {
+                updateInfo()
+                updateTopics()
+            }
         }
     }
 
     private suspend fun updateInfo() {
-        val metadata = metadata.get()
-
-        val homepage = when (metadata.publishingTarget) {
-            GITHUB_PACKAGES -> null
-            GITHUB_PAGES -> metadata.repository.getPagesUrl()
-            MAVEN_CENTRAL -> buildUrl("central.sonatype.com") {
-                path("artifact", metadata.repository.owner.namespace, metadata.repository.name)
-            }
-
-            GRADLE_PLUGIN_PORTAL -> null
-            MODRINTH -> null
-            GOOGLE_PLAY -> null
+        with(metadata.get()) {
+            sendRequest(
+                UpdateInfoRequest(repository.name, description, publishingTarget.mapToModel().getHomepage(this))
+            )
         }
-        sendRequest(UpdateInfoRequest(metadata.repository.name, metadata.description, homepage))
     }
 
     private suspend fun updateTopics() {
@@ -80,7 +76,18 @@ abstract class UpdateGithubRepositoryMetadataTask : DefaultTask() {
                 bearerAuth(Environment.Secrets.githubToken)
                 header(
                     HttpHeaders.UserAgent,
-                    "${ProjektBuildConfig.PLUGIN_NAME}/1.0 (+${metadata.get().repository.getUrl()})"
+                    buildString {
+                        append(ProjektBuildConfig.PLUGIN_NAME)
+                        append(Constants.Char.SLASH)
+                        append(ProjektBuildConfig.PLUGIN_VERSION)
+                        append(Constants.Char.SPACE)
+                        append(
+                            buildString {
+                                append(Constants.Char.PLUS)
+                                append(metadata.get().repository.getUrl())
+                            }.wrapWithBrackets(BracketsType.ROUND)
+                        )
+                    }
                 )
                 header(HttpHeaders.Accept, "application/vnd.github+json")
                 contentType(ContentType.Application.Json)

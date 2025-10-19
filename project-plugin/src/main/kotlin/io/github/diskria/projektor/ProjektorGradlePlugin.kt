@@ -27,4 +27,8 @@ class ProjektorGradlePlugin : Plugin<Project> {
             extension.ensureConfigured()
         }
     }
+
+    companion object {
+        val TASK_GROUP: String = ProjektBuildConfig.PLUGIN_NAME.lowercase()
+    }
 }

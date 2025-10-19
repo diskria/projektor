@@ -1,4 +1,4 @@
-package io.github.diskria.projektor.tasks.release
+package io.github.diskria.projektor.tasks.distribute
 
 import io.github.diskria.gradle.utils.extensions.getBuildDirectory
 import io.github.diskria.kotlin.utils.Constants
@@ -6,10 +6,11 @@ import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.Environment
+import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.extensions.getMetadata
 import io.github.diskria.projektor.extensions.mappers.mapToEnum
 import io.github.diskria.projektor.publishing.maven.MavenCentral
-import io.github.diskria.projektor.publishing.maven.common.LocalMavenBasedPublishingTarget.Companion.LOCAL_MAVEN_DIRECTORY_NAME
+import io.github.diskria.projektor.publishing.maven.common.LocalMavenBasedPublishingTarget
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
@@ -21,26 +22,28 @@ import io.ktor.util.cio.*
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.tasks.bundling.Zip
 
-abstract class UploadReleaseToMavenCentralTask : Zip() {
+abstract class UploadBundleToMavenCentralTask : Zip() {
 
     init {
+        group = ProjektorGradlePlugin.TASK_GROUP
+
         val metadata = project.getMetadata()
         archiveBaseName.set(metadata.repository.name)
         archiveVersion.set(metadata.version)
 
-        from(project.getBuildDirectory(LOCAL_MAVEN_DIRECTORY_NAME))
+        from(project.getBuildDirectory(LocalMavenBasedPublishingTarget.LOCAL_MAVEN_DIRECTORY_NAME))
         destinationDirectory.set(project.getBuildDirectory(MavenCentral.mapToEnum().getName(`kebab-case`)))
 
         if (Environment.isCI()) {
             doLast {
                 runBlocking {
-                    uploadBundleToSonatype()
+                    uploadBundle()
                 }
             }
         }
     }
 
-    private suspend fun uploadBundleToSonatype() {
+    private suspend fun uploadBundle() {
         val username = Environment.Secrets.sonatypeUsername
         val password = Environment.Secrets.sonatypePassword
         val bearer = (username + Constants.Char.COLON + password).toByteArray().encodeBase64()
@@ -53,7 +56,7 @@ abstract class UploadReleaseToMavenCentralTask : Zip() {
             append(
                 HttpHeaders.ContentDisposition,
                 ContentDisposition(ContentType.MultiPart.FormData.contentSubtype)
-                    .withParameter(ContentDisposition.Parameters.Name, "bundle")
+                    .withParameter(ContentDisposition.Parameters.Name, FORM_NAME)
                     .withParameter(ContentDisposition.Parameters.FileName, bundleFile.name)
             )
             append(
@@ -67,5 +70,9 @@ abstract class UploadReleaseToMavenCentralTask : Zip() {
                 setBody(MultiPartFormDataContent(listOf(part)))
             }
         }
+    }
+
+    companion object {
+        private const val FORM_NAME: String = "bundle"
     }
 }

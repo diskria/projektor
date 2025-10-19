@@ -11,40 +11,41 @@ data class AboutMetadata(val description: String, val details: String, val tags:
 
     companion object {
         private const val ABOUT_DIRECTORY_NAME: String = "about"
+
         private val DESCRIPTION_FILE_NAME: String = fileName("DESCRIPTION", Constants.File.Extension.MARKDOWN)
         private val DETAILS_FILE_NAME: String = fileName("DETAILS", Constants.File.Extension.MARKDOWN)
         private val TAGS_FILE_NAME: String = fileName("TAGS", Constants.File.Extension.MARKDOWN)
 
-        fun of(projektDirectory: File): AboutMetadata {
-            val aboutDirectory = projektDirectory.resolve(ABOUT_DIRECTORY_NAME).ensureDirectoryExists()
+        fun of(repositoryDirectory: File): AboutMetadata {
+            val aboutDirectory = repositoryDirectory.resolve(ABOUT_DIRECTORY_NAME).ensureDirectoryExists()
             val descriptionFile = aboutDirectory.resolve(DESCRIPTION_FILE_NAME).ensureFileExists()
             val detailsFile = aboutDirectory.resolve(DETAILS_FILE_NAME).ensureFileExists()
             val tagsFile = aboutDirectory.resolve(TAGS_FILE_NAME).ensureFileExists()
             return AboutMetadata(
                 description = descriptionFile.readText().trim().ifEmpty {
-                    missingMetadataError(projektDirectory, descriptionFile) {
+                    missingMetadataError(repositoryDirectory, descriptionFile) {
                         "a short one-paragraph description of your project"
                     }
                 },
                 details = detailsFile.readText().trim().ifEmpty {
-                    missingMetadataError(projektDirectory, detailsFile) {
+                    missingMetadataError(repositoryDirectory, detailsFile) {
                         "a detailed explanation of your project’s purpose, features, and usage"
                     }
                 },
                 tags = tagsFile.readLines().filter { it.isNotBlank() }.toSet().ifEmpty {
-                    missingMetadataError(projektDirectory, tagsFile) {
+                    missingMetadataError(repositoryDirectory, tagsFile) {
                         "a few relevant tags, one per line"
                     }
                 },
             )
         }
 
-        private fun missingMetadataError(projektDirectory: File, targetFile: File, getContent: () -> String): Nothing =
+        private fun missingMetadataError(repositoryDirectory: File, targetFile: File, content: () -> String): Nothing =
             gradleError(
                 buildString {
                     appendLine("Missing or empty projekt metadata file.")
-                    appendLine("Path: ${targetFile.relativeTo(projektDirectory).path}")
-                    appendLine("Please provide ${getContent()} in this file.")
+                    appendLine("Path: ${targetFile.relativeTo(repositoryDirectory).path}")
+                    appendLine("Please provide ${content()} in this file.")
                 }
             )
     }

@@ -5,6 +5,7 @@ import io.github.diskria.kotlin.shell.dsl.GitShell
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.generics.joinBySpace
+import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.common.projekt.metadata.AboutMetadata
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.getMetadata
@@ -31,6 +32,8 @@ abstract class GenerateReadmeTask : DefaultTask() {
     abstract val outputFile: RegularFileProperty
 
     init {
+        group = ProjektorGradlePlugin.TASK_GROUP
+
         metadata.convention(project.getMetadata())
         repositoryDirectory.convention(project.layout.projectDirectory)
         outputFile.convention(project.getFile(OUTPUT_FILE_NAME))
@@ -73,11 +76,10 @@ abstract class GenerateReadmeTask : DefaultTask() {
         }
         outputFile.writeText(readmeText)
 
-        val readmePath = outputFile.relativeTo(repositoryDirectory).path
         with(GitShell.open(repositoryDirectory)) {
             val owner = metadata.repository.owner
             configureUser(owner.name, owner.email)
-            stage(readmePath)
+            stage(outputFile.relativeTo(pwd()).path)
             commit("docs: update $OUTPUT_FILE_NAME")
             push()
         }

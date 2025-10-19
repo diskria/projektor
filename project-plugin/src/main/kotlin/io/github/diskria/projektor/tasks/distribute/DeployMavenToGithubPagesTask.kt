@@ -1,4 +1,4 @@
-package io.github.diskria.projektor.tasks.release
+package io.github.diskria.projektor.tasks.distribute
 
 import io.github.diskria.gradle.utils.extensions.getBuildDirectory
 import io.github.diskria.gradle.utils.extensions.getDirectory
@@ -7,9 +7,10 @@ import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
 import io.github.diskria.projektor.Environment
+import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.getMetadata
-import io.github.diskria.projektor.publishing.maven.common.LocalMavenBasedPublishingTarget.Companion.LOCAL_MAVEN_DIRECTORY_NAME
+import io.github.diskria.projektor.publishing.maven.common.LocalMavenBasedPublishingTarget
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.gradle.api.file.DirectoryProperty
@@ -19,7 +20,7 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Sync
 import java.io.File
 
-abstract class DeployReleaseToGithubPagesTask : Sync() {
+abstract class DeployMavenToGithubPagesTask : Sync() {
 
     @get:Internal
     abstract val metadata: Property<ProjektMetadata>
@@ -28,10 +29,12 @@ abstract class DeployReleaseToGithubPagesTask : Sync() {
     abstract val repositoryDirectory: DirectoryProperty
 
     init {
+        group = ProjektorGradlePlugin.TASK_GROUP
+
         metadata.convention(project.getMetadata())
         repositoryDirectory.convention(project.layout.projectDirectory)
 
-        from(project.getBuildDirectory(LOCAL_MAVEN_DIRECTORY_NAME))
+        from(project.getBuildDirectory(LocalMavenBasedPublishingTarget.LOCAL_MAVEN_DIRECTORY_NAME))
         into(project.getDirectory(GITHUB_PAGES_MAVEN_DIRECTORY_NAME))
 
         doLast {
@@ -80,14 +83,11 @@ abstract class DeployReleaseToGithubPagesTask : Sync() {
     }
 
     private fun deployToGithubPages() {
-        val metadata = metadata.get()
-        val repositoryDirectory = repositoryDirectory.get().asFile
-
-        with(GitShell.open(repositoryDirectory)) {
-            val owner = metadata.repository.owner
+        with(GitShell.open(repositoryDirectory.get().asFile)) {
+            val owner = metadata.get().repository.owner
             configureUser(owner.name, owner.email)
-            stage(destinationDir.relativeTo(repositoryDirectory).path)
-            commit("chore: deploy ${metadata.version} release to GitHub Pages")
+            stage(destinationDir.relativeTo(pwd()).path)
+            commit("chore: deploy maven to GitHub Pages")
             push()
         }
     }

@@ -85,6 +85,7 @@ abstract class ProjectConfigurator<T : IProjekt> : IProjektConfigurator {
             }
         }
         tasks.named<Jar>("jar") {
+            dependsOn(tasks.withType<GenerateLicenseTask>())
             from(GenerateLicenseTask.OUTPUT_FILE_NAME) {
                 rename { it + Constants.Char.UNDERSCORE + projekt.metadata.repository.name }
             }

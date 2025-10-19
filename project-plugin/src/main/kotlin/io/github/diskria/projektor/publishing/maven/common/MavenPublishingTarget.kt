@@ -31,9 +31,6 @@ abstract class MavenPublishingTarget : PublishingTarget() {
     ): MavenArtifactRepository
 
     override fun configurePublishing(projekt: IProjekt, project: Project) = with(project) {
-        val fixedArtifactId = projekt.metadata.repository.name.modifyUnless(isRootProject()) {
-            it + Constants.Char.HYPHEN + name
-        }
         publishing {
             if (shouldCreatePublication) {
                 publications.create<MavenPublication>(projekt.metadata.repository.name) {
@@ -41,7 +38,9 @@ abstract class MavenPublishingTarget : PublishingTarget() {
                 }
             }
             publications.withType<MavenPublication> {
-                artifactId = fixedArtifactId
+                artifactId = projekt.metadata.repository.name.modifyUnless(isRootProject()) {
+                    it + Constants.Char.HYPHEN + name
+                }
                 if (!shouldCreatePublication) {
                     configurePublication(this, projekt, project)
                 }
@@ -50,7 +49,7 @@ abstract class MavenPublishingTarget : PublishingTarget() {
         }
     }
 
-    override fun getConfigurePublicationTaskName(): String =
+    override fun getPublishTaskName(): String =
         "publishAllPublicationsTo${getRepositoryName()}Repository"
 
     protected fun getRepositoryName(): String =

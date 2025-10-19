@@ -6,11 +6,7 @@ import io.ktor.http.*
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UpdateInfoRequest(
-    val name: String,
-    val description: String,
-    val homepage: String? = null,
-) : IGithubRequest {
+data class UpdateInfoRequest(val name: String, val description: String, val homepage: String? = null) : IGithubRequest {
     override fun getHttpMethod(): HttpMethod = HttpMethod.Patch
     override fun toJson(): String = serialize()
 }

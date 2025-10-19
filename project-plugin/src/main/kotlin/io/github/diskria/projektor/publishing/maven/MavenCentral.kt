@@ -1,7 +1,8 @@
 package io.github.diskria.projektor.publishing.maven
 
 import io.github.diskria.gradle.utils.extensions.common.gradleError
-import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
+import io.github.diskria.kotlin.utils.extensions.common.`Sentence case`
+import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.Environment
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
@@ -13,7 +14,8 @@ import io.github.diskria.projektor.projekt.common.IProjekt
 import io.github.diskria.projektor.publishing.maven.common.LocalMavenBasedPublishingTarget
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
 import io.github.diskria.projektor.readme.shields.dynamic.MavenCentralShield
-import io.github.diskria.projektor.tasks.release.ReleaseToMavenCentralTask
+import io.github.diskria.projektor.tasks.distribute.UploadBundleToMavenCentralTask
+import io.ktor.http.*
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.publish.maven.MavenPublication
@@ -23,22 +25,10 @@ data object MavenCentral : LocalMavenBasedPublishingTarget() {
 
     override val shouldCreatePublication: Boolean = true
 
-    override fun configurePublication(
-        publication: MavenPublication,
-        projekt: IProjekt,
-        project: Project
-    ) = with(project) {
-        val componentName = when (projekt) {
-            is KotlinLibrary -> "java"
-            is AndroidLibrary -> "release"
-            else -> gradleError(
-                "Only Kotlin/Android library projects supported for publishing to Maven Central" +
-                        ", but got " + projekt.metadata.type.getName(`kebab-case`)
-            )
-        }
+    override fun configurePublication(publication: MavenPublication, projekt: IProjekt, project: Project) {
         val repository = projekt.metadata.repository
         with(publication) {
-            from(components[componentName])
+            from(project.components[projekt.getComponentName()])
             pom {
                 name.set(projekt.metadata.name)
                 description.set(projekt.metadata.description)
@@ -70,16 +60,33 @@ data object MavenCentral : LocalMavenBasedPublishingTarget() {
             }
         }
         if (Environment.isCI()) {
-            signing {
-                useInMemoryPgpKeys(Environment.Secrets.gpgKey, Environment.Secrets.gpgPassphrase)
-                sign(publication)
+            with(project) {
+                signing {
+                    useInMemoryPgpKeys(Environment.Secrets.gpgKey, Environment.Secrets.gpgPassphrase)
+                    sign(publication)
+                }
             }
         }
     }
 
-    override fun configureReleaseTask(project: Project): Task =
-        project.rootProject.ensureTaskRegistered<ReleaseToMavenCentralTask>()
+    override fun configureDistributeTask(project: Project): Task =
+        project.rootProject.ensureTaskRegistered<UploadBundleToMavenCentralTask>()
+
+    override fun getHomepage(metadata: ProjektMetadata): String =
+        buildUrl("central.sonatype.com") {
+            path("artifact", metadata.repository.owner.namespace, metadata.repository.name)
+        }
 
     override fun getReadmeShield(metadata: ProjektMetadata): ReadmeShield =
         MavenCentralShield(metadata.repository)
+
+    private fun IProjekt.getComponentName(): String =
+        when (this) {
+            is KotlinLibrary -> "java"
+            is AndroidLibrary -> "release"
+            else -> gradleError(
+                "Only Kotlin library and Android library projects supported for publishing to Maven Central" +
+                        ", but got " + metadata.type.getName(`Sentence case`)
+            )
+        }
 }
