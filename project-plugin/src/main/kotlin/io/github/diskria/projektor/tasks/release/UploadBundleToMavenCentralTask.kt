@@ -21,11 +21,9 @@ import io.ktor.util.cio.*
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.tasks.bundling.Zip
 
-abstract class ReleaseToMavenCentralTask : Zip() {
+abstract class UploadReleaseToMavenCentralTask : Zip() {
 
     init {
-        dependsOn(MavenCentral.getConfigurePublicationTaskName())
-
         val metadata = project.getMetadata()
         archiveBaseName.set(metadata.repository.name)
         archiveVersion.set(metadata.version)
