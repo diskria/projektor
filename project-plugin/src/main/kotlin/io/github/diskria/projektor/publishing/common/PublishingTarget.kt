@@ -21,14 +21,14 @@ abstract class PublishingTarget {
 
         val rootProject = project.rootProject
         rootProject.ensureTaskRegistered<ReleaseTask> {
-
-            val generateLicense = rootProject.tasks.withType<GenerateLicenseTask>().single()
-            val generateReadme = rootProject.tasks.withType<GenerateReadmeTask>().single()
-            val updateGithubRepositoryMetadata = rootProject.tasks.withType<UpdateGithubRepositoryMetadataTask>().single()
+            val tasks = rootProject.tasks
+            val generateLicense = tasks.withType<GenerateLicenseTask>().single()
+            val generateReadme = tasks.withType<GenerateReadmeTask>().single()
+            val updateGithubRepositoryMetadata = tasks.withType<UpdateGithubRepositoryMetadataTask>().single()
 
             dependsOn(generateLicense, generateReadme, publish, distribute)
             generateReadme.mustRunAfter(generateLicense)
-            rootProject.tasks.findByName(publish)?.mustRunAfter(generateReadme)
+            tasks.findByName(publish)?.mustRunAfter(generateReadme)
             distribute.mustRunAfter(publish)
 
             finalizedBy(updateGithubRepositoryMetadata)

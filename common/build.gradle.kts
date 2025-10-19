@@ -18,7 +18,7 @@ dependencies {
 
 if (true) {
     group = "io.github.diskria"
-    version = "3.5.12"
+    version = "3.5.13"
     publishing {
         publications.withType<MavenPublication> {
             artifactId = "projektor-common"
