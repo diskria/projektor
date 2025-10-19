@@ -4,5 +4,7 @@ plugins {
 }
 
 projekt {
-    gradlePlugin()
+    gradlePlugin {
+        isSettingsPlugin = true
+    }
 }

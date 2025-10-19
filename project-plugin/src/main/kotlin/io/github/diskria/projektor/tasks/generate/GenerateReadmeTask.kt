@@ -6,9 +6,9 @@ import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.generics.joinBySpace
 import io.github.diskria.projektor.ProjektorGradlePlugin
+import io.github.diskria.projektor.common.extensions.getMetadataExtra
 import io.github.diskria.projektor.common.projekt.metadata.AboutMetadata
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
-import io.github.diskria.projektor.extensions.getMetadata
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.readme.MarkdownHelper
 import io.github.diskria.projektor.readme.shields.static.LicenseShield
@@ -23,7 +23,7 @@ import org.gradle.api.tasks.TaskAction
 abstract class GenerateReadmeTask : DefaultTask() {
 
     @get:Internal
-    abstract val metadata: Property<ProjektMetadata>
+    abstract val metadata: Property<ProjektMetadataExtra>
 
     @get:Internal
     abstract val repositoryDirectory: DirectoryProperty
@@ -34,7 +34,7 @@ abstract class GenerateReadmeTask : DefaultTask() {
     init {
         group = ProjektorGradlePlugin.TASK_GROUP
 
-        metadata.convention(project.getMetadata())
+        metadata.convention(project.getMetadataExtra())
         repositoryDirectory.convention(project.layout.projectDirectory)
         outputFile.convention(project.getFile(OUTPUT_FILE_NAME))
     }

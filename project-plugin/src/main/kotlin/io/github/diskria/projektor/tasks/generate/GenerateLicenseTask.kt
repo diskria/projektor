@@ -3,8 +3,8 @@ package io.github.diskria.projektor.tasks.generate
 import io.github.diskria.gradle.utils.extensions.getFile
 import io.github.diskria.kotlin.shell.dsl.GitShell
 import io.github.diskria.projektor.ProjektorGradlePlugin
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
-import io.github.diskria.projektor.extensions.getMetadata
+import io.github.diskria.projektor.common.extensions.getMetadataExtra
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.licenses.License
 import io.ktor.client.*
@@ -23,7 +23,7 @@ import org.gradle.api.tasks.TaskAction
 abstract class GenerateLicenseTask : DefaultTask() {
 
     @get:Internal
-    abstract val metadata: Property<ProjektMetadata>
+    abstract val metadata: Property<ProjektMetadataExtra>
 
     @get:Internal
     abstract val repositoryDirectory: DirectoryProperty
@@ -34,7 +34,7 @@ abstract class GenerateLicenseTask : DefaultTask() {
     init {
         group = ProjektorGradlePlugin.TASK_GROUP
 
-        metadata.convention(project.getMetadata())
+        metadata.convention(project.getMetadataExtra())
         repositoryDirectory.convention(project.layout.projectDirectory)
         outputFile.convention(project.getFile(OUTPUT_FILE_NAME))
     }
@@ -70,7 +70,7 @@ abstract class GenerateLicenseTask : DefaultTask() {
         }
     }
 
-    private suspend fun getLicenseText(metadata: ProjektMetadata, license: License): String =
+    private suspend fun getLicenseText(metadata: ProjektMetadataExtra, license: License): String =
         HttpClient(CIO).use { client ->
             val template = client.get(license.templateUrl).bodyAsText()
             license.fillTemplate(template, metadata)

@@ -1,13 +1,7 @@
 package io.github.diskria.projektor.extensions
 
-import io.github.diskria.projektor.common.projekt.ProjektType.*
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
+import io.github.diskria.projektor.extensions.mappers.mapToModel
 
-fun ProjektMetadata.getId(): String =
-    when (type) {
-        GRADLE_PLUGIN -> TODO()
-        KOTLIN_LIBRARY -> TODO()
-        ANDROID_LIBRARY -> TODO()
-        ANDROID_APPLICATION -> TODO()
-        MINECRAFT_MOD -> TODO()
-    }
+fun ProjektMetadataExtra.getHomepage(): String =
+    publishingTarget.mapToModel().getHomepage(this)

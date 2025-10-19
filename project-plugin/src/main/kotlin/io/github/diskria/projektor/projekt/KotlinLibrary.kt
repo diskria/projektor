@@ -7,10 +7,7 @@ import io.github.diskria.projektor.configurations.KotlinLibraryConfiguration
 import io.github.diskria.projektor.projekt.common.IProjekt
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-open class KotlinLibrary(
-    projekt: IProjekt,
-    val config: KotlinLibraryConfiguration
-) : IProjekt by projekt {
+open class KotlinLibrary(projekt: IProjekt, val config: KotlinLibraryConfiguration) : IProjekt by projekt {
 
     override val jvmTarget: JvmTarget
         get() = config.jvmTarget ?: super.jvmTarget

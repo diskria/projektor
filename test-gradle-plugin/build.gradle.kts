@@ -15,3 +15,9 @@ tasks.register<Sync>(taskName) {
     }
     into(getBuildDirectory(LocalMavenBasedPublishingTarget.LOCAL_MAVEN_DIRECTORY_NAME))
 }
+
+tasks.register<Task>("publishPlugins") {
+    childProjects.forEach { (projectName, project) ->
+        dependsOn(":$projectName:publishPlugins")
+    }
+}

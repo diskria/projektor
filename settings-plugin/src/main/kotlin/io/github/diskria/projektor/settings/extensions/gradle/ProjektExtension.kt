@@ -1,14 +1,16 @@
 package io.github.diskria.projektor.settings.extensions.gradle
 
 import io.github.diskria.gradle.utils.extensions.common.gradleError
+import io.github.diskria.kotlin.utils.extensions.appendPackageName
 import io.github.diskria.kotlin.utils.extensions.common.`Title Case`
+import io.github.diskria.kotlin.utils.extensions.common.`dot․case`
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.projektor.common.extensions.gradle.AbstractProjektExtension
 import io.github.diskria.projektor.common.licenses.LicenseType
 import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.common.projekt.metadata.AboutMetadata
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
 import io.github.diskria.projektor.common.projekt.metadata.github.GithubRepository
 import io.github.diskria.projektor.common.publishing.PublishingTargetType
 import io.github.diskria.projektor.settings.configurations.*
@@ -29,10 +31,13 @@ open class ProjektExtension @Inject constructor(
 
     private var projektType: ProjektType? = null
 
-    fun buildMetadata(repository: GithubRepository, about: AboutMetadata): ProjektMetadata =
-        ProjektMetadata(
+    fun buildMetadata(repository: GithubRepository, about: AboutMetadata): ProjektMetadataExtra =
+        ProjektMetadataExtra(
             type = projektType ?: gradleError("Projekt type not initialized"),
             repository = repository,
+            packageNameBase = repository.owner.namespace.appendPackageName(
+                repository.name.setCase(`kebab-case`, `dot․case`)
+            ),
             name = repository.name.setCase(`kebab-case`, `Title Case`),
             version = requireProperty(version, ::version.name),
             license = requireProperty(license, ::license.name),

@@ -6,7 +6,6 @@ import io.github.diskria.gradle.utils.extensions.displayName
 import io.github.diskria.gradle.utils.extensions.ensurePluginApplied
 import io.github.diskria.gradle.utils.extensions.registerTask
 import io.github.diskria.gradle.utils.extensions.runExtension
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import net.fabricmc.loom.api.LoomGradleExtensionAPI
 import net.fabricmc.loom.api.fabricapi.FabricApiExtension
 import org.gradle.api.Project
@@ -15,7 +14,6 @@ import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.SourceSetContainer
-import org.gradle.internal.extensions.core.extra
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
@@ -70,9 +68,4 @@ inline fun <reified T : Task> Project.ensureTaskRegistered(noinline configuratio
 private inline fun <reified E : Any> Project.withPluginExtension(pluginId: String, block: E.() -> Unit) {
     ensurePluginApplied(pluginId)
     runExtension<E>(block)
-}
-
-fun Project.getMetadata(): ProjektMetadata {
-    val projektMetadata: ProjektMetadata by rootProject.extra.properties
-    return projektMetadata
 }

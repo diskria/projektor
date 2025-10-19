@@ -8,8 +8,8 @@ import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
 import io.github.diskria.projektor.Environment
 import io.github.diskria.projektor.ProjektorGradlePlugin
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
-import io.github.diskria.projektor.extensions.getMetadata
+import io.github.diskria.projektor.common.extensions.getMetadataExtra
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
 import io.github.diskria.projektor.publishing.maven.common.LocalMavenBasedPublishingTarget
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
@@ -23,7 +23,7 @@ import java.io.File
 abstract class DeployMavenToGithubPagesTask : Sync() {
 
     @get:Internal
-    abstract val metadata: Property<ProjektMetadata>
+    abstract val metadata: Property<ProjektMetadataExtra>
 
     @get:InputDirectory
     abstract val repositoryDirectory: DirectoryProperty
@@ -31,7 +31,7 @@ abstract class DeployMavenToGithubPagesTask : Sync() {
     init {
         group = ProjektorGradlePlugin.TASK_GROUP
 
-        metadata.convention(project.getMetadata())
+        metadata.convention(project.getMetadataExtra())
         repositoryDirectory.convention(project.layout.projectDirectory)
 
         from(project.getBuildDirectory(LocalMavenBasedPublishingTarget.LOCAL_MAVEN_DIRECTORY_NAME))

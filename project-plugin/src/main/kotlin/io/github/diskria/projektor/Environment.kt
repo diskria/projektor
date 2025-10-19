@@ -16,5 +16,7 @@ object Environment {
         val gpgPassphrase: String by autoNamed.environmentVariable(isRequired = true)
         val sonatypeUsername: String by autoNamed.environmentVariable(isRequired = true)
         val sonatypePassword: String by autoNamed.environmentVariable(isRequired = true)
+        val gradlePublishKey: String by autoNamed.environmentVariable(isRequired = true)
+        val gradlePublishSecret: String by autoNamed.environmentVariable(isRequired = true)
     }
 }

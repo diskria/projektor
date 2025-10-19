@@ -8,7 +8,6 @@ import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.configurations.MinecraftModConfiguration
 import io.github.diskria.projektor.extensions.mappers.toJvmTarget
 import io.github.diskria.projektor.minecraft.loaders.ModLoader
-import io.github.diskria.projektor.minecraft.utils.ModrinthUtils
 import io.github.diskria.projektor.minecraft.version.MinecraftVersion
 import io.github.diskria.projektor.minecraft.version.getMinJavaVersion
 import io.github.diskria.projektor.minecraft.version.getVersion
@@ -24,7 +23,6 @@ open class MinecraftMod(
 
     val id: String = metadata.repository.name
     val mixinsConfigFileName: String = fileName(id, "mixins", Constants.File.Extension.JSON)
-    val modrinthUrl: String = ModrinthUtils.getModUrl(id)
 
     override val jvmTarget: JvmTarget
         get() = minecraftVersion.getMinJavaVersion().toJvmTarget()

@@ -21,7 +21,7 @@ open class GradlePluginConfigurator(
         val gradlePlugin = GradlePlugin(projekt, config)
         gradlePlugin {
             website.set(gradlePlugin.metadata.repository.getUrl())
-            vcsUrl.set(gradlePlugin.metadata.repository.getPath(isVcs = true))
+            vcsUrl.set(gradlePlugin.metadata.repository.getUrl(isVcs = true))
             plugins {
                 create(gradlePlugin.id) {
                     id = gradlePlugin.id

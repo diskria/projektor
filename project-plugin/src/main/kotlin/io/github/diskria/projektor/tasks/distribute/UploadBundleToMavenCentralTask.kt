@@ -7,7 +7,7 @@ import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.Environment
 import io.github.diskria.projektor.ProjektorGradlePlugin
-import io.github.diskria.projektor.extensions.getMetadata
+import io.github.diskria.projektor.common.extensions.getMetadataExtra
 import io.github.diskria.projektor.extensions.mappers.mapToEnum
 import io.github.diskria.projektor.publishing.maven.MavenCentral
 import io.github.diskria.projektor.publishing.maven.common.LocalMavenBasedPublishingTarget
@@ -27,7 +27,7 @@ abstract class UploadBundleToMavenCentralTask : Zip() {
     init {
         group = ProjektorGradlePlugin.TASK_GROUP
 
-        val metadata = project.getMetadata()
+        val metadata = project.getMetadataExtra()
         archiveBaseName.set(metadata.repository.name)
         archiveVersion.set(metadata.version)
 

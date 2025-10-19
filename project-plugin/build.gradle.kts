@@ -16,6 +16,7 @@ dependencies {
     implementation(libs.kotlin.serialization.plugin)
     implementation(libs.neoforge.moddev.plugin)
     implementation(libs.modrinth.minotaur.plugin)
+    implementation(libs.gradle.plugin.portal.publish.plugin)
 
     constraints {
         // Override vulnerable transitive dependency (Okio < 3.4.0, CVE-2023-3635)

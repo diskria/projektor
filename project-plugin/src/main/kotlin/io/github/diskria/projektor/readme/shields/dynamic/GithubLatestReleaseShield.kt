@@ -1,16 +1,14 @@
 package io.github.diskria.projektor.readme.shields.dynamic
 
-import io.github.diskria.projektor.common.projekt.metadata.github.GithubRepository
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
 import io.github.diskria.projektor.common.repository.RepositoryHost
-import io.github.diskria.projektor.publishing.common.PublishingTarget
 
 open class GithubLatestReleaseShield(
-    repository: GithubRepository,
-    publishingTarget: PublishingTarget,
-    url: String
-) : DynamicShield(
-    pathParts = listOf(RepositoryHost.GITHUB.shortName, "v", "tag", repository.owner.name, repository.name),
-    extraParameters = listOf("sort" to "semver"),
-    publishingTarget = publishingTarget,
-    url = url,
-)
+    metadata: ProjektMetadataExtra
+) : DynamicShield(metadata, listOf("sort" to "semver")) {
+
+    override fun getPathParts(): List<String> {
+        val repository = metadata.repository
+        return listOf(RepositoryHost.GITHUB.shortName, "v", "tag", repository.owner.name, repository.name)
+    }
+}

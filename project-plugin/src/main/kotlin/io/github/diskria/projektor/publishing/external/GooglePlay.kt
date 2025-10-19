@@ -4,7 +4,7 @@ import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.kotlin.utils.extensions.common.`Sentence case`
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
 import io.github.diskria.projektor.projekt.AndroidApplication
 import io.github.diskria.projektor.projekt.common.IProjekt
 import io.github.diskria.projektor.publishing.external.common.ExternalPublishingTarget
@@ -14,19 +14,19 @@ import org.gradle.api.Project
 data object GooglePlay : ExternalPublishingTarget() {
 
     override fun configurePublishing(projekt: IProjekt, project: Project) = with(project) {
-        val application = projekt.asAndroidApplication()
+        val androidApplication = projekt.asAndroidApplication()
         TODO()
     }
 
-    override fun configureDistributeTask(project: Project) = TODO()
-
     override fun getPublishTaskName(): String = TODO()
 
-    override fun getHomepage(metadata: ProjektMetadata): String =
+    override fun getHomepage(metadata: ProjektMetadataExtra): String =
         buildUrl("play.google.com") {
             path("store", "apps", "details")
-            parameters.append("id", TODO())
+            parameters.append("id", metadata.packageNameBase)
         }
+
+    override fun configureDistributeTask(project: Project) = TODO()
 
     private fun IProjekt.asAndroidApplication(): AndroidApplication =
         this as? AndroidApplication ?: gradleError(

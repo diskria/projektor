@@ -1,6 +1,6 @@
 package io.github.diskria.projektor.publishing.common
 
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
 import io.github.diskria.projektor.extensions.ensureTaskRegistered
 import io.github.diskria.projektor.projekt.common.IProjekt
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
@@ -26,10 +26,13 @@ abstract class PublishingTarget {
             val generateReadme = tasks.withType<GenerateReadmeTask>().single()
             val updateGithubRepositoryMetadata = tasks.withType<UpdateGithubRepositoryMetadataTask>().single()
 
-            dependsOn(generateLicense, generateReadme, publish, distribute)
+            dependsOn(generateLicense, generateReadme, publish)
+            distribute?.let {
+                dependsOn(it)
+                it.mustRunAfter(publish)
+            }
             generateReadme.mustRunAfter(generateLicense)
             tasks.findByName(publish)?.mustRunAfter(generateReadme)
-            distribute.mustRunAfter(publish)
 
             finalizedBy(updateGithubRepositoryMetadata)
         }
@@ -37,11 +40,11 @@ abstract class PublishingTarget {
 
     abstract fun configurePublishing(projekt: IProjekt, project: Project)
 
-    abstract fun configureDistributeTask(project: Project): Task
-
     abstract fun getPublishTaskName(): String
 
-    abstract fun getHomepage(metadata: ProjektMetadata): String
+    abstract fun getHomepage(metadata: ProjektMetadataExtra): String
 
-    open fun getReadmeShield(metadata: ProjektMetadata): ReadmeShield? = null
+    open fun configureDistributeTask(project: Project): Task? = null
+
+    open fun getReadmeShield(metadata: ProjektMetadataExtra): ReadmeShield? = null
 }

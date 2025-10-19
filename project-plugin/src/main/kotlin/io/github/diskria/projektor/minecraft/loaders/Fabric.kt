@@ -5,6 +5,7 @@ import io.github.diskria.gradle.utils.extensions.getFile
 import io.github.diskria.gradle.utils.extensions.getFileNames
 import io.github.diskria.gradle.utils.extensions.resolveCatalogVersion
 import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.kotlin.utils.extensions.appendPath
 import io.github.diskria.kotlin.utils.extensions.capitalizeFirstChar
 import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.common.modifyUnless
@@ -90,7 +91,7 @@ data object Fabric : ModLoader {
                     }
                 }
             }
-            accessWidenerPath.set(file("src/main/resources/" + fileName(mod.id, "accesswidener")))
+            accessWidenerPath.set(file("src/main/resources".appendPath(fileName(mod.id, "accesswidener"))))
         }
         if (datagenClasses.isNotEmpty()) {
             loom {
@@ -143,7 +144,7 @@ data object Fabric : ModLoader {
             duplicatesStrategy = DuplicatesStrategy.INCLUDE
             from(generateFabricConfigTask)
             from(rootProject.getFile(fileName("icon", Constants.File.Extension.PNG))) {
-                into("assets/${mod.id}/")
+                into("assets".appendPath(mod.id))
             }
         }
     }

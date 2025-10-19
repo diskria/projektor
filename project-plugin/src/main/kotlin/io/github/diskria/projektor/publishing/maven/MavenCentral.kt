@@ -5,7 +5,7 @@ import io.github.diskria.kotlin.utils.extensions.common.`Sentence case`
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.Environment
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
 import io.github.diskria.projektor.extensions.ensureTaskRegistered
 import io.github.diskria.projektor.extensions.signing
 import io.github.diskria.projektor.projekt.AndroidLibrary
@@ -69,16 +69,16 @@ data object MavenCentral : LocalMavenBasedPublishingTarget() {
         }
     }
 
-    override fun configureDistributeTask(project: Project): Task =
-        project.rootProject.ensureTaskRegistered<UploadBundleToMavenCentralTask>()
-
-    override fun getHomepage(metadata: ProjektMetadata): String =
+    override fun getHomepage(metadata: ProjektMetadataExtra): String =
         buildUrl("central.sonatype.com") {
             path("artifact", metadata.repository.owner.namespace, metadata.repository.name)
         }
 
-    override fun getReadmeShield(metadata: ProjektMetadata): ReadmeShield =
-        MavenCentralShield(metadata.repository)
+    override fun configureDistributeTask(project: Project): Task =
+        project.rootProject.ensureTaskRegistered<UploadBundleToMavenCentralTask>()
+
+    override fun getReadmeShield(metadata: ProjektMetadataExtra): ReadmeShield =
+        MavenCentralShield(metadata)
 
     private fun IProjekt.getComponentName(): String =
         when (this) {

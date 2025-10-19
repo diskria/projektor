@@ -2,7 +2,7 @@ package io.github.diskria.projektor.publishing.maven
 
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.projektor.Environment
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
 import io.github.diskria.projektor.projekt.common.IProjekt
 import io.github.diskria.projektor.publishing.maven.common.MavenPublishingTarget
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
@@ -31,13 +31,13 @@ data object GithubPackages : MavenPublishingTarget() {
         }
     }
 
-    override fun configureDistributeTask(project: Project) = TODO()
-
-    override fun getHomepage(metadata: ProjektMetadata): String =
+    override fun getHomepage(metadata: ProjektMetadataExtra): String =
         buildUrl("github.com") {
             path(metadata.repository.owner.name, metadata.repository.name, "packages")
         }
 
-    override fun getReadmeShield(metadata: ProjektMetadata): ReadmeShield =
-        GithubPackagesShield(metadata.repository)
+    override fun configureDistributeTask(project: Project) = TODO()
+
+    override fun getReadmeShield(metadata: ProjektMetadataExtra): ReadmeShield =
+        GithubPackagesShield(metadata)
 }

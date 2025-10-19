@@ -1,15 +1,15 @@
 package io.github.diskria.projektor.projekt.common
 
 import io.github.diskria.projektor.Versions
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
-import io.github.diskria.projektor.extensions.getMetadata
+import io.github.diskria.projektor.common.extensions.getMetadataExtra
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.licenses.License
 import io.github.diskria.projektor.publishing.common.PublishingTarget
 import org.gradle.api.Project
 
 data class Projekt(
-    override val metadata: ProjektMetadata,
+    override val metadata: ProjektMetadataExtra,
     override val license: License,
     override val publishingTarget: PublishingTarget,
     override val javaVersion: Int,
@@ -18,7 +18,7 @@ data class Projekt(
 
     companion object {
         fun of(project: Project): Projekt {
-            val metadata = project.getMetadata()
+            val metadata = project.getMetadataExtra()
             return Projekt(
                 metadata = metadata,
                 license = metadata.license.mapToModel(),

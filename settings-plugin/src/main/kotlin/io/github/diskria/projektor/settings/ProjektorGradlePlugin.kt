@@ -10,10 +10,10 @@ import io.github.diskria.kotlin.utils.extensions.common.buildEmail
 import io.github.diskria.kotlin.utils.extensions.common.modifyIf
 import io.github.diskria.kotlin.utils.properties.common.autoNamed
 import io.github.diskria.kotlin.utils.properties.common.environmentVariable
-import io.github.diskria.projektor.common.extensions.setMetadata
+import io.github.diskria.projektor.common.extensions.putMetadataExtra
 import io.github.diskria.projektor.common.projekt.OwnerType
 import io.github.diskria.projektor.common.projekt.metadata.AboutMetadata
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
 import io.github.diskria.projektor.common.projekt.metadata.github.GithubOwner
 import io.github.diskria.projektor.common.projekt.metadata.github.GithubRepository
 import io.github.diskria.projektor.settings.extensions.gradle.ProjektExtension
@@ -46,7 +46,7 @@ class ProjektorGradlePlugin : Plugin<Settings> {
         }
     }
 
-    private fun configureRootProject(settings: Settings, metadata: ProjektMetadata) = with(settings) {
+    private fun configureRootProject(settings: Settings, metadata: ProjektMetadataExtra) = with(settings) {
         val owner = metadata.repository.owner
         rootProject.name = metadata.name.modifyIf(owner.type == OwnerType.BRAND) {
             owner.name + Constants.Char.SPACE + it
@@ -55,7 +55,7 @@ class ProjektorGradlePlugin : Plugin<Settings> {
             description = metadata.description
             version = metadata.version
 
-            setMetadata(metadata)
+            putMetadataExtra(metadata)
         }
     }
 
