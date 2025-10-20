@@ -1,5 +1,5 @@
 import io.github.diskria.projektor.common.licenses.LicenseType.MIT
-import io.github.diskria.projektor.common.publishing.PublishingTargetType.GITHUB_PAGES
+import io.github.diskria.projektor.common.publishing.PublishingTargetType.GRADLE_PLUGIN_PORTAL
 
 pluginManagement {
     repositories {
@@ -15,7 +15,7 @@ plugins {
 projekt {
     version = "0.1.0"
     license = MIT
-    publish = GITHUB_PAGES
+    publish = GRADLE_PLUGIN_PORTAL
 
     gradlePlugin {
         versionCatalogPath = "../gradle/libs.versions.toml"

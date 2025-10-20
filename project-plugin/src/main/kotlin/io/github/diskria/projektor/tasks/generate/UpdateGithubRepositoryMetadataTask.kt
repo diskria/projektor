@@ -85,9 +85,9 @@ abstract class UpdateGithubRepositoryMetadataTask : DefaultTask() {
                 header(
                     HttpHeaders.UserAgent,
                     buildString {
-                        append(ProjektBuildConfig.PLUGIN_NAME)
+                        append("Projektor")
                         append(Constants.Char.SLASH)
-                        append(ProjektBuildConfig.PLUGIN_VERSION)
+                        append("1.0")
                         append(Constants.Char.SPACE)
                         append(
                             buildString {

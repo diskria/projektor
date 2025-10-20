@@ -1,6 +1,7 @@
 package io.github.diskria.projektor.publishing.external
 
 import io.github.diskria.gradle.utils.extensions.common.gradleError
+import io.github.diskria.gradle.utils.extensions.ensurePluginApplied
 import io.github.diskria.kotlin.utils.extensions.common.`Sentence case`
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
@@ -16,6 +17,7 @@ data object GradlePluginPortal : ExternalPublishingTarget() {
 
     override fun configurePublishing(projekt: Projekt, project: Project) {
         val gradlePlugin = projekt.asGradlePlugin()
+        project.ensurePluginApplied("com.gradle.plugin-publish")
         if (Environment.isCI()) {
             listOf(Environment.Secrets.gradlePublishKey, Environment.Secrets.gradlePublishSecret)
         }

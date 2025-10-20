@@ -1,6 +1,5 @@
 package io.github.diskria.projektor
 
-import io.github.diskria.gradle.utils.extensions.ensurePluginApplied
 import io.github.diskria.gradle.utils.extensions.registerExtension
 import io.github.diskria.projektor.extensions.ensureTaskRegistered
 import io.github.diskria.projektor.extensions.gradle.ProjektExtension
@@ -16,8 +15,6 @@ class ProjektorGradlePlugin : Plugin<Project> {
         val extension = project.registerExtension<ProjektExtension>()
         extension.onConfiguratorReady { it.configure(project) }
 
-        project.ensurePluginApplied("com.gradle.plugin-publish")
-
         project.afterEvaluate {
             extension.ensureConfigured()
         }
@@ -30,6 +27,6 @@ class ProjektorGradlePlugin : Plugin<Project> {
     }
 
     companion object {
-        val TASK_GROUP: String = ProjektBuildConfig.PLUGIN_NAME.lowercase()
+        val TASK_GROUP: String = "projektor"
     }
 }
