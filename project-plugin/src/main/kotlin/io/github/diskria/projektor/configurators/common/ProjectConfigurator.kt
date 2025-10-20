@@ -118,27 +118,5 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
             }
         }
         projekt.publishingTarget.configure(projekt, project)
-
-        val rootProject = project.rootProject
-        val publishingTarget = rootProject.getMetadataExtra().publishingTarget.mapToModel()
-        val publishTaskName = publishingTarget.getPublishTaskName()
-        if (rootProject.tasks.findByPath(publishTaskName) == null) {
-            val publishTask = project.tasks.named(publishTaskName).get()
-            val children = rootProject.childProjects.values
-            val mergePublishTask = with(rootProject.tasks) {
-                when (publishingTarget) {
-                    is LocalMavenBasedPublishingTarget -> register<Sync>(publishTaskName) {
-                        from(children.map { it.getBuildDirectory(LOCAL_MAVEN_DIRECTORY_NAME) })
-                        into(rootProject.getBuildDirectory(LOCAL_MAVEN_DIRECTORY_NAME))
-                    }
-
-                    else -> register(publishTaskName)
-                }
-            }
-            mergePublishTask.configure {
-                group = publishTask.group
-                dependsOn(children.map { it.tasks.named(publishTaskName) })
-            }
-        }
     }
 }

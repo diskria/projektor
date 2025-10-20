@@ -24,7 +24,7 @@ data class GithubRepo(val owner: String, val name: String) {
         }
 
     val developerName: String
-        get() = name.lowercase().modifyIf(ownerType == OwnerType.DOMAIN) { it.substringBefore(Constants.Char.HYPHEN) }
+        get() = owner.lowercase().modifyIf(ownerType == OwnerType.DOMAIN) { it.substringBefore(Constants.Char.HYPHEN) }
 
     fun getUrl(isVcs: Boolean = false): String =
         buildGithubUrl(isVcs).toString()
