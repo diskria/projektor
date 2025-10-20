@@ -3,7 +3,7 @@ package io.github.diskria.projektor.publishing.maven
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.projektor.Environment
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
-import io.github.diskria.projektor.projekt.common.IProjekt
+import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.publishing.maven.common.MavenPublishingTarget
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
 import io.github.diskria.projektor.readme.shields.dynamic.GithubPackagesShield
@@ -17,14 +17,14 @@ data object GithubPackages : MavenPublishingTarget() {
 
     override fun configureMaven(
         repositories: RepositoryHandler,
-        projekt: IProjekt,
+        projekt: Projekt,
         project: Project,
     ): MavenArtifactRepository = with(repositories) {
-        maven(projekt.metadata.repository.getPackagesMavenUrl()) {
+        maven(projekt.repository.getPackagesMavenUrl()) {
             name = getRepositoryName()
             if (Environment.isCI()) {
                 credentials {
-                    username = projekt.metadata.repository.owner.developerName
+                    username = projekt.repository.owner.developerName
                     password = Environment.Secrets.githubPackagesToken
                 }
             }

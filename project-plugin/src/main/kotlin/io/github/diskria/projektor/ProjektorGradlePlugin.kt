@@ -14,9 +14,7 @@ class ProjektorGradlePlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         val extension = project.registerExtension<ProjektExtension>()
-        extension.onConfiguratorReady { configurator ->
-            configurator.configure(project)
-        }
+        extension.onConfiguratorReady { it.configure(project) }
 
         project.ensurePluginApplied("com.gradle.plugin-publish")
 

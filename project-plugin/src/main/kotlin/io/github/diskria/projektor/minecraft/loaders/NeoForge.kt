@@ -11,7 +11,7 @@ data object NeoForge : ModLoader {
     override fun getConfigFilePath(): String =
         "META-INF".appendPath(fileName("mods", Constants.File.Extension.TOML))
 
-    override fun configureMod(project: Project, mod: MinecraftMod) = with(project) {
+    override fun configure(project: Project, mod: MinecraftMod) = with(project) {
         TODO()
     }
 }

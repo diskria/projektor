@@ -1,6 +1,9 @@
 package io.github.diskria.projektor.projekt
 
 import io.github.diskria.projektor.configurations.AndroidLibraryConfiguration
-import io.github.diskria.projektor.projekt.common.IProjekt
+import io.github.diskria.projektor.projekt.common.AbstractProjekt
+import io.github.diskria.projektor.projekt.common.Projekt
 
-open class AndroidLibrary(projekt: IProjekt, val config: AndroidLibraryConfiguration) : IProjekt by projekt
+class AndroidLibrary(projekt: Projekt, val config: AndroidLibraryConfiguration) : AbstractProjekt(projekt) {
+
+}

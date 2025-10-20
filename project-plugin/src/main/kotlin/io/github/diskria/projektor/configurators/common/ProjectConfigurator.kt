@@ -7,7 +7,6 @@ import io.github.diskria.projektor.common.configurators.IProjektConfigurator
 import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.projekt.GradlePlugin
-import io.github.diskria.projektor.projekt.common.IProjekt
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.tasks.UnarchiveArtifactTask
 import io.github.diskria.projektor.tasks.generate.GenerateLicenseTask
@@ -22,17 +21,14 @@ import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-abstract class ProjectConfigurator<T : IProjekt> : IProjektConfigurator {
+abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
 
-    fun configure(project: Project): T {
-        val projekt = configureProject(project, Projekt.of(project))
-        applyCommonConfiguration(project, projekt)
-        return projekt
-    }
+    fun configure(project: Project): T =
+        configureProject(project).apply { applyCommonConfiguration(project, this) }
 
-    abstract fun configureProject(project: Project, projekt: IProjekt): T
+    abstract fun configureProject(project: Project): T
 
-    private fun applyCommonConfiguration(project: Project, projekt: IProjekt) = with(project) {
+    private fun applyCommonConfiguration(project: Project, projekt: Projekt) = with(project) {
         if (projekt !is GradlePlugin) {
             ensurePluginApplied("org.jetbrains.kotlin.jvm")
         }
@@ -56,10 +52,10 @@ abstract class ProjectConfigurator<T : IProjekt> : IProjektConfigurator {
                 showStandardStreams = true
             }
         }
-        group = projekt.metadata.repository.owner.namespace
+        group = projekt.repository.owner.namespace
         version = projekt.archiveVersion
         base {
-            archivesName.assign(projekt.metadata.repository.name)
+            archivesName.assign(projekt.repository.name)
         }
         java {
             toolchain {
@@ -87,7 +83,7 @@ abstract class ProjectConfigurator<T : IProjekt> : IProjektConfigurator {
         tasks.named<Jar>("jar") {
             dependsOn(tasks.withType<GenerateLicenseTask>())
             from(GenerateLicenseTask.OUTPUT_FILE_NAME) {
-                rename { it + Constants.Char.UNDERSCORE + projekt.metadata.repository.name }
+                rename { it + Constants.Char.UNDERSCORE + projekt.repository.name }
             }
             archiveVersion.set(projekt.archiveVersion)
         }

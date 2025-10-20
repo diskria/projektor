@@ -1,15 +1,11 @@
 package io.github.diskria.projektor.configurators
 
 import io.github.diskria.kotlin.utils.extensions.common.`Train-Case`
-import io.github.diskria.kotlin.utils.extensions.mappers.toEnum
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
-import io.github.diskria.projektor.common.minecraft.ModLoaderType
 import io.github.diskria.projektor.configurations.MinecraftModConfiguration
 import io.github.diskria.projektor.configurators.common.ProjectConfigurator
-import io.github.diskria.projektor.extensions.mappers.mapToModel
-import io.github.diskria.projektor.minecraft.version.MinecraftVersion
+import io.github.diskria.projektor.extensions.toProjekt
 import io.github.diskria.projektor.projekt.MinecraftMod
-import io.github.diskria.projektor.projekt.common.IProjekt
 import org.gradle.api.Project
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.named
@@ -19,13 +15,11 @@ open class MinecraftModConfigurator(
     val config: MinecraftModConfiguration = MinecraftModConfiguration()
 ) : ProjectConfigurator<MinecraftMod>() {
 
-    override fun configureProject(project: Project, projekt: IProjekt): MinecraftMod = with(project) {
-        val loader = projectDir.parentFile.name.toEnum<ModLoaderType>().mapToModel()
-        val minecraftVersion = MinecraftVersion.of(projectDir.name)
-        val minecraftMod = MinecraftMod(projekt, config, loader, minecraftVersion)
+    override fun configureProject(project: Project): MinecraftMod = with(project) {
+        val minecraftMod = project.toProjekt().toMinecraftMod(project, config)
         tasks.named<Jar>("jar") {
             manifest {
-                val developerName = minecraftMod.metadata.repository.owner.developerName
+                val developerName = minecraftMod.repository.owner.developerName
 
                 val specificationVersion by 1.toString().autoNamedProperty(`Train-Case`)
                 val specificationTitle by minecraftMod.id.autoNamedProperty(`Train-Case`)
@@ -48,7 +42,7 @@ open class MinecraftModConfigurator(
                 )
             }
         }
-        minecraftMod.loader.configureMod(project, minecraftMod)
+        minecraftMod.loader.configure(project, minecraftMod)
         return minecraftMod
     }
 }

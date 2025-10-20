@@ -7,7 +7,7 @@ import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
 import io.github.diskria.projektor.extensions.modrinth
 import io.github.diskria.projektor.projekt.MinecraftMod
-import io.github.diskria.projektor.projekt.common.IProjekt
+import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.publishing.external.common.ExternalPublishingTarget
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
 import io.github.diskria.projektor.readme.shields.dynamic.ModrinthShield
@@ -16,10 +16,10 @@ import org.gradle.api.Project
 
 data object Modrinth : ExternalPublishingTarget() {
 
-    override fun configurePublishing(projekt: IProjekt, project: Project) = with(project) {
+    override fun configurePublishing(projekt: Projekt, project: Project) = with(project) {
         val mod = projekt as? MinecraftMod ?: gradleError(
             "Only  projects supported for publishing to Modrinth" +
-                    ", but got " + projekt.metadata.type.getName(`Sentence case`)
+                    ", but got " + projekt.type.getName(`Sentence case`)
         )
         modrinth {
             projectId.set(mod.id)
@@ -39,9 +39,9 @@ data object Modrinth : ExternalPublishingTarget() {
     override fun getReadmeShield(metadata: ProjektMetadataExtra): ReadmeShield =
         ModrinthShield(metadata)
 
-    private fun IProjekt.asMinecraftMod(): MinecraftMod =
+    private fun Projekt.asMinecraftMod(): MinecraftMod =
         this as? MinecraftMod ?: gradleError(
             "Only Minecraft mod projects supported for publishing to Modrinth" +
-                    ", but got " + metadata.type.getName(`Sentence case`)
+                    ", but got " + type.getName(`Sentence case`)
         )
 }

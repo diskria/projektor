@@ -7,14 +7,14 @@ import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.Environment
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
 import io.github.diskria.projektor.projekt.GradlePlugin
-import io.github.diskria.projektor.projekt.common.IProjekt
+import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.publishing.external.common.ExternalPublishingTarget
 import io.ktor.http.*
 import org.gradle.api.Project
 
 data object GradlePluginPortal : ExternalPublishingTarget() {
 
-    override fun configurePublishing(projekt: IProjekt, project: Project) {
+    override fun configurePublishing(projekt: Projekt, project: Project) {
         val gradlePlugin = projekt.asGradlePlugin()
         if (Environment.isCI()) {
             listOf(Environment.Secrets.gradlePublishKey, Environment.Secrets.gradlePublishSecret)
@@ -29,9 +29,9 @@ data object GradlePluginPortal : ExternalPublishingTarget() {
             path("plugin", metadata.packageNameBase)
         }
 
-    private fun IProjekt.asGradlePlugin(): GradlePlugin =
+    private fun Projekt.asGradlePlugin(): GradlePlugin =
         this as? GradlePlugin ?: gradleError(
             "Only Gradle plugin projects supported for publishing to Gradle Plugin Portal" +
-                    ", but got " + metadata.type.getName(`Sentence case`)
+                    ", but got " + type.getName(`Sentence case`)
         )
 }

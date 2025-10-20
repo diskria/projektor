@@ -10,7 +10,7 @@ import io.github.diskria.projektor.extensions.ensureTaskRegistered
 import io.github.diskria.projektor.extensions.signing
 import io.github.diskria.projektor.projekt.AndroidLibrary
 import io.github.diskria.projektor.projekt.KotlinLibrary
-import io.github.diskria.projektor.projekt.common.IProjekt
+import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.publishing.maven.common.LocalMavenBasedPublishingTarget
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
 import io.github.diskria.projektor.readme.shields.dynamic.MavenCentralShield
@@ -25,13 +25,13 @@ data object MavenCentral : LocalMavenBasedPublishingTarget() {
 
     override val shouldCreatePublication: Boolean = true
 
-    override fun configurePublication(publication: MavenPublication, projekt: IProjekt, project: Project) {
-        val repository = projekt.metadata.repository
+    override fun configurePublication(publication: MavenPublication, projekt: Projekt, project: Project) {
+        val repository = projekt.repository
         with(publication) {
             from(project.components[projekt.getComponentName()])
             pom {
-                name.set(projekt.metadata.name)
-                description.set(projekt.metadata.description)
+                name.set(projekt.name)
+                description.set(projekt.description)
                 url.set(repository.getUrl())
                 licenses {
                     license {
@@ -80,13 +80,13 @@ data object MavenCentral : LocalMavenBasedPublishingTarget() {
     override fun getReadmeShield(metadata: ProjektMetadataExtra): ReadmeShield =
         MavenCentralShield(metadata)
 
-    private fun IProjekt.getComponentName(): String =
+    private fun Projekt.getComponentName(): String =
         when (this) {
             is KotlinLibrary -> "java"
             is AndroidLibrary -> "release"
             else -> gradleError(
                 "Only Kotlin library and Android library projects supported for publishing to Maven Central" +
-                        ", but got " + metadata.type.getName(`Sentence case`)
+                        ", but got " + type.getName(`Sentence case`)
             )
         }
 }

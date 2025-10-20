@@ -2,7 +2,7 @@ package io.github.diskria.projektor.publishing.common
 
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
 import io.github.diskria.projektor.extensions.ensureTaskRegistered
-import io.github.diskria.projektor.projekt.common.IProjekt
+import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
 import io.github.diskria.projektor.tasks.ReleaseTask
 import io.github.diskria.projektor.tasks.generate.GenerateLicenseTask
@@ -14,7 +14,7 @@ import org.gradle.kotlin.dsl.withType
 
 abstract class PublishingTarget {
 
-    fun configure(projekt: IProjekt, project: Project) {
+    fun configure(projekt: Projekt, project: Project) {
         configurePublishing(projekt, project)
         val distribute = configureDistributeTask(project)
         val publish = getPublishTaskName()
@@ -38,7 +38,7 @@ abstract class PublishingTarget {
         }
     }
 
-    abstract fun configurePublishing(projekt: IProjekt, project: Project)
+    abstract fun configurePublishing(projekt: Projekt, project: Project)
 
     abstract fun getPublishTaskName(): String
 

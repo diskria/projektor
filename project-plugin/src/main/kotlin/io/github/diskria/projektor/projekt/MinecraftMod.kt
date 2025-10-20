@@ -11,17 +11,18 @@ import io.github.diskria.projektor.minecraft.loaders.ModLoader
 import io.github.diskria.projektor.minecraft.version.MinecraftVersion
 import io.github.diskria.projektor.minecraft.version.getMinJavaVersion
 import io.github.diskria.projektor.minecraft.version.getVersion
-import io.github.diskria.projektor.projekt.common.IProjekt
+import io.github.diskria.projektor.projekt.common.AbstractProjekt
+import io.github.diskria.projektor.projekt.common.Projekt
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-open class MinecraftMod(
-    projekt: IProjekt,
+class MinecraftMod(
+    projekt: Projekt,
     val config: MinecraftModConfiguration,
     val loader: ModLoader,
     val minecraftVersion: MinecraftVersion,
-) : IProjekt by projekt {
+) : AbstractProjekt(projekt) {
 
-    val id: String = metadata.repository.name
+    val id: String = repository.name
     val mixinsConfigFileName: String = fileName(id, "mixins", Constants.File.Extension.JSON)
 
     override val jvmTarget: JvmTarget
@@ -31,7 +32,7 @@ open class MinecraftMod(
         get() = buildString {
             append(loader.getName())
             append(Constants.Char.HYPHEN)
-            append(metadata.version)
+            append(version)
             append(Constants.Char.PLUS)
             append(SHORT_MINECRAFT_NAME)
             append(minecraftVersion.getVersion())
@@ -39,7 +40,7 @@ open class MinecraftMod(
 
     override fun getBuildConfigFields(): List<Property<String>> {
         val modId by id.autoNamedProperty(SCREAMING_SNAKE_CASE)
-        val modName by metadata.name.autoNamedProperty(SCREAMING_SNAKE_CASE)
+        val modName by name.autoNamedProperty(SCREAMING_SNAKE_CASE)
         return listOf(modId, modName)
     }
 

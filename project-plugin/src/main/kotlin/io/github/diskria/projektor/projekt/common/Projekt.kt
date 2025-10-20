@@ -1,31 +1,40 @@
 package io.github.diskria.projektor.projekt.common
 
-import io.github.diskria.projektor.Versions
-import io.github.diskria.projektor.common.extensions.getMetadataExtra
+import io.github.diskria.kotlin.utils.extensions.appendPackageName
+import io.github.diskria.kotlin.utils.extensions.common.`dot․case`
+import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
+import io.github.diskria.kotlin.utils.extensions.common.`path∕case`
+import io.github.diskria.kotlin.utils.extensions.setCase
+import io.github.diskria.kotlin.utils.poet.Property
+import io.github.diskria.kotlin.utils.words.PascalCase
+import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
-import io.github.diskria.projektor.extensions.mappers.mapToModel
+import io.github.diskria.projektor.common.projekt.metadata.github.GithubRepository
+import io.github.diskria.projektor.extensions.mappers.toJvmTarget
 import io.github.diskria.projektor.licenses.License
 import io.github.diskria.projektor.publishing.common.PublishingTarget
-import org.gradle.api.Project
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-data class Projekt(
-    override val metadata: ProjektMetadataExtra,
-    override val license: License,
-    override val publishingTarget: PublishingTarget,
-    override val javaVersion: Int,
-    override val kotlinVersion: String,
-) : IProjekt {
+interface Projekt {
+    val metadata: ProjektMetadataExtra
+    val type: ProjektType
+    val repository: GithubRepository
+    val packageNameBase: String
+    val name: String
+    val version: String
+    val description: String
+    val tags: Set<String>
+    val license: License
+    val publishingTarget: PublishingTarget
+    val javaVersion: Int
+    val kotlinVersion: String
 
-    companion object {
-        fun of(project: Project): Projekt {
-            val metadata = project.getMetadataExtra()
-            return Projekt(
-                metadata = metadata,
-                license = metadata.license.mapToModel(),
-                publishingTarget = metadata.publishingTarget.mapToModel(),
-                javaVersion = Versions.JAVA,
-                kotlinVersion = Versions.KOTLIN,
-            )
-        }
-    }
+    val packageNameSuffix: String? get() = null
+    val jvmTarget: JvmTarget get() = javaVersion.toJvmTarget()
+    val archiveVersion: String get() = version
+    val packageName: String get() = packageNameSuffix?.let { packageNameBase.appendPackageName(it) } ?: packageNameBase
+    val packagePath: String get() = packageName.setCase(`dot․case`, `path∕case`)
+    val classNamePrefix: String get() = repository.name.setCase(`kebab-case`, PascalCase)
+
+    fun getBuildConfigFields(): List<Property<String>> = emptyList()
 }

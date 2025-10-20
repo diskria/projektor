@@ -7,6 +7,6 @@ import org.gradle.api.Project
 
 sealed interface ModLoader {
     fun getConfigFilePath(): String
-    fun configureMod(project: Project, mod: MinecraftMod): Any
+    fun configure(project: Project, mod: MinecraftMod): Any
     fun getName(): String = mapToEnum().getName()
 }

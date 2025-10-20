@@ -6,6 +6,7 @@ import io.github.diskria.gradle.utils.extensions.displayName
 import io.github.diskria.gradle.utils.extensions.ensurePluginApplied
 import io.github.diskria.gradle.utils.extensions.registerTask
 import io.github.diskria.gradle.utils.extensions.runExtension
+import io.github.diskria.projektor.projekt.common.BaseProjekt
 import net.fabricmc.loom.api.LoomGradleExtensionAPI
 import net.fabricmc.loom.api.fabricapi.FabricApiExtension
 import org.gradle.api.Project
@@ -17,6 +18,9 @@ import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
+
+fun Project.toProjekt(): BaseProjekt =
+    BaseProjekt.of(this)
 
 fun Project.base(block: BasePluginExtension.() -> Unit) {
     runExtension<BasePluginExtension>(block)

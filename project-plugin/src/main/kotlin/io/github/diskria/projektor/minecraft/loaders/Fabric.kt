@@ -31,7 +31,7 @@ data object Fabric : ModLoader {
     override fun getConfigFilePath(): String =
         fileName(getName(), "mod", Constants.File.Extension.JSON)
 
-    override fun configureMod(project: Project, mod: MinecraftMod) = with(project) {
+    override fun configure(project: Project, mod: MinecraftMod) = with(project) {
         val loaderVersion = Versions.FABRIC_LOADER
         val mixins = mod.config.environment.getSourceSets().mapNotNull { sourceSet ->
             val sourceSetName = sourceSet.getName()
@@ -85,7 +85,7 @@ data object Fabric : ModLoader {
                                 ModSide.CLIENT -> client()
                                 ModSide.SERVER -> server()
                             }
-                            programArgs("--username", "${mod.metadata.repository.owner.developerName}-$sideName")
+                            programArgs("--username", "${mod.repository.owner.developerName}-$sideName")
                             vmArgs(side.getMinMemoryJvmArgument(), side.getMaxMemoryJvmArgument())
                         }
                     }

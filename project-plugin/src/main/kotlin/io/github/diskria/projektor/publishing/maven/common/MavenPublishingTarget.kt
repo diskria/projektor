@@ -7,7 +7,7 @@ import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.projektor.extensions.mappers.mapToEnum
 import io.github.diskria.projektor.extensions.publishing
-import io.github.diskria.projektor.projekt.common.IProjekt
+import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.publishing.common.PublishingTarget
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
@@ -20,23 +20,23 @@ abstract class MavenPublishingTarget : PublishingTarget() {
 
     open val shouldCreatePublication: Boolean = false
 
-    open fun configurePublication(publication: MavenPublication, projekt: IProjekt, project: Project) {
+    open fun configurePublication(publication: MavenPublication, projekt: Projekt, project: Project) {
 
     }
 
     abstract fun configureMaven(
         repositories: RepositoryHandler,
-        projekt: IProjekt,
+        projekt: Projekt,
         project: Project
     ): MavenArtifactRepository
 
-    override fun configurePublishing(projekt: IProjekt, project: Project) = with(project) {
+    override fun configurePublishing(projekt: Projekt, project: Project) = with(project) {
         publishing {
-            val fixedArtifactId = projekt.metadata.repository.name.modifyUnless(isRootProject()) {
+            val fixedArtifactId = projekt.repository.name.modifyUnless(isRootProject()) {
                 it + Constants.Char.HYPHEN + name
             }
             if (shouldCreatePublication) {
-                publications.create<MavenPublication>(projekt.metadata.repository.name) {
+                publications.create<MavenPublication>(projekt.repository.name) {
                     configurePublication(this, projekt, project)
                 }
             }
