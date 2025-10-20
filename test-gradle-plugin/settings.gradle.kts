@@ -17,9 +17,9 @@ projekt {
     license = MIT
     publish = GRADLE_PLUGIN_PORTAL
 
-    gradlePlugin {
-        versionCatalogPath = "../gradle/libs.versions.toml"
-    }
+    gradlePlugin()
 }
+
+
 
 include(":moduleA", ":moduleB")

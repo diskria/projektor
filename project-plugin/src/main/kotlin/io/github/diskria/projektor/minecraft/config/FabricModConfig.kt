@@ -176,7 +176,7 @@ class FabricModConfig(
                 accessWidener = fileName(mod.id, "accesswidener"),
                 mixins = listOf(mod.mixinsConfigFileName),
                 links = Links.of(
-                    modrinthProjectUrl = mod.publishingTarget.getHomepage(mod.metadata),
+                    modrinthProjectUrl = mod.getHomepage(),
                     sourceCodeUrl = mod.repository.getUrl(),
                 ),
                 entryPoints = EntryPoints.of(

@@ -4,7 +4,6 @@ import io.github.diskria.projektor.configurations.AndroidLibraryConfiguration
 import io.github.diskria.projektor.configurators.common.ProjectConfigurator
 import io.github.diskria.projektor.extensions.toProjekt
 import io.github.diskria.projektor.projekt.AndroidLibrary
-import io.github.diskria.projektor.projekt.common.Projekt
 import org.gradle.api.Project
 
 open class AndroidLibraryConfigurator(

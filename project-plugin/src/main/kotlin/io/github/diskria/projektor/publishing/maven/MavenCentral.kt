@@ -26,9 +26,10 @@ data object MavenCentral : LocalMavenBasedPublishingTarget() {
     override val shouldCreatePublication: Boolean = true
 
     override fun configurePublication(publication: MavenPublication, projekt: Projekt, project: Project) {
+        val componentName = projekt.getComponentName()
         val repository = projekt.repository
         with(publication) {
-            from(project.components[projekt.getComponentName()])
+            from(project.components[componentName])
             pom {
                 name.set(projekt.name)
                 description.set(projekt.description)

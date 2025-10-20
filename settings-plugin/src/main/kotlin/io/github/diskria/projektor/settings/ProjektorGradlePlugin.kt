@@ -8,6 +8,8 @@ import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.asDirectory
 import io.github.diskria.kotlin.utils.extensions.common.buildEmail
 import io.github.diskria.kotlin.utils.extensions.common.modifyIf
+import io.github.diskria.kotlin.utils.extensions.ensureDirectoryExists
+import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.properties.common.autoNamed
 import io.github.diskria.kotlin.utils.properties.common.environmentVariable
 import io.github.diskria.projektor.common.extensions.putMetadataExtra
@@ -16,6 +18,7 @@ import io.github.diskria.projektor.common.projekt.metadata.AboutMetadata
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
 import io.github.diskria.projektor.common.projekt.metadata.github.GithubOwner
 import io.github.diskria.projektor.common.projekt.metadata.github.GithubRepository
+import io.github.diskria.projektor.settings.extensions.findRootDirectoryFromCompositeBuildOrNull
 import io.github.diskria.projektor.settings.extensions.gradle.ProjektExtension
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
@@ -29,21 +32,14 @@ class ProjektorGradlePlugin : Plugin<Settings> {
         extension.onConfiguratorReady {
             it.configure(settings)
 
-            configureRootProject(
-                settings,
-                extension.buildMetadata(
-                    buildGithubRepository(settings),
-                    AboutMetadata.of(settings.rootDir)
-                )
-            )
-
-            if (extension.versionCatalogPath.isPresent) {
-                configureCatalog(settings, extension.versionCatalogPath.get())
-            }
+            val metadata = extension.buildMetadata(buildGithubRepository(settings), AboutMetadata.of(settings.rootDir))
+            configureRootProject(settings, metadata)
         }
         settings.gradle.settingsEvaluated {
             extension.ensureConfigured()
         }
+
+        configureVersionCatalogs(settings)
     }
 
     private fun configureRootProject(settings: Settings, metadata: ProjektMetadataExtra) = with(settings) {
@@ -56,16 +52,6 @@ class ProjektorGradlePlugin : Plugin<Settings> {
             version = metadata.version
 
             putMetadataExtra(metadata)
-        }
-    }
-
-    private fun configureCatalog(settings: Settings, path: String) = with(settings) {
-        dependencyResolutionManagement {
-            versionCatalogs {
-                create(VersionCatalogsHelper.DEFAULT_CATALOG_NAME) {
-                    from(files(rootDir.resolve(path)))
-                }
-            }
         }
     }
 
@@ -88,5 +74,25 @@ class ProjektorGradlePlugin : Plugin<Settings> {
             GithubOwner(ownerType, ownerName, buildEmail("diskria", "proton.me")),
             repositoryName
         )
+    }
+
+    private fun configureVersionCatalogs(settings: Settings) = with(settings) {
+        val rootDirectory = gradle.findRootDirectoryFromCompositeBuildOrNull() ?: rootDir
+        val catalogsDirectory = rootDirectory.resolve("gradle/version-catalogs").ensureDirectoryExists()
+        catalogsDirectory
+            .resolve(VersionCatalogsHelper.buildCatalogFileName(VersionCatalogsHelper.DEFAULT_CATALOG_NAME))
+            .ensureFileExists()
+
+        dependencyResolutionManagement {
+            versionCatalogs {
+                catalogsDirectory
+                    .listFiles { it.isFile && !it.isHidden && it.extension == Constants.File.Extension.TOML }
+                    .forEach { catalogFile ->
+                        create(catalogFile.name.substringBefore(Constants.Char.DOT)) {
+                            from(files(catalogFile))
+                        }
+                    }
+            }
+        }
     }
 }

@@ -17,7 +17,5 @@ projekt {
     license = MIT
     publish = MAVEN_CENTRAL
 
-    kotlinLibrary {
-        versionCatalogPath = "../gradle/libs.versions.toml"
-    }
+    kotlinLibrary()
 }

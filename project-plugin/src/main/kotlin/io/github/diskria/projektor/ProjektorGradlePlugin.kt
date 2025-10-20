@@ -27,6 +27,6 @@ class ProjektorGradlePlugin : Plugin<Project> {
     }
 
     companion object {
-        val TASK_GROUP: String = "projektor"
+        val TASK_GROUP: String = ProjektBuildConfig.PLUGIN_NAME.lowercase()
     }
 }

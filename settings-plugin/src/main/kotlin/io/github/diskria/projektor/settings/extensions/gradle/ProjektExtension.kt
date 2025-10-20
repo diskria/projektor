@@ -27,7 +27,6 @@ open class ProjektExtension @Inject constructor(
     val version: Property<String> = objects.property(String::class.java)
     val license: Property<LicenseType> = objects.property(LicenseType::class.java)
     val publish: Property<PublishingTargetType> = objects.property(PublishingTargetType::class.java)
-    val versionCatalogPath: Property<String> = objects.property(String::class.java)
 
     private var projektType: ProjektType? = null
 

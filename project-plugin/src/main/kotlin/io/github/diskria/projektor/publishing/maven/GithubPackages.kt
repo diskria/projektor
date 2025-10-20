@@ -36,8 +36,6 @@ data object GithubPackages : MavenPublishingTarget() {
             path(metadata.repository.owner.name, metadata.repository.name, "packages")
         }
 
-    override fun configureDistributeTask(project: Project) = TODO()
-
     override fun getReadmeShield(metadata: ProjektMetadataExtra): ReadmeShield =
         GithubPackagesShield(metadata)
 }
