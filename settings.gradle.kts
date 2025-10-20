@@ -1,8 +1,6 @@
 import io.github.diskria.projektor.common.licenses.LicenseType.MIT
 import io.github.diskria.projektor.common.publishing.PublishingTargetType.GITHUB_PAGES
 import io.github.diskria.projektor.settings.configurators.MinecraftModConfigurator
-import io.github.diskria.projektor.settings.extensions.configureGithubPagesMaven
-import io.github.diskria.projektor.settings.extensions.dependencyRepositories
 
 pluginManagement {
     repositories {
@@ -23,16 +21,12 @@ plugins {
 }
 
 projekt {
-    version = "3.5.21"
+    version = "3.5.22"
     license = MIT
     publish = GITHUB_PAGES
 
     gradlePlugin()
     MinecraftModConfigurator.applyRepositories(settings)
-}
-
-dependencyRepositories {
-    configureGithubPagesMaven("diskria", "projektor")
 }
 
 include(":common", ":settings-plugin", ":project-plugin")
