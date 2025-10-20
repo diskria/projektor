@@ -1,0 +1,162 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.github.diskria",
+    "module": "projektor-settings-plugin",
+    "version": "3.5.22",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.1.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 24,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "projektor-settings-plugin-3.5.22.jar",
+          "url": "projektor-settings-plugin-3.5.22.jar",
+          "size": 53227,
+          "sha512": "78f789016c7a94b7f33b15f3a3eda7a99457468e305404e881600042ccbe388a7efcbddf1a2f7826b597781da5d4b0f2bf3ad74c555002a52ba5b7832a3ecafd",
+          "sha256": "fe74102e31cddff232cbcc27847116eb30f9918273ddf8b9174baf0d345b16f2",
+          "sha1": "835ae55f852031ca170321be2fa01cb22d7e95c7",
+          "md5": "8d3ed6df16f0cf31a88c8aa8e8a3c208"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 24,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.gradle.toolchains.foojay-resolver-convention",
+          "module": "org.gradle.toolchains.foojay-resolver-convention.gradle.plugin",
+          "version": {
+            "requires": "1.0.0"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "projektor-common",
+          "version": {
+            "requires": "3.+"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "kotlin-utils",
+          "version": {
+            "requires": "0.6.4"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "gradle-utils",
+          "version": {
+            "requires": "0.4.5"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "kotlin-shell-dsl",
+          "version": {
+            "requires": "0.3.3"
+          }
+        },
+        {
+          "group": "io.ktor",
+          "module": "ktor-client-core",
+          "version": {
+            "requires": "3.3.1"
+          }
+        },
+        {
+          "group": "io.ktor",
+          "module": "ktor-client-cio",
+          "version": {
+            "requires": "3.3.1"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-serialization-json",
+          "version": {
+            "requires": "1.9.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "projektor-settings-plugin-3.5.22.jar",
+          "url": "projektor-settings-plugin-3.5.22.jar",
+          "size": 53227,
+          "sha512": "78f789016c7a94b7f33b15f3a3eda7a99457468e305404e881600042ccbe388a7efcbddf1a2f7826b597781da5d4b0f2bf3ad74c555002a52ba5b7832a3ecafd",
+          "sha256": "fe74102e31cddff232cbcc27847116eb30f9918273ddf8b9174baf0d345b16f2",
+          "sha1": "835ae55f852031ca170321be2fa01cb22d7e95c7",
+          "md5": "8d3ed6df16f0cf31a88c8aa8e8a3c208"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "projektor-settings-plugin-3.5.22-sources.jar",
+          "url": "projektor-settings-plugin-3.5.22-sources.jar",
+          "size": 11297,
+          "sha512": "57d9a71be7701545e3cb12838667d378a398b5f07e45edbc817e9c718706c67fef817ce617757d818ba66e8e90424866c217c236306f571e014bbd1041231394",
+          "sha256": "366bd0f667dde7ef9dec78fd593a00a5ffd9cfff64cde19f3cfb9a7781c9180e",
+          "sha1": "c6b514c2684c4f994627d6b30bef2652bd0781a1",
+          "md5": "fbddf65281ef1c67ffc75c8d4200e67c"
+        }
+      ]
+    },
+    {
+      "name": "javadocElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "javadoc",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "projektor-settings-plugin-3.5.22-javadoc.jar",
+          "url": "projektor-settings-plugin-3.5.22-javadoc.jar",
+          "size": 261,
+          "sha512": "1487e5a20c9e4d74f298e07c42e96a61be11b7a768c3fbc199ee138cd68e1fc2267d1cfe3f11f288acc05df755315344d052cc5f6f751f126ab4fe1caa5125ea",
+          "sha256": "c6deada2fac53b8ea6523dbda77597b128006674616f140f04df23264c6d1aa3",
+          "sha1": "2ad14aed781c4a73ed4dbb421966d408a0a06686",
+          "md5": "f43436d6bec321290f6af228ad602604"
+        }
+      ]
+    }
+  ]
+}
