@@ -4,18 +4,13 @@ import io.github.diskria.gradle.utils.extensions.*
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.projektor.Versions
 import io.github.diskria.projektor.common.configurators.IProjektConfigurator
-import io.github.diskria.projektor.common.extensions.getMetadataExtra
 import io.github.diskria.projektor.extensions.*
-import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.projekt.GradlePlugin
 import io.github.diskria.projektor.projekt.common.Projekt
-import io.github.diskria.projektor.publishing.maven.common.LocalMavenBasedPublishingTarget
-import io.github.diskria.projektor.publishing.maven.common.LocalMavenBasedPublishingTarget.Companion.LOCAL_MAVEN_DIRECTORY_NAME
 import io.github.diskria.projektor.tasks.UnarchiveArtifactTask
 import io.github.diskria.projektor.tasks.generate.GenerateLicenseTask
 import org.gradle.api.Project
-import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
@@ -57,10 +52,10 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                 showStandardStreams = true
             }
         }
-        group = projekt.repository.owner.namespace
+        group = projekt.repo.owner.namespace
         version = projekt.archiveVersion
         base {
-            archivesName.assign(projekt.repository.name)
+            archivesName.assign(projekt.repo.name)
         }
         java {
             toolchain {
@@ -88,7 +83,7 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
         tasks.named<Jar>("jar") {
             dependsOn(tasks.withType<GenerateLicenseTask>())
             from(GenerateLicenseTask.OUTPUT_FILE_NAME) {
-                rename { it + Constants.Char.UNDERSCORE + projekt.repository.name }
+                rename { it + Constants.Char.UNDERSCORE + projekt.repo.name }
             }
             archiveVersion.set(projekt.archiveVersion)
         }

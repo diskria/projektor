@@ -1,13 +1,13 @@
 package io.github.diskria.projektor.projekt.common
 
+import io.github.diskria.projektor.common.github.GithubRepo
 import io.github.diskria.projektor.common.projekt.ProjektType
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
-import io.github.diskria.projektor.common.projekt.metadata.github.GithubRepository
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 
 abstract class AbstractProjekt(private val base: Projekt) : Projekt {
-    override val metadata: ProjektMetadataExtra get() = base.metadata
+    override val metadata: ProjektMetadata get() = base.metadata
     override val type: ProjektType get() = metadata.type
-    override val repository: GithubRepository get() = metadata.repository
+    override val repo: GithubRepo get() = metadata.repo
     override val packageNameBase: String get() = metadata.packageNameBase
     override val name: String get() = metadata.name
     override val version: String get() = metadata.version

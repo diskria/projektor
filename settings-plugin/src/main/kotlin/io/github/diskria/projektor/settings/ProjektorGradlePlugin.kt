@@ -12,12 +12,12 @@ import io.github.diskria.kotlin.utils.extensions.ensureDirectoryExists
 import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.properties.common.autoNamed
 import io.github.diskria.kotlin.utils.properties.common.environmentVariable
-import io.github.diskria.projektor.common.extensions.putMetadataExtra
+import io.github.diskria.projektor.common.extensions.setMetadata
+import io.github.diskria.projektor.common.github.GithubOwner
+import io.github.diskria.projektor.common.github.GithubRepo
 import io.github.diskria.projektor.common.projekt.OwnerType
 import io.github.diskria.projektor.common.projekt.metadata.AboutMetadata
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
-import io.github.diskria.projektor.common.projekt.metadata.github.GithubOwner
-import io.github.diskria.projektor.common.projekt.metadata.github.GithubRepository
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.settings.extensions.findRootDirectoryFromCompositeBuildOrNull
 import io.github.diskria.projektor.settings.extensions.gradle.ProjektExtension
 import org.gradle.api.Plugin
@@ -42,8 +42,8 @@ class ProjektorGradlePlugin : Plugin<Settings> {
         configureVersionCatalogs(settings)
     }
 
-    private fun configureRootProject(settings: Settings, metadata: ProjektMetadataExtra) = with(settings) {
-        val owner = metadata.repository.owner
+    private fun configureRootProject(settings: Settings, metadata: ProjektMetadata) = with(settings) {
+        val owner = metadata.repo.owner
         rootProject.name = metadata.name.modifyIf(owner.type == OwnerType.BRAND) {
             owner.name + Constants.Char.SPACE + it
         }
@@ -51,11 +51,11 @@ class ProjektorGradlePlugin : Plugin<Settings> {
             description = metadata.description
             version = metadata.version
 
-            putMetadataExtra(metadata)
+            setMetadata(metadata)
         }
     }
 
-    private fun buildGithubRepository(settings: Settings): GithubRepository = with(settings) {
+    private fun buildGithubRepository(settings: Settings): GithubRepo = with(settings) {
         val (ownerName, repositoryName) = if (providers.isCI) {
             val githubOwner by autoNamed.environmentVariable(isRequired = true)
             val githubRepo by autoNamed.environmentVariable(isRequired = true)
@@ -70,8 +70,8 @@ class ProjektorGradlePlugin : Plugin<Settings> {
             ownerName.contains(Constants.Char.HYPHEN) -> OwnerType.DOMAIN
             else -> OwnerType.PROFILE
         }
-        return GithubRepository(
-            GithubOwner(ownerType, ownerName, buildEmail("diskria", "proton.me")),
+        return GithubRepo(
+            GithubOwner(ownerName, buildEmail("diskria", "proton.me")),
             repositoryName
         )
     }
@@ -82,16 +82,16 @@ class ProjektorGradlePlugin : Plugin<Settings> {
         catalogsDirectory
             .resolve(VersionCatalogsHelper.buildCatalogFileName(VersionCatalogsHelper.DEFAULT_CATALOG_NAME))
             .ensureFileExists()
-
+        val catalogFiles = catalogsDirectory.listFiles {
+            it.isFile && !it.isHidden && it.extension == Constants.File.Extension.TOML
+        }
         dependencyResolutionManagement {
             versionCatalogs {
-                catalogsDirectory
-                    .listFiles { it.isFile && !it.isHidden && it.extension == Constants.File.Extension.TOML }
-                    .forEach { catalogFile ->
-                        create(catalogFile.name.substringBefore(Constants.Char.DOT)) {
-                            from(files(catalogFile))
-                        }
+                catalogFiles.forEach { catalogFile ->
+                    create(catalogFile.name.substringBefore(Constants.Char.DOT)) {
+                        from(files(catalogFile))
                     }
+                }
             }
         }
     }

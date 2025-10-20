@@ -5,7 +5,7 @@ import io.github.diskria.kotlin.utils.extensions.common.`Sentence case`
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.Environment
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.ensureTaskRegistered
 import io.github.diskria.projektor.extensions.signing
 import io.github.diskria.projektor.projekt.AndroidLibrary
@@ -27,7 +27,7 @@ data object MavenCentral : LocalMavenBasedPublishingTarget() {
 
     override fun configurePublication(publication: MavenPublication, projekt: Projekt, project: Project) {
         val componentName = projekt.getComponentName()
-        val repository = projekt.repository
+        val repository = projekt.repo
         with(publication) {
             from(project.components[componentName])
             pom {
@@ -44,9 +44,9 @@ data object MavenCentral : LocalMavenBasedPublishingTarget() {
                 }
                 developers {
                     developer {
-                        repository.owner.developerName.let { developerName ->
-                            id.set(developerName)
-                            name.set(developerName)
+                        repository.owner.developer.let { developer ->
+                            id.set(developer)
+                            name.set(developer)
                         }
                         email.set(repository.owner.email)
                     }
@@ -70,15 +70,15 @@ data object MavenCentral : LocalMavenBasedPublishingTarget() {
         }
     }
 
-    override fun getHomepage(metadata: ProjektMetadataExtra): String =
+    override fun getHomepage(metadata: ProjektMetadata): String =
         buildUrl("central.sonatype.com") {
-            path("artifact", metadata.repository.owner.namespace, metadata.repository.name)
+            path("artifact", metadata.repo.owner.namespace, metadata.repo.name)
         }
 
     override fun configureDistributeTask(project: Project): Task =
         project.rootProject.ensureTaskRegistered<UploadBundleToMavenCentralTask>()
 
-    override fun getReadmeShield(metadata: ProjektMetadataExtra): ReadmeShield =
+    override fun getReadmeShield(metadata: ProjektMetadata): ReadmeShield =
         MavenCentralShield(metadata)
 
     private fun Projekt.getComponentName(): String =

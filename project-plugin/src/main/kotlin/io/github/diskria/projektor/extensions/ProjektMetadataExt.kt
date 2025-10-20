@@ -1,7 +1,7 @@
 package io.github.diskria.projektor.extensions
 
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 
-fun ProjektMetadataExtra.getHomepage(): String =
+fun ProjektMetadata.getHomepage(): String =
     publishingTarget.mapToModel().getHomepage(this)

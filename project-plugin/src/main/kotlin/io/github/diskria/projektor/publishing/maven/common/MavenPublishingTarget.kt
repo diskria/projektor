@@ -32,11 +32,11 @@ abstract class MavenPublishingTarget : PublishingTarget() {
 
     override fun configurePublishing(projekt: Projekt, project: Project) = with(project) {
         publishing {
-            val artifactId = projekt.repository.name.modifyUnless(isRootProject()) {
+            val artifactId = projekt.repo.name.modifyUnless(isRootProject()) {
                 it + Constants.Char.HYPHEN + name
             }
             if (shouldCreatePublication) {
-                publications.create<MavenPublication>(projekt.repository.name) {
+                publications.create<MavenPublication>(projekt.repo.name) {
                     configurePublication(this, projekt, project)
                 }
             }

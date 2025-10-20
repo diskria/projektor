@@ -59,7 +59,7 @@ class ForgeModConfig(
                 ForgeMod(
                     description = mod.description,
                     version = mod.version,
-                    authors = mod.repository.owner.developerName,
+                    authors = mod.repo.owner.developer,
                     id = mod.id,
                     name = mod.id,
                     icon = fileName("icon", Constants.File.Extension.PNG),
@@ -127,7 +127,7 @@ class ForgeModConfig(
                 mods = mods,
                 dependencies = mods.associate { it.id to it.dependencies },
                 loader = "javafml",
-                issueTrackerUrl = mod.repository.getIssuesUrl(),
+                issueTrackerUrl = mod.repo.getIssuesUrl(),
                 isClientSideOnly = environment == ModEnvironment.CLIENT_SIDE_ONLY,
             )
         }

@@ -2,11 +2,11 @@ package io.github.diskria.projektor.projekt.common
 
 import io.github.diskria.kotlin.utils.extensions.mappers.toEnum
 import io.github.diskria.projektor.Versions
-import io.github.diskria.projektor.common.extensions.getMetadataExtra
+import io.github.diskria.projektor.common.extensions.getMetadata
+import io.github.diskria.projektor.common.github.GithubRepo
 import io.github.diskria.projektor.common.minecraft.ModLoaderType
 import io.github.diskria.projektor.common.projekt.ProjektType
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
-import io.github.diskria.projektor.common.projekt.metadata.github.GithubRepository
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.configurations.*
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.licenses.License
@@ -16,9 +16,9 @@ import io.github.diskria.projektor.publishing.common.PublishingTarget
 import org.gradle.api.Project
 
 data class BaseProjekt(
-    override val metadata: ProjektMetadataExtra,
+    override val metadata: ProjektMetadata,
     override val type: ProjektType,
-    override val repository: GithubRepository,
+    override val repo: GithubRepo,
     override val packageNameBase: String,
     override val name: String,
     override val version: String,
@@ -52,11 +52,11 @@ data class BaseProjekt(
 
     companion object {
         fun of(project: Project): BaseProjekt {
-            val metadata = project.getMetadataExtra()
+            val metadata = project.getMetadata()
             return BaseProjekt(
                 metadata = metadata,
                 type = metadata.type,
-                repository = metadata.repository,
+                repo = metadata.repo,
                 packageNameBase = metadata.packageNameBase,
                 name = metadata.name,
                 version = metadata.version,

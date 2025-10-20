@@ -85,7 +85,7 @@ data object Fabric : ModLoader {
                                 ModSide.CLIENT -> client()
                                 ModSide.SERVER -> server()
                             }
-                            programArgs("--username", "${mod.repository.owner.developerName}-$sideName")
+                            programArgs("--username", "${mod.repo.owner.developer}-$sideName")
                             vmArgs(side.getMinMemoryJvmArgument(), side.getMaxMemoryJvmArgument())
                         }
                     }

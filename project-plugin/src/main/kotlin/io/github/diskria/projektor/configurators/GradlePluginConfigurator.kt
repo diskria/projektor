@@ -20,8 +20,8 @@ open class GradlePluginConfigurator(
             testImplementation(gradleTestKit())
         }
         gradlePlugin {
-            website.set(gradlePlugin.repository.getUrl())
-            vcsUrl.set(gradlePlugin.repository.getUrl(isVcs = true))
+            website.set(gradlePlugin.repo.getUrl())
+            vcsUrl.set(gradlePlugin.repo.getUrl(isVcs = true))
             plugins {
                 create(gradlePlugin.id) {
                     id = gradlePlugin.id

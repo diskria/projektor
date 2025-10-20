@@ -10,8 +10,8 @@ import io.github.diskria.kotlin.utils.extensions.wrapWithBrackets
 import io.github.diskria.projektor.Environment
 import io.github.diskria.projektor.ProjektBuildConfig
 import io.github.diskria.projektor.ProjektorGradlePlugin
-import io.github.diskria.projektor.common.extensions.getMetadataExtra
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
+import io.github.diskria.projektor.common.extensions.getMetadata
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.getHomepage
 import io.github.diskria.projektor.requests.github.GetLanguagesRequest
 import io.github.diskria.projektor.requests.github.UpdateInfoRequest
@@ -32,12 +32,12 @@ import org.gradle.api.tasks.TaskAction
 abstract class UpdateGithubRepositoryMetadataTask : DefaultTask() {
 
     @get:Internal
-    abstract val metadata: Property<ProjektMetadataExtra>
+    abstract val metadata: Property<ProjektMetadata>
 
     init {
         group = ProjektorGradlePlugin.TASK_GROUP
 
-        metadata.convention(project.getMetadataExtra())
+        metadata.convention(project.getMetadata())
     }
 
     @TaskAction
@@ -53,7 +53,7 @@ abstract class UpdateGithubRepositoryMetadataTask : DefaultTask() {
     private suspend fun updateInfo() {
         with(metadata.get()) {
             sendRequest(
-                UpdateInfoRequest(repository.name, description, getHomepage())
+                UpdateInfoRequest(repo.name, description, getHomepage())
             )
         }
     }
@@ -76,7 +76,7 @@ abstract class UpdateGithubRepositoryMetadataTask : DefaultTask() {
     private suspend fun sendRequest(request: GithubRequest): HttpResponse {
         HttpClient(CIO).use { client ->
             val url = buildUrl("api.github.com") {
-                val repository = metadata.get().repository
+                val repository = metadata.get().repo
                 path("repos", repository.owner.name, repository.name, *request.getExtraPathSegments().toTypedArray())
             }
             return client.request(url) {
@@ -92,7 +92,7 @@ abstract class UpdateGithubRepositoryMetadataTask : DefaultTask() {
                         append(
                             buildString {
                                 append(Constants.Char.PLUS)
-                                append(metadata.get().repository.getUrl())
+                                append(metadata.get().repo.getUrl())
                             }.wrapWithBrackets(BracketsType.ROUND)
                         )
                     }

@@ -6,7 +6,7 @@ import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.generics.foldChain
 import io.github.diskria.kotlin.utils.extensions.wrapWithBrackets
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.ktor.http.*
 
 sealed class License(val id: String) {
@@ -21,9 +21,9 @@ sealed class License(val id: String) {
             path("licenses", id)
         }
 
-    open fun getPlaceholders(metadata: ProjektMetadataExtra): Map<String, String> = emptyMap()
+    open fun getPlaceholders(metadata: ProjektMetadata): Map<String, String> = emptyMap()
 
-    fun fillTemplate(template: String, metadata: ProjektMetadataExtra): String =
+    fun fillTemplate(template: String, metadata: ProjektMetadata): String =
         getPlaceholders(metadata).entries.foldChain(template) { (name, value) ->
             replace(name.wrapWithBrackets(BracketsType.ANGLE), value)
         }

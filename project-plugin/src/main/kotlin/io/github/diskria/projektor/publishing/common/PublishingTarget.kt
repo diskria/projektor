@@ -1,6 +1,6 @@
 package io.github.diskria.projektor.publishing.common
 
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.ensureTaskRegistered
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
@@ -42,9 +42,9 @@ abstract class PublishingTarget {
 
     abstract fun getPublishTaskName(): String
 
-    abstract fun getHomepage(metadata: ProjektMetadataExtra): String
+    abstract fun getHomepage(metadata: ProjektMetadata): String
 
     open fun configureDistributeTask(project: Project): Task? = null
 
-    open fun getReadmeShield(metadata: ProjektMetadataExtra): ReadmeShield? = null
+    open fun getReadmeShield(metadata: ProjektMetadata): ReadmeShield? = null
 }

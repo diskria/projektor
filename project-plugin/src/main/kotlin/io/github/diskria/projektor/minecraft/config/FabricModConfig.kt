@@ -169,7 +169,7 @@ class FabricModConfig(
                 version = mod.version,
                 name = mod.name,
                 description = mod.description,
-                authors = listOf(mod.repository.owner.developerName),
+                authors = listOf(mod.repo.owner.developer),
                 license = mod.license.id,
                 icon = "assets/${mod.id}/${fileName("icon", Constants.File.Extension.PNG)}",
                 environment = mod.config.environment.fabricConfigValue,
@@ -177,7 +177,7 @@ class FabricModConfig(
                 mixins = listOf(mod.mixinsConfigFileName),
                 links = Links.of(
                     modrinthProjectUrl = mod.getHomepage(),
-                    sourceCodeUrl = mod.repository.getUrl(),
+                    sourceCodeUrl = mod.repo.getUrl(),
                 ),
                 entryPoints = EntryPoints.of(
                     mod,

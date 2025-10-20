@@ -7,9 +7,9 @@ import io.github.diskria.kotlin.utils.extensions.common.`path∕case`
 import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.kotlin.utils.poet.Property
 import io.github.diskria.kotlin.utils.words.PascalCase
+import io.github.diskria.projektor.common.github.GithubRepo
 import io.github.diskria.projektor.common.projekt.ProjektType
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
-import io.github.diskria.projektor.common.projekt.metadata.github.GithubRepository
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.getHomepage
 import io.github.diskria.projektor.extensions.mappers.toJvmTarget
 import io.github.diskria.projektor.licenses.License
@@ -17,9 +17,9 @@ import io.github.diskria.projektor.publishing.common.PublishingTarget
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 interface Projekt {
-    val metadata: ProjektMetadataExtra
+    val metadata: ProjektMetadata
     val type: ProjektType
-    val repository: GithubRepository
+    val repo: GithubRepo
     val packageNameBase: String
     val name: String
     val version: String
@@ -35,7 +35,7 @@ interface Projekt {
     val archiveVersion: String get() = version
     val packageName: String get() = packageNameSuffix?.let { packageNameBase.appendPackageName(it) } ?: packageNameBase
     val packagePath: String get() = packageName.setCase(`dot․case`, `path∕case`)
-    val classNamePrefix: String get() = repository.name.setCase(`kebab-case`, PascalCase)
+    val classNamePrefix: String get() = repo.name.setCase(`kebab-case`, PascalCase)
 
     fun getBuildConfigFields(): List<Property<String>> = emptyList()
 

@@ -22,7 +22,7 @@ class MinecraftMod(
     val minecraftVersion: MinecraftVersion,
 ) : AbstractProjekt(projekt) {
 
-    val id: String = repository.name
+    val id: String = repo.name
     val mixinsConfigFileName: String = fileName(id, "mixins", Constants.File.Extension.JSON)
 
     override val jvmTarget: JvmTarget

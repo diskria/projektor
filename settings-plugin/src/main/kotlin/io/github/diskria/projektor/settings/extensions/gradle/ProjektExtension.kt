@@ -7,11 +7,11 @@ import io.github.diskria.kotlin.utils.extensions.common.`dot․case`
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.projektor.common.extensions.gradle.AbstractProjektExtension
+import io.github.diskria.projektor.common.github.GithubRepo
 import io.github.diskria.projektor.common.licenses.LicenseType
 import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.common.projekt.metadata.AboutMetadata
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
-import io.github.diskria.projektor.common.projekt.metadata.github.GithubRepository
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.publishing.PublishingTargetType
 import io.github.diskria.projektor.settings.configurations.*
 import io.github.diskria.projektor.settings.configurators.*
@@ -30,14 +30,14 @@ open class ProjektExtension @Inject constructor(
 
     private var projektType: ProjektType? = null
 
-    fun buildMetadata(repository: GithubRepository, about: AboutMetadata): ProjektMetadataExtra =
-        ProjektMetadataExtra(
+    fun buildMetadata(repo: GithubRepo, about: AboutMetadata): ProjektMetadata =
+        ProjektMetadata(
             type = projektType ?: gradleError("Projekt type not initialized"),
-            repository = repository,
-            packageNameBase = repository.owner.namespace.appendPackageName(
-                repository.name.setCase(`kebab-case`, `dot․case`)
+            repo = repo,
+            packageNameBase = repo.owner.namespace.appendPackageName(
+                repo.name.setCase(`kebab-case`, `dot․case`)
             ),
-            name = repository.name.setCase(`kebab-case`, `Title Case`),
+            name = repo.name.setCase(`kebab-case`, `Title Case`),
             version = requireProperty(version, ::version.name),
             license = requireProperty(license, ::license.name),
             publishingTarget = requireProperty(publish, ::publish.name),

@@ -1,6 +1,6 @@
 package io.github.diskria.projektor.publishing.maven
 
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.ensureTaskRegistered
 import io.github.diskria.projektor.publishing.maven.common.LocalMavenBasedPublishingTarget
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
@@ -11,12 +11,12 @@ import org.gradle.api.Task
 
 data object GithubPages : LocalMavenBasedPublishingTarget() {
 
-    override fun getHomepage(metadata: ProjektMetadataExtra): String =
-        metadata.repository.getPagesUrl()
+    override fun getHomepage(metadata: ProjektMetadata): String =
+        metadata.repo.getPagesUrl()
 
     override fun configureDistributeTask(project: Project): Task =
         project.rootProject.ensureTaskRegistered<DeployMavenToGithubPagesTask>()
 
-    override fun getReadmeShield(metadata: ProjektMetadataExtra): ReadmeShield =
+    override fun getReadmeShield(metadata: ProjektMetadata): ReadmeShield =
         GithubPagesShield(metadata)
 }

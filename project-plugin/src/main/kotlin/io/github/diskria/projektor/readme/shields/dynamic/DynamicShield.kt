@@ -3,13 +3,13 @@ package io.github.diskria.projektor.readme.shields.dynamic
 import io.github.diskria.kotlin.utils.extensions.common.`Title Case`
 import io.github.diskria.kotlin.utils.extensions.generics.modifyLast
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadataExtra
+import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.getHomepage
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
 import io.ktor.http.*
 
 sealed class DynamicShield(
-    val metadata: ProjektMetadataExtra,
+    val metadata: ProjektMetadata,
     val extraParameters: List<Pair<String, String?>> = emptyList(),
 ) : ReadmeShield(metadata.publishingTarget.getName(`Title Case`), metadata.getHomepage()) {
 
