@@ -7,7 +7,7 @@ import io.github.diskria.projektor.common.publishing.PublishingTargetType
 
 data class ProjektMetadata(
     val type: ProjektType,
-    val repository: GithubRepo,
+    val repo: GithubRepo,
     val packageNameBase: String,
     val name: String,
     val version: String,

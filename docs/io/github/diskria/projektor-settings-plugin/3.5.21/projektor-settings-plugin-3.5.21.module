@@ -29,11 +29,11 @@
         {
           "name": "projektor-settings-plugin-3.5.21.jar",
           "url": "projektor-settings-plugin-3.5.21.jar",
-          "size": 53124,
-          "sha512": "1a55da4702b8067732a354361c7a5bbfdd4fec5338aa5398e74eedc8900fab139848a6e9fa3e4c9ece5cf20f4cf2ccd5d7e830901ab683647008603e702d56da",
-          "sha256": "ec2768b563f2aa35a2b072ac09cb7ed816aa61bfd34400afd8411f04d9395c6e",
-          "sha1": "3a147b4deeaa64414e98d58af1c7cb159cf51f27",
-          "md5": "53673e0ae2093ea151850a41c6f12d3a"
+          "size": 53227,
+          "sha512": "410c8975e2aa991855abbddfb1e344c7f7e14980bc9e90d23be942d960fda3a2304ce162114b1fae37401114d146239f06320a5e67ac5fa8441787bc209e611b",
+          "sha256": "c80bfd56eb16eea7d232e90f6efd7b1579ad849bb34219d852d536a066bc2680",
+          "sha1": "a906b2491a7b5fe3a7b54ef533dd58fa647706cc",
+          "md5": "5b01766668fa5d11abd0c11bd3cd7a0d"
         }
       ]
     },
@@ -110,11 +110,11 @@
         {
           "name": "projektor-settings-plugin-3.5.21.jar",
           "url": "projektor-settings-plugin-3.5.21.jar",
-          "size": 53124,
-          "sha512": "1a55da4702b8067732a354361c7a5bbfdd4fec5338aa5398e74eedc8900fab139848a6e9fa3e4c9ece5cf20f4cf2ccd5d7e830901ab683647008603e702d56da",
-          "sha256": "ec2768b563f2aa35a2b072ac09cb7ed816aa61bfd34400afd8411f04d9395c6e",
-          "sha1": "3a147b4deeaa64414e98d58af1c7cb159cf51f27",
-          "md5": "53673e0ae2093ea151850a41c6f12d3a"
+          "size": 53227,
+          "sha512": "410c8975e2aa991855abbddfb1e344c7f7e14980bc9e90d23be942d960fda3a2304ce162114b1fae37401114d146239f06320a5e67ac5fa8441787bc209e611b",
+          "sha256": "c80bfd56eb16eea7d232e90f6efd7b1579ad849bb34219d852d536a066bc2680",
+          "sha1": "a906b2491a7b5fe3a7b54ef533dd58fa647706cc",
+          "md5": "5b01766668fa5d11abd0c11bd3cd7a0d"
         }
       ]
     },
@@ -130,11 +130,11 @@
         {
           "name": "projektor-settings-plugin-3.5.21-sources.jar",
           "url": "projektor-settings-plugin-3.5.21-sources.jar",
-          "size": 11288,
-          "sha512": "37c1ef437c8a59242eb23f491033ca1a8b04273919a7068951a1b05c4590433e3896e940b1349c19f793cc89f5a0c440fb73a6abee41ab34939fa1f62a2294c5",
-          "sha256": "fccfa86b53b6adc93956b18f164d3f45c5f65014d3b74a6d1e9a9d3709b1d8fe",
-          "sha1": "bf7d205f387d730f317aa621aeb27bbff30fda9d",
-          "md5": "641490e3b09059391c13823e97d9505c"
+          "size": 11297,
+          "sha512": "2471262c3aed358e5f3bca5987650e6a919aa4c3a074a30f82113401a49bbb5310f2e80ca2eb6aa08ef51856e6cc11ab7d6f30727549082e9be40a8bf4ad0115",
+          "sha256": "b517553199fc39b8c07c40d5ac3a15813deafb09c21b17890c517fa213d8515c",
+          "sha1": "f6a1d55561293b969a410171a6023f6565fde0b8",
+          "md5": "eca037a72f41ede7189c252db85fa672"
         }
       ]
     },

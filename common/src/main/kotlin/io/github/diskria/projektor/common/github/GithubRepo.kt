@@ -11,7 +11,7 @@ import io.github.diskria.projektor.common.repository.RepositoryHost
 import io.github.diskria.projektor.common.repository.VersionControlSystem
 import io.ktor.http.*
 
-data class GithubRepo(val owner: String, val name: String) {
+data class GithubRepo(val owner: String, val name: String, val email: String) {
 
     val namespace: String
         get() = "io".appendPackageName(RepositoryHost.GITHUB.shortName).appendPackageName(developerName)
