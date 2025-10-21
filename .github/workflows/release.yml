@@ -27,9 +27,7 @@ on:
       GRADLE_PUBLISH_SECRET:
         required: true
 
-permissions:
-  contents: write
-  packages: write
+permissions: {}
 
 defaults:
   run:
