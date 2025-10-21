@@ -89,7 +89,7 @@ abstract class DeployMavenToGithubPagesTask : Sync() {
             }
         }
 
-        val indexFile = directory.resolve(fileName("index", "html"))
+        val indexFile = directory.resolve(fileName("index", Constants.File.Extension.HTML))
         indexFile.writeText(indexHtml)
 
         directories.forEach { generateIndexTree(it, parentDirectory) }

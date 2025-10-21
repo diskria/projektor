@@ -65,18 +65,13 @@ class ProjektorGradlePlugin : Plugin<Settings> {
             val repo = rootDir.name
             owner to repo
         }
-        return GithubRepo(
-            GithubOwner(owner, buildEmail("diskria", "proton.me")),
-            repo
-        )
+        return GithubRepo(GithubOwner(owner, buildEmail("diskria", "proton.me")), repo)
     }
 
     private fun configureVersionCatalogs(settings: Settings) = with(settings) {
         val rootDirectory = gradle.findRootDirectoryFromCompositeBuildOrNull() ?: rootDir
-        val catalogsDirectory = rootDirectory.resolve("gradle/version-catalogs").ensureDirectoryExists()
-        catalogsDirectory
-            .resolve(VersionCatalogsHelper.buildCatalogFileName(VersionCatalogsHelper.DEFAULT_CATALOG_NAME))
-            .ensureFileExists()
+        val catalogsDirectory = rootDirectory.resolve("gradle").resolve("version-catalogs").ensureDirectoryExists()
+        catalogsDirectory.resolve(VersionCatalogsHelper.buildCatalogFileName()).ensureFileExists()
         val catalogFiles = catalogsDirectory.listFiles {
             it.isFile && !it.isHidden && it.extension == Constants.File.Extension.TOML
         }

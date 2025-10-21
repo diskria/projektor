@@ -10,7 +10,7 @@ fun GithubRepo.pushFiles(repoDirectory: File, commitMessage: CommitMessage, vara
     println("pushFiles: repoDirectory = $repoDirectory, commitMessage = $commitMessage, files = ${files.toList()}")
     with(GitShell.open(repoDirectory)) {
         setRemoteUrl(GitShell.ORIGIN_REMOTE_NAME, getUrl(isVcs = true, token = Secrets.githubToken))
-        configureUser(owner.name, owner.email)
+        configureUser(owner.developer, owner.email)
         stage(*files.map { it.relativeTo(repoDirectory).path }.toTypedArray())
         commit(commitMessage)
         push()

@@ -46,19 +46,19 @@ data object Fabric : ModLoader {
         }
         val minecraftVersionString = mod.minecraftVersion.getVersion()
         dependencies {
-            minecraft("com.mojang:minecraft:$minecraftVersionString")
-            modImplementation("net.fabricmc:fabric-loader:$loaderVersion")
+            minecraft("com.mojang", "minecraft", minecraftVersionString)
+            modImplementation("net.fabricmc", "fabric-loader", loaderVersion)
 
             val yarnVersion = resolveCatalogVersion("fabric-yarn") { "$minecraftVersionString+build.$it" }
-            mappings("net.fabricmc:yarn:$yarnVersion:v2")
+            mappings("net.fabricmc", "yarn", yarnVersion, "v2")
 
             modImplementation(
-                "net.fabricmc:fabric-language-kotlin:${Versions.FABRIC_KOTLIN}+kotlin.${mod.kotlinVersion}"
+                "net.fabricmc", "fabric-language-kotlin", "${Versions.FABRIC_KOTLIN}+kotlin.${mod.kotlinVersion}"
             )
 
             if (mod.config.isFabricApiRequired) {
                 val apiVersion = resolveCatalogVersion("fabric-api") { "$it+$minecraftVersionString" }
-                modImplementation("net.fabricmc.fabric-api:fabric-api:$apiVersion")
+                modImplementation("net.fabricmc.fabric-api", "fabric-api", apiVersion)
             }
         }
         loom {

@@ -19,6 +19,7 @@ class GradlePlugin(projekt: Projekt, val config: GradlePluginConfiguration) : Ab
     override fun getBuildConfigFields(): List<Property<String>> {
         val pluginName by name.autoNamedProperty(SCREAMING_SNAKE_CASE)
         val pluginVersion by version.autoNamedProperty(SCREAMING_SNAKE_CASE)
-        return listOf(pluginName, pluginVersion)
+        val pluginDeveloper by repo.owner.developer.autoNamedProperty(SCREAMING_SNAKE_CASE)
+        return listOf(pluginName, pluginVersion, pluginDeveloper)
     }
 }
