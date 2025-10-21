@@ -1,15 +1,13 @@
 package io.github.diskria.projektor.tasks.distribute
 
-import io.github.diskria.gradle.utils.extensions.displayName
 import io.github.diskria.gradle.utils.extensions.getBuildDirectory
 import io.github.diskria.gradle.utils.extensions.getDirectory
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
+import io.github.diskria.kotlin.shell.dsl.git.commits.CommitMessage
+import io.github.diskria.kotlin.shell.dsl.git.commits.CommitType
 import io.github.diskria.kotlin.utils.Constants
-import io.github.diskria.kotlin.utils.extensions.common.camelCase
 import io.github.diskria.kotlin.utils.extensions.common.fileName
-import io.github.diskria.kotlin.utils.extensions.common.`space case`
 import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
-import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.common.extensions.getMetadata
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
@@ -49,7 +47,7 @@ abstract class DeployMavenToGithubPagesTask : Sync() {
 
                 metadata.repo.pushFiles(
                     repoDirectory,
-                    "chore: ${this::class.displayName.setCase(camelCase, `space case`)}",
+                    CommitMessage(CommitType.CHORE, "deploy maven to GitHub Pages"),
                     destinationDir
                 )
             }

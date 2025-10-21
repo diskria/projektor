@@ -1,11 +1,9 @@
 package io.github.diskria.projektor.tasks.generate
 
-import io.github.diskria.gradle.utils.extensions.displayName
 import io.github.diskria.gradle.utils.extensions.getFile
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
-import io.github.diskria.kotlin.utils.extensions.common.camelCase
-import io.github.diskria.kotlin.utils.extensions.common.`space case`
-import io.github.diskria.kotlin.utils.extensions.setCase
+import io.github.diskria.kotlin.shell.dsl.git.commits.CommitMessage
+import io.github.diskria.kotlin.shell.dsl.git.commits.CommitType
 import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.common.extensions.getMetadata
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
@@ -70,7 +68,7 @@ abstract class GenerateLicenseTask : DefaultTask() {
         if (EnvironmentHelper.isCI()) {
             metadata.repo.pushFiles(
                 repoDirectory,
-                "chore: ${this::class.displayName.setCase(camelCase, `space case`)}",
+                CommitMessage(CommitType.DOCS, "update $OUTPUT_FILE_NAME"),
                 outputFile
             )
         }
