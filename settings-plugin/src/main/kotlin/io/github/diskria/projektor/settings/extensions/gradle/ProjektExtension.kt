@@ -7,17 +7,18 @@ import io.github.diskria.kotlin.utils.extensions.common.`dot․case`
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.projektor.common.extensions.gradle.AbstractProjektExtension
-import io.github.diskria.projektor.common.github.GithubRepo
 import io.github.diskria.projektor.common.licenses.LicenseType
+import io.github.diskria.projektor.common.metadata.ProjektAbout
+import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.projekt.ProjektType
-import io.github.diskria.projektor.common.projekt.metadata.AboutMetadata
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.publishing.PublishingTargetType
+import io.github.diskria.projektor.common.repo.github.GithubRepo
 import io.github.diskria.projektor.settings.configurations.*
 import io.github.diskria.projektor.settings.configurators.*
 import io.github.diskria.projektor.settings.configurators.common.SettingsConfigurator
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import javax.inject.Inject
 
 open class ProjektExtension @Inject constructor(
@@ -26,11 +27,11 @@ open class ProjektExtension @Inject constructor(
 
     val version: Property<String> = objects.property(String::class.java)
     val license: Property<LicenseType> = objects.property(LicenseType::class.java)
-    val publish: Property<PublishingTargetType> = objects.property(PublishingTargetType::class.java)
+    val publish: SetProperty<PublishingTargetType> = objects.setProperty(PublishingTargetType::class.java)
 
     private var projektType: ProjektType? = null
 
-    fun buildMetadata(repo: GithubRepo, about: AboutMetadata): ProjektMetadata =
+    fun buildMetadata(repo: GithubRepo, about: ProjektAbout): ProjektMetadata =
         ProjektMetadata(
             type = projektType ?: gradleError("Projekt type not initialized"),
             repo = repo,
@@ -40,7 +41,9 @@ open class ProjektExtension @Inject constructor(
             name = repo.name.setCase(`kebab-case`, `Title Case`),
             version = requireProperty(version, ::version.name),
             license = requireProperty(license, ::license.name),
-            publishingTarget = requireProperty(publish, ::publish.name),
+            publishingTargets = requireProperty(publish, ::publish.name).ifEmpty {
+                gradleError("Projekt must be configured for at least one publishing target")
+            },
             description = about.description,
             tags = about.tags,
         )

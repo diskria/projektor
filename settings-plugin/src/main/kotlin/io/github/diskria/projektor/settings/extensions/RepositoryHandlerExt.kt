@@ -3,7 +3,7 @@ package io.github.diskria.projektor.settings.extensions
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.kotlin.utils.words.PascalCase
-import io.github.diskria.projektor.common.github.GithubRepo
+import io.github.diskria.projektor.common.repo.github.GithubRepo
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.kotlin.dsl.maven

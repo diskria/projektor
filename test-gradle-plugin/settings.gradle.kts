@@ -15,7 +15,7 @@ plugins {
 projekt {
     version = "0.1.0"
     license = MIT
-    publish = GRADLE_PLUGIN_PORTAL
+    publish = setOf(GRADLE_PLUGIN_PORTAL)
 
     gradlePlugin()
 }

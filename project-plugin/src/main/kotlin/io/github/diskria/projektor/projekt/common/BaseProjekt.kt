@@ -2,11 +2,11 @@ package io.github.diskria.projektor.projekt.common
 
 import io.github.diskria.kotlin.utils.extensions.mappers.toEnum
 import io.github.diskria.projektor.Versions
-import io.github.diskria.projektor.common.extensions.getMetadata
-import io.github.diskria.projektor.common.github.GithubRepo
+import io.github.diskria.projektor.common.extensions.getProjektMetadata
+import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.minecraft.ModLoaderType
 import io.github.diskria.projektor.common.projekt.ProjektType
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.repo.github.GithubRepo
 import io.github.diskria.projektor.configurations.*
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.licenses.License
@@ -52,7 +52,7 @@ data class BaseProjekt(
 
     companion object {
         fun of(project: Project): BaseProjekt {
-            val metadata = project.getMetadata()
+            val metadata = project.getProjektMetadata()
             return BaseProjekt(
                 metadata = metadata,
                 type = metadata.type,
@@ -63,7 +63,7 @@ data class BaseProjekt(
                 description = metadata.description,
                 tags = metadata.tags,
                 license = metadata.license.mapToModel(),
-                publishingTarget = metadata.publishingTarget.mapToModel(),
+                publishingTarget = metadata.publishingTargets.first().mapToModel(),
                 javaVersion = Versions.JAVA,
                 kotlinVersion = Versions.KOTLIN,
             )

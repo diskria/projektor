@@ -11,9 +11,9 @@ import io.github.diskria.kotlin.utils.extensions.wrapWithBrackets
 import io.github.diskria.projektor.ProjektBuildConfig
 import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.Secrets
-import io.github.diskria.projektor.common.extensions.getMetadata
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
-import io.github.diskria.projektor.extensions.getHomepage
+import io.github.diskria.projektor.common.extensions.getProjektMetadata
+import io.github.diskria.projektor.common.metadata.ProjektMetadata
+import io.github.diskria.projektor.extensions.getHomepages
 import io.github.diskria.projektor.requests.github.GetLanguagesRequest
 import io.github.diskria.projektor.requests.github.UpdateInfoRequest
 import io.github.diskria.projektor.requests.github.UpdateTopicsRequest
@@ -38,7 +38,7 @@ abstract class UpdateGithubRepositoryMetadataTask : DefaultTask() {
     init {
         group = ProjektorGradlePlugin.TASK_GROUP
 
-        metadata.convention(project.getMetadata())
+        metadata.convention(project.getProjektMetadata())
     }
 
     @TaskAction
@@ -58,7 +58,7 @@ abstract class UpdateGithubRepositoryMetadataTask : DefaultTask() {
     private suspend fun updateInfo() {
         with(metadata.get()) {
             sendRequest(
-                UpdateInfoRequest(repo.name, description, getHomepage())
+                UpdateInfoRequest(repo.name, description, getHomepages().first())
             )
         }
     }
@@ -70,7 +70,7 @@ abstract class UpdateGithubRepositoryMetadataTask : DefaultTask() {
             getTopLanguage()?.let { add(it) }
             add(metadata.type.getName(`kebab-case`))
             addAll(metadata.tags)
-            add(metadata.publishingTarget.getName(`kebab-case`))
+            add(metadata.publishingTargets.first().getName(`kebab-case`))
         }
         sendRequest(UpdateTopicsRequest(topics.toList()))
     }

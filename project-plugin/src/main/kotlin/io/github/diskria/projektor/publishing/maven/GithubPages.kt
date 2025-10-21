@@ -1,6 +1,6 @@
 package io.github.diskria.projektor.publishing.maven
 
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.ensureTaskRegistered
 import io.github.diskria.projektor.publishing.maven.common.LocalMavenBasedPublishingTarget
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield

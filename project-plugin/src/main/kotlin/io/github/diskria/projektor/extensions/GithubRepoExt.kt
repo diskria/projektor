@@ -3,7 +3,7 @@ package io.github.diskria.projektor.extensions
 import io.github.diskria.kotlin.shell.dsl.git.GitShell
 import io.github.diskria.kotlin.shell.dsl.git.commits.CommitMessage
 import io.github.diskria.projektor.Secrets
-import io.github.diskria.projektor.common.github.GithubRepo
+import io.github.diskria.projektor.common.repo.github.GithubRepo
 import java.io.File
 
 fun GithubRepo.pushFiles(repoDirectory: File, commitMessage: CommitMessage, vararg files: File) {

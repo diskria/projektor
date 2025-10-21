@@ -15,7 +15,7 @@ plugins {
 projekt {
     version = "0.1.0"
     license = MIT
-    publish = MAVEN_CENTRAL
+    publish = setOf(MAVEN_CENTRAL)
 
     kotlinLibrary()
 }

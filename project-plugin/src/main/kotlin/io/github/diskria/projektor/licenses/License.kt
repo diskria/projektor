@@ -6,7 +6,7 @@ import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.generics.foldChain
 import io.github.diskria.kotlin.utils.extensions.wrapWithBrackets
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.ktor.http.*
 
 sealed class License(val id: String) {

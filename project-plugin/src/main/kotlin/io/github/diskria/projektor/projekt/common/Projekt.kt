@@ -7,10 +7,10 @@ import io.github.diskria.kotlin.utils.extensions.common.`path∕case`
 import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.kotlin.utils.poet.Property
 import io.github.diskria.kotlin.utils.words.PascalCase
-import io.github.diskria.projektor.common.github.GithubRepo
+import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.projekt.ProjektType
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
-import io.github.diskria.projektor.extensions.getHomepage
+import io.github.diskria.projektor.common.repo.github.GithubRepo
+import io.github.diskria.projektor.extensions.getHomepages
 import io.github.diskria.projektor.extensions.mappers.toJvmTarget
 import io.github.diskria.projektor.licenses.License
 import io.github.diskria.projektor.publishing.common.PublishingTarget
@@ -40,5 +40,5 @@ interface Projekt {
     fun getBuildConfigFields(): List<Property<String>> = emptyList()
 
     fun getHomepage(): String =
-        metadata.getHomepage()
+        metadata.getHomepages().first()
 }

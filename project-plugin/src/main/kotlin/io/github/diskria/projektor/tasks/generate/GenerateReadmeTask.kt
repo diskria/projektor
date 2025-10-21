@@ -8,9 +8,9 @@ import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.generics.joinBySpace
 import io.github.diskria.projektor.ProjektorGradlePlugin
-import io.github.diskria.projektor.common.extensions.getMetadata
-import io.github.diskria.projektor.common.projekt.metadata.AboutMetadata
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.extensions.getProjektMetadata
+import io.github.diskria.projektor.common.metadata.ProjektAbout
+import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.extensions.pushFiles
 import io.github.diskria.projektor.readme.MarkdownHelper
@@ -37,7 +37,7 @@ abstract class GenerateReadmeTask : DefaultTask() {
     init {
         group = ProjektorGradlePlugin.TASK_GROUP
 
-        metadata.convention(project.getMetadata())
+        metadata.convention(project.getProjektMetadata())
         repoDirectory.convention(project.layout.projectDirectory)
         outputFile.convention(project.getFile(OUTPUT_FILE_NAME))
     }
@@ -49,9 +49,9 @@ abstract class GenerateReadmeTask : DefaultTask() {
         val repoDirectory = repoDirectory.get().asFile
         val outputFile = outputFile.get().asFile
 
-        val about = AboutMetadata.of(repoDirectory)
+        val about = ProjektAbout.of(repoDirectory)
         val shields = listOfNotNull(
-            metadata.publishingTarget.mapToModel().getReadmeShield(metadata),
+            metadata.publishingTargets.first().mapToModel().getReadmeShield(metadata),
             LicenseShield(metadata.license.mapToModel())
         )
         val header = buildString {

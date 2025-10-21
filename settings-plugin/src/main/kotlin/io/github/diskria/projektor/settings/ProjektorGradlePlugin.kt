@@ -12,12 +12,12 @@ import io.github.diskria.kotlin.utils.extensions.ensureDirectoryExists
 import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.properties.common.autoNamed
 import io.github.diskria.kotlin.utils.properties.common.environmentVariable
-import io.github.diskria.projektor.common.extensions.setMetadata
-import io.github.diskria.projektor.common.github.GithubOwner
-import io.github.diskria.projektor.common.github.GithubRepo
-import io.github.diskria.projektor.common.projekt.OwnerType
-import io.github.diskria.projektor.common.projekt.metadata.AboutMetadata
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.extensions.setProjektMetadata
+import io.github.diskria.projektor.common.metadata.ProjektAbout
+import io.github.diskria.projektor.common.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.repo.github.GithubOwner
+import io.github.diskria.projektor.common.repo.github.GithubOwnerType
+import io.github.diskria.projektor.common.repo.github.GithubRepo
 import io.github.diskria.projektor.settings.extensions.findRootDirectoryFromCompositeBuildOrNull
 import io.github.diskria.projektor.settings.extensions.gradle.ProjektExtension
 import org.gradle.api.Plugin
@@ -32,7 +32,7 @@ class ProjektorGradlePlugin : Plugin<Settings> {
         extension.onConfiguratorReady {
             it.configure(settings)
 
-            val metadata = extension.buildMetadata(buildGithubRepository(settings), AboutMetadata.of(settings.rootDir))
+            val metadata = extension.buildMetadata(buildGithubRepository(settings), ProjektAbout.of(settings.rootDir))
             configureRootProject(settings, metadata)
         }
         settings.gradle.settingsEvaluated {
@@ -44,14 +44,14 @@ class ProjektorGradlePlugin : Plugin<Settings> {
 
     private fun configureRootProject(settings: Settings, metadata: ProjektMetadata) = with(settings) {
         val owner = metadata.repo.owner
-        rootProject.name = metadata.name.modifyIf(owner.type == OwnerType.BRAND) {
+        rootProject.name = metadata.name.modifyIf(owner.type == GithubOwnerType.BRAND) {
             owner.name + Constants.Char.SPACE + it
         }
         gradle.rootProject {
             description = metadata.description
             version = metadata.version
 
-            setMetadata(metadata)
+            setProjektMetadata(metadata)
         }
     }
 

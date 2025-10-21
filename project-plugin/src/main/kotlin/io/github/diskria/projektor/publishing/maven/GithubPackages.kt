@@ -3,8 +3,8 @@ package io.github.diskria.projektor.publishing.maven
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.projektor.Secrets
-import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
-import io.github.diskria.projektor.common.repository.RepositoryHost
+import io.github.diskria.projektor.common.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.repo.RepoHost
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.publishing.maven.common.MavenPublishingTarget
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
@@ -34,7 +34,7 @@ data object GithubPackages : MavenPublishingTarget() {
     }
 
     override fun getHomepage(metadata: ProjektMetadata): String =
-        buildUrl(RepositoryHost.GITHUB.hostName) {
+        buildUrl(RepoHost.GITHUB.hostName) {
             path(metadata.repo.owner.name, metadata.repo.name, "packages")
         }
 
