@@ -38,7 +38,7 @@ abstract class UploadBundleToMavenCentralTask : Zip() {
 
         doLast {
             println("[UploadBundleToMavenCentralTask] start")
-            if (EnvironmentHelper.isCI()) {
+            if (!EnvironmentHelper.isCI()) {
                 println("[UploadBundleToMavenCentralTask] not running on CI, stop")
                 return@doLast
             }
