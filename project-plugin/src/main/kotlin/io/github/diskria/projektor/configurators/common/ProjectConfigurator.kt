@@ -35,7 +35,7 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
         ensurePluginApplied("org.jetbrains.kotlin.plugin.serialization")
         dependencies {
             testImplementation(kotlin("test"))
-            testImplementation("org.junit.jupiter:junit-jupiter:${Versions.JUNIT}")
+            testImplementation("org.junit.jupiter", "junit-jupiter", Versions.JUNIT)
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.KOTLIN_SERIALIZATION}")
         }
         tasks.test {

@@ -1,12 +1,13 @@
 package io.github.diskria.projektor.tasks.distribute
 
 import io.github.diskria.gradle.utils.extensions.getBuildDirectory
+import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
-import io.github.diskria.projektor.Environment
 import io.github.diskria.projektor.ProjektorGradlePlugin
+import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.common.extensions.getMetadata
 import io.github.diskria.projektor.extensions.mappers.mapToEnum
 import io.github.diskria.projektor.publishing.maven.MavenCentral
@@ -34,7 +35,7 @@ abstract class UploadBundleToMavenCentralTask : Zip() {
         from(project.getBuildDirectory(LocalMavenBasedPublishingTarget.LOCAL_MAVEN_DIRECTORY_NAME))
         destinationDirectory.set(project.getBuildDirectory(MavenCentral.mapToEnum().getName(`kebab-case`)))
 
-        if (Environment.isCI()) {
+        if (EnvironmentHelper.isCI()) {
             doLast {
                 runBlocking {
                     uploadBundle()
@@ -44,8 +45,8 @@ abstract class UploadBundleToMavenCentralTask : Zip() {
     }
 
     private suspend fun uploadBundle() {
-        val username = Environment.Secrets.sonatypeUsername
-        val password = Environment.Secrets.sonatypePassword
+        val username = Secrets.sonatypeUsername
+        val password = Secrets.sonatypePassword
         val bearer = (username + Constants.Char.COLON + password).toByteArray().encodeBase64()
         val url = buildUrl("central.sonatype.com") {
             path("api", "v1", "publisher", "upload")

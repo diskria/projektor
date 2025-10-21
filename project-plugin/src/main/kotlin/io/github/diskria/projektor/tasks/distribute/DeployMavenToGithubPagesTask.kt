@@ -1,15 +1,19 @@
 package io.github.diskria.projektor.tasks.distribute
 
+import io.github.diskria.gradle.utils.extensions.displayName
 import io.github.diskria.gradle.utils.extensions.getBuildDirectory
 import io.github.diskria.gradle.utils.extensions.getDirectory
-import io.github.diskria.kotlin.shell.dsl.GitShell
+import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.kotlin.utils.extensions.common.camelCase
 import io.github.diskria.kotlin.utils.extensions.common.fileName
+import io.github.diskria.kotlin.utils.extensions.common.`space case`
 import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
-import io.github.diskria.projektor.Environment
+import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.common.extensions.getMetadata
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.extensions.pushFiles
 import io.github.diskria.projektor.publishing.maven.common.LocalMavenBasedPublishingTarget
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
@@ -26,21 +30,28 @@ abstract class DeployMavenToGithubPagesTask : Sync() {
     abstract val metadata: Property<ProjektMetadata>
 
     @get:InputDirectory
-    abstract val repositoryDirectory: DirectoryProperty
+    abstract val repoDirectory: DirectoryProperty
 
     init {
         group = ProjektorGradlePlugin.TASK_GROUP
 
         metadata.convention(project.getMetadata())
-        repositoryDirectory.convention(project.layout.projectDirectory)
+        repoDirectory.convention(project.layout.projectDirectory)
 
         from(project.getBuildDirectory(LocalMavenBasedPublishingTarget.LOCAL_MAVEN_DIRECTORY_NAME))
         into(project.getDirectory(GITHUB_PAGES_MAVEN_DIRECTORY_NAME))
 
         doLast {
             generateIndexTree()
-            if (Environment.isCI()) {
-                deployToGithubPages()
+            if (EnvironmentHelper.isCI()) {
+                val metadata = metadata.get()
+                val repoDirectory = repoDirectory.get().asFile
+
+                metadata.repo.pushFiles(
+                    repoDirectory,
+                    "chore: ${this::class.displayName.setCase(camelCase, `space case`)}",
+                    destinationDir
+                )
             }
         }
     }
@@ -80,16 +91,6 @@ abstract class DeployMavenToGithubPagesTask : Sync() {
         indexFile.writeText(indexHtml)
 
         directories.forEach { generateIndexTree(it, parentDirectory) }
-    }
-
-    private fun deployToGithubPages() {
-        with(GitShell.open(repositoryDirectory.get().asFile)) {
-            val owner = metadata.get().repo.owner
-            configureUser(owner.name, owner.email)
-            stage(destinationDir.relativeTo(pwd()).path)
-            commit("chore: deploy maven to GitHub Pages")
-            push()
-        }
     }
 
     private fun UL.addLinkItem(href: String) =

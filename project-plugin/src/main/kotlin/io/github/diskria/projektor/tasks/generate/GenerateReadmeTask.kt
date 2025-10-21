@@ -1,15 +1,20 @@
 package io.github.diskria.projektor.tasks.generate
 
+import io.github.diskria.gradle.utils.extensions.displayName
 import io.github.diskria.gradle.utils.extensions.getFile
-import io.github.diskria.kotlin.shell.dsl.GitShell
+import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.kotlin.utils.extensions.common.camelCase
 import io.github.diskria.kotlin.utils.extensions.common.fileName
+import io.github.diskria.kotlin.utils.extensions.common.`space case`
 import io.github.diskria.kotlin.utils.extensions.generics.joinBySpace
+import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.common.extensions.getMetadata
 import io.github.diskria.projektor.common.projekt.metadata.AboutMetadata
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.mappers.mapToModel
+import io.github.diskria.projektor.extensions.pushFiles
 import io.github.diskria.projektor.readme.MarkdownHelper
 import io.github.diskria.projektor.readme.shields.static.LicenseShield
 import org.gradle.api.DefaultTask
@@ -26,7 +31,7 @@ abstract class GenerateReadmeTask : DefaultTask() {
     abstract val metadata: Property<ProjektMetadata>
 
     @get:Internal
-    abstract val repositoryDirectory: DirectoryProperty
+    abstract val repoDirectory: DirectoryProperty
 
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
@@ -35,17 +40,17 @@ abstract class GenerateReadmeTask : DefaultTask() {
         group = ProjektorGradlePlugin.TASK_GROUP
 
         metadata.convention(project.getMetadata())
-        repositoryDirectory.convention(project.layout.projectDirectory)
+        repoDirectory.convention(project.layout.projectDirectory)
         outputFile.convention(project.getFile(OUTPUT_FILE_NAME))
     }
 
     @TaskAction
     fun generate() {
         val metadata = metadata.get()
-        val repositoryDirectory = repositoryDirectory.get().asFile
+        val repoDirectory = repoDirectory.get().asFile
         val outputFile = outputFile.get().asFile
 
-        val about = AboutMetadata.of(repositoryDirectory)
+        val about = AboutMetadata.of(repoDirectory)
         val shields = listOfNotNull(
             metadata.publishingTarget.mapToModel().getReadmeShield(metadata),
             LicenseShield(metadata.license.mapToModel())
@@ -76,12 +81,12 @@ abstract class GenerateReadmeTask : DefaultTask() {
         }
         outputFile.writeText(readmeText)
 
-        with(GitShell.open(repositoryDirectory)) {
-            val owner = metadata.repo.owner
-            configureUser(owner.name, owner.email)
-            stage(outputFile.relativeTo(pwd()).path)
-            commit("docs: update $OUTPUT_FILE_NAME")
-            push()
+        if (EnvironmentHelper.isCI()) {
+            metadata.repo.pushFiles(
+                repoDirectory,
+                "chore: ${this::class.displayName.setCase(camelCase, `space case`)}",
+                outputFile
+            )
         }
     }
 

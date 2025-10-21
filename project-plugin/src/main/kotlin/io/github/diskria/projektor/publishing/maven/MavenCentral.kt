@@ -1,10 +1,11 @@
 package io.github.diskria.projektor.publishing.maven
 
 import io.github.diskria.gradle.utils.extensions.common.gradleError
+import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.extensions.common.`Sentence case`
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
-import io.github.diskria.projektor.Environment
+import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.ensureTaskRegistered
 import io.github.diskria.projektor.extensions.signing
@@ -27,13 +28,12 @@ data object MavenCentral : LocalMavenBasedPublishingTarget() {
 
     override fun configurePublication(publication: MavenPublication, projekt: Projekt, project: Project) {
         val componentName = projekt.getComponentName()
-        val repository = projekt.repo
         with(publication) {
             from(project.components[componentName])
             pom {
                 name.set(projekt.name)
                 description.set(projekt.description)
-                url.set(repository.getUrl())
+                url.set(projekt.repo.getUrl())
                 licenses {
                     license {
                         projekt.license.let { license ->
@@ -44,26 +44,26 @@ data object MavenCentral : LocalMavenBasedPublishingTarget() {
                 }
                 developers {
                     developer {
-                        repository.owner.developer.let { developer ->
+                        projekt.repo.owner.developer.let { developer ->
                             id.set(developer)
                             name.set(developer)
                         }
-                        email.set(repository.owner.email)
+                        email.set(projekt.repo.owner.email)
                     }
                 }
                 scm {
-                    url.set(repository.getUrl())
-                    connection.set(repository.buildScmUri(repository.getUrl(isVcs = true)))
+                    url.set(projekt.repo.getUrl())
+                    connection.set(projekt.repo.buildScmUri(projekt.repo.getUrl(isVcs = true)))
                     developerConnection.set(
-                        repository.buildScmUri(repository.getSshAuthority(), repository.getPath(isVcs = true))
+                        projekt.repo.buildScmUri(projekt.repo.getSshAuthority(), projekt.repo.getPath(isVcs = true))
                     )
                 }
             }
         }
-        if (Environment.isCI()) {
+        if (EnvironmentHelper.isCI()) {
             with(project) {
                 signing {
-                    useInMemoryPgpKeys(Environment.Secrets.gpgKey, Environment.Secrets.gpgPassphrase)
+                    useInMemoryPgpKeys(Secrets.gpgKey, Secrets.gpgPassphrase)
                     sign(publication)
                 }
             }

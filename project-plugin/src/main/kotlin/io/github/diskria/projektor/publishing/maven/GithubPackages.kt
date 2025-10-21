@@ -1,8 +1,10 @@
 package io.github.diskria.projektor.publishing.maven
 
+import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
-import io.github.diskria.projektor.Environment
+import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.repository.RepositoryHost
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.publishing.maven.common.MavenPublishingTarget
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
@@ -22,17 +24,17 @@ data object GithubPackages : MavenPublishingTarget() {
     ): MavenArtifactRepository = with(repositories) {
         maven(projekt.repo.getPackagesMavenUrl()) {
             name = getRepositoryName()
-            if (Environment.isCI()) {
+            if (EnvironmentHelper.isCI()) {
                 credentials {
                     username = projekt.repo.owner.developer
-                    password = Environment.Secrets.githubPackagesToken
+                    password = Secrets.githubPackagesToken
                 }
             }
         }
     }
 
     override fun getHomepage(metadata: ProjektMetadata): String =
-        buildUrl("github.com") {
+        buildUrl(RepositoryHost.GITHUB.hostName) {
             path(metadata.repo.owner.name, metadata.repo.name, "packages")
         }
 

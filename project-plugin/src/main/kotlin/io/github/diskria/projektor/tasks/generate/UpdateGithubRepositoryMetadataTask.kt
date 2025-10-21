@@ -1,5 +1,6 @@
 package io.github.diskria.projektor.tasks.generate
 
+import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.BracketsType
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
@@ -7,9 +8,9 @@ import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.extensions.serialization.deserialize
 import io.github.diskria.kotlin.utils.extensions.wrapWithBrackets
-import io.github.diskria.projektor.Environment
 import io.github.diskria.projektor.ProjektBuildConfig
 import io.github.diskria.projektor.ProjektorGradlePlugin
+import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.common.extensions.getMetadata
 import io.github.diskria.projektor.common.projekt.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.getHomepage
@@ -42,11 +43,12 @@ abstract class UpdateGithubRepositoryMetadataTask : DefaultTask() {
 
     @TaskAction
     fun update() {
-        if (Environment.isCI()) {
-            runBlocking {
-                updateInfo()
-                updateTopics()
-            }
+        if (!EnvironmentHelper.isCI()) {
+            return
+        }
+        runBlocking {
+            updateInfo()
+            updateTopics()
         }
     }
 
@@ -76,12 +78,12 @@ abstract class UpdateGithubRepositoryMetadataTask : DefaultTask() {
     private suspend fun sendRequest(request: GithubRequest): HttpResponse {
         HttpClient(CIO).use { client ->
             val url = buildUrl("api.github.com") {
-                val repository = metadata.get().repo
-                path("repos", repository.owner.name, repository.name, *request.getExtraPathSegments().toTypedArray())
+                val repo = metadata.get().repo
+                path("repos", repo.owner.name, repo.name, *request.getExtraPathSegments().toTypedArray())
             }
             return client.request(url) {
                 method = request.getHttpMethod()
-                bearerAuth(Environment.Secrets.githubToken)
+                bearerAuth(Secrets.githubToken)
                 header(
                     HttpHeaders.UserAgent,
                     buildString {

@@ -1,8 +1,8 @@
 package io.github.diskria.projektor.settings
 
 import io.github.diskria.gradle.utils.extensions.files
-import io.github.diskria.gradle.utils.extensions.isCI
 import io.github.diskria.gradle.utils.extensions.registerExtension
+import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.gradle.utils.helpers.VersionCatalogsHelper
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.asDirectory
@@ -56,23 +56,18 @@ class ProjektorGradlePlugin : Plugin<Settings> {
     }
 
     private fun buildGithubRepository(settings: Settings): GithubRepo = with(settings) {
-        val (ownerName, repositoryName) = if (providers.isCI) {
+        val (owner, repo) = if (EnvironmentHelper.isCI()) {
             val githubOwner by autoNamed.environmentVariable(isRequired = true)
             val githubRepo by autoNamed.environmentVariable(isRequired = true)
             githubOwner to githubRepo
         } else {
-            val ownerName = rootDir.parentFile.asDirectory().name
-            val repositoryName = rootDir.name
-            ownerName to repositoryName
-        }
-        val ownerType = when {
-            ownerName.first().isUpperCase() -> OwnerType.BRAND
-            ownerName.contains(Constants.Char.HYPHEN) -> OwnerType.DOMAIN
-            else -> OwnerType.PROFILE
+            val owner = rootDir.parentFile.asDirectory().name
+            val repo = rootDir.name
+            owner to repo
         }
         return GithubRepo(
-            GithubOwner(ownerName, buildEmail("diskria", "proton.me")),
-            repositoryName
+            GithubOwner(owner, buildEmail("diskria", "proton.me")),
+            repo
         )
     }
 
