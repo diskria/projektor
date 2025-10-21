@@ -40,17 +40,21 @@ abstract class DeployMavenToGithubPagesTask : Sync() {
         into(project.getDirectory(GITHUB_PAGES_MAVEN_DIRECTORY_NAME))
 
         doLast {
+            println("[DeployMavenToGithubPagesTask] start")
             generateIndexTree()
-            if (EnvironmentHelper.isCI()) {
-                val metadata = metadata.get()
-                val repoDirectory = repoDirectory.get().asFile
-
-                metadata.repo.pushFiles(
-                    repoDirectory,
-                    CommitMessage(CommitType.CHORE, "deploy maven to GitHub Pages"),
-                    destinationDir
-                )
+            if (!EnvironmentHelper.isCI()) {
+                println("[DeployMavenToGithubPagesTask] not running on CI, stop")
+                return@doLast
             }
+            val metadata = metadata.get()
+            val repoDirectory = repoDirectory.get().asFile
+
+            metadata.repo.pushFiles(
+                repoDirectory,
+                CommitMessage(CommitType.CHORE, "deploy maven to GitHub Pages"),
+                destinationDir
+            )
+            println("[DeployMavenToGithubPagesTask] end")
         }
     }
 

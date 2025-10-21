@@ -43,13 +43,16 @@ abstract class UpdateGithubRepositoryMetadataTask : DefaultTask() {
 
     @TaskAction
     fun update() {
+        println("[UpdateGithubRepositoryMetadataTask] start")
         if (!EnvironmentHelper.isCI()) {
+            println("[UpdateGithubRepositoryMetadataTask] not running on CI, stop")
             return
         }
         runBlocking {
             updateInfo()
             updateTopics()
         }
+        println("[UpdateGithubRepositoryMetadataTask] end")
     }
 
     private suspend fun updateInfo() {
@@ -104,6 +107,8 @@ abstract class UpdateGithubRepositoryMetadataTask : DefaultTask() {
                     contentType(ContentType.Application.Json)
                     setBody(request.toJson())
                 }
+            }.also {
+                println("[UpdateGithubRepositoryMetadataTask] response = ${it.bodyAsText()}")
             }
         }
     }

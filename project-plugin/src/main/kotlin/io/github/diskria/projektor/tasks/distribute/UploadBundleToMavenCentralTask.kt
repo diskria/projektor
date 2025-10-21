@@ -16,6 +16,7 @@ import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.util.*
@@ -35,12 +36,16 @@ abstract class UploadBundleToMavenCentralTask : Zip() {
         from(project.getBuildDirectory(LocalMavenBasedPublishingTarget.LOCAL_MAVEN_DIRECTORY_NAME))
         destinationDirectory.set(project.getBuildDirectory(MavenCentral.mapToEnum().getName(`kebab-case`)))
 
-        if (EnvironmentHelper.isCI()) {
-            doLast {
-                runBlocking {
-                    uploadBundle()
-                }
+        doLast {
+            println("[UploadBundleToMavenCentralTask] start")
+            if (EnvironmentHelper.isCI()) {
+                println("[UploadBundleToMavenCentralTask] not running on CI, stop")
+                return@doLast
             }
+            runBlocking {
+                uploadBundle()
+            }
+            println("[UploadBundleToMavenCentralTask] end")
         }
     }
 
@@ -66,10 +71,11 @@ abstract class UploadBundleToMavenCentralTask : Zip() {
             )
         })
         HttpClient(CIO).use { client ->
-            client.post(url) {
+            val response = client.post(url) {
                 bearerAuth(bearer)
                 setBody(MultiPartFormDataContent(listOf(part)))
             }
+            println("[UploadBundleToMavenCentralTask] response = " + response.bodyAsText())
         }
     }
 
