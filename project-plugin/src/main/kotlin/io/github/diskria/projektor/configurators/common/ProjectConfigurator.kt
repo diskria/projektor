@@ -139,7 +139,7 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                 is LocalMavenBasedPublishingTarget -> {
                     rootProject.tasks.register(publishTaskName, Sync::class) {
                         children.forEach { from(publisher.target.getLocalMavenDirectory(it)) }
-                        into(publisher.target.getLocalMavenDirectory(this@with))
+                        into(publisher.target.getLocalMavenDirectory(rootProject))
                     }
                 }
 
