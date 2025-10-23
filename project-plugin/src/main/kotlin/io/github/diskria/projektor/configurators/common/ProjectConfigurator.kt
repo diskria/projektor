@@ -134,7 +134,7 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
         }
         val rootPublishers = publishers.map { publisher ->
             val publishTaskName = publisher.publishTask.name
-            val children = childProjects.values
+            val children = rootProject.childProjects.values
             val rootPublishTask = rootProject.tasks.findByName(publishTaskName) ?: when (publisher.target) {
                 is LocalMavenBasedPublishingTarget -> {
                     rootProject.tasks.register(publishTaskName, Sync::class) {

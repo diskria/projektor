@@ -3,7 +3,7 @@ import io.github.diskria.projektor.common.publishing.PublishingTargetType
 
 pluginManagement {
     repositories {
-        maven(uri("../build/localMaven"))
+        maven(uri("../../build/maven/github-pages"))
         gradlePluginPortal()
     }
 }
@@ -15,9 +15,9 @@ plugins {
 projekt {
     version = "0.1.0"
     license = MIT
-    publish = setOf(PublishingTargetType.GITHUB_PAGES)
+    publish = setOf(PublishingTargetType.MAVEN_CENTRAL)
 
-    gradlePlugin()
+    kotlinLibrary()
 }
 
 include(":moduleA", ":moduleB")

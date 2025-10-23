@@ -11,8 +11,8 @@ pluginManagement {
     val shouldIncludeTestProjects = true
     val runningTaskName = gradle.startParameter.taskNames.firstOrNull()
     val isPublishTaskRunning = runningTaskName?.startsWith("publish") == true
-    if (shouldIncludeTestProjects && !isPublishTaskRunning && rootDir.resolve("build/localMaven").exists()) {
-        rootDir.listFiles { it.isDirectory && it.name.startsWith("test") }?.forEach { includeBuild(it.name) }
+    if (shouldIncludeTestProjects && !isPublishTaskRunning && rootDir.resolve("build/maven/github-pages").exists()) {
+        rootDir.resolve("test").listFiles()?.forEach { includeBuild(it) }
     }
 }
 
@@ -21,7 +21,7 @@ plugins {
 }
 
 projekt {
-    version = "3.6.5"
+    version = "3.6.6"
     license = MIT
     publish = setOf(GITHUB_PAGES)
 

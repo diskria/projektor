@@ -62,9 +62,8 @@ class ProjektorGradlePlugin : Plugin<Settings> {
             val githubRepo by autoNamed.environmentVariable(isRequired = true)
             githubOwner to githubRepo
         } else {
-            val projectRoot = findProjectRoot()
-            val owner = projectRoot.parentFile.asDirectory().name
-            val repo = projectRoot.name
+            val owner = rootDir.parentFile.asDirectory().name
+            val repo = rootDir.name
             owner to repo
         }
         return GithubRepo(GithubOwner(owner, buildEmail(ProjektBuildConfig.PLUGIN_DEVELOPER, "proton.me")), repo)

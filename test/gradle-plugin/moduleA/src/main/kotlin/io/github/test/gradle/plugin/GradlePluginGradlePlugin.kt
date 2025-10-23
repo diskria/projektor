@@ -1,9 +1,9 @@
-package io.github.projektor.test.gradle.plugin
+package io.github.test.gradle.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-class TestGradlePluginGradlePlugin : Plugin<Project> {
+class GradlePluginGradlePlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
     }
