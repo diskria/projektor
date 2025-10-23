@@ -1,6 +1,5 @@
 package io.github.diskria.projektor.tasks.distribute
 
-import io.github.diskria.gradle.utils.extensions.getBuildDirectory
 import io.github.diskria.gradle.utils.extensions.getDirectory
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.shell.dsl.git.commits.CommitMessage
@@ -12,7 +11,7 @@ import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.pushFiles
-import io.github.diskria.projektor.publishing.maven.common.LocalMavenBasedPublishingTarget
+import io.github.diskria.projektor.publishing.maven.GithubPages
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.gradle.api.file.DirectoryProperty
@@ -36,14 +35,12 @@ abstract class DeployMavenToGithubPagesTask : Sync() {
         metadata.convention(project.getProjektMetadata())
         repoDirectory.convention(project.layout.projectDirectory)
 
-        from(project.getBuildDirectory(LocalMavenBasedPublishingTarget.LOCAL_MAVEN_DIRECTORY_NAME))
+        from(GithubPages.getLocalMavenDirectory(project))
         into(project.getDirectory(GITHUB_PAGES_MAVEN_DIRECTORY_NAME))
 
         doLast {
-            println("[DeployMavenToGithubPagesTask] start")
             generateIndexTree()
             if (!EnvironmentHelper.isCI()) {
-                println("[DeployMavenToGithubPagesTask] not running on CI, stop")
                 return@doLast
             }
             val metadata = metadata.get()
@@ -54,7 +51,6 @@ abstract class DeployMavenToGithubPagesTask : Sync() {
                 CommitMessage(CommitType.CHORE, "deploy maven to GitHub Pages"),
                 destinationDir
             )
-            println("[DeployMavenToGithubPagesTask] end")
         }
     }
 

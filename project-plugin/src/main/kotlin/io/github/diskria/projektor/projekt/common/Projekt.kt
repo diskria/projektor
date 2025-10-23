@@ -10,7 +10,6 @@ import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.common.repo.github.GithubRepo
-import io.github.diskria.projektor.extensions.getHomepages
 import io.github.diskria.projektor.extensions.mappers.toJvmTarget
 import io.github.diskria.projektor.licenses.License
 import io.github.diskria.projektor.publishing.common.PublishingTarget
@@ -26,7 +25,7 @@ interface Projekt {
     val description: String
     val tags: Set<String>
     val license: License
-    val publishingTarget: PublishingTarget
+    val publishingTargets: List<PublishingTarget>
     val javaVersion: Int
     val kotlinVersion: String
 
@@ -38,7 +37,4 @@ interface Projekt {
     val classNamePrefix: String get() = repo.name.setCase(`kebab-case`, PascalCase)
 
     fun getBuildConfigFields(): List<Property<String>> = emptyList()
-
-    fun getHomepage(): String =
-        metadata.getHomepages().first()
 }

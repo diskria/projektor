@@ -1,30 +1,26 @@
 package io.github.diskria.projektor.readme.shields.static
 
 import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.kotlin.utils.poet.Property
+import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
-import io.ktor.http.*
 
-sealed class StaticShield(
-    label: String,
-    val message: String,
-    val color: String,
-    url: String,
-) : ReadmeShield(label, url) {
-
-    override val urlBuilder: URLBuilder.() -> Unit
-        get() = {
-            path("static", "v1")
-            parameters.apply {
-                append("message", message)
-                append("color", color)
-            }
-        }
+sealed class StaticShield(val message: String, val color: String) : ReadmeShield() {
 
     override fun getAlt(): String =
         buildString {
-            append(label)
+            append(getLabel())
             append(Constants.Char.COLON)
             append(Constants.Char.SPACE)
             append(message)
         }
+
+    override fun getPathSegments(): List<String> =
+        listOf("static", "v1")
+
+    override fun getParameters(): List<Property<String>> {
+        val message by message.autoNamedProperty()
+        val color by color.autoNamedProperty()
+        return listOf(message, color)
+    }
 }

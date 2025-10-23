@@ -13,7 +13,7 @@ import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
-import io.github.diskria.projektor.extensions.getHomepages
+import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.requests.github.GetLanguagesRequest
 import io.github.diskria.projektor.requests.github.UpdateInfoRequest
 import io.github.diskria.projektor.requests.github.UpdateTopicsRequest
@@ -30,7 +30,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
-abstract class UpdateGithubRepositoryMetadataTask : DefaultTask() {
+abstract class UpdateGithubRepoMetadataTask : DefaultTask() {
 
     @get:Internal
     abstract val metadata: Property<ProjektMetadata>
@@ -43,22 +43,19 @@ abstract class UpdateGithubRepositoryMetadataTask : DefaultTask() {
 
     @TaskAction
     fun update() {
-        println("[UpdateGithubRepositoryMetadataTask] start")
         if (!EnvironmentHelper.isCI()) {
-            println("[UpdateGithubRepositoryMetadataTask] not running on CI, stop")
             return
         }
         runBlocking {
             updateInfo()
             updateTopics()
         }
-        println("[UpdateGithubRepositoryMetadataTask] end")
     }
 
     private suspend fun updateInfo() {
         with(metadata.get()) {
             sendRequest(
-                UpdateInfoRequest(repo.name, description, getHomepages().first())
+                UpdateInfoRequest(repo.name, description, publishingTargets.minOf { it }.mapToModel().getHomepage(this))
             )
         }
     }
@@ -70,7 +67,7 @@ abstract class UpdateGithubRepositoryMetadataTask : DefaultTask() {
             getTopLanguage()?.let { add(it) }
             add(metadata.type.getName(`kebab-case`))
             addAll(metadata.tags)
-            add(metadata.publishingTargets.first().getName(`kebab-case`))
+            addAll(metadata.publishingTargets.sorted().map { it.getName(`kebab-case`) })
         }
         sendRequest(UpdateTopicsRequest(topics.toList()))
     }
@@ -107,8 +104,6 @@ abstract class UpdateGithubRepositoryMetadataTask : DefaultTask() {
                     contentType(ContentType.Application.Json)
                     setBody(request.toJson())
                 }
-            }.also {
-                println("[UpdateGithubRepositoryMetadataTask] response = ${it.bodyAsText()}")
             }
         }
     }

@@ -44,16 +44,15 @@ abstract class GenerateReadmeTask : DefaultTask() {
 
     @TaskAction
     fun generate() {
-        println("[GenerateReadmeTask] start")
         val metadata = metadata.get()
         val repoDirectory = repoDirectory.get().asFile
         val outputFile = outputFile.get().asFile
 
         val about = ProjektAbout.of(repoDirectory)
-        val shields = listOfNotNull(
-            metadata.publishingTargets.first().mapToModel().getReadmeShield(metadata),
-            LicenseShield(metadata.license.mapToModel())
-        )
+        val shields = buildList {
+            addAll(metadata.publishingTargets.sorted().mapNotNull { it.mapToModel().getReadmeShield(metadata) })
+            add(LicenseShield(metadata.license.mapToModel()))
+        }
         val header = buildString {
             append(MarkdownHelper.header(metadata.name, 1))
             append(about.description)
@@ -76,13 +75,11 @@ abstract class GenerateReadmeTask : DefaultTask() {
             appendLine()
         }
         if (outputFile.exists() && outputFile.readText() == readmeText) {
-            println("[GenerateReadmeTask] $OUTPUT_FILE_NAME not changed, skip")
             return
         }
         outputFile.writeText(readmeText)
 
         if (!EnvironmentHelper.isCI()) {
-            println("[GenerateReadmeTask] not running on CI, stop")
             return
         }
         metadata.repo.pushFiles(
@@ -90,7 +87,6 @@ abstract class GenerateReadmeTask : DefaultTask() {
             CommitMessage(CommitType.DOCS, "update $OUTPUT_FILE_NAME"),
             outputFile
         )
-        println("[GenerateReadmeTask] end")
     }
 
     companion object {

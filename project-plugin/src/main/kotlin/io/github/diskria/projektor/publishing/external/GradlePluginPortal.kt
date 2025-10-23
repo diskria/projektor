@@ -16,12 +16,13 @@ import org.gradle.api.Project
 
 data object GradlePluginPortal : ExternalPublishingTarget() {
 
-    override fun configurePublishing(projekt: Projekt, project: Project) {
+    override fun configure(projekt: Projekt, project: Project) {
         val gradlePlugin = projekt.asGradlePlugin()
         project.ensurePluginApplied("com.gradle.plugin-publish")
-        if (EnvironmentHelper.isCI()) {
-            listOf(Secrets.gradlePublishKey, Secrets.gradlePublishSecret)
+        if (!EnvironmentHelper.isCI()) {
+            return
         }
+        listOf(Secrets.gradlePublishKey, Secrets.gradlePublishSecret)
     }
 
     override fun getPublishTaskName(): String =

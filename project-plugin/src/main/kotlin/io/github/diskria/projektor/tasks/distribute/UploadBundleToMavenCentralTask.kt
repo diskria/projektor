@@ -11,12 +11,10 @@ import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.extensions.mappers.mapToEnum
 import io.github.diskria.projektor.publishing.maven.MavenCentral
-import io.github.diskria.projektor.publishing.maven.common.LocalMavenBasedPublishingTarget
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.util.*
@@ -33,19 +31,16 @@ abstract class UploadBundleToMavenCentralTask : Zip() {
         archiveBaseName.set(metadata.repo.name)
         archiveVersion.set(metadata.version)
 
-        from(project.getBuildDirectory(LocalMavenBasedPublishingTarget.LOCAL_MAVEN_DIRECTORY_NAME))
+        from(MavenCentral.getLocalMavenDirectory(project))
         destinationDirectory.set(project.getBuildDirectory(MavenCentral.mapToEnum().getName(`kebab-case`)))
 
         doLast {
-            println("[UploadBundleToMavenCentralTask] start")
             if (!EnvironmentHelper.isCI()) {
-                println("[UploadBundleToMavenCentralTask] not running on CI, stop")
                 return@doLast
             }
             runBlocking {
                 uploadBundle()
             }
-            println("[UploadBundleToMavenCentralTask] end")
         }
     }
 
@@ -71,11 +66,10 @@ abstract class UploadBundleToMavenCentralTask : Zip() {
             )
         })
         HttpClient(CIO).use { client ->
-            val response = client.post(url) {
+            client.post(url) {
                 bearerAuth(bearer)
                 setBody(MultiPartFormDataContent(listOf(part)))
             }
-            println("[UploadBundleToMavenCentralTask] response = " + response.bodyAsText())
         }
     }
 

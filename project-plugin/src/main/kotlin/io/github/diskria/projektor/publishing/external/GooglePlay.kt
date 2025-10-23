@@ -13,7 +13,7 @@ import org.gradle.api.Project
 
 data object GooglePlay : ExternalPublishingTarget() {
 
-    override fun configurePublishing(projekt: Projekt, project: Project) = with(project) {
+    override fun configure(projekt: Projekt, project: Project) = with(project) {
         val androidApplication = projekt.asAndroidApplication()
         TODO()
     }
@@ -26,7 +26,7 @@ data object GooglePlay : ExternalPublishingTarget() {
             parameters.append("id", metadata.packageNameBase)
         }
 
-    override fun configureDistributeTask(project: Project) = TODO()
+    override fun configureDistributeTask(rootProject: Project) = TODO()
 
     private fun Projekt.asAndroidApplication(): AndroidApplication =
         this as? AndroidApplication ?: gradleError(

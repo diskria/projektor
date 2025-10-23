@@ -8,7 +8,7 @@ import io.github.diskria.projektor.common.repo.RepoHost
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.publishing.maven.common.MavenPublishingTarget
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
-import io.github.diskria.projektor.readme.shields.dynamic.GithubPackagesShield
+import io.github.diskria.projektor.readme.shields.live.GithubPackagesShield
 import io.ktor.http.*
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
@@ -22,13 +22,14 @@ data object GithubPackages : MavenPublishingTarget() {
         projekt: Projekt,
         project: Project,
     ): MavenArtifactRepository = with(repositories) {
+        if (!EnvironmentHelper.isCI()) {
+            return mavenLocal { name = getRepositoryName() }
+        }
         maven(projekt.repo.getPackagesMavenUrl()) {
             name = getRepositoryName()
-            if (EnvironmentHelper.isCI()) {
-                credentials {
-                    username = projekt.repo.owner.developer
-                    password = Secrets.githubPackagesToken
-                }
+            credentials {
+                username = projekt.repo.owner.developer
+                password = Secrets.githubPackagesToken
             }
         }
     }

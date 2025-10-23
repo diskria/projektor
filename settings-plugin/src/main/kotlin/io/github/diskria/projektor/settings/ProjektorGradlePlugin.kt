@@ -1,6 +1,7 @@
 package io.github.diskria.projektor.settings
 
 import io.github.diskria.gradle.utils.extensions.files
+import io.github.diskria.gradle.utils.extensions.findProjectRoot
 import io.github.diskria.gradle.utils.extensions.registerExtension
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.gradle.utils.helpers.VersionCatalogsHelper
@@ -10,6 +11,7 @@ import io.github.diskria.kotlin.utils.extensions.common.buildEmail
 import io.github.diskria.kotlin.utils.extensions.common.modifyIf
 import io.github.diskria.kotlin.utils.extensions.ensureDirectoryExists
 import io.github.diskria.kotlin.utils.extensions.ensureFileExists
+import io.github.diskria.kotlin.utils.extensions.listFilesWithExtension
 import io.github.diskria.kotlin.utils.properties.common.autoNamed
 import io.github.diskria.kotlin.utils.properties.common.environmentVariable
 import io.github.diskria.projektor.common.extensions.setProjektMetadata
@@ -18,7 +20,6 @@ import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.repo.github.GithubOwner
 import io.github.diskria.projektor.common.repo.github.GithubOwnerType
 import io.github.diskria.projektor.common.repo.github.GithubRepo
-import io.github.diskria.projektor.settings.extensions.findRootDirectoryFromCompositeBuildOrNull
 import io.github.diskria.projektor.settings.extensions.gradle.ProjektExtension
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
@@ -61,20 +62,18 @@ class ProjektorGradlePlugin : Plugin<Settings> {
             val githubRepo by autoNamed.environmentVariable(isRequired = true)
             githubOwner to githubRepo
         } else {
-            val owner = rootDir.parentFile.asDirectory().name
-            val repo = rootDir.name
+            val projectRoot = findProjectRoot()
+            val owner = projectRoot.parentFile.asDirectory().name
+            val repo = projectRoot.name
             owner to repo
         }
-        return GithubRepo(GithubOwner(owner, buildEmail("diskria", "proton.me")), repo)
+        return GithubRepo(GithubOwner(owner, buildEmail(ProjektBuildConfig.PLUGIN_DEVELOPER, "proton.me")), repo)
     }
 
     private fun configureVersionCatalogs(settings: Settings) = with(settings) {
-        val rootDirectory = gradle.findRootDirectoryFromCompositeBuildOrNull() ?: rootDir
-        val catalogsDirectory = rootDirectory.resolve("gradle").resolve("version-catalogs").ensureDirectoryExists()
+        val catalogsDirectory = findProjectRoot().resolve("gradle/version-catalogs").ensureDirectoryExists()
         catalogsDirectory.resolve(VersionCatalogsHelper.buildCatalogFileName()).ensureFileExists()
-        val catalogFiles = catalogsDirectory.listFiles {
-            it.isFile && !it.isHidden && it.extension == Constants.File.Extension.TOML
-        }
+        val catalogFiles = catalogsDirectory.listFilesWithExtension(Constants.File.Extension.TOML)
         dependencyResolutionManagement {
             versionCatalogs {
                 catalogFiles.forEach { catalogFile ->

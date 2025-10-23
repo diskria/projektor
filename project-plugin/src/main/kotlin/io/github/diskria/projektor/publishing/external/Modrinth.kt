@@ -10,13 +10,13 @@ import io.github.diskria.projektor.projekt.MinecraftMod
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.publishing.external.common.ExternalPublishingTarget
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
-import io.github.diskria.projektor.readme.shields.dynamic.ModrinthShield
+import io.github.diskria.projektor.readme.shields.live.ModrinthShield
 import io.ktor.http.*
 import org.gradle.api.Project
 
 data object Modrinth : ExternalPublishingTarget() {
 
-    override fun configurePublishing(projekt: Projekt, project: Project) = with(project) {
+    override fun configure(projekt: Projekt, project: Project) = with(project) {
         val mod = projekt as? MinecraftMod ?: gradleError(
             "Only  projects supported for publishing to Modrinth" +
                     ", but got " + projekt.type.getName(`Sentence case`)
@@ -34,7 +34,7 @@ data object Modrinth : ExternalPublishingTarget() {
             path("mod", metadata.repo.name)
         }
 
-    override fun configureDistributeTask(project: Project) = TODO()
+    override fun configureDistributeTask(rootProject: Project) = TODO()
 
     override fun getReadmeShield(metadata: ProjektMetadata): ReadmeShield =
         ModrinthShield(metadata)

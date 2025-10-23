@@ -35,13 +35,16 @@ data object Fabric : ModLoader {
         val loaderVersion = Versions.FABRIC_LOADER
         val mixins = mod.config.environment.getSourceSets().mapNotNull { sourceSet ->
             val sourceSetName = sourceSet.getName()
-            getFileNames(
-                "src/$sourceSetName/java/${mod.packagePath}/mixins".modifyUnless(sourceSet == SourceSet.MAIN) {
-                    "$it/$sourceSetName"
-                }
-            ).toNullIfEmpty()?.let { sourceSet to it }
+            val mixinsPath = "src"
+                .appendPath(sourceSetName)
+                .appendPath("java")
+                .appendPath(mod.packagePath)
+                .appendPath("mixins")
+            getFileNames(mixinsPath.modifyUnless(sourceSet == SourceSet.MAIN) { it.appendPath(sourceSetName) })
+                .toNullIfEmpty()
+                ?.let { sourceSet to it }
         }.toMap()
-        val datagenClasses = getFileNames("src/datagen/kotlin/${mod.packagePath}").map {
+        val datagenClasses = getFileNames("src/datagen/kotlin".appendPath(mod.packagePath)).map {
             mod.packageName + Constants.Char.DOT + it
         }
         val minecraftVersionString = mod.minecraftVersion.getVersion()

@@ -37,7 +37,7 @@ abstract class SettingsConfigurator : IProjektConfigurator {
             gradlePluginPortal()
         }
         dependencyRepositories {
-            configureGithubPagesMaven("diskria", ProjektBuildConfig.PLUGIN_NAME.lowercase())
+            configureGithubPagesMaven(ProjektBuildConfig.PLUGIN_DEVELOPER, ProjektBuildConfig.PLUGIN_NAME.lowercase())
         }
     }
 }

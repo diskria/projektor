@@ -30,7 +30,7 @@ abstract class MavenPublishingTarget : PublishingTarget() {
         project: Project
     ): MavenArtifactRepository
 
-    override fun configurePublishing(projekt: Projekt, project: Project) = with(project) {
+    override fun configure(projekt: Projekt, project: Project) = with(project) {
         publishing {
             val artifactId = projekt.repo.name.modifyUnless(isRootProject()) {
                 it + Constants.Char.HYPHEN + name

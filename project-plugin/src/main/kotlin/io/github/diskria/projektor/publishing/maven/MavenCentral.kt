@@ -1,20 +1,20 @@
 package io.github.diskria.projektor.publishing.maven
 
 import io.github.diskria.gradle.utils.extensions.common.gradleError
+import io.github.diskria.gradle.utils.extensions.ensureTaskRegistered
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.extensions.common.`Sentence case`
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
-import io.github.diskria.projektor.extensions.ensureTaskRegistered
 import io.github.diskria.projektor.extensions.signing
 import io.github.diskria.projektor.projekt.AndroidLibrary
 import io.github.diskria.projektor.projekt.KotlinLibrary
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.publishing.maven.common.LocalMavenBasedPublishingTarget
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
-import io.github.diskria.projektor.readme.shields.dynamic.MavenCentralShield
+import io.github.diskria.projektor.readme.shields.live.MavenCentralShield
 import io.github.diskria.projektor.tasks.distribute.UploadBundleToMavenCentralTask
 import io.ktor.http.*
 import org.gradle.api.Project
@@ -75,8 +75,8 @@ data object MavenCentral : LocalMavenBasedPublishingTarget() {
             path("artifact", metadata.repo.owner.namespace, metadata.repo.name)
         }
 
-    override fun configureDistributeTask(project: Project): Task =
-        project.rootProject.ensureTaskRegistered<UploadBundleToMavenCentralTask>()
+    override fun configureDistributeTask(rootProject: Project): Task =
+        rootProject.ensureTaskRegistered<UploadBundleToMavenCentralTask>()
 
     override fun getReadmeShield(metadata: ProjektMetadata): ReadmeShield =
         MavenCentralShield(metadata)

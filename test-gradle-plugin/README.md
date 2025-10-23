@@ -2,7 +2,7 @@
 
 Test
 
-[![Github Pages](https://img.shields.io/github/v/tag/projektor/test-gradle-plugin.svg?sort=semver&label=Github+Pages&style=for-the-badge)](https://projektor.github.io/test-gradle-plugin) [![License: MIT](https://img.shields.io/static/v1?message=MIT&color=yellow&label=License&style=for-the-badge)](https://spdx.org/licenses/MIT)
+[![Github Pages](https://img.shields.io/github/v/tag/projektor/test-gradle-plugin.svg?label=Github+Pages&style=for-the-badge&sort=semver)](https://projektor.github.io/test-gradle-plugin) [![License: MIT](https://img.shields.io/static/v1?label=License&style=for-the-badge&message=MIT&color=yellow)](https://spdx.org/licenses/MIT)
 
 ---
 

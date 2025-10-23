@@ -44,7 +44,6 @@ abstract class GenerateLicenseTask : DefaultTask() {
 
     @TaskAction
     fun generate() {
-        println("[GenerateLicenseTask] start")
         val metadata = metadata.get()
         val repoDirectory = repoDirectory.get().asFile
         val outputFile = outputFile.get().asFile
@@ -52,7 +51,6 @@ abstract class GenerateLicenseTask : DefaultTask() {
         val license = metadata.license.mapToModel()
         val licenseTag = SPDX_ID_PREFIX + license.id
         if (outputFile.exists() && outputFile.readLines().lastOrNull { it.isNotBlank() }?.trim() == licenseTag) {
-            println("[GenerateLicenseTask] $OUTPUT_FILE_NAME already generated, skip")
             return
         }
 
@@ -63,13 +61,11 @@ abstract class GenerateLicenseTask : DefaultTask() {
             appendLine()
         }
         if (outputFile.exists() && outputFile.readText() == licenseText) {
-            println("[GenerateLicenseTask] $OUTPUT_FILE_NAME not changed, skip")
             return
         }
         outputFile.writeText(licenseText)
 
         if (!EnvironmentHelper.isCI()) {
-            println("[GenerateLicenseTask] not running on CI, stop")
             return
         }
         metadata.repo.pushFiles(
@@ -77,7 +73,6 @@ abstract class GenerateLicenseTask : DefaultTask() {
             CommitMessage(CommitType.DOCS, "update $OUTPUT_FILE_NAME"),
             outputFile
         )
-        println("[GenerateLicenseTask] end")
     }
 
     private suspend fun getLicenseText(metadata: ProjektMetadata, license: License): String =

@@ -2,15 +2,23 @@ package io.github.diskria.projektor.configurators.common
 
 import io.github.diskria.gradle.utils.extensions.*
 import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.kotlin.utils.extensions.appendPath
 import io.github.diskria.projektor.Versions
 import io.github.diskria.projektor.common.configurators.IProjektConfigurator
 import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.projekt.GradlePlugin
 import io.github.diskria.projektor.projekt.common.Projekt
+import io.github.diskria.projektor.publishing.common.PublishingTarget
+import io.github.diskria.projektor.publishing.maven.common.LocalMavenBasedPublishingTarget
+import io.github.diskria.projektor.tasks.ReleaseTask
 import io.github.diskria.projektor.tasks.UnarchiveArtifactTask
 import io.github.diskria.projektor.tasks.generate.GenerateLicenseTask
+import io.github.diskria.projektor.tasks.generate.GenerateReadmeTask
+import io.github.diskria.projektor.tasks.generate.UpdateGithubRepoMetadataTask
 import org.gradle.api.Project
+import org.gradle.api.Task
+import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
@@ -24,11 +32,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
 
     fun configure(project: Project): T =
-        configureProject(project).apply { applyCommonConfiguration(project, this) }
+        configureProject(project).apply { applyCommonConfiguration(this, project) }
 
     abstract fun configureProject(project: Project): T
 
-    private fun applyCommonConfiguration(project: Project, projekt: Projekt) = with(project) {
+    private fun applyCommonConfiguration(projekt: Projekt, project: Project) = with(project) {
         if (projekt !is GradlePlugin) {
             ensurePluginApplied("org.jetbrains.kotlin.jvm")
         }
@@ -95,16 +103,16 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
             named("main") {
                 val generatedDirectory = "src/main/generated"
                 resources.srcDirs(generatedDirectory)
-                java.srcDirs("$generatedDirectory/java")
+                java.srcDirs(generatedDirectory.appendPath("java"))
             }
         }
         val buildConfigFields = projekt.getBuildConfigFields()
         if (buildConfigFields.isNotEmpty()) {
             buildConfig {
                 packageName(projekt.packageName)
-                className("ProjektBuildConfig")
-                buildConfigFields.forEach { field ->
-                    buildConfigField(field.name, field.value)
+                className(BUILD_CONFIG_CLASS_NAME)
+                buildConfigFields.forEach {
+                    buildConfigField(it.name, it.value)
                 }
                 useKotlinOutput {
                     internalVisibility = false
@@ -112,6 +120,58 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                 }
             }
         }
-        projekt.publishingTarget.configure(projekt, project)
+        val rootProject = project.rootProject
+        val publishers = mutableListOf<Publisher>()
+        projekt.publishingTargets.forEach { target ->
+            target.configure(projekt, project)
+            publishers.add(
+                Publisher(
+                    target,
+                    project.tasks.named(target.getPublishTaskName()).get(),
+                    target.configureDistributeTask(rootProject)
+                )
+            )
+        }
+        val rootPublishers = publishers.map { publisher ->
+            val publishTaskName = publisher.publishTask.name
+            val children = childProjects.values
+            val rootPublishTask = rootProject.tasks.findByName(publishTaskName) ?: when (publisher.target) {
+                is LocalMavenBasedPublishingTarget -> {
+                    rootProject.tasks.register(publishTaskName, Sync::class) {
+                        children.forEach { from(publisher.target.getLocalMavenDirectory(it)) }
+                        into(publisher.target.getLocalMavenDirectory(this@with))
+                    }
+                }
+
+                else -> rootProject.tasks.register(publishTaskName)
+            }.apply {
+                configure {
+                    children.forEach { dependsOn(":${it.name}:$publishTaskName") }
+                }
+            }.get()
+            Publisher(publisher.target, rootPublishTask, publisher.distributeTask)
+        }
+        rootProject.ensureTaskRegistered<ReleaseTask> {
+            val tasksOrder = mutableListOf(
+                rootProject.getTask<GenerateLicenseTask>(),
+                rootProject.getTask<GenerateReadmeTask>(),
+            )
+            rootPublishers.forEach { rootPublisher ->
+                tasksOrder.add(rootPublisher.publishTask)
+                rootPublisher.distributeTask?.let { tasksOrder.add(it) }
+            }
+            tasksOrder.add(rootProject.getTask<UpdateGithubRepoMetadataTask>())
+
+            dependsOn(tasksOrder)
+            tasksOrder.windowed(2).forEach { (before, after) ->
+                after.mustRunAfter(before)
+            }
+        }
+    }
+
+    class Publisher(val target: PublishingTarget, val publishTask: Task, val distributeTask: Task?)
+
+    companion object {
+        private const val BUILD_CONFIG_CLASS_NAME: String = "ProjektBuildConfig"
     }
 }

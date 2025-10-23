@@ -5,6 +5,8 @@ import io.github.diskria.kotlin.utils.extensions.appendPackageName
 import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
 import io.github.diskria.kotlin.utils.serialization.annotations.PrettyPrint
+import io.github.diskria.projektor.common.publishing.PublishingTargetType
+import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.minecraft.ModEnvironment
 import io.github.diskria.projektor.minecraft.config.versions.VersionBound
@@ -176,7 +178,10 @@ class FabricModConfig(
                 accessWidener = fileName(mod.id, "accesswidener"),
                 mixins = listOf(mod.mixinsConfigFileName),
                 links = Links.of(
-                    modrinthProjectUrl = mod.getHomepage(),
+                    modrinthProjectUrl = mod.metadata.publishingTargets
+                        .first { it == PublishingTargetType.MODRINTH }
+                        .mapToModel()
+                        .getHomepage(mod.metadata),
                     sourceCodeUrl = mod.repo.getUrl(),
                 ),
                 entryPoints = EntryPoints.of(

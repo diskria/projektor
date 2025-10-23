@@ -9,10 +9,10 @@ pluginManagement {
     }
 
     val shouldIncludeTestProjects = true
-    val isPublishingGradleTaskRunning = gradle.startParameter.taskNames.firstOrNull()?.startsWith("publish") == true
-    if (shouldIncludeTestProjects && !isPublishingGradleTaskRunning && rootDir.resolve("build/localMaven").exists()) {
-        includeBuild("test-gradle-plugin")
-        includeBuild("test-kotlin-library")
+    val runningTaskName = gradle.startParameter.taskNames.firstOrNull()
+    val isPublishTaskRunning = runningTaskName?.startsWith("publish") == true
+    if (shouldIncludeTestProjects && !isPublishTaskRunning && rootDir.resolve("build/localMaven").exists()) {
+        rootDir.listFiles { it.isDirectory && it.name.startsWith("test") }?.forEach { includeBuild(it.name) }
     }
 }
 
@@ -21,9 +21,9 @@ plugins {
 }
 
 projekt {
-    version = "3.6.4"
+    version = "3.6.5"
     license = MIT
-    publish = GITHUB_PAGES
+    publish = setOf(GITHUB_PAGES)
 
     gradlePlugin()
     MinecraftModConfigurator.applyRepositories(settings)

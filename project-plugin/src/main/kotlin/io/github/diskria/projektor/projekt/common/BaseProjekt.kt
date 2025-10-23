@@ -25,7 +25,7 @@ data class BaseProjekt(
     override val description: String,
     override val tags: Set<String>,
     override val license: License,
-    override val publishingTarget: PublishingTarget,
+    override val publishingTargets: List<PublishingTarget>,
     override val javaVersion: Int,
     override val kotlinVersion: String,
 ) : Projekt {
@@ -63,7 +63,7 @@ data class BaseProjekt(
                 description = metadata.description,
                 tags = metadata.tags,
                 license = metadata.license.mapToModel(),
-                publishingTarget = metadata.publishingTargets.first().mapToModel(),
+                publishingTargets = metadata.publishingTargets.map { it.mapToModel() },
                 javaVersion = Versions.JAVA,
                 kotlinVersion = Versions.KOTLIN,
             )
