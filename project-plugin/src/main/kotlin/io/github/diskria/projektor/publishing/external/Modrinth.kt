@@ -16,6 +16,8 @@ import org.gradle.api.Project
 
 data object Modrinth : ExternalPublishingTarget() {
 
+    override val publishTaskName: String get() = TODO()
+
     override fun configure(projekt: Projekt, project: Project) = with(project) {
         val mod = projekt as? MinecraftMod ?: gradleError(
             "Only  projects supported for publishing to Modrinth" +
@@ -26,8 +28,6 @@ data object Modrinth : ExternalPublishingTarget() {
         }
         TODO()
     }
-
-    override fun getPublishTaskName(): String = TODO()
 
     override fun getHomepage(metadata: ProjektMetadata): String =
         buildUrl("modrinth.com") {

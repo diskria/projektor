@@ -16,6 +16,8 @@ import org.gradle.api.Project
 
 data object GradlePluginPortal : ExternalPublishingTarget() {
 
+    override val publishTaskName: String get() = "publishPlugins"
+
     override fun configure(projekt: Projekt, project: Project) {
         val gradlePlugin = projekt.asGradlePlugin()
         project.ensurePluginApplied("com.gradle.plugin-publish")
@@ -24,9 +26,6 @@ data object GradlePluginPortal : ExternalPublishingTarget() {
         }
         listOf(Secrets.gradlePublishKey, Secrets.gradlePublishSecret)
     }
-
-    override fun getPublishTaskName(): String =
-        "publishPlugins"
 
     override fun getHomepage(metadata: ProjektMetadata): String =
         buildUrl("plugins.gradle.org") {

@@ -13,12 +13,12 @@ import org.gradle.api.Project
 
 data object GooglePlay : ExternalPublishingTarget() {
 
+    override val publishTaskName: String get() = TODO()
+
     override fun configure(projekt: Projekt, project: Project) = with(project) {
         val androidApplication = projekt.asAndroidApplication()
         TODO()
     }
-
-    override fun getPublishTaskName(): String = TODO()
 
     override fun getHomepage(metadata: ProjektMetadata): String =
         buildUrl("play.google.com") {

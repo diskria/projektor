@@ -1,5 +1,5 @@
 import io.github.diskria.projektor.common.licenses.LicenseType.MIT
-import io.github.diskria.projektor.common.publishing.PublishingTargetType
+import io.github.diskria.projektor.common.publishing.PublishingTargetType.*
 
 pluginManagement {
     repositories {
@@ -15,7 +15,11 @@ plugins {
 projekt {
     version = "0.1.0"
     license = MIT
-    publish = setOf(PublishingTargetType.MAVEN_CENTRAL)
+    publish = setOf(
+        GITHUB_PAGES,
+        GITHUB_PACKAGES,
+        MAVEN_CENTRAL,
+    )
 
     kotlinLibrary()
 }

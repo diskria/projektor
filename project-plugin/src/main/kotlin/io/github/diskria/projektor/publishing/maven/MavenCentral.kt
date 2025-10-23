@@ -12,7 +12,7 @@ import io.github.diskria.projektor.extensions.signing
 import io.github.diskria.projektor.projekt.AndroidLibrary
 import io.github.diskria.projektor.projekt.KotlinLibrary
 import io.github.diskria.projektor.projekt.common.Projekt
-import io.github.diskria.projektor.publishing.maven.common.LocalMavenBasedPublishingTarget
+import io.github.diskria.projektor.publishing.maven.common.MavenPublishingTarget
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
 import io.github.diskria.projektor.readme.shields.live.MavenCentralShield
 import io.github.diskria.projektor.tasks.distribute.UploadBundleToMavenCentralTask
@@ -22,7 +22,7 @@ import org.gradle.api.Task
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.get
 
-data object MavenCentral : LocalMavenBasedPublishingTarget() {
+data object MavenCentral : MavenPublishingTarget() {
 
     override val shouldCreatePublication: Boolean = true
 
