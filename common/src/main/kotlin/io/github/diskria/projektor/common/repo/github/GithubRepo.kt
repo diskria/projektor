@@ -34,10 +34,10 @@ data class GithubRepo(val owner: GithubOwner, val name: String) {
         }
 
     fun buildScmUri(vararg parts: String): String =
-        listOf("scm", VERSION_CONTROL_SYSTEM.shortName, *parts).joinToString(Constants.Char.COLON)
+        listOf("scm", GIT.shortName, *parts).joinToString(Constants.Char.COLON)
 
     fun getSshAuthority(): String =
-        VERSION_CONTROL_SYSTEM.shortName + Constants.Char.AT_SIGN + RepoHost.GITHUB.hostName
+        GIT.shortName + Constants.Char.AT_SIGN + RepoHost.GITHUB.hostName
 
     private fun buildRepoUrl(
         isVcs: Boolean = false,
@@ -52,16 +52,13 @@ data class GithubRepo(val owner: GithubOwner, val name: String) {
                 password = token
             }
             host = RepoHost.GITHUB.hostName.modifyIf(isPackagesMaven) { PACKAGES_MAVEN_PREFIX + it }
-            path(owner.name, name.modifyIf(isVcs) { it + Constants.Char.DOT + VERSION_CONTROL_SYSTEM.shortName })
+            path(owner.name, name.modifyIf(isVcs) { it + Constants.Char.DOT + GIT.shortName })
             block()
         }.build()
 
     companion object {
         private const val BASIC_AUTH_USERNAME: String = "x-access-token"
         private const val PACKAGES_MAVEN_PREFIX: String = "maven.pkg."
-        private val VERSION_CONTROL_SYSTEM: VCS = RepoHost.GITHUB.vcs
-
-        fun getPagesUrl(owner: String, repo: String): String =
-            GithubRepo(GithubOwner(owner, Constants.Char.EMPTY), repo).getPagesUrl()
+        private val GIT: VCS = RepoHost.GITHUB.vcs
     }
 }

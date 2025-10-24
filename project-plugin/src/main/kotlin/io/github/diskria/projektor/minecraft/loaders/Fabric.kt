@@ -3,20 +3,27 @@ package io.github.diskria.projektor.minecraft.loaders
 import io.github.diskria.gradle.utils.extensions.getBuildFile
 import io.github.diskria.gradle.utils.extensions.getFile
 import io.github.diskria.gradle.utils.extensions.getFileNames
-import io.github.diskria.gradle.utils.extensions.resolveCatalogVersion
+import io.github.diskria.gradle.utils.helpers.jvm.JvmArguments
+import io.github.diskria.gradle.utils.helpers.jvm.Size
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.appendPath
-import io.github.diskria.kotlin.utils.extensions.capitalizeFirstChar
+import io.github.diskria.kotlin.utils.extensions.common.`Title Case`
+import io.github.diskria.kotlin.utils.extensions.common.buildPath
 import io.github.diskria.kotlin.utils.extensions.common.fileName
+import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.common.modifyUnless
+import io.github.diskria.kotlin.utils.extensions.common.snake_case
 import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.extensions.serialization.serialize
+import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.projektor.Versions
 import io.github.diskria.projektor.extensions.*
-import io.github.diskria.projektor.minecraft.*
+import io.github.diskria.projektor.minecraft.ModSide
+import io.github.diskria.projektor.minecraft.SourceSet
 import io.github.diskria.projektor.minecraft.config.FabricModConfig
 import io.github.diskria.projektor.minecraft.config.MixinsConfig
+import io.github.diskria.projektor.minecraft.getSourceSets
 import io.github.diskria.projektor.minecraft.version.asString
 import io.github.diskria.projektor.projekt.MinecraftMod
 import org.gradle.api.Project
@@ -25,6 +32,8 @@ import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.named
 import org.gradle.language.jvm.tasks.ProcessResources
+import kotlin.collections.isNotEmpty
+import kotlin.collections.map
 
 data object Fabric : ModLoader {
 
@@ -35,41 +44,25 @@ data object Fabric : ModLoader {
         val loaderVersion = Versions.FABRIC_LOADER
         val mixins = mod.config.environment.getSourceSets().mapNotNull { sourceSet ->
             val sourceSetName = sourceSet.getName()
-            val mixinsPath = "src"
-                .appendPath(sourceSetName)
-                .appendPath("java")
-                .appendPath(mod.packagePath)
-                .appendPath("mixins")
-            getFileNames(mixinsPath.modifyUnless(sourceSet == SourceSet.MAIN) { it.appendPath(sourceSetName) })
-                .toNullIfEmpty()
-                ?.let { sourceSet to it }
+            val mixinsPath = buildPath("src", sourceSetName, "java", mod.packagePath, "mixins")
+                .modifyUnless(sourceSet == SourceSet.MAIN) { it.appendPath(sourceSetName) }
+            getFileNames(mixinsPath).toNullIfEmpty()?.let { sourceSet to it }
         }.toMap()
-        val datagenClasses = getFileNames("src/datagen/kotlin".appendPath(mod.packagePath))
+        val datagenClasses = getFileNames(buildPath("src", "datagen", "kotlin", mod.packagePath))
             .map { mod.packageName + Constants.Char.DOT + it }
         val minecraftVersionString = mod.minecraftVersion.asString()
         dependencies {
             minecraft("com.mojang", "minecraft", minecraftVersionString)
             modImplementation("net.fabricmc", "fabric-loader", loaderVersion)
-
-            mappings(
-                "net.fabricmc",
-                "yarn",
-                resolveCatalogVersion("fabric-yarn") { "$minecraftVersionString+build.$it" },
-                "v2"
-            )
-
+            mappings("net.fabricmc", "yarn", "$minecraftVersionString+build.${mod.config.fabric.yarnBuild}", "v2")
+            mod.config.fabric.apiVersion?.let { apiVersion ->
+                modImplementation("net.fabricmc.fabric-api", "fabric-api", "$apiVersion+$minecraftVersionString")
+            }
             modImplementation(
                 "net.fabricmc",
                 "fabric-language-kotlin",
                 "${Versions.FABRIC_KOTLIN}+kotlin.${mod.kotlinVersion}"
             )
-
-            if (mod.config.isFabricApiRequired) {
-                modImplementation(
-                    "net.fabricmc.fabric-api",
-                    "fabric-api",
-                    resolveCatalogVersion("fabric-api") { "$it+$minecraftVersionString" })
-            }
         }
         loom {
             splitEnvironmentSourceSets()
@@ -89,33 +82,55 @@ data object Fabric : ModLoader {
                         val hasSide = mod.config.environment.sides.contains(side)
                         ideConfigGenerated(hasSide)
                         if (hasSide) {
-                            name = sideName.capitalizeFirstChar()
-                            runDir = "run/$sideName"
+                            name = sideName.setCase(snake_case, `Title Case`)
+                            runDir = buildPath("run", sideName)
                             when (side) {
-                                ModSide.CLIENT -> client()
+                                ModSide.CLIENT -> {
+                                    client()
+                                    programArgs(
+                                        *JvmArguments.program(
+                                            "username",
+                                            mod.repo.owner.developer + Constants.Char.HYPHEN + sideName
+                                        )
+                                    )
+                                }
+
                                 ModSide.SERVER -> server()
                             }
-                            programArgs("--username", "${mod.repo.owner.developer}-$sideName")
-                            vmArgs(side.getMinMemoryJvmArgument(), side.getMaxMemoryJvmArgument())
+                            vmArgs(
+                                *JvmArguments.memory(
+                                    side.minMemoryGigabytes..side.maxMemoryGigabytes,
+                                    Size.GIGABYTES
+                                ),
+                                *JvmArguments.program("enable-native-access", "ALL-UNNAMED"),
+                            )
                         }
                     }
                 }
             }
-            accessWidenerPath.set(file("src/main/resources".appendPath(fileName(mod.id, "accesswidener"))))
+            accessWidenerPath.set(file(buildPath("src", "main", "resources", fileName(mod.id, "accesswidener"))))
         }
         if (datagenClasses.isNotEmpty()) {
             loom {
                 runs {
-                    create("data") {
-                        name = "Datagen"
-                        runDir = "datagen"
-                        environment("server")
+                    create("Data Generation") {
+                        runDir = name.setCase(`Title Case`, `kebab-case`)
+                        environment(ModSide.SERVER.getName())
                         vmArgs(
-                            "-Dfabric-api.datagen",
-                            "-Dfabric-api.datagen.output-dir=${file("src/main/generated")}",
-                            "-Dfabric-api.datagen.modid=${mod.id}",
-                            ModSide.SERVER.getMinMemoryJvmArgument(),
-                            ModSide.SERVER.getMaxMemoryJvmArgument(),
+                            JvmArguments.property("fabric-api.datagen"),
+                            JvmArguments.property(
+                                "fabric-api.datagen.output-dir",
+                                file("src/main/generated").toString()
+                            ),
+                            JvmArguments.property(
+                                "fabric-api.datagen.modid",
+                                mod.id
+                            ),
+                            *JvmArguments.memory(
+                                ModSide.SERVER.minMemoryGigabytes..ModSide.SERVER.maxMemoryGigabytes,
+                                Size.GIGABYTES
+                            ),
+                            *JvmArguments.program("enable-native-access", "ALL-UNNAMED"),
                         )
                     }
                 }
@@ -127,8 +142,9 @@ data object Fabric : ModLoader {
             }
         }
         val generateFabricConfigTask = tasks.register("generateFabricConfig") {
-            val modConfigFile = getBuildFile("generated/resources/${getConfigFilePath()}")
-            val mixinsConfigFile = getBuildFile("generated/resources/${mod.mixinsConfigFileName}")
+            val generatedResourcesPath = buildPath("generated", "resources")
+            val modConfigFile = getBuildFile(buildPath(generatedResourcesPath, getConfigFilePath()))
+            val mixinsConfigFile = getBuildFile(buildPath(generatedResourcesPath, mod.mixinsConfigFileName))
             outputs.files(modConfigFile, mixinsConfigFile)
             doLast {
                 modConfigFile.get().asFile.apply {
@@ -137,7 +153,7 @@ data object Fabric : ModLoader {
                         mod = mod,
                         minecraftVersion = mod.minecraftVersion,
                         loaderVersion = loaderVersion,
-                        isApiRequired = mod.config.isFabricApiRequired,
+                        isApiRequired = mod.config.fabric.isApiRequired,
                         datagenClasses = datagenClasses,
                     ).serialize(this)
                 }
@@ -154,7 +170,7 @@ data object Fabric : ModLoader {
             duplicatesStrategy = DuplicatesStrategy.INCLUDE
             from(generateFabricConfigTask)
             from(rootProject.getFile(fileName("icon", Constants.File.Extension.PNG))) {
-                into("assets".appendPath(mod.id))
+                into(buildPath("assets", mod.id))
             }
         }
     }

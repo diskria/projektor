@@ -1,6 +1,7 @@
 package io.github.diskria.projektor.publishing.common
 
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.projekt.ProjektModules
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
 import org.gradle.api.Project
@@ -25,8 +26,8 @@ abstract class PublishingTarget {
                 group = childPublishTask.group
                 description = childPublishTask.description
 
-                rootProject.childProjects.keys.forEach { childProjectName ->
-                    dependsOn(":$childProjectName:$publishTaskName")
+                rootProject.childProjects.values.filterNot { it.path == ProjektModules.COMMON_PATH }.forEach {
+                    dependsOn(":${it.name}:$publishTaskName")
                 }
             }
         }.get()

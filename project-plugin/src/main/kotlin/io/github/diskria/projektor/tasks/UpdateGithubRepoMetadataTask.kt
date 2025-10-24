@@ -1,4 +1,4 @@
-package io.github.diskria.projektor.tasks.generate
+package io.github.diskria.projektor.tasks
 
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.BracketsType
@@ -19,11 +19,18 @@ import io.github.diskria.projektor.requests.github.UpdateInfoRequest
 import io.github.diskria.projektor.requests.github.UpdateTopicsRequest
 import io.github.diskria.projektor.requests.github.common.GithubJsonRequest
 import io.github.diskria.projektor.requests.github.common.GithubRequest
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.header
+import io.ktor.client.request.request
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.contentType
+import io.ktor.http.path
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
@@ -43,12 +50,11 @@ abstract class UpdateGithubRepoMetadataTask : DefaultTask() {
 
     @TaskAction
     fun update() {
-        if (!EnvironmentHelper.isCI()) {
-            return
-        }
-        runBlocking {
-            updateInfo()
-            updateTopics()
+        if (EnvironmentHelper.isCI()) {
+            runBlocking {
+                updateInfo()
+                updateTopics()
+            }
         }
     }
 

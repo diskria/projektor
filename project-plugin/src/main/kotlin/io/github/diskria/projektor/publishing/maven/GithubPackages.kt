@@ -24,23 +24,24 @@ data object GithubPackages : MavenPublishingTarget() {
         projekt: Projekt,
         project: Project,
     ): MavenArtifactRepository = with(repositories) {
-        if (!EnvironmentHelper.isCI()) {
-            return super.configureMaven(repositories, projekt, project)
-        }
-        maven(projekt.repo.getPackagesMavenUrl()) {
-            name = repositoryName
-            credentials {
-                username = projekt.repo.owner.developer
-                password = Secrets.githubPackagesToken
+        if (EnvironmentHelper.isCI()) {
+            maven(projekt.repo.getPackagesMavenUrl()) {
+                name = repositoryName
+                credentials {
+                    username = projekt.repo.owner.developer
+                    password = Secrets.githubPackagesToken
+                }
             }
+        } else {
+            super.configureMaven(repositories, projekt, project)
         }
     }
 
     override fun registerRootPublishTask(rootProject: Project): TaskProvider<out Task> =
-        if (!EnvironmentHelper.isCI()) {
-            super.registerRootPublishTask(rootProject)
-        } else {
+        if (EnvironmentHelper.isCI()) {
             rootProject.tasks.register(publishTaskName)
+        } else {
+            super.registerRootPublishTask(rootProject)
         }
 
     override fun getHomepage(metadata: ProjektMetadata): String =

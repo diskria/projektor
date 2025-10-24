@@ -8,6 +8,7 @@ import io.github.diskria.projektor.common.minecraft.ModLoaderType
 import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.common.repo.github.GithubRepo
 import io.github.diskria.projektor.configurations.*
+import io.github.diskria.projektor.configurations.minecraft.MinecraftModConfiguration
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.licenses.License
 import io.github.diskria.projektor.minecraft.version.MinecraftVersion

@@ -32,7 +32,8 @@ abstract class MavenPublishingTarget : PublishingTarget() {
     protected val repositoryName: String
         get() = mapToEnum().getName(PascalCase)
 
-    override val publishTaskName: String get() = "publishAllPublicationsTo${repositoryName}Repository"
+    override val publishTaskName: String
+        get() = "publishAllPublicationsTo${repositoryName}Repository"
 
     open val shouldCreatePublication: Boolean = false
 

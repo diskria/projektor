@@ -19,8 +19,13 @@ enum class ModEnvironment(
         "server",
         "SERVER",
         listOf(ModSide.SERVER)
-    );
+    ),
 }
 
 fun ModEnvironment.getSourceSets(): List<SourceSet> =
-    listOf(SourceSet.MAIN) + sides.map { it.sourceSet }
+    buildList {
+        add(SourceSet.MAIN)
+        if (sides.contains(ModSide.CLIENT)) {
+            add(SourceSet.CLIENT)
+        }
+    }

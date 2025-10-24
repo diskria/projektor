@@ -2,6 +2,7 @@ package io.github.diskria.projektor.extensions.gradle
 
 import io.github.diskria.projektor.common.extensions.gradle.AbstractProjektExtension
 import io.github.diskria.projektor.configurations.*
+import io.github.diskria.projektor.configurations.minecraft.MinecraftModConfiguration
 import io.github.diskria.projektor.configurators.*
 import io.github.diskria.projektor.configurators.common.ProjectConfigurator
 

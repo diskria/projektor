@@ -7,5 +7,5 @@ object Versions {
     const val JUNIT = "6.0.0"
 
     const val FABRIC_LOADER = "0.17.3"
-    const val FABRIC_KOTLIN = "1.13.6"
+    const val FABRIC_KOTLIN = "1.13.7"
 }

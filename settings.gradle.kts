@@ -12,7 +12,7 @@ pluginManagement {
     if (!gradle.startParameter.taskNames.contains("release") &&
         rootDir.resolve("build/maven").listFiles().orEmpty().isNotEmpty()
     ) {
-        rootDir.resolve("test").listFiles()?.forEach { includeBuild(it) }
+        rootDir.resolve("test").listFiles().orEmpty().forEach { includeBuild(it) }
     }
 }
 
@@ -21,7 +21,7 @@ plugins {
 }
 
 projekt {
-    version = "3.6.10"
+    version = "3.6.11"
     license = MIT
     publish = setOf(
         GITHUB_PAGES,

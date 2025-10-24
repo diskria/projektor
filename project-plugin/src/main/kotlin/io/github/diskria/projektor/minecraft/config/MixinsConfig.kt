@@ -1,6 +1,7 @@
 package io.github.diskria.projektor.minecraft.config
 
 import io.github.diskria.kotlin.utils.extensions.appendPackageName
+import io.github.diskria.kotlin.utils.serialization.annotations.PrettyPrint
 import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.minecraft.SourceSet
 import io.github.diskria.projektor.projekt.MinecraftMod
@@ -8,6 +9,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
+@PrettyPrint
 class MixinsConfig(
     @SerialName("required")
     val isRequired: Boolean,
@@ -29,9 +31,6 @@ class MixinsConfig(
 
     @SerialName("client")
     val clientMixins: List<String>? = null,
-
-    @SerialName("server")
-    val serverMixins: List<String>? = null,
 ) {
     @Serializable
     data class InjectorConfig(
@@ -58,7 +57,6 @@ class MixinsConfig(
                 ),
                 mainMixins = mixins[SourceSet.MAIN],
                 clientMixins = mixins[SourceSet.CLIENT]?.map { "client.$it" },
-                serverMixins = mixins[SourceSet.SERVER]?.map { "server.$it" },
             )
         }
     }

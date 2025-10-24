@@ -2,8 +2,9 @@ package io.github.diskria.projektor.settings.configurators.common
 
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.projektor.common.configurators.IProjektConfigurator
-import io.github.diskria.projektor.settings.ProjektBuildConfig
-import io.github.diskria.projektor.settings.extensions.*
+import io.github.diskria.projektor.settings.extensions.configureMaven
+import io.github.diskria.projektor.settings.extensions.pluginRepositories
+import io.github.diskria.projektor.settings.extensions.repositories
 import io.ktor.http.*
 import org.gradle.api.initialization.Settings
 
@@ -35,9 +36,6 @@ abstract class SettingsConfigurator : IProjektConfigurator {
         }
         pluginRepositories {
             gradlePluginPortal()
-        }
-        dependencyRepositories {
-            configureGithubPagesMaven(ProjektBuildConfig.PLUGIN_DEVELOPER, ProjektBuildConfig.PLUGIN_NAME.lowercase())
         }
     }
 }

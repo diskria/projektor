@@ -67,9 +67,6 @@ class FabricModConfig(
         @SerialName("client")
         val clientEntryPoints: List<EntryPoint>? = null,
 
-        @SerialName("server")
-        val serverEntryPoints: List<EntryPoint>? = null,
-
         @SerialName("fabric-datagen")
         val datagenEntryPoints: List<EntryPoint>? = null,
     ) {
@@ -85,7 +82,6 @@ class FabricModConfig(
                     ModEnvironment.CLIENT_SERVER -> EntryPoints(
                         mainEntryPoints = mainEntryPoints,
                         clientEntryPoints = clientEntryPoints,
-                        serverEntryPoints = serverEntryPoints,
                         datagenEntryPoints = datagenEntryPoints,
                     )
 
@@ -95,7 +91,6 @@ class FabricModConfig(
                     )
 
                     ModEnvironment.SERVER_SIDE_ONLY -> EntryPoints(
-                        serverEntryPoints = serverEntryPoints,
                     )
                 }
             }

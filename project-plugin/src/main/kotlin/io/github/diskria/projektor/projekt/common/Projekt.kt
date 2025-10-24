@@ -29,6 +29,7 @@ interface Projekt {
     val javaVersion: Int
     val kotlinVersion: String
 
+    val isJavadocEnabled: Boolean get() = true
     val packageNameSuffix: String? get() = null
     val jvmTarget: JvmTarget get() = javaVersion.toJvmTarget()
     val archiveVersion: String get() = version

@@ -98,7 +98,8 @@ enum class Release(private val version: String) : MinecraftVersion {
     V_1_21_6("1.21.6"),
     V_1_21_7("1.21.7"),
     V_1_21_8("1.21.8"),
-    V_1_21_9("1.21.9");
+    V_1_21_9("1.21.9"),
+    V_1_21_10("1.21.10");
 
     override fun getEra(): MinecraftEra = MinecraftEra.RELEASE
 

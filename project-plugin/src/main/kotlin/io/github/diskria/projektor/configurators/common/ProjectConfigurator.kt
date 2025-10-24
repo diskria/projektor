@@ -5,15 +5,16 @@ import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.appendPath
 import io.github.diskria.projektor.Versions
 import io.github.diskria.projektor.common.configurators.IProjektConfigurator
+import io.github.diskria.projektor.common.projekt.ProjektModules
 import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.extensions.mappers.toInt
-import io.github.diskria.projektor.projekt.GradlePlugin
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.tasks.ReleaseTask
 import io.github.diskria.projektor.tasks.UnarchiveArtifactTask
+import io.github.diskria.projektor.tasks.UpdateGithubRepoMetadataTask
+import io.github.diskria.projektor.tasks.generate.GenerateGitIgnoreTask
 import io.github.diskria.projektor.tasks.generate.GenerateLicenseTask
 import io.github.diskria.projektor.tasks.generate.GenerateReadmeTask
-import io.github.diskria.projektor.tasks.generate.UpdateGithubRepoMetadataTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
@@ -33,9 +34,7 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
     abstract fun configureProject(project: Project): T
 
     private fun applyCommonConfiguration(projekt: Projekt, project: Project) = with(project) {
-        if (projekt !is GradlePlugin) {
-            ensurePluginApplied("org.jetbrains.kotlin.jvm")
-        }
+        ensurePluginApplied("org.jetbrains.kotlin.jvm")
         ensurePluginApplied("org.jetbrains.kotlin.plugin.serialization")
         dependencies {
             testImplementation(kotlin("test"))
@@ -68,7 +67,9 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                 vendor.set(JvmVendorSpec.ADOPTIUM)
             }
             withSourcesJar()
-            withJavadocJar()
+            if (projekt.isJavadocEnabled) {
+                withJavadocJar()
+            }
         }
         kotlin {
             jvmToolchain(projekt.javaVersion)
@@ -116,6 +117,9 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                 }
             }
         }
+        if (project.path == ProjektModules.COMMON_PATH) {
+            return@with
+        }
         val rootProject = project.rootProject
         val publishingTargetTasks = projekt.publishingTargets.map { target ->
             target.configure(projekt, project)
@@ -127,6 +131,7 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
         }
         rootProject.ensureTaskRegistered<ReleaseTask> {
             val tasksOrder = mutableListOf(
+                rootProject.getTask<GenerateGitIgnoreTask>(),
                 rootProject.getTask<GenerateLicenseTask>(),
                 rootProject.getTask<GenerateReadmeTask>(),
             )

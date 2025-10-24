@@ -7,7 +7,6 @@ import io.github.diskria.projektor.common.repo.github.GithubRepo
 import java.io.File
 
 fun GithubRepo.pushFiles(repoDirectory: File, commitMessage: CommitMessage, vararg files: File) {
-    println("pushFiles: repoDirectory = $repoDirectory, commitMessage = $commitMessage, files = ${files.toList()}")
     with(GitShell.open(repoDirectory)) {
         setRemoteUrl(GitShell.ORIGIN_REMOTE_NAME, getUrl(isVcs = true, token = Secrets.githubToken))
         configureUser(owner.developer, owner.email)

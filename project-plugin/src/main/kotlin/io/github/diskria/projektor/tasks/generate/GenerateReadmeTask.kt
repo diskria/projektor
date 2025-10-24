@@ -6,6 +6,7 @@ import io.github.diskria.kotlin.shell.dsl.git.commits.CommitMessage
 import io.github.diskria.kotlin.shell.dsl.git.commits.CommitType
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.fileName
+import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.extensions.generics.joinBySpace
 import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
@@ -46,7 +47,7 @@ abstract class GenerateReadmeTask : DefaultTask() {
     fun generate() {
         val metadata = metadata.get()
         val repoDirectory = repoDirectory.get().asFile
-        val outputFile = outputFile.get().asFile
+        val outputFile = outputFile.get().asFile.ensureFileExists()
 
         val about = ProjektAbout.of(repoDirectory)
         val shields = buildList {
@@ -74,7 +75,7 @@ abstract class GenerateReadmeTask : DefaultTask() {
             append(footer)
             appendLine()
         }
-        if (outputFile.exists() && outputFile.readText() == readmeText) {
+        if (outputFile.readText() == readmeText) {
             return
         }
         outputFile.writeText(readmeText)

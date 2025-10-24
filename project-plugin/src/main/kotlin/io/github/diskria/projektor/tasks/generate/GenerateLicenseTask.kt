@@ -4,6 +4,7 @@ import io.github.diskria.gradle.utils.extensions.getFile
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.shell.dsl.git.commits.CommitMessage
 import io.github.diskria.kotlin.shell.dsl.git.commits.CommitType
+import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
@@ -46,11 +47,11 @@ abstract class GenerateLicenseTask : DefaultTask() {
     fun generate() {
         val metadata = metadata.get()
         val repoDirectory = repoDirectory.get().asFile
-        val outputFile = outputFile.get().asFile
+        val outputFile = outputFile.get().asFile.ensureFileExists()
 
         val license = metadata.license.mapToModel()
         val licenseTag = SPDX_ID_PREFIX + license.id
-        if (outputFile.exists() && outputFile.readLines().lastOrNull { it.isNotBlank() }?.trim() == licenseTag) {
+        if (outputFile.readLines().lastOrNull { it.isNotBlank() }?.trim() == licenseTag) {
             return
         }
 
@@ -60,7 +61,7 @@ abstract class GenerateLicenseTask : DefaultTask() {
             append(licenseTag)
             appendLine()
         }
-        if (outputFile.exists() && outputFile.readText() == licenseText) {
+        if (outputFile.readText() == licenseText) {
             return
         }
         outputFile.writeText(licenseText)

@@ -5,12 +5,12 @@ import io.github.diskria.kotlin.utils.extensions.common.SCREAMING_SNAKE_CASE
 import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.poet.Property
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
-import io.github.diskria.projektor.configurations.MinecraftModConfiguration
+import io.github.diskria.projektor.configurations.minecraft.MinecraftModConfiguration
 import io.github.diskria.projektor.extensions.mappers.toJvmTarget
 import io.github.diskria.projektor.minecraft.loaders.ModLoader
 import io.github.diskria.projektor.minecraft.version.MinecraftVersion
-import io.github.diskria.projektor.minecraft.version.getMinJavaVersion
 import io.github.diskria.projektor.minecraft.version.asString
+import io.github.diskria.projektor.minecraft.version.getMinJavaVersion
 import io.github.diskria.projektor.projekt.common.AbstractProjekt
 import io.github.diskria.projektor.projekt.common.Projekt
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -24,6 +24,9 @@ class MinecraftMod(
 
     val id: String = repo.name
     val mixinsConfigFileName: String = fileName(id, "mixins", Constants.File.Extension.JSON)
+
+    override val isJavadocEnabled: Boolean
+        get() = false
 
     override val jvmTarget: JvmTarget
         get() = minecraftVersion.getMinJavaVersion().toJvmTarget()
