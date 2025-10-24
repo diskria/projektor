@@ -4,7 +4,8 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.projektor.common)
+    implementation(project(":common"))
+
     implementation(libs.kotlin.html)
 
     implementation(libs.bundles.diskria.utils)

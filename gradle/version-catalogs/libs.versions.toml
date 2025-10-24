@@ -34,8 +34,6 @@ ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "
 
 kotlin-html = { group = "org.jetbrains.kotlinx", name = "kotlinx-html-jvm", version.ref = "kotlin-html" }
 
-projektor-common = { group = "io.github.diskria", name = "projektor-common", version.ref = "projektor" }
-
 foojay-resolver-plugin = { group = "org.gradle.toolchains.foojay-resolver-convention", name = "org.gradle.toolchains.foojay-resolver-convention.gradle.plugin", version.ref = "foojay-resolver-plugin" }
 gradle-develocity-plugin = { group = "com.gradle.develocity", name = "com.gradle.develocity.gradle.plugin", version.ref = "gradle-develocity-plugin" }
 
