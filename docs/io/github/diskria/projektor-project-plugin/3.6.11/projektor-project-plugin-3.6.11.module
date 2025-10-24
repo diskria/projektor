@@ -29,11 +29,11 @@
         {
           "name": "projektor-project-plugin-3.6.11.jar",
           "url": "projektor-project-plugin-3.6.11.jar",
-          "size": 444082,
-          "sha512": "b33c579fc4bf67dd3f746371eaa40f46f9537e9c2a963e743daab3ee5c4b44dbcfa69bc452da6692974d11037b7e714a3395c2b817f9831b155c0a8118351efb",
-          "sha256": "79bc27b0da6f5c8feefe8e0a3dfe6dbc797ffca0fbfd07a5aa445d06af6bc7e2",
-          "sha1": "ccbef946eca1c51466a9bc9f771e006bfa842ffe",
-          "md5": "380b60ef2b6e7a2827f87d556a618e66"
+          "size": 443833,
+          "sha512": "bff0b2082cc3816b04cde8b14999a16f6416283fa56f3b95ddef0e6080b8ecf7d682340215b4b4b63b61e0166db0a483a33ffc588b1e7661547f7ac40453537e",
+          "sha256": "80e350db07ac8b89e7556403fdd6f9b6d93c4119c48ad39019ca062e71448b13",
+          "sha1": "dbb6c6975851e7acff0055efdba165c9233e09e6",
+          "md5": "b751fa00b00d2f5e89d9181ca25f7c9e"
         }
       ]
     },
@@ -51,7 +51,7 @@
       "dependencies": [
         {
           "group": "io.github.diskria",
-          "module": "projektor-common",
+          "module": "common",
           "version": {
             "requires": "3.6.11"
           }
@@ -161,11 +161,11 @@
         {
           "name": "projektor-project-plugin-3.6.11.jar",
           "url": "projektor-project-plugin-3.6.11.jar",
-          "size": 444082,
-          "sha512": "b33c579fc4bf67dd3f746371eaa40f46f9537e9c2a963e743daab3ee5c4b44dbcfa69bc452da6692974d11037b7e714a3395c2b817f9831b155c0a8118351efb",
-          "sha256": "79bc27b0da6f5c8feefe8e0a3dfe6dbc797ffca0fbfd07a5aa445d06af6bc7e2",
-          "sha1": "ccbef946eca1c51466a9bc9f771e006bfa842ffe",
-          "md5": "380b60ef2b6e7a2827f87d556a618e66"
+          "size": 443833,
+          "sha512": "bff0b2082cc3816b04cde8b14999a16f6416283fa56f3b95ddef0e6080b8ecf7d682340215b4b4b63b61e0166db0a483a33ffc588b1e7661547f7ac40453537e",
+          "sha256": "80e350db07ac8b89e7556403fdd6f9b6d93c4119c48ad39019ca062e71448b13",
+          "sha1": "dbb6c6975851e7acff0055efdba165c9233e09e6",
+          "md5": "b751fa00b00d2f5e89d9181ca25f7c9e"
         }
       ]
     },
@@ -181,11 +181,11 @@
         {
           "name": "projektor-project-plugin-3.6.11-sources.jar",
           "url": "projektor-project-plugin-3.6.11-sources.jar",
-          "size": 69324,
-          "sha512": "2a7bb4fb3b8e949ef343ee308ac6a58eb81f3feda9f15f90a2a2979058e11e4c70b86ac102172cd7c1793ecfb6bfaba495f8bebe8bf9746848336dccef2c5530",
-          "sha256": "6484e1659728a9387cc2aeecd6a8ad4940825a0ccbc766fcebc2f2a05f6c4072",
-          "sha1": "f53065032cd2490c3929308dec7283197cfce725",
-          "md5": "4889a1cfb824b80c4b1b417618f1e81b"
+          "size": 69253,
+          "sha512": "cd794a7b6153da7b397e5ff0cb77b0f31316e8d49f941875df9f08dadeb4a516e3e6bcc07a5bfc7cf267c1e38804526d472ef870f82f24dd89edade9ad055bcc",
+          "sha256": "81429e276bdd9e1d5e3a41942e7960a2d7b207a4f742dd73dfb30c3f16686c0a",
+          "sha1": "ce1b71eaf4b21a11c7e3dfaadd7cc35e419acd1b",
+          "md5": "911e42c2bba7d4edbe80d24062e323df"
         }
       ]
     },

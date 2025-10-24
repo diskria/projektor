@@ -26,7 +26,7 @@ abstract class PublishingTarget {
                 group = childPublishTask.group
                 description = childPublishTask.description
 
-                rootProject.childProjects.values.filterNot { it.path == ProjektModules.COMMON_PATH }.forEach {
+                rootProject.childProjects.values.forEach {
                     dependsOn(":${it.name}:$publishTaskName")
                 }
             }

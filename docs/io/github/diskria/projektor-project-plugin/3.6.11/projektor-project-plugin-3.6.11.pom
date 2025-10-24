@@ -21,7 +21,7 @@
   <dependencies>
     <dependency>
       <groupId>io.github.diskria</groupId>
-      <artifactId>projektor-common</artifactId>
+      <artifactId>common</artifactId>
       <version>3.6.11</version>
       <scope>runtime</scope>
     </dependency>

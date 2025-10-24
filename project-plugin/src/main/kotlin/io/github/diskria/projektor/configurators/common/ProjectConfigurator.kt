@@ -117,9 +117,6 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                 }
             }
         }
-        if (project.path == ProjektModules.COMMON_PATH) {
-            return@with
-        }
         val rootProject = project.rootProject
         val publishingTargetTasks = projekt.publishingTargets.map { target ->
             target.configure(projekt, project)
