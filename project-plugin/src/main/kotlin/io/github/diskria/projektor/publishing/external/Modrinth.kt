@@ -19,10 +19,7 @@ data object Modrinth : ExternalPublishingTarget() {
     override val publishTaskName: String get() = TODO()
 
     override fun configure(projekt: Projekt, project: Project) = with(project) {
-        val mod = projekt as? MinecraftMod ?: gradleError(
-            "Only  projects supported for publishing to Modrinth" +
-                    ", but got " + projekt.type.getName(`Sentence case`)
-        )
+        val mod = projekt.asMinecraftMod()
         modrinth {
             projectId.set(mod.id)
         }

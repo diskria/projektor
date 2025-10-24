@@ -3,7 +3,8 @@ import io.github.diskria.projektor.common.publishing.PublishingTargetType.*
 
 pluginManagement {
     repositories {
-        maven(uri("../../build/maven/github-pages"))
+        val mavenDirectory = rootDir.parentFile.parentFile.resolve("build/maven")
+        maven(uri(mavenDirectory.listFiles().orEmpty().min()))
         gradlePluginPortal()
     }
 }

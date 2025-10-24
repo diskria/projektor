@@ -40,7 +40,7 @@ operator fun MinecraftVersion.compareTo(other: MinecraftVersion): Int =
         else -> getOrdinal() - other.getOrdinal()
     }
 
-fun MinecraftVersion.getVersion(): String =
+fun MinecraftVersion.asString(): String =
     getEra().versionPrefix + getVersionInternal()
 
 fun MinecraftVersion.getMinJavaVersion(): Int =

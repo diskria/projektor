@@ -5,18 +5,13 @@ plugins {
 
 dependencies {
     implementation(libs.projektor.common)
-    implementation(libs.bundles.diskria.utils)
-    implementation(libs.bundles.ktor.client)
     implementation(libs.kotlin.html)
 
-    compileOnly(kotlin("gradle-plugin"))
-    compileOnly(libs.fabric.loom.plugin)
-    implementation(libs.build.config.plugin)
-    implementation(libs.kotlin.jvm.plugin)
-    implementation(libs.kotlin.serialization.plugin)
-    implementation(libs.neoforge.moddev.plugin)
-    implementation(libs.modrinth.minotaur.plugin)
-    implementation(libs.gradle.plugin.portal.publish.plugin)
+    implementation(libs.bundles.diskria.utils)
+    implementation(libs.bundles.ktor.client)
+    implementation(libs.bundles.implementation.project.plugins)
+
+    compileOnly(libs.bundles.compile.only.project.plugins)
 
     constraints {
         // Override vulnerable transitive dependency (Okio < 3.4.0, CVE-2023-3635)

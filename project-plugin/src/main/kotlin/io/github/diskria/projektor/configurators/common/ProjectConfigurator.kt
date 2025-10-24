@@ -40,7 +40,7 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
         dependencies {
             testImplementation(kotlin("test"))
             testImplementation("org.junit.jupiter", "junit-jupiter", Versions.JUNIT)
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.KOTLIN_SERIALIZATION}")
+            implementation("org.jetbrains.kotlinx", "kotlinx-serialization-json", Versions.KOTLIN_SERIALIZATION)
         }
         tasks.test {
             useJUnitPlatform()

@@ -10,7 +10,7 @@ import io.github.diskria.projektor.extensions.mappers.toJvmTarget
 import io.github.diskria.projektor.minecraft.loaders.ModLoader
 import io.github.diskria.projektor.minecraft.version.MinecraftVersion
 import io.github.diskria.projektor.minecraft.version.getMinJavaVersion
-import io.github.diskria.projektor.minecraft.version.getVersion
+import io.github.diskria.projektor.minecraft.version.asString
 import io.github.diskria.projektor.projekt.common.AbstractProjekt
 import io.github.diskria.projektor.projekt.common.Projekt
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -35,7 +35,7 @@ class MinecraftMod(
             append(version)
             append(Constants.Char.PLUS)
             append(SHORT_MINECRAFT_NAME)
-            append(minecraftVersion.getVersion())
+            append(minecraftVersion.asString())
         }
 
     override fun getBuildConfigFields(): List<Property<String>> {

@@ -1,5 +1,6 @@
 package io.github.diskria.projektor.settings
 
+import io.github.diskria.gradle.utils.extensions.ensurePluginApplied
 import io.github.diskria.gradle.utils.extensions.files
 import io.github.diskria.gradle.utils.extensions.findProjectRoot
 import io.github.diskria.gradle.utils.extensions.registerExtension
@@ -20,27 +21,37 @@ import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.repo.github.GithubOwner
 import io.github.diskria.projektor.common.repo.github.GithubOwnerType
 import io.github.diskria.projektor.common.repo.github.GithubRepo
+import io.github.diskria.projektor.settings.extensions.develocity
 import io.github.diskria.projektor.settings.extensions.gradle.ProjektExtension
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
 
 class ProjektorGradlePlugin : Plugin<Settings> {
 
-    override fun apply(settings: Settings) {
-        settings.pluginManager.apply("org.gradle.toolchains.foojay-resolver-convention")
+    override fun apply(settings: Settings) = with(settings) {
+        ensurePluginApplied("org.gradle.toolchains.foojay-resolver-convention")
 
-        val extension = settings.registerExtension<ProjektExtension>()
-        extension.onConfiguratorReady {
-            it.configure(settings)
-
-            val metadata = extension.buildMetadata(buildGithubRepository(settings), ProjektAbout.of(settings.rootDir))
-            configureRootProject(settings, metadata)
+        develocity {
+            buildScan {
+                termsOfUseUrl.set("https://gradle.com/help/legal-terms-of-use")
+                termsOfUseAgree.set("yes")
+                publishing.onlyIf { false }
+                uploadInBackground.set(false)
+            }
         }
-        settings.gradle.settingsEvaluated {
+
+        val extension = registerExtension<ProjektExtension>()
+        extension.onConfiguratorReady {
+            it.configure(this)
+
+            val metadata = extension.buildMetadata(buildGithubRepository(this), ProjektAbout.of(rootDir))
+            configureRootProject(this, metadata)
+        }
+        gradle.settingsEvaluated {
             extension.ensureConfigured()
         }
 
-        configureVersionCatalogs(settings)
+        configureVersionCatalogs(this)
     }
 
     private fun configureRootProject(settings: Settings, metadata: ProjektMetadata) = with(settings) {

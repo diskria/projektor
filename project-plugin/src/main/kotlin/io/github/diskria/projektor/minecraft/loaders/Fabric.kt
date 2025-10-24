@@ -17,7 +17,7 @@ import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.minecraft.*
 import io.github.diskria.projektor.minecraft.config.FabricModConfig
 import io.github.diskria.projektor.minecraft.config.MixinsConfig
-import io.github.diskria.projektor.minecraft.version.getVersion
+import io.github.diskria.projektor.minecraft.version.asString
 import io.github.diskria.projektor.projekt.MinecraftMod
 import org.gradle.api.Project
 import org.gradle.api.file.DuplicatesStrategy
@@ -44,24 +44,31 @@ data object Fabric : ModLoader {
                 .toNullIfEmpty()
                 ?.let { sourceSet to it }
         }.toMap()
-        val datagenClasses = getFileNames("src/datagen/kotlin".appendPath(mod.packagePath)).map {
-            mod.packageName + Constants.Char.DOT + it
-        }
-        val minecraftVersionString = mod.minecraftVersion.getVersion()
+        val datagenClasses = getFileNames("src/datagen/kotlin".appendPath(mod.packagePath))
+            .map { mod.packageName + Constants.Char.DOT + it }
+        val minecraftVersionString = mod.minecraftVersion.asString()
         dependencies {
             minecraft("com.mojang", "minecraft", minecraftVersionString)
             modImplementation("net.fabricmc", "fabric-loader", loaderVersion)
 
-            val yarnVersion = resolveCatalogVersion("fabric-yarn") { "$minecraftVersionString+build.$it" }
-            mappings("net.fabricmc", "yarn", yarnVersion, "v2")
+            mappings(
+                "net.fabricmc",
+                "yarn",
+                resolveCatalogVersion("fabric-yarn") { "$minecraftVersionString+build.$it" },
+                "v2"
+            )
 
             modImplementation(
-                "net.fabricmc", "fabric-language-kotlin", "${Versions.FABRIC_KOTLIN}+kotlin.${mod.kotlinVersion}"
+                "net.fabricmc",
+                "fabric-language-kotlin",
+                "${Versions.FABRIC_KOTLIN}+kotlin.${mod.kotlinVersion}"
             )
 
             if (mod.config.isFabricApiRequired) {
-                val apiVersion = resolveCatalogVersion("fabric-api") { "$it+$minecraftVersionString" }
-                modImplementation("net.fabricmc.fabric-api", "fabric-api", apiVersion)
+                modImplementation(
+                    "net.fabricmc.fabric-api",
+                    "fabric-api",
+                    resolveCatalogVersion("fabric-api") { "$it+$minecraftVersionString" })
             }
         }
         loom {

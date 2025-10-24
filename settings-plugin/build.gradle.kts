@@ -4,10 +4,10 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.foojay.resolver.plugin)
     implementation(libs.projektor.common)
     implementation(libs.bundles.diskria.utils)
     implementation(libs.bundles.ktor.client)
+    implementation(libs.bundles.implementation.settings.plugins)
 }
 
 projekt {

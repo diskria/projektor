@@ -11,17 +11,17 @@ import org.gradle.api.Project
 
 class ProjektorGradlePlugin : Plugin<Project> {
 
-    override fun apply(project: Project) {
-        with(project.rootProject) {
+    override fun apply(project: Project) = with(project) {
+        with(rootProject) {
             ensureTaskRegistered<GenerateLicenseTask>()
             ensureTaskRegistered<GenerateReadmeTask>()
             ensureTaskRegistered<UpdateGithubRepoMetadataTask>()
         }
 
-        val extension = project.registerExtension<ProjektExtension>()
-        extension.onConfiguratorReady { it.configure(project) }
+        val extension = registerExtension<ProjektExtension>()
+        extension.onConfiguratorReady { it.configure(this) }
 
-        project.afterEvaluate {
+        afterEvaluate {
             extension.ensureConfigured()
         }
     }

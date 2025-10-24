@@ -13,7 +13,7 @@ import io.github.diskria.projektor.minecraft.config.versions.VersionBound
 import io.github.diskria.projektor.minecraft.config.versions.range.InequalityVersionRange
 import io.github.diskria.projektor.minecraft.config.versions.range.VersionRange
 import io.github.diskria.projektor.minecraft.version.MinecraftVersion
-import io.github.diskria.projektor.minecraft.version.getVersion
+import io.github.diskria.projektor.minecraft.version.asString
 import io.github.diskria.projektor.projekt.MinecraftMod
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -149,7 +149,7 @@ class FabricModConfig(
             ): Dependencies =
                 Dependencies(
                     jvmDependency = versionRange.min(VersionBound.inclusive(javaVersion.toString())),
-                    minecraftDependency = versionRange.min(VersionBound.inclusive(minecraftVersion.getVersion())),
+                    minecraftDependency = versionRange.min(VersionBound.inclusive(minecraftVersion.asString())),
                     loaderDependency = versionRange.min(VersionBound.inclusive(loaderVersion)),
                     kotlinDependency = versionRange.any,
                     apiDependency = if (isApiRequired) versionRange.any else null,

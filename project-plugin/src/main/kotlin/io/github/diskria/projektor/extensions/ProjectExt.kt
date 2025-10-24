@@ -2,8 +2,8 @@ package io.github.diskria.projektor.extensions
 
 import com.github.gmazzo.buildconfig.BuildConfigExtension
 import com.modrinth.minotaur.ModrinthExtension
-import io.github.diskria.gradle.utils.extensions.ensurePluginApplied
 import io.github.diskria.gradle.utils.extensions.runExtension
+import io.github.diskria.gradle.utils.extensions.withPluginExtension
 import io.github.diskria.projektor.projekt.common.BaseProjekt
 import net.fabricmc.loom.api.LoomGradleExtensionAPI
 import net.fabricmc.loom.api.fabricapi.FabricApiExtension
@@ -61,9 +61,4 @@ fun Project.fabric(block: FabricApiExtension.() -> Unit) {
 
 fun Project.modrinth(block: ModrinthExtension.() -> Unit) {
     withPluginExtension<ModrinthExtension>("com.modrinth.minotaur", block)
-}
-
-private inline fun <reified E : Any> Project.withPluginExtension(pluginId: String, block: E.() -> Unit) {
-    ensurePluginApplied(pluginId)
-    runExtension<E>(block)
 }

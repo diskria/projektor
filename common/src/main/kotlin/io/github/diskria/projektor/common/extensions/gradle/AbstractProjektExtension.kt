@@ -29,5 +29,5 @@ abstract class AbstractProjektExtension<C : IProjektConfigurator> : GradleExtens
         gradleError("Projekt not configured!")
 
     private fun alreadyConfiguredError(): Nothing =
-        gradleError("Projekt not configured!")
+        gradleError("Projekt already configured!")
 }

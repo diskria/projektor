@@ -1,4 +1,5 @@
 import io.github.diskria.projektor.common.licenses.LicenseType.MIT
+import io.github.diskria.projektor.common.publishing.PublishingTargetType.GITHUB_PACKAGES
 import io.github.diskria.projektor.common.publishing.PublishingTargetType.GITHUB_PAGES
 import io.github.diskria.projektor.settings.configurators.MinecraftModConfigurator
 
@@ -8,10 +9,9 @@ pluginManagement {
         gradlePluginPortal()
     }
 
-    val shouldIncludeTestProjects = true
-    val runningTaskName = gradle.startParameter.taskNames.firstOrNull()
-    val isPublishTaskRunning = runningTaskName?.startsWith("publish") == true
-    if (shouldIncludeTestProjects && !isPublishTaskRunning && rootDir.resolve("build/maven/github-pages").exists()) {
+    if (!gradle.startParameter.taskNames.contains("release") &&
+        rootDir.resolve("build/maven").listFiles().orEmpty().isNotEmpty()
+    ) {
         rootDir.resolve("test").listFiles()?.forEach { includeBuild(it) }
     }
 }
@@ -21,9 +21,12 @@ plugins {
 }
 
 projekt {
-    version = "3.6.8"
+    version = "3.6.9"
     license = MIT
-    publish = setOf(GITHUB_PAGES)
+    publish = setOf(
+        GITHUB_PAGES,
+        GITHUB_PACKAGES,
+    )
 
     gradlePlugin()
     MinecraftModConfigurator.applyRepositories(settings)
