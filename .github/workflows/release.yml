@@ -66,4 +66,4 @@ jobs:
           distribution: temurin
           java-version: 25
 
-      - run: ./gradlew clean release --stacktrace
+      - run: ./gradlew clean releaseProjekt --stacktrace
