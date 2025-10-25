@@ -24,7 +24,7 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
-abstract class GenerateReadmeTask : DefaultTask() {
+abstract class GenerateProjektReadmeTask : DefaultTask() {
 
     @get:Internal
     abstract val metadata: Property<ProjektMetadata>

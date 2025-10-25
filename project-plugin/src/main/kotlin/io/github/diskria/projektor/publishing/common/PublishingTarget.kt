@@ -12,7 +12,7 @@ abstract class PublishingTarget {
 
     abstract val publishTaskName: String
 
-    abstract fun configure(projekt: Projekt, project: Project)
+    abstract fun configurePublishTask(projekt: Projekt, project: Project): Task?
 
     abstract fun getHomepage(metadata: ProjektMetadata): String
 
@@ -20,14 +20,20 @@ abstract class PublishingTarget {
 
     open fun getReadmeShield(metadata: ProjektMetadata): ReadmeShield? = null
 
-    fun configureRootPublishTask(rootProject: Project, childPublishTask: Task): Task =
+    fun configureRootPublishTask(rootProject: Project, publishTask: Task): Task =
         registerRootPublishTask(rootProject).apply {
             configure {
-                group = childPublishTask.group
-                description = childPublishTask.description
+                group = publishTask.group
+                description = publishTask.description
 
-                rootProject.childProjects.values.forEach {
-                    dependsOn(":${it.name}:$publishTaskName")
+                val leafProjects = generateSequence(listOf(rootProject)) { parents ->
+                    parents.flatMap { it.childProjects.values }.takeIf { it.isNotEmpty() }
+                }.last()
+                leafProjects.forEach {
+                    if (it.path == ProjektModules.COMMON_PATH) {
+                        return@forEach
+                    }
+                    dependsOn("${it.path}:$publishTaskName")
                 }
             }
         }.get()

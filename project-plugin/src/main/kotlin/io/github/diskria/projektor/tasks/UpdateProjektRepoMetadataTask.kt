@@ -37,7 +37,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
-abstract class UpdateGithubRepoMetadataTask : DefaultTask() {
+abstract class UpdateProjektRepoMetadataTask : DefaultTask() {
 
     @get:Internal
     abstract val metadata: Property<ProjektMetadata>

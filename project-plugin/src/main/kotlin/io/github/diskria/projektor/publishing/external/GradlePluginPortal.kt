@@ -1,11 +1,8 @@
 package io.github.diskria.projektor.publishing.external
 
-import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.gradle.utils.extensions.ensurePluginApplied
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
-import io.github.diskria.kotlin.utils.extensions.common.`Sentence case`
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
-import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.projekt.GradlePlugin
@@ -13,28 +10,23 @@ import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.publishing.external.common.ExternalPublishingTarget
 import io.ktor.http.*
 import org.gradle.api.Project
+import org.gradle.api.Task
 
 data object GradlePluginPortal : ExternalPublishingTarget() {
 
     override val publishTaskName: String get() = "publishPlugins"
 
-    override fun configure(projekt: Projekt, project: Project) {
-        val gradlePlugin = projekt.asGradlePlugin()
+    override fun configurePublishTask(projekt: Projekt, project: Project): Task? = with(project) {
+        val plugin = projekt as? GradlePlugin ?: return null
         project.ensurePluginApplied("com.gradle.plugin-publish")
-        if (!EnvironmentHelper.isCI()) {
-            return
+        if (EnvironmentHelper.isCI()) {
+            listOf(Secrets.gradlePublishKey, Secrets.gradlePublishSecret)
         }
-        listOf(Secrets.gradlePublishKey, Secrets.gradlePublishSecret)
+        return project.tasks.named(publishTaskName).get()
     }
 
     override fun getHomepage(metadata: ProjektMetadata): String =
         buildUrl("plugins.gradle.org") {
             path("plugin", metadata.packageNameBase)
         }
-
-    private fun Projekt.asGradlePlugin(): GradlePlugin =
-        this as? GradlePlugin ?: gradleError(
-            "Only Gradle plugin projects supported for publishing to Gradle Plugin Portal" +
-                    ", but got " + type.getName(`Sentence case`)
-        )
 }

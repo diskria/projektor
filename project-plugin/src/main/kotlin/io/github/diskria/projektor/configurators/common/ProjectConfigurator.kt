@@ -5,16 +5,15 @@ import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.appendPath
 import io.github.diskria.projektor.Versions
 import io.github.diskria.projektor.common.configurators.IProjektConfigurator
-import io.github.diskria.projektor.common.projekt.ProjektModules
 import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.projekt.common.Projekt
-import io.github.diskria.projektor.tasks.ReleaseTask
-import io.github.diskria.projektor.tasks.UnarchiveArtifactTask
-import io.github.diskria.projektor.tasks.UpdateGithubRepoMetadataTask
-import io.github.diskria.projektor.tasks.generate.GenerateGitIgnoreTask
-import io.github.diskria.projektor.tasks.generate.GenerateLicenseTask
-import io.github.diskria.projektor.tasks.generate.GenerateReadmeTask
+import io.github.diskria.projektor.tasks.ReleaseProjektTask
+import io.github.diskria.projektor.tasks.UnarchiveProjektArtifactTask
+import io.github.diskria.projektor.tasks.UpdateProjektRepoMetadataTask
+import io.github.diskria.projektor.tasks.generate.GenerateProjektGitIgnoreTask
+import io.github.diskria.projektor.tasks.generate.GenerateProjektLicenseTask
+import io.github.diskria.projektor.tasks.generate.GenerateProjektReadmeTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
@@ -86,13 +85,13 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
             }
         }
         tasks.named<Jar>("jar") {
-            dependsOn(tasks.withType<GenerateLicenseTask>())
-            from(GenerateLicenseTask.OUTPUT_FILE_NAME) {
+            dependsOn(tasks.withType<GenerateProjektLicenseTask>())
+            from(GenerateProjektLicenseTask.OUTPUT_FILE_NAME) {
                 rename { it + Constants.Char.UNDERSCORE + projekt.repo.name }
             }
             archiveVersion.set(projekt.archiveVersion)
         }
-        val unarchiveArtifactTask = registerTask<UnarchiveArtifactTask>()
+        val unarchiveArtifactTask = registerTask<UnarchiveProjektArtifactTask>()
         tasks.named("build") {
             finalizedBy(unarchiveArtifactTask)
         }
@@ -118,29 +117,31 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
             }
         }
         val rootProject = project.rootProject
-        val publishingTargetTasks = projekt.publishingTargets.map { target ->
-            target.configure(projekt, project)
-            val childPublishTask = project.tasks.named(target.publishTaskName).get()
+
+        val publishingTargetTasks = projekt.publishingTargets.mapNotNull { target ->
+            val publishTask = target.configurePublishTask(projekt, project) ?: return@mapNotNull null
             val rootPublishTask = rootProject.tasks.findByName(target.publishTaskName)
-                ?: target.configureRootPublishTask(rootProject, childPublishTask)
+                ?: target.configureRootPublishTask(rootProject, publishTask)
             val distributeTask = target.configureDistributeTask(rootProject)
             rootPublishTask to distributeTask
         }
-        rootProject.ensureTaskRegistered<ReleaseTask> {
-            val tasksOrder = mutableListOf(
-                rootProject.getTask<GenerateGitIgnoreTask>(),
-                rootProject.getTask<GenerateLicenseTask>(),
-                rootProject.getTask<GenerateReadmeTask>(),
-            )
-            publishingTargetTasks.forEach { (rootPublishTask, distributeTask) ->
-                tasksOrder.add(rootPublishTask)
-                distributeTask?.let { tasksOrder.add(it) }
-            }
-            tasksOrder.add(rootProject.getTask<UpdateGithubRepoMetadataTask>())
+        if (publishingTargetTasks.size == projekt.publishingTargets.size) {
+            rootProject.ensureTaskRegistered<ReleaseProjektTask> {
+                val tasksOrder = mutableListOf(
+                    rootProject.getTask<GenerateProjektGitIgnoreTask>(),
+                    rootProject.getTask<GenerateProjektLicenseTask>(),
+                    rootProject.getTask<GenerateProjektReadmeTask>(),
+                )
+                publishingTargetTasks.forEach { (rootPublishTask, distributeTask) ->
+                    tasksOrder.add(rootPublishTask)
+                    distributeTask?.let { tasksOrder.add(it) }
+                }
+                tasksOrder.add(rootProject.getTask<UpdateProjektRepoMetadataTask>())
 
-            dependsOn(tasksOrder)
-            tasksOrder.windowed(2).forEach { (before, after) ->
-                after.mustRunAfter(before)
+                dependsOn(tasksOrder)
+                tasksOrder.windowed(2).forEach { (before, after) ->
+                    after.mustRunAfter(before)
+                }
             }
         }
     }

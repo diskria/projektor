@@ -8,7 +8,9 @@ import io.github.diskria.kotlin.utils.extensions.removePrefix
 import io.github.diskria.projektor.common.repo.RepoHost
 import io.github.diskria.projektor.common.repo.VCS
 import io.ktor.http.*
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class GithubRepo(val owner: GithubOwner, val name: String) {
 
     fun getUrl(isVcs: Boolean = false, token: String? = null): String =

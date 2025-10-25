@@ -1,6 +1,7 @@
 plugins {
     `kotlin-dsl`
     alias(libs.plugins.projektor)
+//    alias(libs.plugins.shadow)
 }
 
 dependencies {
@@ -20,6 +21,10 @@ dependencies {
         implementation(libs.okio)
     }
 }
+
+//tasks.shadowJar {
+//
+//}
 
 projekt {
     gradlePlugin()

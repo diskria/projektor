@@ -10,17 +10,19 @@ import io.github.diskria.projektor.readme.shields.common.ReadmeShield
 import io.github.diskria.projektor.readme.shields.live.ModrinthShield
 import io.ktor.http.*
 import org.gradle.api.Project
+import org.gradle.api.Task
 
 data object Modrinth : ExternalPublishingTarget() {
 
     override val publishTaskName: String
         get() = "modrinth"
 
-    override fun configure(projekt: Projekt, project: Project) = with(project) {
-        val mod = projekt as? MinecraftMod ?: return@with
+    override fun configurePublishTask(projekt: Projekt, project: Project): Task? = with(project) {
+        val mod = projekt as? MinecraftMod ?: return null
         modrinth {
             projectId.set(mod.id)
         }
+        return project.tasks.named(publishTaskName).get()
     }
 
     override fun getHomepage(metadata: ProjektMetadata): String =

@@ -4,7 +4,9 @@ import io.github.diskria.projektor.common.licenses.LicenseType
 import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.common.publishing.PublishingTargetType
 import io.github.diskria.projektor.common.repo.github.GithubRepo
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class ProjektMetadata(
     val type: ProjektType,
     val repo: GithubRepo,

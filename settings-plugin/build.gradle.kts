@@ -1,6 +1,7 @@
 plugins {
     `kotlin-dsl`
     alias(libs.plugins.projektor)
+//    alias(libs.plugins.shadow)
 }
 
 dependencies {

@@ -5,17 +5,12 @@ import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.shell.dsl.git.commits.CommitMessage
 import io.github.diskria.kotlin.shell.dsl.git.commits.CommitType
 import io.github.diskria.kotlin.utils.extensions.ensureFileExists
+import io.github.diskria.kotlin.utils.extensions.generics.joinByNewLine
 import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
-import io.github.diskria.projektor.extensions.mappers.mapToModel
+import io.github.diskria.projektor.common.projekt.ProjektType.MINECRAFT_MOD
 import io.github.diskria.projektor.extensions.pushFiles
-import io.github.diskria.projektor.licenses.License
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
@@ -24,7 +19,7 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
-abstract class GenerateLicenseTask : DefaultTask() {
+abstract class GenerateProjektGitIgnoreTask : DefaultTask() {
 
     @get:Internal
     abstract val metadata: Property<ProjektMetadata>
@@ -49,42 +44,37 @@ abstract class GenerateLicenseTask : DefaultTask() {
         val repoDirectory = repoDirectory.get().asFile
         val outputFile = outputFile.get().asFile.ensureFileExists()
 
-        val license = metadata.license.mapToModel()
-        val licenseTag = SPDX_ID_PREFIX + license.id
-        if (outputFile.readLines().lastOrNull { it.isNotBlank() }?.trim() == licenseTag) {
-            return
-        }
+        val ignorePatterns = mutableListOf(
+            ".idea/*",
+            "!.idea/dictionaries/",
+            ".gradle/",
+            ".kotlin/",
+            "build/",
+        )
+        ignorePatterns.addAll(
+            when (metadata.type) {
+                MINECRAFT_MOD -> listOf("run")
+                else -> emptyList()
+            }
+        )
 
-        val licenseText = buildString {
-            append(runBlocking { getLicenseText(metadata, license) })
-            appendLine()
-            append(licenseTag)
-            appendLine()
-        }
-        if (outputFile.readText() == licenseText) {
+        val gitIgnoreText = ignorePatterns.joinByNewLine()
+        if (outputFile.readText() == gitIgnoreText) {
             return
         }
-        outputFile.writeText(licenseText)
+        outputFile.writeText(gitIgnoreText)
 
         if (!EnvironmentHelper.isCI()) {
             return
         }
         metadata.repo.pushFiles(
             repoDirectory,
-            CommitMessage(CommitType.DOCS, "update $OUTPUT_FILE_NAME"),
+            CommitMessage(CommitType.CHORE, "update $OUTPUT_FILE_NAME"),
             outputFile
         )
     }
 
-    private suspend fun getLicenseText(metadata: ProjektMetadata, license: License): String =
-        HttpClient(CIO).use { client ->
-            val template = client.get(license.templateUrl).bodyAsText()
-            license.fillTemplate(template, metadata)
-        }
-
     companion object {
-        const val OUTPUT_FILE_NAME: String = "LICENSE"
-
-        private const val SPDX_ID_PREFIX: String = "SPDX ID: "
+        private const val OUTPUT_FILE_NAME: String = ".gitignore"
     }
 }

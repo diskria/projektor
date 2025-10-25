@@ -4,7 +4,9 @@ import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.appendPackageName
 import io.github.diskria.kotlin.utils.extensions.common.modifyIf
 import io.github.diskria.projektor.common.repo.RepoHost
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class GithubOwner(val name: String, val email: String) {
 
     val type: GithubOwnerType

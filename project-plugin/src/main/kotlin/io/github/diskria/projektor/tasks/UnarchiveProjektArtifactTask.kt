@@ -4,7 +4,7 @@ import org.gradle.api.tasks.Sync
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.named
 
-abstract class UnarchiveArtifactTask : Sync() {
+abstract class UnarchiveProjektArtifactTask : Sync() {
 
     init {
         val jarTask = project.tasks.named<Jar>("jar")

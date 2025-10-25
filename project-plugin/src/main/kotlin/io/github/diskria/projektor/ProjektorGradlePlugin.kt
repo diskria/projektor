@@ -4,10 +4,10 @@ import io.github.diskria.gradle.utils.extensions.ensureTaskRegistered
 import io.github.diskria.gradle.utils.extensions.registerExtension
 import io.github.diskria.projektor.common.projekt.ProjektModules
 import io.github.diskria.projektor.extensions.gradle.ProjektExtension
-import io.github.diskria.projektor.tasks.UpdateGithubRepoMetadataTask
-import io.github.diskria.projektor.tasks.generate.GenerateGitIgnoreTask
-import io.github.diskria.projektor.tasks.generate.GenerateLicenseTask
-import io.github.diskria.projektor.tasks.generate.GenerateReadmeTask
+import io.github.diskria.projektor.tasks.UpdateProjektRepoMetadataTask
+import io.github.diskria.projektor.tasks.generate.GenerateProjektGitIgnoreTask
+import io.github.diskria.projektor.tasks.generate.GenerateProjektLicenseTask
+import io.github.diskria.projektor.tasks.generate.GenerateProjektReadmeTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -16,10 +16,10 @@ class ProjektorGradlePlugin : Plugin<Project> {
     override fun apply(project: Project) = with(project) {
         if (path != ProjektModules.COMMON_PATH) {
             with(rootProject) {
-                ensureTaskRegistered<GenerateGitIgnoreTask>()
-                ensureTaskRegistered<GenerateLicenseTask>()
-                ensureTaskRegistered<GenerateReadmeTask>()
-                ensureTaskRegistered<UpdateGithubRepoMetadataTask>()
+                ensureTaskRegistered<GenerateProjektGitIgnoreTask>()
+                ensureTaskRegistered<GenerateProjektLicenseTask>()
+                ensureTaskRegistered<GenerateProjektReadmeTask>()
+                ensureTaskRegistered<UpdateProjektRepoMetadataTask>()
             }
         }
 
