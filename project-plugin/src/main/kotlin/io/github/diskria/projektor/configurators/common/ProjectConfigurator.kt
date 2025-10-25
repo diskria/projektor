@@ -5,6 +5,7 @@ import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.appendPath
 import io.github.diskria.projektor.Versions
 import io.github.diskria.projektor.common.configurators.IProjektConfigurator
+import io.github.diskria.projektor.common.projekt.ProjektModules
 import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.projekt.common.Projekt
@@ -115,6 +116,9 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                     topLevelConstants = false
                 }
             }
+        }
+        if (project.path == ProjektModules.COMMON_PATH) {
+            return
         }
         val rootProject = project.rootProject
 
