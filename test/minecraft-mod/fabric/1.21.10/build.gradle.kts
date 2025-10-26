@@ -1,7 +1,6 @@
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.projektor)
-    alias(libs.plugins.fabric.loom)
+    alias(libs.plugins.projektor) version "4.+"
+    alias(libs.plugins.fabric.loom) apply false
 }
 
 projekt {

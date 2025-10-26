@@ -35,11 +35,10 @@ abstract class UploadBundleToMavenCentralTask : Zip() {
         destinationDirectory.set(project.getBuildDirectory(MavenCentral.mapToEnum().getName(`kebab-case`)))
 
         doLast {
-            if (!EnvironmentHelper.isCI()) {
-                return@doLast
-            }
-            runBlocking {
-                uploadBundle()
+            if (EnvironmentHelper.isCI()) {
+                runBlocking {
+                    uploadBundle()
+                }
             }
         }
     }

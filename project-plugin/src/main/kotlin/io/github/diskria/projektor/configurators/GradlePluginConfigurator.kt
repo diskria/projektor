@@ -15,25 +15,25 @@ open class GradlePluginConfigurator(
 ) : ProjectConfigurator<GradlePlugin>() {
 
     override fun configureProject(project: Project): GradlePlugin = with(project) {
-        val gradlePlugin = project.toProjekt().toGradlePlugin(project, config)
+        val plugin = project.toProjekt().toGradlePlugin(project, config)
         dependencies {
             testImplementation(gradleTestKit())
         }
         gradlePlugin {
-            website.set(gradlePlugin.repo.getUrl())
-            vcsUrl.set(gradlePlugin.repo.getUrl(isVcs = true))
+            website.set(plugin.repo.getUrl())
+            vcsUrl.set(plugin.repo.getUrl(isVcs = true))
             plugins {
-                create(gradlePlugin.id) {
-                    id = gradlePlugin.id
-                    implementationClass = gradlePlugin.packageName.appendPackageName(
-                        gradlePlugin.classNamePrefix + "GradlePlugin"
+                create(plugin.id) {
+                    id = plugin.id
+                    implementationClass = plugin.packageName.appendPackageName(
+                        plugin.classNamePrefix + "GradlePlugin"
                     )
-                    displayName = gradlePlugin.name
-                    description = gradlePlugin.description
-                    tags.set(gradlePlugin.tags)
+                    displayName = plugin.name
+                    description = plugin.description
+                    tags.set(plugin.tags)
                 }
             }
         }
-        return gradlePlugin
+        return plugin
     }
 }

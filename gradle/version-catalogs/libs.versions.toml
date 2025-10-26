@@ -10,13 +10,13 @@ modrinth-minotaur-plugin = "2.8.10"
 plugin-publish-plugin = "1.3.1"
 shadow-plugin = "9.2.2"
 
-fabric-loom-plugin = "1.11.8"
+fabric-loom-plugin = "1.12.0-alpha.48"
 
-kotlin = "2.2.21"
+kotlin = "2.3.0-Beta1"
 ktor = "3.3.1"
 kotlin-html = "0.12.0"
-kotlin-utils = "0.7.2"
-gradle-utils = "0.5.5"
+kotlin-utils = "0.7.5"
+gradle-utils = "0.5.8"
 kotlin-shell-dsl = "0.4.2"
 
 okio = "3.16.1"
@@ -73,7 +73,7 @@ implementation-project-plugins = [
     "neoforge-moddev-plugin",
     "modrinth-minotaur-plugin",
     "plugin-publish-plugin",
-#    "shadow-plugin",
+    "shadow-plugin",
 ]
 compile-only-project-plugins = [
     "fabric-loom-plugin",

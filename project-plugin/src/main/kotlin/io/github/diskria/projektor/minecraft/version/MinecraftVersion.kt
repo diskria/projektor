@@ -1,8 +1,14 @@
 package io.github.diskria.projektor.minecraft.version
 
+import io.github.diskria.gradle.utils.extensions.common.gradleError
+import io.github.diskria.kotlin.utils.extensions.common.className
 import io.github.diskria.kotlin.utils.extensions.common.failWithDetails
+import io.github.diskria.kotlin.utils.extensions.previousEnumOrNull
+import io.github.diskria.kotlin.utils.extensions.previousOrNull
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.minecraft.era.MinecraftEra
+import io.github.diskria.projektor.minecraft.era.firstVersion
+import io.github.diskria.projektor.minecraft.era.lastVersion
 
 interface MinecraftVersion {
 
@@ -11,34 +17,43 @@ interface MinecraftVersion {
     fun getVersionInternal(): String
 
     companion object {
-        fun of(version: String): MinecraftVersion {
-            val era = MinecraftEra.entries
-                .filterNot { it == MinecraftEra.RELEASE }
-                .find { version.startsWith(it.versionPrefix) }
-                ?: MinecraftEra.RELEASE
-            return era.versions.find { version == it.getVersionInternal() }
+        val LATEST: MinecraftVersion = MinecraftEra.entries.last().lastVersion()
+        val EARLIEST: MinecraftVersion = MinecraftEra.entries.first().firstVersion()
+
+        fun of(version: String): MinecraftVersion =
+            MinecraftEra.of(version).versions.find { version == it.getVersionInternal() }
                 ?: failWithDetails("Unknown Minecraft version") {
-                    val era by era.name.autoNamedProperty()
                     val version by version.autoNamedProperty()
-                    listOf(era, version)
+                    listOf(version)
                 }
-        }
+
+        fun of(enum: Enum<*>): MinecraftVersion =
+            enum as? MinecraftVersion
+                ?: gradleError("Expected enum implementing MinecraftVersion, but got ${enum::class.className()}")
     }
 }
 
-fun MinecraftVersion.asEnum(): Enum<*> {
-    require(this is Enum<*>) { "Only enums can implement MinecraftVersion" }
-    return this
-}
+fun MinecraftVersion.asEnum(): Enum<*> =
+    this as? Enum<*>
+        ?: gradleError("Expected MinecraftVersion implemented by enum, but got ${this::class.className()}")
 
 fun MinecraftVersion.getOrdinal(): Int =
     asEnum().ordinal
 
-operator fun MinecraftVersion.compareTo(other: MinecraftVersion): Int =
-    when {
-        getEra() != other.getEra() -> getEra().ordinal - other.getEra().ordinal
-        else -> getOrdinal() - other.getOrdinal()
+operator fun MinecraftVersion.compareTo(other: MinecraftVersion): Int {
+    val era = getEra()
+    val otherEra = other.getEra()
+    return when {
+        era == otherEra -> getOrdinal() - other.getOrdinal()
+        else -> era.ordinal - otherEra.ordinal
     }
+}
+
+fun List<MinecraftVersion>.sorted(): List<MinecraftVersion> =
+    sortedWith { previous, next -> previous.compareTo(next) }
+
+fun MinecraftVersion.previousOrNull(): MinecraftVersion? =
+    asEnum().previousEnumOrNull()?.let { MinecraftVersion.of(it) } ?: getEra().previousOrNull()?.lastVersion()
 
 fun MinecraftVersion.asString(): String =
     getEra().versionPrefix + getVersionInternal()
@@ -55,7 +70,7 @@ fun MinecraftVersion.getMinJavaVersion(): Int =
 
 fun MinecraftVersion.getMinDataPackFormat(): Int =
     when {
-        this >= Release.V_1_21_9 -> 86
+        this >= Release.V_1_21_9 -> 88
         this >= Release.V_1_21_7 -> 81
         this >= Release.V_1_21_6 -> 80
         this >= Release.V_1_21_5 -> 71
@@ -76,13 +91,14 @@ fun MinecraftVersion.getMinDataPackFormat(): Int =
         this >= Release.V_1_13 -> 4
         else -> failWithDetails("Unsupported version") {
             val minecraftVersion by this.autoNamedProperty()
-            val minSupportedVersion by Release.V_1_13.autoNamedProperty()
-            listOf(minecraftVersion, minSupportedVersion)
+            val minVersion by Release.V_1_13.autoNamedProperty()
+            listOf(minecraftVersion, minVersion)
         }
     }
 
 fun MinecraftVersion.getMinResourcePackFormat(): Int =
     when {
+        this >= Release.V_1_21_9 -> 69
         this >= Release.V_1_21_7 -> 64
         this >= Release.V_1_21_6 -> 63
         this >= Release.V_1_21_5 -> 55
@@ -105,7 +121,7 @@ fun MinecraftVersion.getMinResourcePackFormat(): Int =
         this >= Release.V_1_6_1 -> 1
         else -> failWithDetails("Unsupported version") {
             val minecraftVersion by this.autoNamedProperty()
-            val minSupportedVersion by Release.V_1_6_1.autoNamedProperty()
-            listOf(minecraftVersion, minSupportedVersion)
+            val minVersion by Release.V_1_6_1.autoNamedProperty()
+            listOf(minecraftVersion, minVersion)
         }
     }

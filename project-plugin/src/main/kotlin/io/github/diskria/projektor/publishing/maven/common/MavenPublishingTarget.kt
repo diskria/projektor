@@ -32,12 +32,9 @@ abstract class MavenPublishingTarget : PublishingTarget() {
     protected val repositoryName: String
         get() = mapToEnum().getName(PascalCase)
 
-    override val publishTaskName: String
-        get() = "publishAllPublicationsTo${repositoryName}Repository"
-
     open val shouldCreatePublication: Boolean = false
 
-    open fun configurePublication(publication: MavenPublication, projekt: Projekt, project: Project) {
+    open fun configurePublication(projekt: Projekt, project: Project, publication: MavenPublication) {
 
     }
 
@@ -54,30 +51,33 @@ abstract class MavenPublishingTarget : PublishingTarget() {
         }
     }
 
-    override fun registerRootPublishTask(rootProject: Project): TaskProvider<out Task> =
-        rootProject.tasks.register<Sync>(publishTaskName) {
-            rootProject.childProjects.values.forEach { childProject -> from(getLocalMavenDirectory(childProject)) }
+    override fun getPublishTaskName(project: Project): String =
+        "publishAllPublicationsTo${repositoryName}Repository"
+
+    override fun registerRootPublishTask(project: Project, rootProject: Project): TaskProvider<out Task> =
+        rootProject.tasks.register<Sync>(getPublishTaskName(project)) {
+            rootProject.childProjects.values.forEach { from(getLocalMavenDirectory(it)) }
             into(getLocalMavenDirectory(rootProject))
         }
 
-    override fun configurePublishTask(projekt: Projekt, project: Project): Task = with(project) {
+    override fun configurePublishTask(projekt: Projekt, project: Project): Boolean = with(project) {
+        val artifactId = projekt.repo.name.modifyUnless(isRootProject()) {
+            it + Constants.Char.HYPHEN + name
+        }
         publishing {
-            val artifactId = projekt.repo.name.modifyUnless(isRootProject()) {
-                it + Constants.Char.HYPHEN + name
-            }
             if (shouldCreatePublication) {
                 publications.create<MavenPublication>(projekt.repo.name) {
-                    configurePublication(this, projekt, project)
+                    configurePublication(projekt, project, this)
                 }
             }
             publications.withType<MavenPublication> {
                 this.artifactId = artifactId
                 if (!shouldCreatePublication) {
-                    configurePublication(this, projekt, project)
+                    configurePublication(projekt, project, this)
                 }
             }
             configureMaven(repositories, projekt, project)
         }
-        return project.tasks.named(publishTaskName).get()
+        return true
     }
 }

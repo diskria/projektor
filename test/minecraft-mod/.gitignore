@@ -3,4 +3,4 @@
 .gradle/
 .kotlin/
 build/
-run
+mc/

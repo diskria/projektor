@@ -1,5 +1,6 @@
 package io.github.diskria.projektor.projekt.common
 
+import io.github.diskria.kotlin.utils.extensions.listDirectories
 import io.github.diskria.kotlin.utils.extensions.mappers.toEnum
 import io.github.diskria.projektor.Versions
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
@@ -7,11 +8,14 @@ import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.minecraft.ModLoaderType
 import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.common.repo.github.GithubRepo
-import io.github.diskria.projektor.configurations.*
+import io.github.diskria.projektor.configurations.AndroidApplicationConfiguration
+import io.github.diskria.projektor.configurations.AndroidLibraryConfiguration
+import io.github.diskria.projektor.configurations.GradlePluginConfiguration
+import io.github.diskria.projektor.configurations.KotlinLibraryConfiguration
 import io.github.diskria.projektor.configurations.minecraft.MinecraftModConfiguration
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.licenses.License
-import io.github.diskria.projektor.minecraft.version.MinecraftVersion
+import io.github.diskria.projektor.minecraft.version.*
 import io.github.diskria.projektor.projekt.*
 import io.github.diskria.projektor.publishing.common.PublishingTarget
 import org.gradle.api.Project
@@ -43,13 +47,24 @@ data class BaseProjekt(
     fun toAndroidApplication(project: Project, config: AndroidApplicationConfiguration): AndroidApplication =
         AndroidApplication(this, config)
 
-    fun toMinecraftMod(project: Project, config: MinecraftModConfiguration): MinecraftMod =
-        MinecraftMod(
-            this,
-            config,
-            loader = project.projectDir.parentFile.name.toEnum<ModLoaderType>().mapToModel(),
-            minecraftVersion = MinecraftVersion.of(project.projectDir.name)
+    fun toMinecraftMod(project: Project, config: MinecraftModConfiguration): MinecraftMod {
+        val minSupportedVersionDirectory = project.projectDir
+        val loaderDirectory = minSupportedVersionDirectory.parentFile
+
+        val minSupportedVersion = MinecraftVersion.of(minSupportedVersionDirectory.name)
+        val allMinSupportedVersions = loaderDirectory.listDirectories().map { MinecraftVersion.of(it.name) }.sorted()
+        val nextMinSupportedVersion = allMinSupportedVersions.dropWhile { it <= minSupportedVersion }.firstOrNull()
+        val maxSupportedVersion = config.maxSupportedVersion
+            ?: nextMinSupportedVersion?.previousOrNull()
+            ?: MinecraftVersion.LATEST
+
+        return MinecraftMod(
+            projekt = this,
+            config = config,
+            loader = loaderDirectory.name.toEnum<ModLoaderType>().mapToModel(),
+            supportedVersionRange = MinecraftVersionRange(minSupportedVersion, maxSupportedVersion)
         )
+    }
 
     companion object {
         fun of(project: Project): BaseProjekt {

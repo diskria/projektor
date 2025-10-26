@@ -1,9 +1,10 @@
 package io.github.diskria.projektor.settings.configurators
 
+import io.github.diskria.gradle.utils.extensions.common.buildGradleProjectPath
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
+import io.github.diskria.kotlin.utils.extensions.listDirectories
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.common.minecraft.ModLoaderType
-import io.github.diskria.projektor.common.projekt.ProjektModules
 import io.github.diskria.projektor.settings.configurations.MinecraftModConfiguration
 import io.github.diskria.projektor.settings.configurators.common.SettingsConfigurator
 import io.github.diskria.projektor.settings.extensions.configureMaven
@@ -21,11 +22,10 @@ open class MinecraftModConfigurator(
     }
 
     override fun configureProjects(settings: Settings) = with(settings) {
-        include(ProjektModules.COMMON_PATH)
         ModLoaderType.entries.forEach { loader ->
             val loaderName = loader.getName()
-            rootDir.resolve(loaderName).listFiles()?.filter { it.isDirectory }?.forEach { versionDirectory ->
-                include(":$loaderName:${versionDirectory.name}")
+            rootDir.resolve(loaderName).listDirectories().forEach { minSupportedVersionDirectory ->
+                include(buildGradleProjectPath(loaderName, minSupportedVersionDirectory.name))
             }
         }
     }

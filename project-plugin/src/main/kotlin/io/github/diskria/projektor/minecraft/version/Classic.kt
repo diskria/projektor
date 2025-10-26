@@ -3,6 +3,7 @@ package io.github.diskria.projektor.minecraft.version
 import io.github.diskria.projektor.minecraft.era.MinecraftEra
 
 enum class Classic(private val version: String) : MinecraftVersion {
+
     C_0_0_11A_LAUNCHER("0.0.11a-launcher"),
     C_0_0_12A_03("0.0.12a_03"),
     C_0_0_13A_LAUNCHER("0.0.13a-launcher"),

@@ -3,8 +3,10 @@ package io.github.diskria.projektor.minecraft.loaders
 import io.github.diskria.gradle.utils.extensions.getBuildFile
 import io.github.diskria.gradle.utils.extensions.getFile
 import io.github.diskria.gradle.utils.extensions.getFileNames
+import io.github.diskria.gradle.utils.extensions.processResources
 import io.github.diskria.gradle.utils.helpers.jvm.JvmArguments
 import io.github.diskria.gradle.utils.helpers.jvm.Size
+import io.github.diskria.kotlin.shell.dsl.git.commits.CommitType
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.appendPath
 import io.github.diskria.kotlin.utils.extensions.common.`Title Case`
@@ -13,6 +15,7 @@ import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.common.modifyUnless
 import io.github.diskria.kotlin.utils.extensions.common.snake_case
+import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.extensions.serialization.serialize
@@ -30,10 +33,12 @@ import org.gradle.api.Project
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.named
-import org.gradle.language.jvm.tasks.ProcessResources
+import org.gradle.kotlin.dsl.invoke
+import java.io.File
 import kotlin.collections.isNotEmpty
 import kotlin.collections.map
+import kotlin.text.appendLine
+import kotlin.text.buildString
 
 data object Fabric : ModLoader {
 
@@ -50,20 +55,7 @@ data object Fabric : ModLoader {
         }.toMap()
         val datagenClasses = getFileNames(buildPath("src", "datagen", "kotlin", mod.packagePath))
             .map { mod.packageName + Constants.Char.DOT + it }
-        val minecraftVersionString = mod.minecraftVersion.asString()
-        dependencies {
-            minecraft("com.mojang", "minecraft", minecraftVersionString)
-            modImplementation("net.fabricmc", "fabric-loader", loaderVersion)
-            mappings("net.fabricmc", "yarn", "$minecraftVersionString+build.${mod.config.fabric.yarnBuild}", "v2")
-            mod.config.fabric.apiVersion?.let { apiVersion ->
-                modImplementation("net.fabricmc.fabric-api", "fabric-api", "$apiVersion+$minecraftVersionString")
-            }
-            modImplementation(
-                "net.fabricmc",
-                "fabric-language-kotlin",
-                "${Versions.FABRIC_KOTLIN}+kotlin.${mod.kotlinVersion}"
-            )
-        }
+        val minMinecraftVersionString = mod.supportedVersionRange.min.asString()
         loom {
             splitEnvironmentSourceSets()
             mods {
@@ -83,7 +75,7 @@ data object Fabric : ModLoader {
                         ideConfigGenerated(hasSide)
                         if (hasSide) {
                             name = sideName.setCase(snake_case, `Title Case`)
-                            runDir = buildPath("run", sideName)
+                            runDir = buildPath(MinecraftMod.SHORT_NAME, sideName)
                             when (side) {
                                 ModSide.CLIENT -> {
                                     client()
@@ -108,7 +100,7 @@ data object Fabric : ModLoader {
                     }
                 }
             }
-            accessWidenerPath.set(file(buildPath("src", "main", "resources", fileName(mod.id, "accesswidener"))))
+            accessWidenerPath = ensureAccessWidenerCreated(project, mod)
         }
         if (datagenClasses.isNotEmpty()) {
             loom {
@@ -116,14 +108,16 @@ data object Fabric : ModLoader {
                     create("Data Generation") {
                         runDir = name.setCase(`Title Case`, `kebab-case`)
                         environment(ModSide.SERVER.getName())
+
+                        val argumentNamePrefix = "fabric-api.datagen"
                         vmArgs(
-                            JvmArguments.property("fabric-api.datagen"),
+                            JvmArguments.property(argumentNamePrefix),
                             JvmArguments.property(
-                                "fabric-api.datagen.output-dir",
+                                "$argumentNamePrefix.output-dir",
                                 file("src/main/generated").toString()
                             ),
                             JvmArguments.property(
-                                "fabric-api.datagen.modid",
+                                "$argumentNamePrefix.modid",
                                 mod.id
                             ),
                             *JvmArguments.memory(
@@ -141,37 +135,80 @@ data object Fabric : ModLoader {
                 }
             }
         }
-        val generateFabricConfigTask = tasks.register("generateFabricConfig") {
+        dependencies {
+            minecraft("com.mojang", "minecraft", minMinecraftVersionString)
+            modImplementation("net.fabricmc", "fabric-loader", loaderVersion)
+            mappings("net.fabricmc", "yarn", "$minMinecraftVersionString+build.${mod.config.fabric.yarnBuild}", "v2")
+            mod.config.fabric.apiVersion?.let { apiVersion ->
+                modImplementation("net.fabricmc.fabric-api", "fabric-api", "$apiVersion+$minMinecraftVersionString")
+            }
+            modImplementation(
+                "net.fabricmc",
+                "fabric-language-kotlin",
+                "${Versions.FABRIC_KOTLIN}+kotlin.${mod.kotlinVersion}"
+            )
+        }
+        tasks {
             val generatedResourcesPath = buildPath("generated", "resources")
-            val modConfigFile = getBuildFile(buildPath(generatedResourcesPath, getConfigFilePath()))
-            val mixinsConfigFile = getBuildFile(buildPath(generatedResourcesPath, mod.mixinsConfigFileName))
-            outputs.files(modConfigFile, mixinsConfigFile)
-            doLast {
-                modConfigFile.get().asFile.apply {
-                    parentFile.mkdirs()
-                    FabricModConfig.of(
-                        mod = mod,
-                        minecraftVersion = mod.minecraftVersion,
-                        loaderVersion = loaderVersion,
-                        isApiRequired = mod.config.fabric.isApiRequired,
-                        datagenClasses = datagenClasses,
-                    ).serialize(this)
+            val generateFabricConfigTask = register("generateFabricConfig") {
+                val modConfigFile = getBuildFile(buildPath(generatedResourcesPath, getConfigFilePath()))
+                outputs.files(modConfigFile)
+                doLast {
+                    modConfigFile.get().asFile.apply {
+                        parentFile.mkdirs()
+                        FabricModConfig.of(
+                            mod = mod,
+                            minSupportedVersion = mod.supportedVersionRange.min,
+                            loaderVersion = loaderVersion,
+                            isApiRequired = mod.config.fabric.isApiRequired,
+                            datagenClasses = datagenClasses,
+                        ).serialize(this)
+                    }
                 }
-                mixinsConfigFile.get().asFile.apply {
-                    parentFile.mkdirs()
-                    MixinsConfig.of(
-                        mod = mod,
-                        mixins = mixins,
-                    ).serialize(this)
+            }
+            val generateMixinsConfigTask = register("generateMixinsConfig") {
+                val mixinsConfigFile = getBuildFile(buildPath(generatedResourcesPath, mod.mixinsConfigFileName))
+                outputs.files(mixinsConfigFile)
+                doLast {
+                    mixinsConfigFile.get().asFile.apply {
+                        parentFile.mkdirs()
+                        MixinsConfig.of(
+                            mod = mod,
+                            mixins = mixins,
+                        ).serialize(this)
+                    }
+                }
+            }
+            processResources {
+                duplicatesStrategy = DuplicatesStrategy.INCLUDE
+                from(generateFabricConfigTask, generateMixinsConfigTask)
+                from(rootProject.getFile(fileName("icon", Constants.File.Extension.PNG))) {
+                    into(buildPath("assets", mod.id))
                 }
             }
         }
-        tasks.named<ProcessResources>("processResources") {
-            duplicatesStrategy = DuplicatesStrategy.INCLUDE
-            from(generateFabricConfigTask)
-            from(rootProject.getFile(fileName("icon", Constants.File.Extension.PNG))) {
-                into(buildPath("assets", mod.id))
-            }
+    }
+
+    private fun ensureAccessWidenerCreated(project: Project, mod: MinecraftMod): File {
+        val file = project.getFile(buildPath("src", "main", "resources", fileName(mod.id, "accesswidener"))).asFile
+        if (!file.exists()) {
+            file.ensureFileExists().writeText(buildString {
+                appendLine("accessWidener v2 named")
+                appendLine()
+                appendLine("# region classes")
+                appendLine()
+                appendLine("# endregion classes")
+                appendLine()
+                appendLine("# region methods")
+                appendLine()
+                appendLine("# endregion methods")
+                appendLine()
+                appendLine("# region fields")
+                appendLine()
+                appendLine("# endregion fields")
+            })
+            mod.repo.pushFile(project.layout.projectDirectory.asFile, CommitType.CHORE, file, false)
         }
+        return file
     }
 }

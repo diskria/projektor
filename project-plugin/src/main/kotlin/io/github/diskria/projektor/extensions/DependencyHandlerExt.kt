@@ -27,3 +27,6 @@ fun DependencyHandler.modImplementation(
     classifier: String? = null
 ): Dependency? =
     add("modImplementation", groupId, artefactId, version, classifier)
+
+fun DependencyHandler.modImplementation(dependencyNotation: Any): Dependency? =
+    add("modImplementation", dependencyNotation)

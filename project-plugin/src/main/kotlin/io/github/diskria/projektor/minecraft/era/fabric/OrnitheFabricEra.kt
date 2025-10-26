@@ -1,9 +1,6 @@
 package io.github.diskria.projektor.minecraft.era.fabric
 
-import io.github.diskria.projektor.minecraft.MinecraftUpdates
-import io.github.diskria.projektor.minecraft.era.MinecraftEra
+import io.github.diskria.projektor.minecraft.version.MinecraftVersion
+import io.github.diskria.projektor.minecraft.version.Release
 
-object OrnitheFabricEra : IFabricEra(
-    MinecraftEra.PRE_CLASSIC,
-    MinecraftUpdates.UpdateAquatic
-)
+object OrnitheFabricEra : IFabricEra(MinecraftVersion.EARLIEST, Release.V_1_13_2)

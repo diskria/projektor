@@ -1,7 +1,6 @@
 package io.github.diskria.projektor.tasks.distribute
 
 import io.github.diskria.gradle.utils.extensions.getDirectory
-import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.shell.dsl.git.commits.CommitMessage
 import io.github.diskria.kotlin.shell.dsl.git.commits.CommitType
 import io.github.diskria.kotlin.utils.Constants
@@ -10,7 +9,7 @@ import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
 import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
-import io.github.diskria.projektor.extensions.pushFiles
+import io.github.diskria.projektor.extensions.pushFile
 import io.github.diskria.projektor.publishing.maven.GithubPages
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
@@ -40,13 +39,10 @@ abstract class DeployMavenToGithubPagesTask : Sync() {
 
         doLast {
             generateIndexTree()
-            if (!EnvironmentHelper.isCI()) {
-                return@doLast
-            }
             val metadata = metadata.get()
             val repoDirectory = repoDirectory.get().asFile
 
-            metadata.repo.pushFiles(
+            metadata.repo.pushFile(
                 repoDirectory,
                 CommitMessage(CommitType.CHORE, "deploy maven to GitHub Pages"),
                 destinationDir

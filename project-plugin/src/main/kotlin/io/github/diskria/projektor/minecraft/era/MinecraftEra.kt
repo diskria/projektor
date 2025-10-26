@@ -14,7 +14,15 @@ enum class MinecraftEra(
     ALPHA(Alpha.entries.toList(), "a"),
     BETA(Beta.entries.toList(), "b"),
     RELEASE(Release.entries.toList());
+
+    companion object {
+        fun of(version: String): MinecraftEra =
+            MinecraftEra.entries.filterNot { it == RELEASE }.find { version.startsWith(it.versionPrefix) } ?: RELEASE
+    }
 }
 
 fun MinecraftEra.firstVersion(): MinecraftVersion =
     versions.first()
+
+fun MinecraftEra.lastVersion(): MinecraftVersion =
+    versions.last()

@@ -2,6 +2,7 @@ package io.github.diskria.projektor.minecraft.config
 
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.appendPackageName
+import io.github.diskria.kotlin.utils.extensions.common.buildPath
 import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
 import io.github.diskria.kotlin.utils.serialization.annotations.PrettyPrint
@@ -49,12 +50,16 @@ class FabricModConfig(
 
         @SerialName("sources")
         val sourceCodeUrl: String,
+
+        @SerialName("issues")
+        val issueTrackerUrl: String,
     ) {
         companion object {
-            fun of(modrinthProjectUrl: String, sourceCodeUrl: String): Links =
+            fun of(modrinthProjectUrl: String, sourceCodeUrl: String, issueTrackerUrl: String): Links =
                 Links(
                     modrinthProjectUrl = modrinthProjectUrl,
                     sourceCodeUrl = sourceCodeUrl,
+                    issueTrackerUrl = issueTrackerUrl,
                 )
         }
     }
@@ -137,14 +142,14 @@ class FabricModConfig(
         companion object {
             fun of(
                 javaVersion: Int,
-                minecraftVersion: MinecraftVersion,
+                minSupportedVersion: MinecraftVersion,
                 loaderVersion: String,
                 isApiRequired: Boolean,
                 versionRange: VersionRange = InequalityVersionRange,
             ): Dependencies =
                 Dependencies(
                     jvmDependency = versionRange.min(VersionBound.inclusive(javaVersion.toString())),
-                    minecraftDependency = versionRange.min(VersionBound.inclusive(minecraftVersion.asString())),
+                    minecraftDependency = versionRange.min(VersionBound.inclusive(minSupportedVersion.asString())),
                     loaderDependency = versionRange.min(VersionBound.inclusive(loaderVersion)),
                     kotlinDependency = versionRange.any,
                     apiDependency = if (isApiRequired) versionRange.any else null,
@@ -155,7 +160,7 @@ class FabricModConfig(
     companion object {
         fun of(
             mod: MinecraftMod,
-            minecraftVersion: MinecraftVersion,
+            minSupportedVersion: MinecraftVersion,
             loaderVersion: String,
             isApiRequired: Boolean,
             datagenClasses: List<String>,
@@ -168,7 +173,7 @@ class FabricModConfig(
                 description = mod.description,
                 authors = listOf(mod.repo.owner.developer),
                 license = mod.license.id,
-                icon = "assets/${mod.id}/${fileName("icon", Constants.File.Extension.PNG)}",
+                icon = buildPath("assets", mod.id, fileName("icon", Constants.File.Extension.PNG)),
                 environment = mod.config.environment.fabricConfigValue,
                 accessWidener = fileName(mod.id, "accesswidener"),
                 mixins = listOf(mod.mixinsConfigFileName),
@@ -178,6 +183,7 @@ class FabricModConfig(
                         .mapToModel()
                         .getHomepage(mod.metadata),
                     sourceCodeUrl = mod.repo.getUrl(),
+                    issueTrackerUrl = mod.repo.getIssuesUrl(),
                 ),
                 entryPoints = EntryPoints.of(
                     mod,
@@ -185,7 +191,7 @@ class FabricModConfig(
                 ),
                 dependencies = Dependencies.of(
                     mod.jvmTarget.toInt(),
-                    minecraftVersion,
+                    minSupportedVersion,
                     loaderVersion,
                     isApiRequired,
                 ),

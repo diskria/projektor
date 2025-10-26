@@ -9,10 +9,17 @@ pluginManagement {
         gradlePluginPortal()
     }
 
-    if (!gradle.startParameter.taskNames.contains("release") &&
-        rootDir.resolve("build/maven").listFiles().orEmpty().isNotEmpty()
-    ) {
-        rootDir.resolve("test").listFiles().orEmpty().forEach { includeBuild(it) }
+    if (rootDir.resolve("build/maven").listFiles().orEmpty().isNotEmpty()) {
+        val task = gradle.startParameter.taskNames.singleOrNull()
+        val testProjectsRoot = rootDir.resolve("test")
+        if (task?.startsWith(":") == true) {
+            val testProjectDirectory = testProjectsRoot.resolve(task.split(":").first { it.isNotBlank() })
+            if (testProjectDirectory.exists()) {
+                includeBuild(testProjectDirectory)
+            }
+        } else if (task != "releaseProjekt") {
+            testProjectsRoot.listFiles()?.forEach { includeBuild(it) }
+        }
     }
 }
 
@@ -21,7 +28,7 @@ plugins {
 }
 
 projekt {
-    version = "3.6.12"
+    version = "4.0.0"
     license = MIT
     publish = setOf(
         GITHUB_PAGES,

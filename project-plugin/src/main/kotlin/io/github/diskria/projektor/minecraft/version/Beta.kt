@@ -3,6 +3,7 @@ package io.github.diskria.projektor.minecraft.version
 import io.github.diskria.projektor.minecraft.era.MinecraftEra
 
 enum class Beta(private val version: String) : MinecraftVersion {
+
     B_1_0("1.0"),
     B_1_0_01("1.0_01"),
     B_1_0_2("1.0.2"),

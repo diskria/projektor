@@ -11,7 +11,7 @@ open class AndroidApplicationConfigurator(
 ) : ProjectConfigurator<AndroidApplication>() {
 
     override fun configureProject(project: Project): AndroidApplication {
-        val androidApplication = project.toProjekt().toAndroidApplication(project, config)
-        return androidApplication
+        val application = project.toProjekt().toAndroidApplication(project, config)
+        return application
     }
 }

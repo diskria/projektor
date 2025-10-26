@@ -5,7 +5,7 @@ import io.github.diskria.kotlin.utils.extensions.serialization.serialize
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import org.gradle.api.Project
-import org.gradle.internal.extensions.core.extra
+import org.gradle.kotlin.dsl.extra
 
 fun Project.setProjektMetadata(metadata: ProjektMetadata) {
     val projektMetadata by metadata.serialize().autoNamedProperty()

@@ -1,16 +1,11 @@
 package io.github.diskria.projektor.publishing.maven
 
-import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.gradle.utils.extensions.ensureTaskRegistered
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
-import io.github.diskria.kotlin.utils.extensions.common.`Sentence case`
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
-import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.signing
-import io.github.diskria.projektor.projekt.AndroidLibrary
-import io.github.diskria.projektor.projekt.KotlinLibrary
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.publishing.maven.common.MavenPublishingTarget
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
@@ -26,10 +21,14 @@ data object MavenCentral : MavenPublishingTarget() {
 
     override val shouldCreatePublication: Boolean = true
 
-    override fun configurePublication(publication: MavenPublication, projekt: Projekt, project: Project) {
-        val componentName = projekt.getComponentName()
+    override fun configurePublication(
+        projekt: Projekt,
+        project: Project,
+        publication: MavenPublication,
+    ) = with(project) {
+        val componentName = projekt.publicationComponentName ?: return
         with(publication) {
-            from(project.components[componentName])
+            from(components[componentName])
             pom {
                 name.set(projekt.name)
                 description.set(projekt.description)
@@ -53,19 +52,15 @@ data object MavenCentral : MavenPublishingTarget() {
                 }
                 scm {
                     url.set(projekt.repo.getUrl())
-                    connection.set(projekt.repo.buildScmUri(projekt.repo.getUrl(isVcs = true)))
-                    developerConnection.set(
-                        projekt.repo.buildScmUri(projekt.repo.getSshAuthority(), projekt.repo.getPath(isVcs = true))
-                    )
+                    connection.set(projekt.repo.getScmConnectionUrl())
+                    developerConnection.set(projekt.repo.getScmDeveloperConnectionUrl())
                 }
             }
         }
         if (EnvironmentHelper.isCI()) {
-            with(project) {
-                signing {
-                    useInMemoryPgpKeys(Secrets.gpgKey, Secrets.gpgPassphrase)
-                    sign(publication)
-                }
+            signing {
+                useInMemoryPgpKeys(Secrets.gpgKey, Secrets.gpgPassphrase)
+                sign(publication)
             }
         }
     }
@@ -80,14 +75,4 @@ data object MavenCentral : MavenPublishingTarget() {
 
     override fun getReadmeShield(metadata: ProjektMetadata): ReadmeShield =
         MavenCentralShield(metadata)
-
-    private fun Projekt.getComponentName(): String =
-        when (this) {
-            is KotlinLibrary -> "java"
-            is AndroidLibrary -> "release"
-            else -> gradleError(
-                "Only Kotlin library and Android library projects supported for publishing to Maven Central" +
-                        ", but got " + type.getName(`Sentence case`)
-            )
-        }
 }

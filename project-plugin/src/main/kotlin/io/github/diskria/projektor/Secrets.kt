@@ -15,4 +15,6 @@ object Secrets {
 
     val gradlePublishKey: String by autoNamed.environmentVariable(isRequired = true)
     val gradlePublishSecret: String by autoNamed.environmentVariable(isRequired = true)
+
+    val modrinthToken: String by autoNamed.environmentVariable(isRequired = true)
 }

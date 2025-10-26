@@ -16,6 +16,7 @@ import io.github.diskria.projektor.publishing.common.PublishingTarget
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 interface Projekt {
+
     val metadata: ProjektMetadata
     val type: ProjektType
     val repo: GithubRepo
@@ -30,6 +31,7 @@ interface Projekt {
     val kotlinVersion: String
 
     val isJavadocEnabled: Boolean get() = true
+    val publicationComponentName: String? get() = null
     val packageNameSuffix: String? get() = null
     val jvmTarget: JvmTarget get() = javaVersion.toJvmTarget()
     val archiveVersion: String get() = version

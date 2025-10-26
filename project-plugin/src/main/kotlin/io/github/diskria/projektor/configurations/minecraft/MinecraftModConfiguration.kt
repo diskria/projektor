@@ -2,6 +2,7 @@ package io.github.diskria.projektor.configurations.minecraft
 
 import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.projektor.minecraft.ModEnvironment
+import io.github.diskria.projektor.minecraft.version.MinecraftVersion
 
 open class MinecraftModConfiguration {
 
@@ -9,6 +10,7 @@ open class MinecraftModConfiguration {
         get() = fabricModConfiguration ?: gradleError("Fabric mod not configured")
 
     var environment: ModEnvironment = ModEnvironment.CLIENT_SERVER
+    var maxSupportedVersion: MinecraftVersion? = null
 
     private var fabricModConfiguration: FabricModConfiguration? = null
 

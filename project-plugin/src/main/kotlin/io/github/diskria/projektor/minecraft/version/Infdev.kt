@@ -3,6 +3,7 @@ package io.github.diskria.projektor.minecraft.version
 import io.github.diskria.projektor.minecraft.era.MinecraftEra
 
 enum class Infdev(private val version: String) : MinecraftVersion {
+
     INFDEV_20100227_1433("20100227-1433"),
     INFDEV_20100313("20100313"),
     INFDEV_20100316("20100316"),

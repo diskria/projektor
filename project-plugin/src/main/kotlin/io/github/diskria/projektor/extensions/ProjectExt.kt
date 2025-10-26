@@ -19,6 +19,11 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 fun Project.toProjekt(): BaseProjekt =
     BaseProjekt.of(this)
 
+fun Project.getLeafProjects(): List<Project> =
+    generateSequence(listOf(rootProject)) { parents ->
+        parents.flatMap { it.childProjects.values }.takeIf { it.isNotEmpty() }
+    }.last()
+
 fun Project.base(block: BasePluginExtension.() -> Unit) {
     runExtension<BasePluginExtension>(block)
 }

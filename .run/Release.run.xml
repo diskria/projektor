@@ -10,8 +10,7 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value="clean" />
-          <option value="release" />
+          <option value="releaseProjekt" />
         </list>
       </option>
       <option name="vmOptions" />

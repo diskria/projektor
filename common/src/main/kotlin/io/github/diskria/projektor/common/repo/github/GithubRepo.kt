@@ -5,6 +5,7 @@ import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.common.modifyIf
 import io.github.diskria.kotlin.utils.extensions.generics.joinToString
 import io.github.diskria.kotlin.utils.extensions.removePrefix
+import io.github.diskria.kotlin.utils.extensions.reverseSegments
 import io.github.diskria.projektor.common.repo.RepoHost
 import io.github.diskria.projektor.common.repo.VCS
 import io.ktor.http.*
@@ -21,24 +22,30 @@ data class GithubRepo(val owner: GithubOwner, val name: String) {
 
     fun getIssuesUrl(): String =
         buildRepoUrl {
-            path("issues")
+            appendPathSegments("issues")
         }.toString()
 
     fun getPackagesMavenUrl(): String =
         buildRepoUrl(isPackagesMaven = true).toString()
 
     fun getHostName(): String =
-        owner.namespace.split(Constants.Char.DOT).reversed().joinToString(Constants.Char.DOT)
+        owner.namespace.reverseSegments(Constants.Char.DOT)
 
     fun getPagesUrl(): String =
         buildUrl(getHostName()) {
             path(name)
         }
 
-    fun buildScmUri(vararg parts: String): String =
+    fun getScmConnectionUrl(): String =
+        buildScmUri(getUrl(isVcs = true))
+
+    fun getScmDeveloperConnectionUrl(): String =
+        buildScmUri(getSshAuthority(), getPath(isVcs = true))
+
+    private fun buildScmUri(vararg parts: String): String =
         listOf("scm", GIT.shortName, *parts).joinToString(Constants.Char.COLON)
 
-    fun getSshAuthority(): String =
+    private fun getSshAuthority(): String =
         GIT.shortName + Constants.Char.AT_SIGN + RepoHost.GITHUB.hostName
 
     private fun buildRepoUrl(

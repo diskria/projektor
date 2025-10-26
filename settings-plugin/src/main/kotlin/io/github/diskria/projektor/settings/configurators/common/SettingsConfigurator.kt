@@ -2,6 +2,7 @@ package io.github.diskria.projektor.settings.configurators.common
 
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.projektor.common.configurators.IProjektConfigurator
+import io.github.diskria.projektor.common.projekt.ProjectModules
 import io.github.diskria.projektor.settings.extensions.configureMaven
 import io.github.diskria.projektor.settings.extensions.pluginRepositories
 import io.github.diskria.projektor.settings.extensions.repositories
@@ -36,6 +37,9 @@ abstract class SettingsConfigurator : IProjektConfigurator {
         }
         pluginRepositories {
             gradlePluginPortal()
+        }
+        if (rootDir.resolve(ProjectModules.Common.NAME).exists()) {
+            include(ProjectModules.Common.PATH)
         }
     }
 }
