@@ -22,10 +22,10 @@ enum class ModEnvironment(
     ),
 }
 
-fun ModEnvironment.getSourceSets(): List<SourceSet> =
+fun ModEnvironment.getSourceSets(): List<ModSourceSet> =
     buildList {
-        add(SourceSet.MAIN)
+        add(ModSourceSet.MAIN)
         if (sides.contains(ModSide.CLIENT)) {
-            add(SourceSet.CLIENT)
+            add(ModSourceSet.CLIENT)
         }
     }

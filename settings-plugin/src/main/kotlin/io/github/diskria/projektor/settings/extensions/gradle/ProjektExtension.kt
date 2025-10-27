@@ -35,9 +35,7 @@ open class ProjektExtension @Inject constructor(
         ProjektMetadata(
             type = projektType ?: gradleError("Projekt type not initialized"),
             repo = repo,
-            packageNameBase = repo.owner.namespace.appendPackageName(
-                repo.name.setCase(`kebab-case`, `dot․case`)
-            ),
+            packageNameBase = repo.owner.namespace.appendPackageName(repo.name.setCase(`kebab-case`, `dot․case`)),
             name = repo.name.setCase(`kebab-case`, `Title Case`),
             version = requireProperty(version, ::version.name),
             license = requireProperty(license, ::license.name),

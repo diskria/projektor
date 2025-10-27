@@ -21,7 +21,7 @@ abstract class GenerateProjektGitIgnoreTask : AbstractGenerateFileTask() {
         )
         patterns.addAll(
             when (metadata.type) {
-                MINECRAFT_MOD -> listOf(MinecraftMod.SHORT_NAME + Constants.Char.SLASH)
+                MINECRAFT_MOD -> listOf(MinecraftMod.RUN_DIRECTORY_NAME + Constants.Char.SLASH)
                 else -> emptyList()
             }
         )

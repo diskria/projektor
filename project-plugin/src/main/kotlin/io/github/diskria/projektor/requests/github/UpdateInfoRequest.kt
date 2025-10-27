@@ -1,6 +1,6 @@
 package io.github.diskria.projektor.requests.github
 
-import io.github.diskria.kotlin.utils.extensions.serialization.serialize
+import io.github.diskria.kotlin.utils.extensions.serialization.serializeToString
 import io.github.diskria.projektor.requests.github.common.GithubJsonRequest
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
@@ -14,5 +14,5 @@ data class UpdateInfoRequest(
 
     override fun getHttpMethod(): HttpMethod = HttpMethod.Patch
 
-    override fun toJson(): String = serialize()
+    override fun toJson(): String = serializeToString()
 }

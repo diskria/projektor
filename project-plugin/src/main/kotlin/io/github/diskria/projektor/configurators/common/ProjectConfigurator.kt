@@ -13,7 +13,6 @@ import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.projekt.GradlePlugin
 import io.github.diskria.projektor.projekt.KotlinLibrary
-import io.github.diskria.projektor.projekt.MinecraftMod
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.tasks.ReleaseProjektTask
 import io.github.diskria.projektor.tasks.UnarchiveProjektArtifactTask
@@ -160,28 +159,24 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
             return@with
         }
         if (project.rootProject.findProject(ProjectModules.Common.PATH) != null) {
-            when (projekt) {
-                is GradlePlugin, is KotlinLibrary -> {
-                    ensurePluginApplied("com.gradleup.shadow")
-                    dependencies {
-                        compileOnly(project(ProjectModules.Common.PATH))
-                    }
-                    tasks {
-                        shadowJar {
-                            archiveClassifier = Constants.Char.EMPTY
-                            configurations = emptyList()
+            if (projekt is GradlePlugin || projekt is KotlinLibrary) {
+                ensurePluginApplied("com.gradleup.shadow")
+                dependencies {
+                    compileOnly(project(ProjectModules.Common.PATH))
+                }
+                tasks {
+                    shadowJar {
+                        archiveClassifier = Constants.Char.EMPTY
+                        configurations = emptyList()
 
-                            val jarTask = project(ProjectModules.Common.PATH).tasks.jar
-                            dependsOn(jarTask)
-                            from(zipTree(jarTask.flatMap { it.archiveFile }))
-                        }
+                        val jarTask = project(ProjectModules.Common.PATH).tasks.jar
+                        dependsOn(jarTask)
+                        from(zipTree(jarTask.flatMap { it.archiveFile }))
                     }
                 }
-
-                is MinecraftMod -> {
-                    dependencies {
-//                        modImplementation(rootProject.project(ProjectModules.Common.PATH))
-                    }
+            } else {
+                dependencies {
+                    implementation(rootProject.project(ProjectModules.Common.PATH))
                 }
             }
         }

@@ -1,0 +1,63 @@
+package io.github.diskria.projektor.tasks.minecraft
+
+import io.github.diskria.kotlin.utils.extensions.appendPackageName
+import io.github.diskria.kotlin.utils.extensions.common.buildPath
+import io.github.diskria.kotlin.utils.extensions.ensureFileExists
+import io.github.diskria.kotlin.utils.extensions.listFilesWithExtension
+import io.github.diskria.kotlin.utils.extensions.serialization.serializeToFile
+import io.github.diskria.projektor.ProjektorGradlePlugin
+import io.github.diskria.projektor.Versions
+import io.github.diskria.projektor.common.extensions.getProjektMetadata
+import io.github.diskria.projektor.common.metadata.ProjektMetadata
+import io.github.diskria.projektor.minecraft.config.FabricModConfig
+import io.github.diskria.projektor.projekt.MinecraftMod
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.TaskAction
+
+abstract class GenerateFabricModConfigTask : DefaultTask() {
+
+    @get:Internal
+    abstract val metadata: Property<ProjektMetadata>
+
+    @get:Internal
+    abstract val minecraftMod: Property<MinecraftMod>
+
+    @get:InputDirectory
+    abstract val sourceSetsRoot: DirectoryProperty
+
+    @get:OutputFile
+    abstract val outputFile: RegularFileProperty
+
+    init {
+        group = ProjektorGradlePlugin.TASK_GROUP
+
+        metadata.convention(project.getProjektMetadata())
+    }
+
+    @TaskAction
+    fun generate() {
+        val minecraftMod = minecraftMod.get()
+        val sourceSetsRoot = sourceSetsRoot.get().asFile
+        val outputFile = outputFile.get().asFile.ensureFileExists()
+
+        val dataGenerators = sourceSetsRoot
+            .resolve(buildPath("datagen", "kotlin", minecraftMod.packagePath))
+            .listFilesWithExtension("kt")
+            .map { minecraftMod.packageName.appendPackageName(it.nameWithoutExtension) }
+
+        val config = FabricModConfig.of(
+            mod = minecraftMod,
+            minSupportedVersion = minecraftMod.supportedVersionsRange.min,
+            loaderVersion = Versions.FABRIC_LOADER,
+            isApiRequired = minecraftMod.config.fabric.isApiRequired,
+            dataGenerators = dataGenerators,
+        )
+        config.serializeToFile(outputFile)
+    }
+}

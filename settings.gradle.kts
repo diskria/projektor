@@ -18,13 +18,13 @@ pluginManagement {
                 includeBuild(testProjectDirectory)
             }
         } else if (task != "releaseProjekt") {
-            testProjectsRoot.listFiles()?.forEach { includeBuild(it) }
+            testProjectsRoot.listFiles { it.isDirectory && !it.isHidden }?.forEach { includeBuild(it) }
         }
     }
 }
 
 plugins {
-    id("io.github.diskria.projektor.settings") version "3.+"
+    id("io.github.diskria.projektor.settings") version "4.+"
 }
 
 projekt {

@@ -2,7 +2,6 @@ package io.github.diskria.projektor.minecraft.config
 
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.fileName
-import io.github.diskria.kotlin.utils.extensions.generics.addElements
 import io.github.diskria.projektor.minecraft.ModEnvironment
 import io.github.diskria.projektor.minecraft.config.versions.VersionBound
 import io.github.diskria.projektor.minecraft.config.versions.range.InequalityVersionRange
@@ -13,7 +12,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-class ForgeModConfig(
+class ForgeModConfig private constructor(
     val loaderVersion: String,
     val license: String,
     val mods: List<ForgeMod>,
@@ -29,10 +28,11 @@ class ForgeModConfig(
     val isClientSideOnly: Boolean,
 ) {
     @Serializable
-    data class ForgeMod(
+    class ForgeMod private constructor(
         val description: String,
         val version: String,
         val authors: String,
+        val dependencies: List<ModDependency>,
 
         @SerialName("modId")
         val id: String,
@@ -46,13 +46,11 @@ class ForgeModConfig(
         @SerialName("displayURL")
         val modrinthProjectUrl: String,
     ) {
-        val dependencies: MutableList<ModDependency> = mutableListOf()
-
         companion object {
             fun of(
                 mod: MinecraftMod,
                 environment: ModEnvironment,
-                minecraftVersion: String,
+                minSupportedVersion: String,
                 forgeVersion: String,
                 modrinthProjectUrl: String,
             ): ForgeMod =
@@ -60,66 +58,79 @@ class ForgeModConfig(
                     description = mod.description,
                     version = mod.version,
                     authors = mod.repo.owner.developer,
-                    id = mod.id,
-                    name = mod.id,
-                    icon = fileName("icon", Constants.File.Extension.PNG),
-                    modrinthProjectUrl = modrinthProjectUrl,
-                ).apply {
-                    dependencies.addElements(
+                    dependencies = listOf(
                         MinecraftDependency(
                             environment,
-                            InequalityVersionRange.min(VersionBound.inclusive(minecraftVersion)),
+                            InequalityVersionRange.min(VersionBound.inclusive(minSupportedVersion)),
                         ),
                         ForgeDependency(
                             environment,
                             InequalityVersionRange.min(VersionBound.inclusive(forgeVersion))
                         ),
-                    )
-                }
+                    ),
+                    id = mod.id,
+                    name = mod.id,
+                    icon = fileName("icon", Constants.File.Extension.PNG),
+                    modrinthProjectUrl = modrinthProjectUrl,
+                )
         }
     }
 
     @Serializable
     open class ModDependency(
+        val versionRange: String,
+        val ordering: String,
+        val side: String,
+
         @SerialName("modId")
         val id: String,
 
         @SerialName("mandatory")
         val isMandatory: Boolean,
-
-        val versionRange: String,
-        val ordering: String,
-        val side: String,
     )
 
     open class InternalModDependency(
         id: String,
         environment: ModEnvironment,
         versionRange: String
-    ) : ModDependency(id, true, versionRange, "NONE", environment.forgeConfigValue)
+    ) : ModDependency(
+        versionRange,
+        "NONE",
+        environment.forgeConfigValue,
+        id,
+        true,
+    )
 
     class MinecraftDependency(
         environment: ModEnvironment,
-        versionRange: String,
-    ) : InternalModDependency("minecraft", environment, versionRange)
+        versionRange: String
+    ) : InternalModDependency(
+        "minecraft",
+        environment,
+        versionRange
+    )
 
     class ForgeDependency(
         environment: ModEnvironment,
-        versionRange: String,
-    ) : InternalModDependency(Forge.getName(), environment, versionRange)
+        versionRange: String
+    ) : InternalModDependency(
+        Forge.getName(),
+        environment,
+        versionRange
+    )
 
     companion object {
         fun of(
             mod: MinecraftMod,
             environment: ModEnvironment,
-            minecraftVersion: String,
+            minSupportedVersion: String,
             forgeVersion: String,
             loaderVersion: String,
             modrinthProjectUrl: String,
             versionRange: VersionRange,
         ): ForgeModConfig {
             val mods = listOf(
-                ForgeMod.of(mod, environment, minecraftVersion, forgeVersion, modrinthProjectUrl),
+                ForgeMod.of(mod, environment, minSupportedVersion, forgeVersion, modrinthProjectUrl),
             )
             return ForgeModConfig(
                 loaderVersion = versionRange.min(VersionBound.inclusive(loaderVersion)),

@@ -1,15 +1,9 @@
-import io.github.diskria.kotlin.utils.Constants
-import io.github.diskria.projektor.common.projekt.ProjektModules
-
 plugins {
     `kotlin-dsl`
     alias(libs.plugins.projektor)
-    alias(libs.plugins.shadow)
 }
 
 dependencies {
-    compileOnly(project(ProjektModules.COMMON_PATH))
-
     implementation(libs.kotlin.html)
 
     implementation(libs.bundles.diskria.utils)
@@ -22,17 +16,6 @@ dependencies {
         // Override vulnerable transitive dependency (Okio < 3.4.0, CVE-2023-3635)
         // com.modrinth.minotaur → Modrinth4J → Okio
         implementation(libs.okio)
-    }
-}
-
-tasks {
-    shadowJar {
-        archiveClassifier = Constants.Char.EMPTY
-        configurations = emptyList()
-
-        val jarTask = project(ProjektModules.COMMON_PATH).tasks.jar
-        dependsOn(jarTask)
-        from(zipTree(jarTask.flatMap { it.archiveFile }))
     }
 }
 

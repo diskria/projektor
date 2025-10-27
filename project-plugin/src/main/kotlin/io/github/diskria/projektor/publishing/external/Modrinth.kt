@@ -37,7 +37,7 @@ data object Modrinth : ExternalPublishingTarget() {
 
         val loader = mod.loader
         val loaderName = loader.getDisplayName()
-        val maxSupportedVersion = mod.supportedVersionRange.max.asString()
+        val maxSupportedVersion = mod.supportedVersionsRange.max.asString()
         modrinth {
             token.set(
                 if (EnvironmentHelper.isCI()) Secrets.modrinthToken
@@ -75,7 +75,7 @@ data object Modrinth : ExternalPublishingTarget() {
                 Quilt -> TODO()
             }
 
-            gameVersions.set(mod.supportedVersionRange.expand().map { it.asString() })
+            gameVersions.set(mod.supportedVersionsRange.expand().map { it.asString() })
             detectLoaders.set(false)
             loaders.set(listOf(loaderName))
 

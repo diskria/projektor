@@ -20,7 +20,7 @@ class MinecraftMod(
     projekt: Projekt,
     val config: MinecraftModConfiguration,
     val loader: ModLoader,
-    val supportedVersionRange: MinecraftVersionRange,
+    val supportedVersionsRange: MinecraftVersionRange,
 ) : AbstractProjekt(projekt) {
 
     val id: String = repo.name
@@ -31,8 +31,8 @@ class MinecraftMod(
 
     override val jvmTarget: JvmTarget
         get() {
-            val start = supportedVersionRange.min.getMinJavaVersion().toJvmTarget()
-            val end = supportedVersionRange.max.getMinJavaVersion().toJvmTarget()
+            val start = supportedVersionsRange.min.getMinJavaVersion().toJvmTarget()
+            val end = supportedVersionsRange.max.getMinJavaVersion().toJvmTarget()
             if (start != end) {
                 gradleError("Minecraft version range crosses Java compatibility boundary: $start -> $end")
             }
@@ -46,7 +46,7 @@ class MinecraftMod(
             append(version)
             append(Constants.Char.PLUS)
             append(SHORT_NAME)
-            append(supportedVersionRange.max.asString())
+            append(supportedVersionsRange.max.asString())
         }
 
     override fun getBuildConfigFields(): List<Property<String>> {
@@ -57,5 +57,6 @@ class MinecraftMod(
 
     companion object {
         const val SHORT_NAME: String = "mc"
+        const val RUN_DIRECTORY_NAME: String = "minecraft-run"
     }
 }

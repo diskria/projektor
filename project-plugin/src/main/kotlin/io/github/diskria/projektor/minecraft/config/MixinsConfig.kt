@@ -1,18 +1,20 @@
 package io.github.diskria.projektor.minecraft.config
 
 import io.github.diskria.kotlin.utils.extensions.appendPackageName
+import io.github.diskria.kotlin.utils.serialization.annotations.EncodeDefaults
 import io.github.diskria.kotlin.utils.serialization.annotations.PrettyPrint
 import io.github.diskria.projektor.extensions.mappers.toInt
-import io.github.diskria.projektor.minecraft.SourceSet
+import io.github.diskria.projektor.minecraft.ModSourceSet
 import io.github.diskria.projektor.projekt.MinecraftMod
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
+@EncodeDefaults
 @PrettyPrint
 class MixinsConfig(
     @SerialName("required")
-    val isRequired: Boolean,
+    val isRequired: Boolean = true,
 
     @SerialName("package")
     val packageName: String,
@@ -21,10 +23,10 @@ class MixinsConfig(
     val javaTargetVersion: String,
 
     @SerialName("injectors")
-    val injectorConfig: InjectorConfig,
+    val injectorConfig: InjectorConfig = InjectorConfig(),
 
     @SerialName("overwrites")
-    val overwriteConfig: OverwriteConfig,
+    val overwriteConfig: OverwriteConfig = OverwriteConfig(),
 
     @SerialName("mixins")
     val mainMixins: List<String>? = null,
@@ -33,31 +35,18 @@ class MixinsConfig(
     val clientMixins: List<String>? = null,
 ) {
     @Serializable
-    data class InjectorConfig(
-        val defaultRequire: Int,
-    )
+    data class InjectorConfig(val defaultRequire: Int = 1)
 
     @Serializable
-    data class OverwriteConfig(
-        val requireAnnotations: Boolean,
-    )
+    data class OverwriteConfig(val requireAnnotations: Boolean = true)
 
     companion object {
-        fun of(mod: MinecraftMod, mixins: Map<SourceSet, List<String>>): MixinsConfig {
-            val javaTargetVersion = "JAVA_${mod.jvmTarget.toInt()}"
-            return MixinsConfig(
-                isRequired = true,
+        fun of(mod: MinecraftMod, mixinsBySourceSet: Map<ModSourceSet, List<String>>): MixinsConfig =
+            MixinsConfig(
                 packageName = mod.packageName.appendPackageName("mixins"),
-                javaTargetVersion = javaTargetVersion,
-                injectorConfig = InjectorConfig(
-                    defaultRequire = 1
-                ),
-                overwriteConfig = OverwriteConfig(
-                    requireAnnotations = true
-                ),
-                mainMixins = mixins[SourceSet.MAIN],
-                clientMixins = mixins[SourceSet.CLIENT]?.map { "client.$it" },
+                javaTargetVersion = "JAVA_${mod.jvmTarget.toInt()}",
+                mainMixins = mixinsBySourceSet[ModSourceSet.MAIN],
+                clientMixins = mixinsBySourceSet[ModSourceSet.CLIENT],
             )
-        }
     }
 }

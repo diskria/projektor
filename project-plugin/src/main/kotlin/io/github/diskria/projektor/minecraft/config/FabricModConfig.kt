@@ -5,6 +5,7 @@ import io.github.diskria.kotlin.utils.extensions.appendPackageName
 import io.github.diskria.kotlin.utils.extensions.common.buildPath
 import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
+import io.github.diskria.kotlin.utils.serialization.annotations.EncodeDefaults
 import io.github.diskria.kotlin.utils.serialization.annotations.PrettyPrint
 import io.github.diskria.projektor.common.publishing.PublishingTargetType
 import io.github.diskria.projektor.extensions.mappers.mapToModel
@@ -20,9 +21,10 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
+@EncodeDefaults
 @PrettyPrint
-class FabricModConfig(
-    val schemaVersion: Int,
+class FabricModConfig private constructor(
+    val schemaVersion: Int = 1,
     val id: String,
     val version: String,
     val name: String,
@@ -55,17 +57,21 @@ class FabricModConfig(
         val issueTrackerUrl: String,
     ) {
         companion object {
-            fun of(modrinthProjectUrl: String, sourceCodeUrl: String, issueTrackerUrl: String): Links =
+            fun of(
+                modrinthProjectUrl: String,
+                sourceCodeUrl: String,
+                issueTrackerUrl: String,
+            ): Links =
                 Links(
-                    modrinthProjectUrl = modrinthProjectUrl,
-                    sourceCodeUrl = sourceCodeUrl,
-                    issueTrackerUrl = issueTrackerUrl,
+                    modrinthProjectUrl,
+                    sourceCodeUrl,
+                    issueTrackerUrl,
                 )
         }
     }
 
     @Serializable
-    class EntryPoints(
+    class EntryPoints private constructor(
         @SerialName("main")
         val mainEntryPoints: List<EntryPoint>? = null,
 
@@ -73,26 +79,25 @@ class FabricModConfig(
         val clientEntryPoints: List<EntryPoint>? = null,
 
         @SerialName("fabric-datagen")
-        val datagenEntryPoints: List<EntryPoint>? = null,
+        val dataGeneratorEntryPoints: List<EntryPoint>? = null,
     ) {
         companion object {
-            fun of(mod: MinecraftMod, datagenClasses: List<String>): EntryPoints {
+            fun of(mod: MinecraftMod, dataGenerators: List<String>): EntryPoints {
                 val classPathPrefix = mod.packageName.appendPackageName(mod.classNamePrefix)
                 val mainEntryPoints = entryPoints(classPathPrefix + "Mod")
                 val clientEntryPoints = entryPoints(classPathPrefix + "Client")
-                val serverEntryPoints = entryPoints(classPathPrefix + "Server")
-                val datagenEntryPoints = datagenClasses.map { EntryPoint.of(it) }.toNullIfEmpty()
+                val dataGeneratorEntryPoints = dataGenerators.map { EntryPoint.of(it) }.toNullIfEmpty()
 
                 return when (mod.config.environment) {
                     ModEnvironment.CLIENT_SERVER -> EntryPoints(
                         mainEntryPoints = mainEntryPoints,
                         clientEntryPoints = clientEntryPoints,
-                        datagenEntryPoints = datagenEntryPoints,
+                        dataGeneratorEntryPoints = dataGeneratorEntryPoints,
                     )
 
                     ModEnvironment.CLIENT_SIDE_ONLY -> EntryPoints(
                         clientEntryPoints = clientEntryPoints,
-                        datagenEntryPoints = datagenEntryPoints,
+                        dataGeneratorEntryPoints = dataGeneratorEntryPoints,
                     )
 
                     ModEnvironment.SERVER_SIDE_ONLY -> EntryPoints(
@@ -106,26 +111,23 @@ class FabricModConfig(
     }
 
     @Serializable
-    class EntryPoint(
+    class EntryPoint private constructor(
         @SerialName("adapter")
-        val language: String,
+        val language: String = "kotlin",
 
         @SerialName("value")
         val classPath: String,
     ) {
         companion object {
             fun of(classPath: String): EntryPoint =
-                EntryPoint(
-                    classPath = classPath,
-                    language = "kotlin",
-                )
+                EntryPoint(classPath = classPath)
         }
     }
 
     @Serializable
-    class Dependencies(
+    class Dependencies private constructor(
         @SerialName("java")
-        val jvmDependency: String,
+        val jvmTargetDependency: String,
 
         @SerialName("minecraft")
         val minecraftDependency: String,
@@ -141,14 +143,14 @@ class FabricModConfig(
     ) {
         companion object {
             fun of(
-                javaVersion: Int,
+                jvmTarget: Int,
                 minSupportedVersion: MinecraftVersion,
                 loaderVersion: String,
                 isApiRequired: Boolean,
                 versionRange: VersionRange = InequalityVersionRange,
             ): Dependencies =
                 Dependencies(
-                    jvmDependency = versionRange.min(VersionBound.inclusive(javaVersion.toString())),
+                    jvmTargetDependency = versionRange.min(VersionBound.inclusive(jvmTarget.toString())),
                     minecraftDependency = versionRange.min(VersionBound.inclusive(minSupportedVersion.asString())),
                     loaderDependency = versionRange.min(VersionBound.inclusive(loaderVersion)),
                     kotlinDependency = versionRange.any,
@@ -163,10 +165,9 @@ class FabricModConfig(
             minSupportedVersion: MinecraftVersion,
             loaderVersion: String,
             isApiRequired: Boolean,
-            datagenClasses: List<String>,
+            dataGenerators: List<String>,
         ): FabricModConfig =
             FabricModConfig(
-                schemaVersion = 1,
                 id = mod.id,
                 version = mod.version,
                 name = mod.name,
@@ -185,10 +186,7 @@ class FabricModConfig(
                     sourceCodeUrl = mod.repo.getUrl(),
                     issueTrackerUrl = mod.repo.getIssuesUrl(),
                 ),
-                entryPoints = EntryPoints.of(
-                    mod,
-                    datagenClasses,
-                ),
+                entryPoints = EntryPoints.of(mod, dataGenerators),
                 dependencies = Dependencies.of(
                     mod.jvmTarget.toInt(),
                     minSupportedVersion,

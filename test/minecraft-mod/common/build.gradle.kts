@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.projektor) version "4.+"
+    alias(libs.plugins.projektor)
 }
 
 projekt {

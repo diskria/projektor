@@ -52,17 +52,21 @@ data class BaseProjekt(
         val loaderDirectory = minSupportedVersionDirectory.parentFile
 
         val minSupportedVersion = MinecraftVersion.of(minSupportedVersionDirectory.name)
-        val allMinSupportedVersions = loaderDirectory.listDirectories().map { MinecraftVersion.of(it.name) }.sorted()
-        val nextMinSupportedVersion = allMinSupportedVersions.dropWhile { it <= minSupportedVersion }.firstOrNull()
         val maxSupportedVersion = config.maxSupportedVersion
-            ?: nextMinSupportedVersion?.previousOrNull()
+            ?: loaderDirectory
+                .listDirectories()
+                .map { MinecraftVersion.of(it.name) }
+                .sorted()
+                .dropWhile { it <= minSupportedVersion }
+                .firstOrNull()
+                ?.previousOrNull()
             ?: MinecraftVersion.LATEST
 
         return MinecraftMod(
             projekt = this,
             config = config,
             loader = loaderDirectory.name.toEnum<ModLoaderType>().mapToModel(),
-            supportedVersionRange = MinecraftVersionRange(minSupportedVersion, maxSupportedVersion)
+            supportedVersionsRange = MinecraftVersionRange(minSupportedVersion, maxSupportedVersion)
         )
     }
 
