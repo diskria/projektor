@@ -10,15 +10,17 @@ modrinth-minotaur-plugin = "2.8.10"
 plugin-publish-plugin = "1.3.1"
 shadow-plugin = "9.2.2"
 
-fabric-loom-plugin = "1.12.0-alpha.48"
+fabric-loom-plugin = "1.12.0-alpha.50"
 
 kotlin = "2.3.0-Beta1"
 ktor = "3.3.1"
 kotlin-html = "0.12.0"
-kotlin-utils = "0.7.7"
+kotlin-utils = "0.7.8"
+kotlin-serialization-xml = "0.91.2"
 gradle-utils = "0.5.8"
 kotlin-shell-dsl = "0.4.2"
 
+jsoup = "1.21.2"
 okio = "3.16.1"
 
 [plugins]
@@ -35,6 +37,7 @@ ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref =
 ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
 
 kotlin-html = { group = "org.jetbrains.kotlinx", name = "kotlinx-html-jvm", version.ref = "kotlin-html" }
+kotlin-serialization-xml = { group = "io.github.pdvrieze.xmlutil", name = "serialization", version.ref = "kotlin-serialization-xml" }
 
 foojay-resolver-plugin = { group = "org.gradle.toolchains.foojay-resolver-convention", name = "org.gradle.toolchains.foojay-resolver-convention.gradle.plugin", version.ref = "foojay-resolver-plugin" }
 gradle-develocity-plugin = { group = "com.gradle.develocity", name = "com.gradle.develocity.gradle.plugin", version.ref = "gradle-develocity-plugin" }
@@ -49,6 +52,7 @@ shadow-plugin = { group = "com.gradleup.shadow", name = "com.gradleup.shadow.gra
 
 fabric-loom-plugin = { group = "fabric-loom", name = "fabric-loom.gradle.plugin", version.ref = "fabric-loom-plugin" }
 
+jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }
 okio = { group = "com.squareup.okio", name = "okio-jvm", version.ref = "okio" }
 
 [bundles]

@@ -15,9 +15,9 @@ abstract class GenerateProjektGitIgnoreTask : AbstractGenerateFileTask() {
         val patterns = mutableListOf(
             ".idea/*",
             "!.idea/dictionaries/",
-            ".gradle/",
+            "$DOT_GRADLE_DIRECTORY_NAME/",
             ".kotlin/",
-            "build/",
+            "$BUILD_DIRECTORY_NAME/",
         )
         patterns.addAll(
             when (metadata.type) {
@@ -31,4 +31,9 @@ abstract class GenerateProjektGitIgnoreTask : AbstractGenerateFileTask() {
     override fun getOutputFileName(): String = ".gitignore"
 
     override fun getCommitType(): CommitType = CommitType.CHORE
+
+    companion object {
+        const val DOT_GRADLE_DIRECTORY_NAME = ".gradle"
+        const val BUILD_DIRECTORY_NAME = "build"
+    }
 }

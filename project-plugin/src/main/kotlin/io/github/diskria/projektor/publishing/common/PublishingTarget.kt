@@ -1,8 +1,8 @@
 package io.github.diskria.projektor.publishing.common
 
 import io.github.diskria.gradle.utils.extensions.getTaskPath
+import io.github.diskria.projektor.common.ProjectModules
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
-import io.github.diskria.projektor.common.projekt.ProjectModules
 import io.github.diskria.projektor.extensions.getLeafProjects
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
@@ -12,7 +12,7 @@ import org.gradle.api.tasks.TaskProvider
 
 abstract class PublishingTarget {
 
-    abstract fun getPublishTaskName(project: Project): String
+    abstract val publishTaskName: String
 
     abstract fun configurePublishTask(projekt: Projekt, project: Project): Boolean
 
@@ -22,19 +22,19 @@ abstract class PublishingTarget {
 
     open fun getReadmeShield(metadata: ProjektMetadata): ReadmeShield? = null
 
-    fun configureRootPublishTask(project: Project, rootProject: Project, publishTask: Task): Task =
-        registerRootPublishTask(project, rootProject).apply {
+    fun configureRootPublishTask(rootProject: Project, publishTask: Task): Task =
+        registerRootPublishTask(rootProject).apply {
             configure {
                 group = publishTask.group
                 description = publishTask.description
 
                 rootProject.getLeafProjects().forEach {
                     if (it.path != ProjectModules.Common.PATH) {
-                        dependsOn(it.getTaskPath(getPublishTaskName(it)))
+                        dependsOn(it.getTaskPath(publishTaskName))
                     }
                 }
             }
         }.get()
 
-    protected abstract fun registerRootPublishTask(project: Project, rootProject: Project): TaskProvider<out Task>
+    protected abstract fun registerRootPublishTask(rootProject: Project): TaskProvider<out Task>
 }

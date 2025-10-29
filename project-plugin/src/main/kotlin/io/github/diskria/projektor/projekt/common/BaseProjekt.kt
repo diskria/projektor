@@ -5,7 +5,11 @@ import io.github.diskria.kotlin.utils.extensions.mappers.toEnum
 import io.github.diskria.projektor.Versions
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
-import io.github.diskria.projektor.common.minecraft.ModLoaderType
+import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
+import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersion
+import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersionRange
+import io.github.diskria.projektor.common.minecraft.versions.common.compareTo
+import io.github.diskria.projektor.common.minecraft.versions.common.previousOrNull
 import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.common.repo.github.GithubRepo
 import io.github.diskria.projektor.configurations.AndroidApplicationConfiguration
@@ -15,7 +19,6 @@ import io.github.diskria.projektor.configurations.KotlinLibraryConfiguration
 import io.github.diskria.projektor.configurations.minecraft.MinecraftModConfiguration
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.licenses.License
-import io.github.diskria.projektor.minecraft.version.*
 import io.github.diskria.projektor.projekt.*
 import io.github.diskria.projektor.publishing.common.PublishingTarget
 import org.gradle.api.Project
@@ -51,14 +54,13 @@ data class BaseProjekt(
         val minSupportedVersionDirectory = project.projectDir
         val loaderDirectory = minSupportedVersionDirectory.parentFile
 
-        val minSupportedVersion = MinecraftVersion.of(minSupportedVersionDirectory.name)
+        val minSupportedVersion = MinecraftVersion.parse(minSupportedVersionDirectory.name)
         val maxSupportedVersion = config.maxSupportedVersion
             ?: loaderDirectory
                 .listDirectories()
-                .map { MinecraftVersion.of(it.name) }
-                .sorted()
-                .dropWhile { it <= minSupportedVersion }
-                .firstOrNull()
+                .map { MinecraftVersion.parse(it.name) }
+                .filter { it > minSupportedVersion }
+                .minWithOrNull(MinecraftVersion.COMPARATOR)
                 ?.previousOrNull()
             ?: MinecraftVersion.LATEST
 
@@ -66,7 +68,7 @@ data class BaseProjekt(
             projekt = this,
             config = config,
             loader = loaderDirectory.name.toEnum<ModLoaderType>().mapToModel(),
-            supportedVersionsRange = MinecraftVersionRange(minSupportedVersion, maxSupportedVersion)
+            supportedVersionRange = MinecraftVersionRange(minSupportedVersion, maxSupportedVersion)
         )
     }
 

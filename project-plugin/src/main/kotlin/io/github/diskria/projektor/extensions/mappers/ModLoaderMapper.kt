@@ -1,7 +1,7 @@
 package io.github.diskria.projektor.extensions.mappers
 
-import io.github.diskria.projektor.common.minecraft.ModLoaderType
-import io.github.diskria.projektor.common.minecraft.ModLoaderType.*
+import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
+import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType.*
 import io.github.diskria.projektor.minecraft.loaders.*
 
 fun ModLoaderType.mapToModel(): ModLoader =

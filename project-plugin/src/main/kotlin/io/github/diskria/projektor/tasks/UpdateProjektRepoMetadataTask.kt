@@ -6,7 +6,7 @@ import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
-import io.github.diskria.kotlin.utils.extensions.serialization.deserializeFromString
+import io.github.diskria.kotlin.utils.extensions.serialization.deserializeFromJson
 import io.github.diskria.kotlin.utils.extensions.wrapWithBrackets
 import io.github.diskria.projektor.ProjektBuildConfig
 import io.github.diskria.projektor.ProjektorGradlePlugin
@@ -14,11 +14,11 @@ import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.mappers.mapToModel
-import io.github.diskria.projektor.requests.github.GetLanguagesRequest
-import io.github.diskria.projektor.requests.github.UpdateInfoRequest
-import io.github.diskria.projektor.requests.github.UpdateTopicsRequest
-import io.github.diskria.projektor.requests.github.common.GithubJsonRequest
-import io.github.diskria.projektor.requests.github.common.GithubRequest
+import io.github.diskria.projektor.tasks.generate.models.requests.github.GetLanguagesRequest
+import io.github.diskria.projektor.tasks.generate.models.requests.github.UpdateInfoRequest
+import io.github.diskria.projektor.tasks.generate.models.requests.github.UpdateTopicsRequest
+import io.github.diskria.projektor.tasks.generate.models.requests.github.common.GithubJsonRequest
+import io.github.diskria.projektor.tasks.generate.models.requests.github.common.GithubRequest
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
@@ -73,7 +73,8 @@ abstract class UpdateProjektRepoMetadataTask : DefaultTask() {
 
     private suspend fun getTopLanguage(): String? =
         sendRequest(GetLanguagesRequest()).bodyAsText()
-            .deserializeFromString<Map<String, Int>>().maxByOrNull { it.value }?.key
+            .deserializeFromJson<Map<String, Int>>()
+            .maxByOrNull { it.value }?.key
 
     private suspend fun sendRequest(request: GithubRequest): HttpResponse {
         HttpClient(CIO).use { client ->

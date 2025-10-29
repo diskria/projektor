@@ -7,6 +7,8 @@ import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
 import io.github.diskria.kotlin.utils.serialization.annotations.EncodeDefaults
 import io.github.diskria.kotlin.utils.serialization.annotations.PrettyPrint
+import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersion
+import io.github.diskria.projektor.common.minecraft.versions.common.asString
 import io.github.diskria.projektor.common.publishing.PublishingTargetType
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.extensions.mappers.toInt
@@ -14,8 +16,6 @@ import io.github.diskria.projektor.minecraft.ModEnvironment
 import io.github.diskria.projektor.minecraft.config.versions.VersionBound
 import io.github.diskria.projektor.minecraft.config.versions.range.InequalityVersionRange
 import io.github.diskria.projektor.minecraft.config.versions.range.VersionRange
-import io.github.diskria.projektor.minecraft.version.MinecraftVersion
-import io.github.diskria.projektor.minecraft.version.asString
 import io.github.diskria.projektor.projekt.MinecraftMod
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

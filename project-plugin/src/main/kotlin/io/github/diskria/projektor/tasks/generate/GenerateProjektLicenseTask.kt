@@ -1,7 +1,6 @@
 package io.github.diskria.projektor.tasks.generate
 
 import io.github.diskria.kotlin.shell.dsl.git.commits.CommitType
-import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.licenses.License

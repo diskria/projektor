@@ -1,7 +1,6 @@
 package io.github.diskria.projektor.publishing.external
 
 import com.modrinth.minotaur.TaskModrinthSyncBody
-import com.modrinth.minotaur.TaskModrinthUpload
 import io.github.diskria.gradle.utils.extensions.findProjectRoot
 import io.github.diskria.gradle.utils.extensions.getTask
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
@@ -11,13 +10,13 @@ import io.github.diskria.kotlin.utils.extensions.generics.joinBySpace
 import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.minecraft.versions.common.asString
 import io.github.diskria.projektor.extensions.getJarTask
 import io.github.diskria.projektor.extensions.modrinth
 import io.github.diskria.projektor.minecraft.loaders.Fabric
 import io.github.diskria.projektor.minecraft.loaders.Forge
 import io.github.diskria.projektor.minecraft.loaders.NeoForge
 import io.github.diskria.projektor.minecraft.loaders.Quilt
-import io.github.diskria.projektor.minecraft.version.asString
 import io.github.diskria.projektor.projekt.MinecraftMod
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.publishing.external.common.ExternalPublishingTarget
@@ -29,15 +28,14 @@ import org.gradle.api.Project
 
 data object Modrinth : ExternalPublishingTarget() {
 
-    override fun getPublishTaskName(project: Project): String =
-        project.getTask<TaskModrinthUpload>().name
+    override val publishTaskName: String = "modrinth"
 
     override fun configurePublishTask(projekt: Projekt, project: Project): Boolean = with(project) {
         val mod = projekt as? MinecraftMod ?: return false
 
         val loader = mod.loader
         val loaderName = loader.getDisplayName()
-        val maxSupportedVersion = mod.supportedVersionsRange.max.asString()
+        val maxSupportedVersion = mod.supportedVersionRange.max.asString()
         modrinth {
             token.set(
                 if (EnvironmentHelper.isCI()) Secrets.modrinthToken
@@ -75,14 +73,14 @@ data object Modrinth : ExternalPublishingTarget() {
                 Quilt -> TODO()
             }
 
-            gameVersions.set(mod.supportedVersionsRange.expand().map { it.asString() })
+            gameVersions.set(mod.supportedVersionRange.expand().map { it.asString() })
             detectLoaders.set(false)
             loaders.set(listOf(loaderName))
 
             uploadFile.set(getJarTask())
             debugMode.set(!EnvironmentHelper.isCI())
         }
-        val publishTask = tasks.named(getPublishTaskName(this)).get()
+        val publishTask = tasks.named(publishTaskName).get()
         publishTask.dependsOn(getTask<TaskModrinthSyncBody>())
         return true
     }

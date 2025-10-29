@@ -7,8 +7,8 @@ import io.github.diskria.kotlin.utils.extensions.appendPath
 import io.github.diskria.kotlin.utils.extensions.common.`Train-Case`
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.Versions
+import io.github.diskria.projektor.common.ProjectModules
 import io.github.diskria.projektor.common.configurators.IProjektConfigurator
-import io.github.diskria.projektor.common.projekt.ProjectModules
 import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.projekt.GradlePlugin
@@ -184,10 +184,9 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
         val publishingTargetTasks = projekt.publishingTargets
             .filter { it.configurePublishTask(projekt, project) }
             .map { target ->
-                val publishTaskName = target.getPublishTaskName(project)
-                val publishTask = project.tasks.named(publishTaskName).get()
-                val rootPublishTask = rootProject.tasks.findByName(publishTaskName)
-                    ?: target.configureRootPublishTask(project, rootProject, publishTask)
+                val publishTask = project.tasks.named(target.publishTaskName).get()
+                val rootPublishTask = rootProject.tasks.findByName(target.publishTaskName)
+                    ?: target.configureRootPublishTask(rootProject, publishTask)
                 val distributeTask = target.configureDistributeTask(rootProject)
                 rootPublishTask to distributeTask
             }

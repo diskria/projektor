@@ -7,6 +7,7 @@ dependencies {
     implementation(libs.bundles.diskria.utils)
     implementation(libs.bundles.ktor.client)
     implementation(libs.bundles.implementation.settings.plugins)
+    implementation(libs.jsoup)
 }
 
 projekt {

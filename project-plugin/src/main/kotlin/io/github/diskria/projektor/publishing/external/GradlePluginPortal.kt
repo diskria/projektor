@@ -1,8 +1,6 @@
 package io.github.diskria.projektor.publishing.external
 
-import com.gradle.publish.PublishTask
 import io.github.diskria.gradle.utils.extensions.ensurePluginApplied
-import io.github.diskria.gradle.utils.extensions.getTask
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.projektor.Secrets
@@ -15,8 +13,7 @@ import org.gradle.api.Project
 
 data object GradlePluginPortal : ExternalPublishingTarget() {
 
-    override fun getPublishTaskName(project: Project): String =
-        project.getTask<PublishTask>().name
+    override val publishTaskName: String = "publishPlugins"
 
     override fun configurePublishTask(projekt: Projekt, project: Project): Boolean = with(project) {
         val plugin = projekt as? GradlePlugin ?: return false

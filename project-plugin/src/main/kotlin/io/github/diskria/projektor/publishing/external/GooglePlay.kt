@@ -10,7 +10,7 @@ import org.gradle.api.Project
 
 data object GooglePlay : ExternalPublishingTarget() {
 
-    override fun getPublishTaskName(project: Project): String = TODO()
+    override val publishTaskName: String = TODO()
 
     override fun configurePublishTask(projekt: Projekt, project: Project): Boolean = with(project) {
         val application = projekt as? AndroidApplication ?: return false

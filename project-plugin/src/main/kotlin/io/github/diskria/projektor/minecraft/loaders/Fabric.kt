@@ -15,15 +15,17 @@ import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.projektor.Versions
+import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricApiSynchronizer
+import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricYarnSynchronizer
+import io.github.diskria.projektor.common.minecraft.versions.common.asString
 import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.minecraft.ModSide
 import io.github.diskria.projektor.minecraft.getSourceSets
-import io.github.diskria.projektor.minecraft.version.asString
 import io.github.diskria.projektor.projekt.MinecraftMod
-import io.github.diskria.projektor.tasks.minecraft.GenerateFabricModConfigTask
-import io.github.diskria.projektor.tasks.minecraft.GenerateModMixinsConfigTask
-import io.github.diskria.projektor.tasks.minecraft.TestClientModTask
-import io.github.diskria.projektor.tasks.minecraft.TestServerModTask
+import io.github.diskria.projektor.tasks.minecraft.generate.GenerateFabricModConfigTask
+import io.github.diskria.projektor.tasks.minecraft.generate.GenerateModMixinsConfigTask
+import io.github.diskria.projektor.tasks.minecraft.test.TestClientModTask
+import io.github.diskria.projektor.tasks.minecraft.test.TestServerModTask
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.dependencies
@@ -36,14 +38,26 @@ data object Fabric : ModLoader {
         fileName(getName(), "mod", Constants.File.Extension.JSON)
 
     override fun configure(project: Project, mod: MinecraftMod) = with(project) {
-        val minSupportedVersion = mod.supportedVersionsRange.min.asString()
+        val minSupportedVersion = mod.supportedVersionRange.min
         dependencies {
-            minecraft("com.mojang", "minecraft", minSupportedVersion)
+            minecraft("com.mojang", "minecraft", minSupportedVersion.asString())
             modImplementation("net.fabricmc", "fabric-loader", Versions.FABRIC_LOADER)
-            mappings("net.fabricmc", "yarn", "$minSupportedVersion+build.${mod.config.fabric.yarnBuild}", "v2")
-            mod.config.fabric.apiVersion?.let { apiVersion ->
-                modImplementation("net.fabricmc.fabric-api", "fabric-api", "$apiVersion+$minSupportedVersion")
+
+            mappings(
+                "net.fabricmc",
+                "yarn",
+                FabricYarnSynchronizer.getArtifactVersion(project, minSupportedVersion),
+                "v2"
+            )
+
+            if (mod.config.fabric.isApiRequired) {
+                modImplementation(
+                    "net.fabricmc.fabric-api",
+                    "fabric-api",
+                    FabricApiSynchronizer.getArtifactVersion(project, minSupportedVersion)
+                )
             }
+
             modImplementation(
                 "net.fabricmc",
                 "fabric-language-kotlin",

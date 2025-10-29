@@ -7,6 +7,6 @@ import org.gradle.api.tasks.TaskProvider
 
 abstract class ExternalPublishingTarget : PublishingTarget() {
 
-    override fun registerRootPublishTask(project: Project, rootProject: Project): TaskProvider<out Task> =
-        rootProject.tasks.register(getPublishTaskName(project))
+    override fun registerRootPublishTask(rootProject: Project): TaskProvider<out Task> =
+        rootProject.tasks.register(publishTaskName)
 }

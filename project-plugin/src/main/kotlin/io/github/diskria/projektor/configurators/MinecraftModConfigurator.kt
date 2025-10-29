@@ -1,9 +1,11 @@
 package io.github.diskria.projektor.configurators
 
+import io.github.diskria.gradle.utils.extensions.ensureTaskRegistered
 import io.github.diskria.projektor.configurations.minecraft.MinecraftModConfiguration
 import io.github.diskria.projektor.configurators.common.ProjectConfigurator
 import io.github.diskria.projektor.extensions.toProjekt
 import io.github.diskria.projektor.projekt.MinecraftMod
+import io.github.diskria.projektor.tasks.minecraft.drift.FabricDriftTask
 import org.gradle.api.Project
 
 open class MinecraftModConfigurator(
@@ -13,6 +15,9 @@ open class MinecraftModConfigurator(
     override fun configureProject(project: Project): MinecraftMod = with(project) {
         val mod = project.toProjekt().toMinecraftMod(project, config)
         mod.loader.configure(project, mod)
+        rootProject.ensureTaskRegistered<FabricDriftTask> {
+
+        }
         return mod
     }
 }

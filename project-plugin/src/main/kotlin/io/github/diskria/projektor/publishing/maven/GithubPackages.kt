@@ -37,11 +37,11 @@ data object GithubPackages : MavenPublishingTarget() {
         }
     }
 
-    override fun registerRootPublishTask(project: Project, rootProject: Project): TaskProvider<out Task> =
+    override fun registerRootPublishTask(rootProject: Project): TaskProvider<out Task> =
         if (EnvironmentHelper.isCI()) {
-            rootProject.tasks.register(getPublishTaskName(project))
+            rootProject.tasks.register(publishTaskName)
         } else {
-            super.registerRootPublishTask(project, rootProject)
+            super.registerRootPublishTask(rootProject)
         }
 
     override fun getHomepage(metadata: ProjektMetadata): String =

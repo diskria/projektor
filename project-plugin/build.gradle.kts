@@ -5,6 +5,8 @@ plugins {
 
 dependencies {
     implementation(libs.kotlin.html)
+    implementation(libs.kotlin.serialization.xml)
+    implementation(libs.jsoup)
 
     implementation(libs.bundles.diskria.utils)
     implementation(libs.bundles.ktor.client)

@@ -34,6 +34,9 @@ abstract class MavenPublishingTarget : PublishingTarget() {
 
     open val shouldCreatePublication: Boolean = false
 
+    override val publishTaskName: String =
+        "publishAllPublicationsTo${repositoryName}Repository"
+
     open fun configurePublication(projekt: Projekt, project: Project, publication: MavenPublication) {
 
     }
@@ -51,11 +54,8 @@ abstract class MavenPublishingTarget : PublishingTarget() {
         }
     }
 
-    override fun getPublishTaskName(project: Project): String =
-        "publishAllPublicationsTo${repositoryName}Repository"
-
-    override fun registerRootPublishTask(project: Project, rootProject: Project): TaskProvider<out Task> =
-        rootProject.tasks.register<Sync>(getPublishTaskName(project)) {
+    override fun registerRootPublishTask(rootProject: Project): TaskProvider<out Task> =
+        rootProject.tasks.register<Sync>(publishTaskName) {
             rootProject.childProjects.values.forEach { from(getLocalMavenDirectory(it)) }
             into(getLocalMavenDirectory(rootProject))
         }
