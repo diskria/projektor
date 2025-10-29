@@ -34,8 +34,8 @@ abstract class MavenPublishingTarget : PublishingTarget() {
 
     open val shouldCreatePublication: Boolean = false
 
-    override val publishTaskName: String =
-        "publishAllPublicationsTo${repositoryName}Repository"
+    override val publishTaskName: String
+        get() = "publishAllPublicationsTo${repositoryName}Repository"
 
     open fun configurePublication(projekt: Projekt, project: Project, publication: MavenPublication) {
 
