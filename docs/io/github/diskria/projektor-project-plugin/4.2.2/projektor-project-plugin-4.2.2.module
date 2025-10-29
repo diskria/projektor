@@ -1,0 +1,248 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.github.diskria",
+    "module": "projektor-project-plugin",
+    "version": "4.2.2",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.2.0-rc-3"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 24,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "projektor-project-plugin-4.2.2.jar",
+          "url": "projektor-project-plugin-4.2.2.jar",
+          "size": 653888,
+          "sha512": "ca235a9be80794c78c6fb467329ea2e542b805b0d1419168b03fa974c8d2ac5e9c065d2d3ea5be776d5560d8ad21eafd50fa3f7687f77e7fb39da888f6aa18ff",
+          "sha256": "5bf699d90c301c4aa5a5fcc91e0a69856882f657776933343affbe84dba8bc43",
+          "sha1": "a8d04a16513275d2c1017447227336c02c65eeef",
+          "md5": "109f1a04fc14052e0973ebbd609ec54b"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 24,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-html-jvm",
+          "version": {
+            "requires": "0.12.0"
+          }
+        },
+        {
+          "group": "io.github.pdvrieze.xmlutil",
+          "module": "serialization",
+          "version": {
+            "requires": "0.91.2"
+          }
+        },
+        {
+          "group": "org.jsoup",
+          "module": "jsoup",
+          "version": {
+            "requires": "1.21.2"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "kotlin-utils",
+          "version": {
+            "requires": "0.7.8"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "gradle-utils",
+          "version": {
+            "requires": "0.5.8"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "kotlin-shell-dsl",
+          "version": {
+            "requires": "0.4.2"
+          }
+        },
+        {
+          "group": "io.ktor",
+          "module": "ktor-client-core",
+          "version": {
+            "requires": "3.3.1"
+          }
+        },
+        {
+          "group": "io.ktor",
+          "module": "ktor-client-cio",
+          "version": {
+            "requires": "3.3.1"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin.jvm",
+          "module": "org.jetbrains.kotlin.jvm.gradle.plugin",
+          "version": {
+            "requires": "2.3.0-Beta1"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin.plugin.serialization",
+          "module": "org.jetbrains.kotlin.plugin.serialization.gradle.plugin",
+          "version": {
+            "requires": "2.3.0-Beta1"
+          }
+        },
+        {
+          "group": "com.github.gmazzo.buildconfig",
+          "module": "plugin",
+          "version": {
+            "requires": "5.7.0"
+          }
+        },
+        {
+          "group": "net.neoforged.moddev.repositories",
+          "module": "net.neoforged.moddev.repositories.gradle.plugin",
+          "version": {
+            "requires": "2.0.115"
+          }
+        },
+        {
+          "group": "com.modrinth.minotaur",
+          "module": "Minotaur",
+          "version": {
+            "requires": "2.8.10"
+          }
+        },
+        {
+          "group": "com.gradle.publish",
+          "module": "plugin-publish-plugin",
+          "version": {
+            "requires": "1.3.1"
+          }
+        },
+        {
+          "group": "com.gradleup.shadow",
+          "module": "com.gradleup.shadow.gradle.plugin",
+          "version": {
+            "requires": "9.2.2"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-serialization-json",
+          "version": {
+            "requires": "1.9.0"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "com.squareup.okio",
+          "module": "okio-jvm",
+          "version": {
+            "requires": "3.16.1"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "projektor-project-plugin-4.2.2.jar",
+          "url": "projektor-project-plugin-4.2.2.jar",
+          "size": 653888,
+          "sha512": "ca235a9be80794c78c6fb467329ea2e542b805b0d1419168b03fa974c8d2ac5e9c065d2d3ea5be776d5560d8ad21eafd50fa3f7687f77e7fb39da888f6aa18ff",
+          "sha256": "5bf699d90c301c4aa5a5fcc91e0a69856882f657776933343affbe84dba8bc43",
+          "sha1": "a8d04a16513275d2c1017447227336c02c65eeef",
+          "md5": "109f1a04fc14052e0973ebbd609ec54b"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "projektor-project-plugin-4.2.2-sources.jar",
+          "url": "projektor-project-plugin-4.2.2-sources.jar",
+          "size": 69651,
+          "sha512": "9b6438c217edfadb43e63c05df4ea020979e9baaf8c50bfc58dd0bb597886afa44acee3d1d919a99fa1b5eedb1fd8c147b1b854d1eccbf7b326f81aa000eb199",
+          "sha256": "f0f0e82e8ae906a3e49e910b1c3373b67989832a2d500000ca2e75a0fb06beb8",
+          "sha1": "7e50ab3bb41a667cbc7bbc7a6446eb263c3dbbd9",
+          "md5": "99291c699f18356a8f8641e25822bbd1"
+        }
+      ]
+    },
+    {
+      "name": "javadocElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "javadoc",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "projektor-project-plugin-4.2.2-javadoc.jar",
+          "url": "projektor-project-plugin-4.2.2-javadoc.jar",
+          "size": 261,
+          "sha512": "1487e5a20c9e4d74f298e07c42e96a61be11b7a768c3fbc199ee138cd68e1fc2267d1cfe3f11f288acc05df755315344d052cc5f6f751f126ab4fe1caa5125ea",
+          "sha256": "c6deada2fac53b8ea6523dbda77597b128006674616f140f04df23264c6d1aa3",
+          "sha1": "2ad14aed781c4a73ed4dbb421966d408a0a06686",
+          "md5": "f43436d6bec321290f6af228ad602604"
+        }
+      ]
+    },
+    {
+      "name": "shadowRuntimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "shadowed",
+        "org.gradle.jvm.version": 24,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "projektor-project-plugin-4.2.2.jar",
+          "url": "projektor-project-plugin-4.2.2.jar",
+          "size": 653888,
+          "sha512": "ca235a9be80794c78c6fb467329ea2e542b805b0d1419168b03fa974c8d2ac5e9c065d2d3ea5be776d5560d8ad21eafd50fa3f7687f77e7fb39da888f6aa18ff",
+          "sha256": "5bf699d90c301c4aa5a5fcc91e0a69856882f657776933343affbe84dba8bc43",
+          "sha1": "a8d04a16513275d2c1017447227336c02c65eeef",
+          "md5": "109f1a04fc14052e0973ebbd609ec54b"
+        }
+      ]
+    }
+  ]
+}
