@@ -1,5 +1,8 @@
 package io.github.diskria.projektor.minecraft
 
+import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersion
+import io.github.diskria.projektor.common.minecraft.versions.common.supportsEnvironmentSplit
+
 enum class ModEnvironment(
     val fabricConfigValue: String,
     val forgeConfigValue: String,
@@ -22,10 +25,10 @@ enum class ModEnvironment(
     ),
 }
 
-fun ModEnvironment.getSourceSets(): List<ModSourceSet> =
+fun ModEnvironment.getSourceSets(minecraftVersion: MinecraftVersion): List<ModSourceSet> =
     buildList {
         add(ModSourceSet.MAIN)
-        if (sides.contains(ModSide.CLIENT)) {
+        if (minecraftVersion.supportsEnvironmentSplit() && sides.contains(ModSide.CLIENT)) {
             add(ModSourceSet.CLIENT)
         }
     }

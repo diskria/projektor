@@ -6,6 +6,6 @@ plugins {
 
 projekt {
     kotlinLibrary {
-        jvmTarget = JvmTarget.JVM_17
+        jvmTarget = JvmTarget.JVM_1_8
     }
 }

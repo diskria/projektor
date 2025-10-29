@@ -3,6 +3,7 @@ package io.github.diskria.projektor.common.minecraft.sync.common
 import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.fileName
+import io.github.diskria.kotlin.utils.extensions.common.modifyIf
 import io.github.diskria.kotlin.utils.extensions.common.nowMillis
 import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
@@ -26,6 +27,8 @@ abstract class AbstractMinecraftArtifactSynchronizer {
 
     abstract val cacheDurationMillis: Long
 
+    open val isOldestFirst: Boolean = false
+
     open val loader: ModLoaderType? = null
 
     abstract suspend fun loadArtifacts(): List<MinecraftArtifact>
@@ -40,7 +43,9 @@ abstract class AbstractMinecraftArtifactSynchronizer {
         }
         runBlocking {
             val artifacts = loadArtifacts()
-                .sortedWith(compareBy(MinecraftVersion.COMPARATOR.reversed()) { it.minecraftVersion })
+                .modifyIf(isOldestFirst) { it.reversed() }
+                .sortedWith(compareBy(MinecraftVersion.COMPARATOR) { it.minecraftVersion })
+                .distinctBy { it.minecraftVersion }
             MinecraftArtifacts(artifacts, nowMillis()).serializeJsonToFile(outputFile.ensureFileExists())
         }
     }
@@ -49,7 +54,8 @@ abstract class AbstractMinecraftArtifactSynchronizer {
         getOutputFile(project.rootDir)
             .deserializeJsonFromFile<MinecraftArtifacts>()
             .artifacts
-            .firstOrNull { it.minecraftVersion <= minecraftVersion }
+            .filter { it.minecraftVersion <= minecraftVersion }
+            .maxWithOrNull(compareBy(MinecraftVersion.COMPARATOR) { it.minecraftVersion })
             ?.artifactVersion
             ?: gradleError(
                 "Artifact ${name.wrapWithSingleQuote()} not found for Minecraft version ${minecraftVersion.asString()}"

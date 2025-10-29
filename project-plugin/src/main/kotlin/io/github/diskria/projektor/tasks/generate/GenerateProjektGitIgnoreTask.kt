@@ -3,6 +3,7 @@ package io.github.diskria.projektor.tasks.generate
 import io.github.diskria.kotlin.shell.dsl.git.commits.CommitType
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.generics.joinByNewLine
+import io.github.diskria.projektor.common.ProjectDirectories
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.projekt.ProjektType.MINECRAFT_MOD
 import io.github.diskria.projektor.projekt.MinecraftMod
@@ -15,9 +16,9 @@ abstract class GenerateProjektGitIgnoreTask : AbstractGenerateFileTask() {
         val patterns = mutableListOf(
             ".idea/*",
             "!.idea/dictionaries/",
-            "$DOT_GRADLE_DIRECTORY_NAME/",
+            "${ProjectDirectories.GRADLE_CACHE}/",
             ".kotlin/",
-            "$BUILD_DIRECTORY_NAME/",
+            "${ProjectDirectories.BUILD}/",
         )
         patterns.addAll(
             when (metadata.type) {
@@ -31,9 +32,4 @@ abstract class GenerateProjektGitIgnoreTask : AbstractGenerateFileTask() {
     override fun getOutputFileName(): String = ".gitignore"
 
     override fun getCommitType(): CommitType = CommitType.CHORE
-
-    companion object {
-        const val DOT_GRADLE_DIRECTORY_NAME = ".gradle"
-        const val BUILD_DIRECTORY_NAME = "build"
-    }
 }

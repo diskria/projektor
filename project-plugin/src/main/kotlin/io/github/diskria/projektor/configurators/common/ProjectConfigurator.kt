@@ -9,6 +9,8 @@ import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.Versions
 import io.github.diskria.projektor.common.ProjectModules
 import io.github.diskria.projektor.common.configurators.IProjektConfigurator
+import io.github.diskria.projektor.common.extensions.getProjektMetadata
+import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.projekt.GradlePlugin
@@ -45,10 +47,14 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
 
         ensurePluginApplied("org.jetbrains.kotlin.jvm")
         ensurePluginApplied("org.jetbrains.kotlin.plugin.serialization")
-        dependencies {
-            testImplementation(kotlin("test"))
-            testImplementation("org.junit.jupiter", "junit-jupiter", Versions.JUNIT)
-            implementation("org.jetbrains.kotlinx", "kotlinx-serialization-json", Versions.KOTLIN_SERIALIZATION)
+
+        val rootProjektType = project.getProjektMetadata().type
+        if (rootProjektType != ProjektType.MINECRAFT_MOD) {
+            dependencies {
+                testImplementation(kotlin("test"))
+                testImplementation("org.junit.jupiter", "junit-jupiter", Versions.JUNIT)
+                implementation("org.jetbrains.kotlinx", "kotlinx-serialization-json", Versions.KOTLIN_SERIALIZATION)
+            }
         }
         base {
             archivesName = projekt.repo.name
@@ -122,22 +128,24 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
             named("build") {
                 finalizedBy(unarchiveArtifactTask)
             }
-            test {
-                useJUnitPlatform()
-                testLogging {
-                    events(
-                        TestLogEvent.PASSED,
-                        TestLogEvent.SKIPPED,
-                        TestLogEvent.FAILED,
-                    )
-                    exceptionFormat = TestExceptionFormat.FULL
+            if (rootProjektType != ProjektType.MINECRAFT_MOD) {
+                test {
+                    useJUnitPlatform()
+                    testLogging {
+                        events(
+                            TestLogEvent.PASSED,
+                            TestLogEvent.SKIPPED,
+                            TestLogEvent.FAILED,
+                        )
+                        exceptionFormat = TestExceptionFormat.FULL
 
-                    ignoreFailures = true
+                        ignoreFailures = true
 
-                    showCauses = true
-                    showExceptions = true
-                    showStackTraces = true
-                    showStandardStreams = true
+                        showCauses = true
+                        showExceptions = true
+                        showStackTraces = true
+                        showStandardStreams = true
+                    }
                 }
             }
         }

@@ -11,7 +11,6 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import java.util.concurrent.TimeUnit
 
 abstract class AbstractPackFormatSynchronizer : AbstractMinecraftArtifactSynchronizer() {
@@ -21,25 +20,22 @@ abstract class AbstractPackFormatSynchronizer : AbstractMinecraftArtifactSynchro
     final override val cacheDurationMillis: Long = TimeUnit.DAYS.toMillis(7)
 
     override suspend fun loadArtifacts(): List<MinecraftArtifact> =
-        loadDocument()
-            .select("caption")
-            .firstOrNull { it.ownText().trim() == wikiTableCaption }
-            ?.parent()
-            ?.select("tr#pack-format-column")
-            ?.mapNotNull { tableRow ->
-                val format = tableRow.selectFirst("th#pack-format")?.text()?.trim() ?: return@mapNotNull null
-                val versionRange = tableRow.selectFirst("th#v")?.text()?.trim() ?: return@mapNotNull null
-                val minecraftVersion = MinecraftVersion.parseOrNull(versionRange.substringBefore("–").trim())
-                    ?: return@mapNotNull null
-                MinecraftArtifact(minecraftVersion, format)
-            }
-            ?: gradleError("Failed to parse formats")
-
-    private suspend fun loadDocument(): Document =
         HttpClient(CIO).use { client ->
             val wikiUrl = buildUrl("minecraft.wiki") {
                 path("w", "Pack_format")
             }
             Jsoup.parse(client.get(wikiUrl).bodyAsText())
+                .select("caption")
+                .firstOrNull { it.ownText().trim() == wikiTableCaption }
+                ?.parent()
+                ?.select("tr#pack-format-column")
+                ?.mapNotNull { tableRow ->
+                    val format = tableRow.selectFirst("th#pack-format")?.text()?.trim() ?: return@mapNotNull null
+                    val versionRange = tableRow.selectFirst("th#v")?.text()?.trim() ?: return@mapNotNull null
+                    val minecraftVersion = MinecraftVersion.parseOrNull(versionRange.substringBefore("–").trim())
+                        ?: return@mapNotNull null
+                    MinecraftArtifact(minecraftVersion, format)
+                }
+                ?: gradleError("Failed to parse formats")
         }
 }

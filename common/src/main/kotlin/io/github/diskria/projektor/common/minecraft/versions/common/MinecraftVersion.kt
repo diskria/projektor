@@ -9,7 +9,12 @@ import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.common.minecraft.era.MinecraftEra
 import io.github.diskria.projektor.common.minecraft.era.firstVersion
 import io.github.diskria.projektor.common.minecraft.era.lastVersion
+import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricApiSynchronizer
+import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricYarnSynchronizer
+import io.github.diskria.projektor.common.minecraft.sync.packs.DataPackFormatSynchronizer
+import io.github.diskria.projektor.common.minecraft.sync.packs.ResourcePackFormatSynchronizer
 import io.github.diskria.projektor.common.minecraft.versions.Release
+import org.gradle.api.Project
 
 interface MinecraftVersion {
 
@@ -77,3 +82,22 @@ fun MinecraftVersion.getMinJavaVersion(): Int =
         .sortedWith(compareByDescending(MinecraftVersion.COMPARATOR) { it.key })
         .first { this >= it.key }
         .value
+
+fun MinecraftVersion.getDataPackFormat(project: Project): String =
+    DataPackFormatSynchronizer.getArtifactVersion(project, this)
+
+fun MinecraftVersion.getResourcePackFormat(project: Project): String =
+    ResourcePackFormatSynchronizer.getArtifactVersion(project, this)
+
+fun MinecraftVersion.getLatestYarnVersion(project: Project): String =
+    FabricYarnSynchronizer.getArtifactVersion(project, this)
+
+fun MinecraftVersion.getLatestFabricApiVersion(project: Project): String =
+    FabricApiSynchronizer.getArtifactVersion(project, this)
+
+fun MinecraftVersion.supportsEnvironmentSplit(): Boolean =
+    this >= Release.V_1_19
+
+fun MinecraftVersion.getFabricApiDependencyName(): String =
+    if (this >= Release.V_1_18_2) "fabric-api"
+    else "fabric"

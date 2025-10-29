@@ -37,7 +37,6 @@ abstract class AbstractGenerateFileTask : DefaultTask() {
         outputFile.convention(project.getFile(getOutputFileName()))
     }
 
-    @Internal
     abstract fun getFileText(metadata: ProjektMetadata, repoDirectory: File, file: File): String?
 
     @Internal

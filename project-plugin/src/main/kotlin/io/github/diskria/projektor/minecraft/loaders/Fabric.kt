@@ -15,9 +15,10 @@ import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.projektor.Versions
-import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricApiSynchronizer
-import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricYarnSynchronizer
 import io.github.diskria.projektor.common.minecraft.versions.common.asString
+import io.github.diskria.projektor.common.minecraft.versions.common.getLatestFabricApiVersion
+import io.github.diskria.projektor.common.minecraft.versions.common.getLatestYarnVersion
+import io.github.diskria.projektor.common.minecraft.versions.common.supportsEnvironmentSplit
 import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.minecraft.ModSide
 import io.github.diskria.projektor.minecraft.getSourceSets
@@ -42,22 +43,19 @@ data object Fabric : ModLoader {
         dependencies {
             minecraft("com.mojang", "minecraft", minSupportedVersion.asString())
             modImplementation("net.fabricmc", "fabric-loader", Versions.FABRIC_LOADER)
-
             mappings(
                 "net.fabricmc",
                 "yarn",
-                FabricYarnSynchronizer.getArtifactVersion(project, minSupportedVersion),
+                minSupportedVersion.getLatestYarnVersion(project),
                 "v2"
             )
-
             if (mod.config.fabric.isApiRequired) {
                 modImplementation(
                     "net.fabricmc.fabric-api",
                     "fabric-api",
-                    FabricApiSynchronizer.getArtifactVersion(project, minSupportedVersion)
+                    minSupportedVersion.getLatestFabricApiVersion(project)
                 )
             }
-
             modImplementation(
                 "net.fabricmc",
                 "fabric-language-kotlin",
@@ -70,17 +68,44 @@ data object Fabric : ModLoader {
             }
         }
         loom {
-            splitEnvironmentSourceSets()
-            mods {
-                create(mod.id) {
-                    sourceSets {
-                        mod.config.environment.getSourceSets().forEach {
-                            sourceSet(getByName(it.getName()))
+            if (minSupportedVersion.supportsEnvironmentSplit()) {
+                splitEnvironmentSourceSets()
+                mods {
+                    create(mod.id) {
+                        sourceSets {
+                            mod.config.environment.getSourceSets(minSupportedVersion).forEach {
+                                sourceSet(getByName(it.getName()))
+                            }
                         }
                     }
                 }
             }
             runs {
+                val datagenName = "datagen"
+                named(datagenName) {
+                    inherit(findByName(ModSide.SERVER.getName()))
+
+                    name = "Data Generation"
+                    runDir = "build/$datagenName"
+
+                    val argumentNamePrefix = "fabric-api.$datagenName"
+                    vmArgs(
+                        JvmArguments.property(argumentNamePrefix),
+                        JvmArguments.property(
+                            "$argumentNamePrefix.output-dir",
+                            file("src/main/generated").toString()
+                        ),
+                        JvmArguments.property(
+                            "$argumentNamePrefix.modid",
+                            mod.id
+                        ),
+                        *JvmArguments.memory(
+                            ModSide.SERVER.minMemoryGigabytes..ModSide.SERVER.maxMemoryGigabytes,
+                            Size.GIGABYTES
+                        ),
+                        *JvmArguments.program("enable-native-access", "ALL-UNNAMED"),
+                    )
+                }
                 ModSide.entries.forEach { side ->
                     val sideName = side.getName()
                     named(sideName) {
@@ -111,31 +136,6 @@ data object Fabric : ModLoader {
                             )
                         }
                     }
-                }
-                val datagenName = "datagen"
-                named(datagenName) {
-                    inherit(findByName(ModSide.SERVER.getName()))
-
-                    name = "Data Generation"
-                    runDir = "build/$datagenName"
-
-                    val argumentNamePrefix = "fabric-api.$datagenName"
-                    vmArgs(
-                        JvmArguments.property(argumentNamePrefix),
-                        JvmArguments.property(
-                            "$argumentNamePrefix.output-dir",
-                            file("src/main/generated").toString()
-                        ),
-                        JvmArguments.property(
-                            "$argumentNamePrefix.modid",
-                            mod.id
-                        ),
-                        *JvmArguments.memory(
-                            ModSide.SERVER.minMemoryGigabytes..ModSide.SERVER.maxMemoryGigabytes,
-                            Size.GIGABYTES
-                        ),
-                        *JvmArguments.program("enable-native-access", "ALL-UNNAMED"),
-                    )
                 }
             }
             accessWidenerPath = ensureAccessWidenerCreated(project, mod)

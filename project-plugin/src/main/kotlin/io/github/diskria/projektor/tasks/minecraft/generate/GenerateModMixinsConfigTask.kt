@@ -43,32 +43,34 @@ abstract class GenerateModMixinsConfigTask : DefaultTask() {
         val sourceSetsRoot = sourceSetsRoot.get().asFile
         val outputFile = outputFile.get().asFile.ensureFileExists()
 
-        val mixinsBySourceSet = minecraftMod.config.environment.getSourceSets().mapNotNull { sourceSet ->
-            val rootDirectory = sourceSetsRoot
-                .resolve(sourceSet.getName())
-                .resolve("java")
-                .resolve(minecraftMod.packagePath)
-                .resolve("mixins")
-            val mixins = rootDirectory
-                .walkTopDown()
-                .filter { it.isDirectory && !it.isHidden }
-                .mapNotNull { directory ->
-                    val files = directory.listFilesWithExtension("java").toNullIfEmpty() ?: return@mapNotNull null
-                    val directoryPath = directory.relativeTo(rootDirectory).path
-                    val fileNames = files.map { it.nameWithoutExtension }.sorted()
-                    directoryPath to fileNames
-                }
-                .sortedBy { it.first }
-                .toList()
-                .flatMap { (directoryPath, fileNames) ->
-                    fileNames.map { fileName ->
-                        if (directoryPath.isEmpty()) fileName
-                        else directoryPath.setCase(`path∕case`, `dot․case`).appendPackageName(fileName)
+        val mixinsBySourceSet = minecraftMod.config.environment
+            .getSourceSets(minecraftMod.supportedVersionRange.min)
+            .mapNotNull { sourceSet ->
+                val rootDirectory = sourceSetsRoot
+                    .resolve(sourceSet.getName())
+                    .resolve("java")
+                    .resolve(minecraftMod.packagePath)
+                    .resolve("mixins")
+                val mixins = rootDirectory
+                    .walkTopDown()
+                    .filter { it.isDirectory && !it.isHidden }
+                    .mapNotNull { directory ->
+                        val files = directory.listFilesWithExtension("java").toNullIfEmpty() ?: return@mapNotNull null
+                        val directoryPath = directory.relativeTo(rootDirectory).path
+                        val fileNames = files.map { it.nameWithoutExtension }.sorted()
+                        directoryPath to fileNames
                     }
-                }
-                .toNullIfEmpty() ?: return@mapNotNull null
-            sourceSet to mixins
-        }.toMap()
+                    .sortedBy { it.first }
+                    .toList()
+                    .flatMap { (directoryPath, fileNames) ->
+                        fileNames.map { fileName ->
+                            if (directoryPath.isEmpty()) fileName
+                            else directoryPath.setCase(`path∕case`, `dot․case`).appendPackageName(fileName)
+                        }
+                    }
+                    .toNullIfEmpty() ?: return@mapNotNull null
+                sourceSet to mixins
+            }.toMap()
 
         val config = MixinsConfig.of(minecraftMod, mixinsBySourceSet)
         config.serializeJsonToFile(outputFile)

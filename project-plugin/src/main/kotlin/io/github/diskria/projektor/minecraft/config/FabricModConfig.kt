@@ -9,13 +9,13 @@ import io.github.diskria.kotlin.utils.serialization.annotations.EncodeDefaults
 import io.github.diskria.kotlin.utils.serialization.annotations.PrettyPrint
 import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.common.asString
+import io.github.diskria.projektor.common.minecraft.versions.common.getFabricApiDependencyName
 import io.github.diskria.projektor.common.publishing.PublishingTargetType
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.minecraft.ModEnvironment
 import io.github.diskria.projektor.minecraft.config.versions.VersionBound
 import io.github.diskria.projektor.minecraft.config.versions.range.InequalityVersionRange
-import io.github.diskria.projektor.minecraft.config.versions.range.VersionRange
 import io.github.diskria.projektor.projekt.MinecraftMod
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -43,7 +43,7 @@ class FabricModConfig private constructor(
     val entryPoints: EntryPoints,
 
     @SerialName("depends")
-    val dependencies: Dependencies,
+    val dependencies: Map<String, String>,
 ) {
     @Serializable
     class Links private constructor(
@@ -124,41 +124,6 @@ class FabricModConfig private constructor(
         }
     }
 
-    @Serializable
-    class Dependencies private constructor(
-        @SerialName("java")
-        val jvmTargetDependency: String,
-
-        @SerialName("minecraft")
-        val minecraftDependency: String,
-
-        @SerialName("fabricloader")
-        val loaderDependency: String,
-
-        @SerialName("fabric-language-kotlin")
-        val kotlinDependency: String,
-
-        @SerialName("fabric-api")
-        val apiDependency: String? = null,
-    ) {
-        companion object {
-            fun of(
-                jvmTarget: Int,
-                minSupportedVersion: MinecraftVersion,
-                loaderVersion: String,
-                isApiRequired: Boolean,
-                versionRange: VersionRange = InequalityVersionRange,
-            ): Dependencies =
-                Dependencies(
-                    jvmTargetDependency = versionRange.min(VersionBound.inclusive(jvmTarget.toString())),
-                    minecraftDependency = versionRange.min(VersionBound.inclusive(minSupportedVersion.asString())),
-                    loaderDependency = versionRange.min(VersionBound.inclusive(loaderVersion)),
-                    kotlinDependency = versionRange.any,
-                    apiDependency = if (isApiRequired) versionRange.any else null,
-                )
-        }
-    }
-
     companion object {
         fun of(
             mod: MinecraftMod,
@@ -187,12 +152,16 @@ class FabricModConfig private constructor(
                     issueTrackerUrl = mod.repo.getIssuesUrl(),
                 ),
                 entryPoints = EntryPoints.of(mod, dataGenerators),
-                dependencies = Dependencies.of(
-                    mod.jvmTarget.toInt(),
-                    minSupportedVersion,
-                    loaderVersion,
-                    isApiRequired,
-                ),
+                dependencies = listOfNotNull(
+                    "java" to InequalityVersionRange.min(VersionBound.inclusive(mod.jvmTarget.toInt().toString())),
+                    "minecraft" to InequalityVersionRange.min(VersionBound.inclusive(minSupportedVersion.asString())),
+                    "fabricloader" to InequalityVersionRange.min(VersionBound.inclusive(loaderVersion)),
+                    "fabric-language-kotlin" to InequalityVersionRange.any,
+                    when {
+                        isApiRequired -> minSupportedVersion.getFabricApiDependencyName() to InequalityVersionRange.any
+                        else -> null
+                    },
+                ).toMap()
             )
     }
 }
