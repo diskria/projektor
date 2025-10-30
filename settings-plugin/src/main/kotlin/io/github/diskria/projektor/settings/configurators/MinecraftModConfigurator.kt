@@ -74,6 +74,12 @@ open class MinecraftModConfigurator(
                     name = "Fabric",
                     url = buildUrl("maven.fabricmc.net")
                 )
+                configureMaven(
+                    name = "Ornithe",
+                    url = buildUrl("maven.ornithemc.net") {
+                        path("releases")
+                    }
+                )
             }
         }
     }

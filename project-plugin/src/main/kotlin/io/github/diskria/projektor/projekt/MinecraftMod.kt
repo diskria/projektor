@@ -6,6 +6,7 @@ import io.github.diskria.kotlin.utils.extensions.common.SCREAMING_SNAKE_CASE
 import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.poet.Property
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
+import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersionRange
 import io.github.diskria.projektor.common.minecraft.versions.common.asString
 import io.github.diskria.projektor.common.minecraft.versions.common.getMinJavaVersion
@@ -25,6 +26,8 @@ class MinecraftMod(
 
     val id: String = repo.name
     val mixinsConfigFileName: String = fileName(id, "mixins", Constants.File.Extension.JSON)
+    val minSupportedVersion: MinecraftVersion = supportedVersionRange.min
+    val maxSupportedVersion: MinecraftVersion = supportedVersionRange.max
 
     override val isJavadocEnabled: Boolean = false
 
@@ -45,7 +48,7 @@ class MinecraftMod(
             append(version)
             append(Constants.Char.PLUS)
             append(SHORT_NAME)
-            append(supportedVersionRange.max.asString())
+            append(maxSupportedVersion.asString())
         }
 
     override fun getBuildConfigFields(): List<Property<String>> {

@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.projektor)
-    alias(libs.plugins.fabric.loom)
 }
 
 projekt {

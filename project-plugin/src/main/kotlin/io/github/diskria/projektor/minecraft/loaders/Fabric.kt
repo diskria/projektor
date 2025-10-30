@@ -15,6 +15,8 @@ import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.projektor.Versions
+import io.github.diskria.projektor.common.minecraft.era.fabric.FabricEra
+import io.github.diskria.projektor.common.minecraft.era.fabric.OrnitheFabricEra
 import io.github.diskria.projektor.common.minecraft.versions.common.asString
 import io.github.diskria.projektor.common.minecraft.versions.common.getLatestFabricApiVersion
 import io.github.diskria.projektor.common.minecraft.versions.common.getLatestYarnVersion
@@ -39,7 +41,19 @@ data object Fabric : ModLoader {
         fileName(getName(), "mod", Constants.File.Extension.JSON)
 
     override fun configure(project: Project, mod: MinecraftMod) = with(project) {
-        val minSupportedVersion = mod.supportedVersionRange.min
+        if (FabricEra.includesVersion(mod.minSupportedVersion)) {
+            configureFabricEra(project, mod)
+        } else if (OrnitheFabricEra.includesVersion(mod.minSupportedVersion)) {
+            configureOrnitheFabricEra(project, mod)
+        }
+    }
+
+    private fun configureOrnitheFabricEra(project: Project, mod: MinecraftMod) = with(project) {
+
+    }
+
+    private fun configureFabricEra(project: Project, mod: MinecraftMod) = with(project) {
+        val minSupportedVersion = mod.minSupportedVersion
         dependencies {
             minecraft("com.mojang", "minecraft", minSupportedVersion.asString())
             modImplementation("net.fabricmc", "fabric-loader", Versions.FABRIC_LOADER)

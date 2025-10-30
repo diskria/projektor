@@ -18,4 +18,7 @@ open class MinecraftVersionRange(val min: MinecraftVersion, val max: MinecraftVe
             }
         }.sortedWith(MinecraftVersion.COMPARATOR)
     }
+
+    fun includesVersion(minecraftVersion: MinecraftVersion): Boolean =
+        minecraftVersion >= min && minecraftVersion <= max
 }

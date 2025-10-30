@@ -28,7 +28,7 @@ plugins {
 }
 
 projekt {
-    version = "4.2.2"
+    version = "4.2.3"
     license = MIT
     publish = setOf(
         GITHUB_PAGES,
