@@ -29,11 +29,13 @@ class ReplaceGrassWithCobblestone {
             Entity entity,
             CallbackInfo ci
     ) {
+        System.out.println("onSteppedOn");
         WorldContract<Block, BlockPos> worldContract = (WorldContract<Block, BlockPos>) world;
         EntityContract entityContract = (EntityContract) entity;
         if (worldContract.mod_isServerWorld() && entityContract.mod_isPlayer()) {
             BlockContract blockContract = (BlockContract) worldContract.mod_getBlock(blockPos);
             if (blockContract.mod_isGrassBlock()) {
+                System.out.println("mod_replaceWithCobblestone call");
                 worldContract.mod_replaceWithCobblestone(blockPos);
                 ci.cancel();
             }

@@ -23,7 +23,6 @@ import io.github.diskria.projektor.tasks.generate.GenerateProjektGitAttributesTa
 import io.github.diskria.projektor.tasks.generate.GenerateProjektGitIgnoreTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektLicenseTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektReadmeTask
-import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
@@ -60,8 +59,6 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
             archivesName = projekt.repo.name
         }
         java {
-            sourceCompatibility = JavaVersion.toVersion(projekt.javaVersion)
-            targetCompatibility = JavaVersion.toVersion(projekt.jvmTarget.toInt())
             toolchain {
                 languageVersion = JavaLanguageVersion.of(projekt.javaVersion)
                 implementation = JvmImplementation.VENDOR_SPECIFIC
@@ -184,7 +181,11 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                 }
             } else {
                 dependencies {
-                    implementation(rootProject.project(ProjectModules.Common.PATH))
+                    modImplementation(rootProject.project(ProjectModules.Common.PATH))
+                    include(rootProject.project(ProjectModules.Common.PATH))
+
+                    modImplementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+                    include("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
                 }
             }
         }

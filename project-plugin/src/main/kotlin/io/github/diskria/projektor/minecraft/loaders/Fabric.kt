@@ -41,40 +41,15 @@ data object Fabric : ModLoader {
         fileName(getName(), "mod", Constants.File.Extension.JSON)
 
     override fun configure(project: Project, mod: MinecraftMod) = with(project) {
-        if (FabricEra.includesVersion(mod.minSupportedVersion)) {
-            configureFabricEra(project, mod)
-        } else if (OrnitheFabricEra.includesVersion(mod.minSupportedVersion)) {
-            configureOrnitheFabricEra(project, mod)
-        }
-    }
-
-    private fun configureOrnitheFabricEra(project: Project, mod: MinecraftMod) = with(project) {
-
-    }
-
-    private fun configureFabricEra(project: Project, mod: MinecraftMod) = with(project) {
         val minSupportedVersion = mod.minSupportedVersion
         dependencies {
             minecraft("com.mojang", "minecraft", minSupportedVersion.asString())
             modImplementation("net.fabricmc", "fabric-loader", Versions.FABRIC_LOADER)
-            mappings(
-                "net.fabricmc",
-                "yarn",
-                minSupportedVersion.getLatestYarnVersion(project),
-                "v2"
-            )
-            if (mod.config.fabric.isApiRequired) {
-                modImplementation(
-                    "net.fabricmc.fabric-api",
-                    "fabric-api",
-                    minSupportedVersion.getLatestFabricApiVersion(project)
-                )
-            }
-            modImplementation(
-                "net.fabricmc",
-                "fabric-language-kotlin",
-                "${Versions.FABRIC_KOTLIN}+kotlin.${mod.kotlinVersion}"
-            )
+        }
+        if (FabricEra.includesVersion(mod.minSupportedVersion)) {
+            configureFabricEra(project, mod)
+        } else if (OrnitheFabricEra.includesVersion(mod.minSupportedVersion)) {
+            configureOrnitheFabricEra(project, mod)
         }
         fabric {
             configureDataGeneration {
@@ -194,6 +169,47 @@ data object Fabric : ModLoader {
 
                 registerTask<TestServerModTask>()
             }
+        }
+    }
+
+    private fun configureOrnitheFabricEra(project: Project, mod: MinecraftMod) = with(project) {
+//        ploceus {
+//            setGeneration(2)
+//
+//        }
+        dependencies {
+            mappings(ploceus.featherMappings("6"))
+            ploceus.dependOsl("0.16.3")
+
+            /*
+            clientExceptions(ploceus.raven("2", "client"))
+            serverExceptions(ploceus.raven("2", "server"))
+
+            clientSignatures(ploceus.sparrow("2", "client"))
+            serverSignatures(ploceus.sparrow("2", "server"))
+
+            clientNests(ploceus.nests("7", "client"))
+            serverNests(ploceus.nests("4", "server"))
+            */
+        }
+    }
+
+    private fun configureFabricEra(project: Project, mod: MinecraftMod) = with(project) {
+        val minSupportedVersion = mod.minSupportedVersion
+        dependencies {
+            mappings("net.fabricmc", "yarn", minSupportedVersion.getLatestYarnVersion(project), "v2")
+            if (mod.config.fabric.isApiRequired) {
+                modImplementation(
+                    "net.fabricmc.fabric-api",
+                    "fabric-api",
+                    minSupportedVersion.getLatestFabricApiVersion(project)
+                )
+            }
+            modImplementation(
+                "net.fabricmc",
+                "fabric-language-kotlin",
+                "${Versions.FABRIC_KOTLIN}+kotlin.${mod.kotlinVersion}"
+            )
         }
     }
 

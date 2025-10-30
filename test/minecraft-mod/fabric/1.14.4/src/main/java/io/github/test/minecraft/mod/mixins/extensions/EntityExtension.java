@@ -2,7 +2,7 @@ package io.github.test.minecraft.mod.mixins.extensions;
 
 import io.github.test.minecraft.mod.common.EntityContract;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.living.player.PlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 

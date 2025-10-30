@@ -7,6 +7,8 @@ import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
 import io.github.diskria.kotlin.utils.serialization.annotations.EncodeDefaults
 import io.github.diskria.kotlin.utils.serialization.annotations.PrettyPrint
+import io.github.diskria.projektor.common.minecraft.era.fabric.FabricEra
+import io.github.diskria.projektor.common.minecraft.era.fabric.OrnitheFabricEra
 import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.common.asString
 import io.github.diskria.projektor.common.minecraft.versions.common.getFabricApiDependencyName
@@ -84,9 +86,10 @@ class FabricModConfig private constructor(
         companion object {
             fun of(mod: MinecraftMod, dataGenerators: List<String>): EntryPoints {
                 val classPathPrefix = mod.packageName.appendPackageName(mod.classNamePrefix)
-                val mainEntryPoints = entryPoints(classPathPrefix + "Mod")
-                val clientEntryPoints = entryPoints(classPathPrefix + "Client")
-                val dataGeneratorEntryPoints = dataGenerators.map { EntryPoint.of(it) }.toNullIfEmpty()
+                val mainEntryPoints = entryPoints(mod.minSupportedVersion, classPathPrefix + "Mod")
+                val clientEntryPoints = entryPoints(mod.minSupportedVersion, classPathPrefix + "Client")
+                val dataGeneratorEntryPoints =
+                    entryPoints(mod.minSupportedVersion, *dataGenerators.toTypedArray()).toNullIfEmpty()
 
                 return when (mod.config.environment) {
                     ModEnvironment.CLIENT_SERVER -> EntryPoints(
@@ -105,22 +108,25 @@ class FabricModConfig private constructor(
                 }
             }
 
-            private fun entryPoints(vararg classPaths: String): List<EntryPoint> =
-                classPaths.map { EntryPoint.of(it) }
+            private fun entryPoints(minecraftVersion: MinecraftVersion, vararg classPaths: String): List<EntryPoint> =
+                classPaths.map { EntryPoint.of(minecraftVersion, it) }
         }
     }
 
     @Serializable
     class EntryPoint private constructor(
         @SerialName("adapter")
-        val language: String = "kotlin",
+        val language: String? = null,
 
         @SerialName("value")
         val classPath: String,
     ) {
         companion object {
-            fun of(classPath: String): EntryPoint =
-                EntryPoint(classPath = classPath)
+            fun of(minecraftVersion: MinecraftVersion, classPath: String): EntryPoint =
+                EntryPoint(
+                    language = if (FabricEra.includesVersion(minecraftVersion)) "kotlin" else null,
+                    classPath = classPath,
+                )
         }
     }
 
@@ -156,7 +162,14 @@ class FabricModConfig private constructor(
                     "java" to InequalityVersionRange.min(VersionBound.inclusive(mod.jvmTarget.toInt().toString())),
                     "minecraft" to InequalityVersionRange.min(VersionBound.inclusive(minSupportedVersion.asString())),
                     "fabricloader" to InequalityVersionRange.min(VersionBound.inclusive(loaderVersion)),
-                    "fabric-language-kotlin" to InequalityVersionRange.any,
+                    when {
+                        OrnitheFabricEra.includesVersion(minSupportedVersion) -> "osl-entrypoints" to InequalityVersionRange.min(VersionBound.inclusive("0.4.0"))
+                        else -> null
+                    },
+                    when {
+                        FabricEra.includesVersion(minSupportedVersion) -> "fabric-language-kotlin" to InequalityVersionRange.any
+                        else -> null
+                    },
                     when {
                         isApiRequired -> minSupportedVersion.getFabricApiDependencyName() to InequalityVersionRange.any
                         else -> null

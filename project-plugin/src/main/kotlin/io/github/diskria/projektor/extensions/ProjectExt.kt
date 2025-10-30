@@ -2,11 +2,14 @@ package io.github.diskria.projektor.extensions
 
 import com.github.gmazzo.buildconfig.BuildConfigExtension
 import com.modrinth.minotaur.ModrinthExtension
+import io.github.diskria.gradle.utils.extensions.ensurePluginApplied
+import io.github.diskria.gradle.utils.extensions.getExtension
 import io.github.diskria.gradle.utils.extensions.runExtension
 import io.github.diskria.gradle.utils.extensions.withPluginExtension
 import io.github.diskria.projektor.projekt.common.BaseProjekt
 import net.fabricmc.loom.api.LoomGradleExtensionAPI
 import net.fabricmc.loom.api.fabricapi.FabricApiExtension
+import net.ornithemc.ploceus.api.PloceusGradleExtensionApi
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.JavaPluginExtension
@@ -67,3 +70,13 @@ fun Project.fabric(block: FabricApiExtension.() -> Unit) {
 fun Project.modrinth(block: ModrinthExtension.() -> Unit) {
     withPluginExtension<ModrinthExtension>("com.modrinth.minotaur", block)
 }
+
+fun Project.ploceus(block: PloceusGradleExtensionApi.() -> Unit) {
+    ploceus.block()
+}
+
+val Project.ploceus: PloceusGradleExtensionApi
+    get() {
+        ensurePluginApplied("ploceus")
+        return getExtension<PloceusGradleExtensionApi>()
+    }
