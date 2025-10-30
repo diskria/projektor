@@ -6,11 +6,9 @@ import io.github.diskria.kotlin.utils.extensions.common.failWithDetails
 import io.github.diskria.kotlin.utils.extensions.previousEnumOrNull
 import io.github.diskria.kotlin.utils.extensions.previousOrNull
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
-import io.github.diskria.projektor.common.minecraft.era.MinecraftEra
-import io.github.diskria.projektor.common.minecraft.era.firstVersion
-import io.github.diskria.projektor.common.minecraft.era.lastVersion
 import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricApiSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricYarnSynchronizer
+import io.github.diskria.projektor.common.minecraft.sync.loaders.ornithe.OrnitheFeatherSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.packs.DataPackFormatSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.packs.ResourcePackFormatSynchronizer
 import io.github.diskria.projektor.common.minecraft.versions.Release
@@ -71,9 +69,9 @@ private val JAVA_REQUIREMENTS: Map<MinecraftVersion, Int> = mapOf(
     Release.V_1_20_5 to 21,
     Release.V_1_18 to 17,
     Release.V_1_17 to 16,
-    Release.V_1_12 to 8,
-    Release.V_1_6_1 to 6,
-    MinecraftVersion.EARLIEST to 5,
+    MinecraftVersion.EARLIEST to 8,
+//    Release.V_1_6_1 to 6,
+//    MinecraftVersion.EARLIEST to 5,
 )
 
 fun MinecraftVersion.getMinJavaVersion(): Int =
@@ -94,6 +92,9 @@ fun MinecraftVersion.getLatestYarnVersion(project: Project): String =
 
 fun MinecraftVersion.getLatestFabricApiVersion(project: Project): String =
     FabricApiSynchronizer.getArtifactVersion(project, this)
+
+fun MinecraftVersion.getLatestOrnitheFeatherVersion(project: Project): String =
+    OrnitheFeatherSynchronizer.getArtifactVersion(project, this)
 
 fun MinecraftVersion.supportsEnvironmentSplit(): Boolean =
     this >= Release.V_1_19

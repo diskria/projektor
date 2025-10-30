@@ -54,6 +54,7 @@ data class BaseProjekt(
         val minSupportedVersionDirectory = project.projectDir
         val loaderDirectory = minSupportedVersionDirectory.parentFile
 
+        val loader = loaderDirectory.name.toEnum<ModLoaderType>().mapToModel()
         val minSupportedVersion = MinecraftVersion.parse(minSupportedVersionDirectory.name)
         val maxSupportedVersion = config.maxSupportedVersion
             ?: loaderDirectory
@@ -62,12 +63,12 @@ data class BaseProjekt(
                 .filter { it > minSupportedVersion }
                 .minWithOrNull(MinecraftVersion.COMPARATOR)
                 ?.previousOrNull()
-            ?: MinecraftVersion.LATEST
+            ?: loader.supportedVersionRange.max
 
         return MinecraftMod(
             projekt = this,
             config = config,
-            loader = loaderDirectory.name.toEnum<ModLoaderType>().mapToModel(),
+            loader = loader,
             supportedVersionRange = MinecraftVersionRange(minSupportedVersion, maxSupportedVersion)
         )
     }

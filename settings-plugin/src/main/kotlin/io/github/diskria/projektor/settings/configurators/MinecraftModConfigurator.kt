@@ -7,6 +7,7 @@ import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
 import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricApiSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricYarnSynchronizer
+import io.github.diskria.projektor.common.minecraft.sync.loaders.ornithe.OrnitheFeatherSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.packs.DataPackFormatSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.packs.ResourcePackFormatSynchronizer
 import io.github.diskria.projektor.settings.configurations.MinecraftModConfiguration
@@ -38,6 +39,10 @@ open class MinecraftModConfigurator(
                         FabricApiSynchronizer.sync(settings)
                     }
 
+                    ModLoaderType.ORNITHE -> {
+                        OrnitheFeatherSynchronizer.sync(settings)
+                    }
+
                     else -> TODO()
                 }
                 minSupportedVersionDirectories.forEach { minSupportedVersionDirectory ->
@@ -58,7 +63,7 @@ open class MinecraftModConfigurator(
                     name = "SpongePowered",
                     url = buildUrl("repo.spongepowered.org") {
                         path("repository", "maven-public")
-                    },
+                    }
                 )
                 configureMaven(
                     name = "Modrinth",

@@ -1,7 +1,5 @@
 package io.github.diskria.projektor.common.minecraft.versions.common
 
-import io.github.diskria.projektor.common.minecraft.era.MinecraftEra
-
 open class MinecraftVersionRange(val min: MinecraftVersion, val max: MinecraftVersion = min) {
 
     fun expand(): List<MinecraftVersion> {

@@ -15,17 +15,14 @@ import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.projektor.Versions
-import io.github.diskria.projektor.common.minecraft.era.fabric.FabricEra
-import io.github.diskria.projektor.common.minecraft.era.fabric.OrnitheFabricEra
-import io.github.diskria.projektor.common.minecraft.versions.common.asString
-import io.github.diskria.projektor.common.minecraft.versions.common.getLatestFabricApiVersion
-import io.github.diskria.projektor.common.minecraft.versions.common.getLatestYarnVersion
-import io.github.diskria.projektor.common.minecraft.versions.common.supportsEnvironmentSplit
+import io.github.diskria.projektor.common.minecraft.versions.Release
+import io.github.diskria.projektor.common.minecraft.versions.common.*
 import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.minecraft.ModSide
 import io.github.diskria.projektor.minecraft.getSourceSets
 import io.github.diskria.projektor.projekt.MinecraftMod
-import io.github.diskria.projektor.tasks.minecraft.generate.GenerateFabricModConfigTask
+import io.github.diskria.projektor.tasks.minecraft.drift.FabricDriftTask
+import io.github.diskria.projektor.tasks.minecraft.generate.GenerateModConfigTask
 import io.github.diskria.projektor.tasks.minecraft.generate.GenerateModMixinsConfigTask
 import io.github.diskria.projektor.tasks.minecraft.test.TestClientModTask
 import io.github.diskria.projektor.tasks.minecraft.test.TestServerModTask
@@ -37,6 +34,9 @@ import java.io.File
 
 data object Fabric : ModLoader {
 
+    override val supportedVersionRange: MinecraftVersionRange =
+        MinecraftVersionRange(Release.V_1_14_3, MinecraftVersion.LATEST)
+
     override fun getConfigFilePath(): String =
         fileName(getName(), "mod", Constants.File.Extension.JSON)
 
@@ -45,11 +45,19 @@ data object Fabric : ModLoader {
         dependencies {
             minecraft("com.mojang", "minecraft", minSupportedVersion.asString())
             modImplementation("net.fabricmc", "fabric-loader", Versions.FABRIC_LOADER)
-        }
-        if (FabricEra.includesVersion(mod.minSupportedVersion)) {
-            configureFabricEra(project, mod)
-        } else if (OrnitheFabricEra.includesVersion(mod.minSupportedVersion)) {
-            configureOrnitheFabricEra(project, mod)
+            mappings("net.fabricmc", "yarn", minSupportedVersion.getLatestYarnVersion(project), "v2")
+            if (mod.config.fabric.isApiRequired) {
+                modImplementation(
+                    "net.fabricmc.fabric-api",
+                    "fabric-api",
+                    minSupportedVersion.getLatestFabricApiVersion(project)
+                )
+            }
+            modImplementation(
+                "net.fabricmc",
+                "fabric-language-kotlin",
+                "${Versions.FABRIC_KOTLIN}+kotlin.${mod.kotlinVersion}"
+            )
         }
         fabric {
             configureDataGeneration {
@@ -92,7 +100,6 @@ data object Fabric : ModLoader {
                             ModSide.SERVER.minMemoryGigabytes..ModSide.SERVER.maxMemoryGigabytes,
                             Size.GIGABYTES
                         ),
-                        *JvmArguments.program("enable-native-access", "ALL-UNNAMED"),
                     )
                 }
                 ModSide.entries.forEach { side ->
@@ -121,7 +128,6 @@ data object Fabric : ModLoader {
                                     side.minMemoryGigabytes..side.maxMemoryGigabytes,
                                     Size.GIGABYTES
                                 ),
-                                *JvmArguments.program("enable-native-access", "ALL-UNNAMED"),
                             )
                         }
                     }
@@ -131,19 +137,19 @@ data object Fabric : ModLoader {
         }
         tasks {
             val generatedResourcesDirectory = project.getBuildDirectory("generated/resources").get().asFile
-            val generateMixins = registerTask<GenerateModMixinsConfigTask> {
+            val generateMixinsConfigTask = registerTask<GenerateModMixinsConfigTask> {
                 minecraftMod.set(mod)
                 sourceSetsRoot.set(project.getDirectory("src"))
                 outputFile.set(generatedResourcesDirectory.resolve(mod.mixinsConfigFileName))
             }
-            val generateFabricConfig = registerTask<GenerateFabricModConfigTask> {
+            val generateModConfigTask = registerTask<GenerateModConfigTask> {
                 minecraftMod.set(mod)
                 sourceSetsRoot.set(project.getDirectory("src"))
                 outputFile.set(generatedResourcesDirectory.resolve(getConfigFilePath()))
             }
             processResources {
-                dependsOn(generateMixins, generateFabricConfig)
-                from(generateMixins, generateFabricConfig)
+                dependsOn(generateMixinsConfigTask, generateModConfigTask)
+                from(generateMixinsConfigTask, generateModConfigTask)
                 from(rootProject.getFile(fileName("icon", Constants.File.Extension.PNG))) {
                     into(buildPath("assets", mod.id))
                 }
@@ -170,47 +176,7 @@ data object Fabric : ModLoader {
                 registerTask<TestServerModTask>()
             }
         }
-    }
-
-    private fun configureOrnitheFabricEra(project: Project, mod: MinecraftMod) = with(project) {
-//        ploceus {
-//            setGeneration(2)
-//
-//        }
-        dependencies {
-            mappings(ploceus.featherMappings("6"))
-            ploceus.dependOsl("0.16.3")
-
-            /*
-            clientExceptions(ploceus.raven("2", "client"))
-            serverExceptions(ploceus.raven("2", "server"))
-
-            clientSignatures(ploceus.sparrow("2", "client"))
-            serverSignatures(ploceus.sparrow("2", "server"))
-
-            clientNests(ploceus.nests("7", "client"))
-            serverNests(ploceus.nests("4", "server"))
-            */
-        }
-    }
-
-    private fun configureFabricEra(project: Project, mod: MinecraftMod) = with(project) {
-        val minSupportedVersion = mod.minSupportedVersion
-        dependencies {
-            mappings("net.fabricmc", "yarn", minSupportedVersion.getLatestYarnVersion(project), "v2")
-            if (mod.config.fabric.isApiRequired) {
-                modImplementation(
-                    "net.fabricmc.fabric-api",
-                    "fabric-api",
-                    minSupportedVersion.getLatestFabricApiVersion(project)
-                )
-            }
-            modImplementation(
-                "net.fabricmc",
-                "fabric-language-kotlin",
-                "${Versions.FABRIC_KOTLIN}+kotlin.${mod.kotlinVersion}"
-            )
-        }
+        rootProject.ensureTaskRegistered<FabricDriftTask>()
     }
 
     private fun ensureAccessWidenerCreated(project: Project, mod: MinecraftMod): File {

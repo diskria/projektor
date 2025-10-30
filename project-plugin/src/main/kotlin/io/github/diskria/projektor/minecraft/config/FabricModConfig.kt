@@ -7,8 +7,7 @@ import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
 import io.github.diskria.kotlin.utils.serialization.annotations.EncodeDefaults
 import io.github.diskria.kotlin.utils.serialization.annotations.PrettyPrint
-import io.github.diskria.projektor.common.minecraft.era.fabric.FabricEra
-import io.github.diskria.projektor.common.minecraft.era.fabric.OrnitheFabricEra
+import io.github.diskria.projektor.Versions
 import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.common.asString
 import io.github.diskria.projektor.common.minecraft.versions.common.getFabricApiDependencyName
@@ -50,30 +49,25 @@ class FabricModConfig private constructor(
     @Serializable
     class Links private constructor(
         @SerialName("homepage")
-        val modrinthProjectUrl: String,
+        val homepageUrl: String,
 
         @SerialName("sources")
         val sourceCodeUrl: String,
 
         @SerialName("issues")
-        val issueTrackerUrl: String,
+        val issuesUrl: String,
     ) {
         companion object {
-            fun of(
-                modrinthProjectUrl: String,
-                sourceCodeUrl: String,
-                issueTrackerUrl: String,
-            ): Links =
-                Links(
-                    modrinthProjectUrl,
-                    sourceCodeUrl,
-                    issueTrackerUrl,
-                )
+            fun of(homepageUrl: String, sourceCodeUrl: String, issuesUrl: String): Links =
+                Links(homepageUrl, sourceCodeUrl, issuesUrl)
         }
     }
 
     @Serializable
     class EntryPoints private constructor(
+        @SerialName("init")
+        val initEntryPoints: List<EntryPoint>? = null,
+
         @SerialName("main")
         val mainEntryPoints: List<EntryPoint>? = null,
 
@@ -93,6 +87,7 @@ class FabricModConfig private constructor(
 
                 return when (mod.config.environment) {
                     ModEnvironment.CLIENT_SERVER -> EntryPoints(
+                        initEntryPoints = mainEntryPoints,
                         mainEntryPoints = mainEntryPoints,
                         clientEntryPoints = clientEntryPoints,
                         dataGeneratorEntryPoints = dataGeneratorEntryPoints,
@@ -124,20 +119,14 @@ class FabricModConfig private constructor(
         companion object {
             fun of(minecraftVersion: MinecraftVersion, classPath: String): EntryPoint =
                 EntryPoint(
-                    language = if (FabricEra.includesVersion(minecraftVersion)) "kotlin" else null,
+//                    language = if (FabricEra.includesVersion(minecraftVersion)) "kotlin" else null,
                     classPath = classPath,
                 )
         }
     }
 
     companion object {
-        fun of(
-            mod: MinecraftMod,
-            minSupportedVersion: MinecraftVersion,
-            loaderVersion: String,
-            isApiRequired: Boolean,
-            dataGenerators: List<String>,
-        ): FabricModConfig =
+        fun of(mod: MinecraftMod, dataGenerators: List<String>): FabricModConfig =
             FabricModConfig(
                 id = mod.id,
                 version = mod.version,
@@ -150,28 +139,35 @@ class FabricModConfig private constructor(
                 accessWidener = fileName(mod.id, "accesswidener"),
                 mixins = listOf(mod.mixinsConfigFileName),
                 links = Links.of(
-                    modrinthProjectUrl = mod.metadata.publishingTargets
+                    homepageUrl = mod.metadata.publishingTargets
                         .first { it == PublishingTargetType.MODRINTH }
                         .mapToModel()
                         .getHomepage(mod.metadata),
                     sourceCodeUrl = mod.repo.getUrl(),
-                    issueTrackerUrl = mod.repo.getIssuesUrl(),
+                    issuesUrl = mod.repo.getIssuesUrl(),
                 ),
                 entryPoints = EntryPoints.of(mod, dataGenerators),
                 dependencies = listOfNotNull(
-                    "java" to InequalityVersionRange.min(VersionBound.inclusive(mod.jvmTarget.toInt().toString())),
-                    "minecraft" to InequalityVersionRange.min(VersionBound.inclusive(minSupportedVersion.asString())),
-                    "fabricloader" to InequalityVersionRange.min(VersionBound.inclusive(loaderVersion)),
+                    "java" to InequalityVersionRange.min(
+                        VersionBound.inclusive(
+                            mod.jvmTarget.toInt().toString()
+                        )
+                    ),
+                    "minecraft" to InequalityVersionRange.min(
+                        VersionBound.inclusive(
+                            mod.minSupportedVersion.asString()
+                        )
+                    ),
+                    "fabricloader" to InequalityVersionRange.min(
+                        VersionBound.inclusive(
+                            Versions.FABRIC_LOADER
+                        )
+                    ),
                     when {
-                        OrnitheFabricEra.includesVersion(minSupportedVersion) -> "osl-entrypoints" to InequalityVersionRange.min(VersionBound.inclusive("0.4.0"))
-                        else -> null
-                    },
-                    when {
-                        FabricEra.includesVersion(minSupportedVersion) -> "fabric-language-kotlin" to InequalityVersionRange.any
-                        else -> null
-                    },
-                    when {
-                        isApiRequired -> minSupportedVersion.getFabricApiDependencyName() to InequalityVersionRange.any
+                        mod.config.fabric.isApiRequired -> {
+                            mod.minSupportedVersion.getFabricApiDependencyName() to InequalityVersionRange.any
+                        }
+
                         else -> null
                     },
                 ).toMap()

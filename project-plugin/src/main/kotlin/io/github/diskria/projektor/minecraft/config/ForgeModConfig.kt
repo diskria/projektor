@@ -22,7 +22,7 @@ class ForgeModConfig private constructor(
     val loader: String,
 
     @SerialName("issueTrackerURL")
-    val issueTrackerUrl: String,
+    val issuesUrl: String,
 
     @SerialName("clientSideOnly")
     val isClientSideOnly: Boolean,
@@ -44,7 +44,7 @@ class ForgeModConfig private constructor(
         val icon: String,
 
         @SerialName("displayURL")
-        val modrinthProjectUrl: String,
+        val homepageUrl: String,
     ) {
         companion object {
             fun of(
@@ -52,7 +52,7 @@ class ForgeModConfig private constructor(
                 environment: ModEnvironment,
                 minSupportedVersion: String,
                 forgeVersion: String,
-                modrinthProjectUrl: String,
+                homepageUrl: String,
             ): ForgeMod =
                 ForgeMod(
                     description = mod.description,
@@ -71,7 +71,7 @@ class ForgeModConfig private constructor(
                     id = mod.id,
                     name = mod.id,
                     icon = fileName("icon", Constants.File.Extension.PNG),
-                    modrinthProjectUrl = modrinthProjectUrl,
+                    homepageUrl = homepageUrl,
                 )
         }
     }
@@ -126,11 +126,11 @@ class ForgeModConfig private constructor(
             minSupportedVersion: String,
             forgeVersion: String,
             loaderVersion: String,
-            modrinthProjectUrl: String,
+            homepageUrl: String,
             versionRange: VersionRange,
         ): ForgeModConfig {
             val mods = listOf(
-                ForgeMod.of(mod, environment, minSupportedVersion, forgeVersion, modrinthProjectUrl),
+                ForgeMod.of(mod, environment, minSupportedVersion, forgeVersion, homepageUrl),
             )
             return ForgeModConfig(
                 loaderVersion = versionRange.min(VersionBound.inclusive(loaderVersion)),
@@ -138,7 +138,7 @@ class ForgeModConfig private constructor(
                 mods = mods,
                 dependencies = mods.associate { it.id to it.dependencies },
                 loader = "javafml",
-                issueTrackerUrl = mod.repo.getIssuesUrl(),
+                issuesUrl = mod.repo.getIssuesUrl(),
                 isClientSideOnly = environment == ModEnvironment.CLIENT_SIDE_ONLY,
             )
         }

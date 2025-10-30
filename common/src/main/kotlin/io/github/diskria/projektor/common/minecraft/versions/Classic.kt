@@ -1,6 +1,6 @@
 package io.github.diskria.projektor.common.minecraft.versions
 
-import io.github.diskria.projektor.common.minecraft.era.MinecraftEra
+import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftEra
 import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersion
 
 enum class Classic(private val version: String) : MinecraftVersion {

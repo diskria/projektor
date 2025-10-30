@@ -6,11 +6,11 @@ import io.github.diskria.projektor.minecraft.ModEnvironment
 
 open class MinecraftModConfiguration {
 
-    val fabric: FabricModConfiguration
-        get() = fabricModConfiguration ?: gradleError("Fabric mod not configured")
-
     var environment: ModEnvironment = ModEnvironment.CLIENT_SERVER
     var maxSupportedVersion: MinecraftVersion? = null
+
+    val fabric: FabricModConfiguration
+        get() = fabricModConfiguration ?: gradleError("Fabric mod not configured")
 
     private var fabricModConfiguration: FabricModConfiguration? = null
 
@@ -19,5 +19,17 @@ open class MinecraftModConfiguration {
             gradleError("Fabric mod already configured")
         }
         fabricModConfiguration = FabricModConfiguration().apply(configuration)
+    }
+
+    val ornithe: OrnitheModConfiguration
+        get() = ornitheModConfiguration ?: gradleError("Fabric mod not configured")
+
+    private var ornitheModConfiguration: OrnitheModConfiguration? = null
+
+    fun ornithe(configuration: OrnitheModConfiguration.() -> Unit = {}) {
+        if (ornitheModConfiguration != null) {
+            gradleError("Fabric mod already configured")
+        }
+        ornitheModConfiguration = OrnitheModConfiguration().apply(configuration)
     }
 }

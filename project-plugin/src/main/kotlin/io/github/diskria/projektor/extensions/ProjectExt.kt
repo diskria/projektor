@@ -2,8 +2,6 @@ package io.github.diskria.projektor.extensions
 
 import com.github.gmazzo.buildconfig.BuildConfigExtension
 import com.modrinth.minotaur.ModrinthExtension
-import io.github.diskria.gradle.utils.extensions.ensurePluginApplied
-import io.github.diskria.gradle.utils.extensions.getExtension
 import io.github.diskria.gradle.utils.extensions.runExtension
 import io.github.diskria.gradle.utils.extensions.withPluginExtension
 import io.github.diskria.projektor.projekt.common.BaseProjekt
@@ -72,11 +70,5 @@ fun Project.modrinth(block: ModrinthExtension.() -> Unit) {
 }
 
 fun Project.ploceus(block: PloceusGradleExtensionApi.() -> Unit) {
-    ploceus.block()
+    withPluginExtension<PloceusGradleExtensionApi>("ploceus", block)
 }
-
-val Project.ploceus: PloceusGradleExtensionApi
-    get() {
-        ensurePluginApplied("ploceus")
-        return getExtension<PloceusGradleExtensionApi>()
-    }

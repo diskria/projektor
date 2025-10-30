@@ -13,10 +13,7 @@ import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.minecraft.versions.common.asString
 import io.github.diskria.projektor.extensions.getJarTask
 import io.github.diskria.projektor.extensions.modrinth
-import io.github.diskria.projektor.minecraft.loaders.Fabric
-import io.github.diskria.projektor.minecraft.loaders.Forge
-import io.github.diskria.projektor.minecraft.loaders.NeoForge
-import io.github.diskria.projektor.minecraft.loaders.Quilt
+import io.github.diskria.projektor.minecraft.loaders.*
 import io.github.diskria.projektor.projekt.MinecraftMod
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.publishing.external.common.ExternalPublishingTarget
@@ -66,6 +63,9 @@ data object Modrinth : ExternalPublishingTarget() {
                             project("fabric-api")
                         }
                     }
+                }
+
+                Ornithe -> {
                 }
 
                 Forge -> TODO()

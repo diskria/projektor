@@ -183,9 +183,6 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                 dependencies {
                     modImplementation(rootProject.project(ProjectModules.Common.PATH))
                     include(rootProject.project(ProjectModules.Common.PATH))
-
-                    modImplementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-                    include("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
                 }
             }
         }
