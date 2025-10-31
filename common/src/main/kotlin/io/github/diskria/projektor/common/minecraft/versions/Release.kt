@@ -5,7 +5,6 @@ import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVer
 
 enum class Release(private val version: String) : MinecraftVersion {
 
-    V_1_0("1.0"),
     V_1_1("1.1"),
     V_1_2_1("1.2.1"),
     V_1_2_2("1.2.2"),

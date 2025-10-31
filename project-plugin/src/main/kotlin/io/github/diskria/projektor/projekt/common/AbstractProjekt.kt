@@ -16,6 +16,4 @@ abstract class AbstractProjekt(private val base: Projekt) : Projekt {
 
     override val license get() = base.license
     override val publishingTargets get() = base.publishingTargets
-    override val javaVersion get() = base.javaVersion
-    override val kotlinVersion get() = base.kotlinVersion
 }

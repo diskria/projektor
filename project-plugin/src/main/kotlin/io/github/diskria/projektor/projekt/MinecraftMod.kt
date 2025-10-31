@@ -4,15 +4,22 @@ import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.SCREAMING_SNAKE_CASE
 import io.github.diskria.kotlin.utils.extensions.common.fileName
+import io.github.diskria.kotlin.utils.extensions.common.modifyUnless
+import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.poet.Property
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersionRange
 import io.github.diskria.projektor.common.minecraft.versions.common.asString
 import io.github.diskria.projektor.common.minecraft.versions.common.getMinJavaVersion
-import io.github.diskria.projektor.configurations.minecraft.MinecraftModConfiguration
+import io.github.diskria.projektor.configurations.MinecraftModConfiguration
 import io.github.diskria.projektor.extensions.mappers.toJvmTarget
+import io.github.diskria.projektor.helpers.AccessWidenerHelper
+import io.github.diskria.projektor.minecraft.ModEnvironment
+import io.github.diskria.projektor.minecraft.ModEnvironment.CLIENT_SERVER
+import io.github.diskria.projektor.minecraft.loaders.Fabric
 import io.github.diskria.projektor.minecraft.loaders.ModLoader
+import io.github.diskria.projektor.minecraft.loaders.Ornithe
 import io.github.diskria.projektor.projekt.common.AbstractProjekt
 import io.github.diskria.projektor.projekt.common.Projekt
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -33,12 +40,12 @@ class MinecraftMod(
 
     override val jvmTarget: JvmTarget
         get() {
-            val start = supportedVersionRange.min.getMinJavaVersion().toJvmTarget()
-            val end = supportedVersionRange.max.getMinJavaVersion().toJvmTarget()
-            if (start != end) {
-                gradleError("Minecraft version range crosses Java compatibility boundary: $start -> $end")
+            val minJvmTarget = minSupportedVersion.getMinJavaVersion().toJvmTarget()
+            val maxJvmTarget = maxSupportedVersion.getMinJavaVersion().toJvmTarget()
+            if (minJvmTarget != maxJvmTarget) {
+                gradleError("Minecraft version range crosses Java compatibility: $minJvmTarget -> $maxJvmTarget")
             }
-            return end
+            return maxJvmTarget
         }
 
     override val archiveVersion: String
@@ -48,8 +55,21 @@ class MinecraftMod(
             append(version)
             append(Constants.Char.PLUS)
             append(SHORT_NAME)
+            append(minSupportedVersion.asString())
+            append(Constants.Char.HYPHEN)
             append(maxSupportedVersion.asString())
         }
+
+    fun getEnvironmentConfigValue(): String {
+        val isFabricFamily = loader == Fabric || loader == Ornithe
+        return when (val environment = config.environment) {
+            CLIENT_SERVER -> if (isFabricFamily) Constants.Char.ASTERISK.toString() else "BOTH"
+            else -> environment.sides.single().getName().modifyUnless(isFabricFamily) { it.uppercase() }
+        }
+    }
+
+    fun getAccessWidenerFileName(): String =
+        AccessWidenerHelper.getFileName(id)
 
     override fun getBuildConfigFields(): List<Property<String>> {
         val modId by id.autoNamedProperty(SCREAMING_SNAKE_CASE)
@@ -59,6 +79,6 @@ class MinecraftMod(
 
     companion object {
         const val SHORT_NAME: String = "mc"
-        const val RUN_DIRECTORY_NAME: String = "minecraft-run"
+        const val RUN_DIRECTORY_NAME: String = "run"
     }
 }

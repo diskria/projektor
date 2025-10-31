@@ -1,5 +1,6 @@
 package io.github.diskria.projektor.extensions.mappers
 
+import io.github.diskria.kotlin.utils.extensions.common.failWithUnsupportedType
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType.*
 import io.github.diskria.projektor.minecraft.loaders.*
@@ -20,4 +21,5 @@ fun ModLoader.mapToEnum(): ModLoaderType =
         Quilt -> QUILT
         Forge -> FORGE
         NeoForge -> NEOFORGE
+        else -> failWithUnsupportedType(this::class)
     }

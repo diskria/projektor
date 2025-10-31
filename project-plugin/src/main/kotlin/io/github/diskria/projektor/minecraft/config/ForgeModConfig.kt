@@ -2,6 +2,8 @@ package io.github.diskria.projektor.minecraft.config
 
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.fileName
+import io.github.diskria.kotlin.utils.serialization.annotations.EncodeDefaults
+import io.github.diskria.kotlin.utils.serialization.annotations.PrettyPrint
 import io.github.diskria.projektor.minecraft.ModEnvironment
 import io.github.diskria.projektor.minecraft.config.versions.VersionBound
 import io.github.diskria.projektor.minecraft.config.versions.range.InequalityVersionRange
@@ -11,7 +13,10 @@ import io.github.diskria.projektor.projekt.MinecraftMod
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Suppress("unused")
 @Serializable
+@EncodeDefaults
+@PrettyPrint
 class ForgeModConfig private constructor(
     val loaderVersion: String,
     val license: String,
@@ -49,7 +54,6 @@ class ForgeModConfig private constructor(
         companion object {
             fun of(
                 mod: MinecraftMod,
-                environment: ModEnvironment,
                 minSupportedVersion: String,
                 forgeVersion: String,
                 homepageUrl: String,
@@ -60,11 +64,11 @@ class ForgeModConfig private constructor(
                     authors = mod.repo.owner.developer,
                     dependencies = listOf(
                         MinecraftDependency(
-                            environment,
+                            mod.getEnvironmentConfigValue(),
                             InequalityVersionRange.min(VersionBound.inclusive(minSupportedVersion)),
                         ),
                         ForgeDependency(
-                            environment,
+                            mod.getEnvironmentConfigValue(),
                             InequalityVersionRange.min(VersionBound.inclusive(forgeVersion))
                         ),
                     ),
@@ -86,23 +90,20 @@ class ForgeModConfig private constructor(
         val id: String,
 
         @SerialName("mandatory")
-        val isMandatory: Boolean,
+        val isRequired: Boolean = true,
     )
 
-    open class InternalModDependency(
-        id: String,
-        environment: ModEnvironment,
-        versionRange: String
-    ) : ModDependency(
-        versionRange,
-        "NONE",
-        environment.forgeConfigValue,
-        id,
-        true,
-    )
+    open class InternalModDependency(id: String, environment: String, versionRange: String) :
+        ModDependency(
+            versionRange,
+            "NONE",
+            environment,
+            id,
+            true,
+        )
 
     class MinecraftDependency(
-        environment: ModEnvironment,
+        environment: String,
         versionRange: String
     ) : InternalModDependency(
         "minecraft",
@@ -111,7 +112,7 @@ class ForgeModConfig private constructor(
     )
 
     class ForgeDependency(
-        environment: ModEnvironment,
+        environment: String,
         versionRange: String
     ) : InternalModDependency(
         Forge.getName(),
@@ -129,9 +130,7 @@ class ForgeModConfig private constructor(
             homepageUrl: String,
             versionRange: VersionRange,
         ): ForgeModConfig {
-            val mods = listOf(
-                ForgeMod.of(mod, environment, minSupportedVersion, forgeVersion, homepageUrl),
-            )
+            val mods = listOf(ForgeMod.of(mod, minSupportedVersion, forgeVersion, homepageUrl))
             return ForgeModConfig(
                 loaderVersion = versionRange.min(VersionBound.inclusive(loaderVersion)),
                 license = mod.license.id,
@@ -139,7 +138,7 @@ class ForgeModConfig private constructor(
                 dependencies = mods.associate { it.id to it.dependencies },
                 loader = "javafml",
                 issuesUrl = mod.repo.getIssuesUrl(),
-                isClientSideOnly = environment == ModEnvironment.CLIENT_SIDE_ONLY,
+                isClientSideOnly = environment == ModEnvironment.CLIENT_ONLY,
             )
         }
     }
