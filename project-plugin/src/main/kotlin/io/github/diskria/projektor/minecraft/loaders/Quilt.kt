@@ -6,15 +6,15 @@ import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVer
 import io.github.diskria.projektor.projekt.MinecraftMod
 import org.gradle.api.Project
 
-data object Quilt : ModLoader {
+data object Quilt : ModLoader() {
 
     override val supportedVersionRange: MinecraftVersionRange
         get() = TODO()
 
-    override fun getConfigFilePath(): String =
+    override val configFilePath: String =
         fileName(getName(), "mod", Constants.File.Extension.JSON)
 
-    override fun configure(project: Project, mod: MinecraftMod) = with(project) {
+    override fun configure(modProject: Project, mod: MinecraftMod) = with(modProject) {
         TODO()
     }
 }

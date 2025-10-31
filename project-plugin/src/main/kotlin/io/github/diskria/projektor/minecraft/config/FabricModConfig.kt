@@ -4,16 +4,15 @@ import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.appendPackageName
 import io.github.diskria.kotlin.utils.extensions.common.buildPath
 import io.github.diskria.kotlin.utils.extensions.common.fileName
-import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
 import io.github.diskria.kotlin.utils.serialization.annotations.EncodeDefaults
 import io.github.diskria.kotlin.utils.serialization.annotations.PrettyPrint
 import io.github.diskria.projektor.Versions
-import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.common.asString
 import io.github.diskria.projektor.common.minecraft.versions.common.getFabricApiDependencyName
 import io.github.diskria.projektor.common.publishing.PublishingTargetType
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.extensions.mappers.toInt
+import io.github.diskria.projektor.helpers.AccessWidenerHelper
 import io.github.diskria.projektor.minecraft.ModEnvironment
 import io.github.diskria.projektor.minecraft.config.versions.VersionBound
 import io.github.diskria.projektor.minecraft.config.versions.range.InequalityVersionRange
@@ -21,6 +20,7 @@ import io.github.diskria.projektor.projekt.MinecraftMod
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Suppress("unused")
 @Serializable
 @EncodeDefaults
 @PrettyPrint
@@ -65,68 +65,55 @@ class FabricModConfig private constructor(
 
     @Serializable
     class EntryPoints private constructor(
-        @SerialName("init")
-        val initEntryPoints: List<EntryPoint>? = null,
-
         @SerialName("main")
         val mainEntryPoints: List<EntryPoint>? = null,
 
         @SerialName("client")
         val clientEntryPoints: List<EntryPoint>? = null,
-
-        @SerialName("fabric-datagen")
-        val dataGeneratorEntryPoints: List<EntryPoint>? = null,
     ) {
         companion object {
-            fun of(mod: MinecraftMod, dataGenerators: List<String>): EntryPoints {
+            fun of(mod: MinecraftMod): EntryPoints {
                 val classPathPrefix = mod.packageName.appendPackageName(mod.classNamePrefix)
-                val mainEntryPoints = entryPoints(mod.minSupportedVersion, classPathPrefix + "Mod")
-                val clientEntryPoints = entryPoints(mod.minSupportedVersion, classPathPrefix + "Client")
-                val dataGeneratorEntryPoints =
-                    entryPoints(mod.minSupportedVersion, *dataGenerators.toTypedArray()).toNullIfEmpty()
+                val mainEntryPoints = entryPoints(classPathPrefix + "Mod")
+                val clientEntryPoints = entryPoints(classPathPrefix + "Client")
 
                 return when (mod.config.environment) {
                     ModEnvironment.CLIENT_SERVER -> EntryPoints(
-                        initEntryPoints = mainEntryPoints,
                         mainEntryPoints = mainEntryPoints,
                         clientEntryPoints = clientEntryPoints,
-                        dataGeneratorEntryPoints = dataGeneratorEntryPoints,
                     )
 
-                    ModEnvironment.CLIENT_SIDE_ONLY -> EntryPoints(
+                    ModEnvironment.CLIENT_ONLY -> EntryPoints(
                         clientEntryPoints = clientEntryPoints,
-                        dataGeneratorEntryPoints = dataGeneratorEntryPoints,
                     )
 
-                    ModEnvironment.SERVER_SIDE_ONLY -> EntryPoints(
+                    ModEnvironment.DEDICATED_SERVER_ONLY -> EntryPoints(
+                        mainEntryPoints = mainEntryPoints,
                     )
                 }
             }
 
-            private fun entryPoints(minecraftVersion: MinecraftVersion, vararg classPaths: String): List<EntryPoint> =
-                classPaths.map { EntryPoint.of(minecraftVersion, it) }
+            private fun entryPoints(vararg classPaths: String): List<EntryPoint> =
+                classPaths.map { EntryPoint.of(it) }
         }
     }
 
     @Serializable
     class EntryPoint private constructor(
         @SerialName("adapter")
-        val language: String? = null,
+        val language: String = "kotlin",
 
         @SerialName("value")
         val classPath: String,
     ) {
         companion object {
-            fun of(minecraftVersion: MinecraftVersion, classPath: String): EntryPoint =
-                EntryPoint(
-//                    language = if (FabricEra.includesVersion(minecraftVersion)) "kotlin" else null,
-                    classPath = classPath,
-                )
+            fun of(classPath: String): EntryPoint =
+                EntryPoint(classPath = classPath)
         }
     }
 
     companion object {
-        fun of(mod: MinecraftMod, dataGenerators: List<String>): FabricModConfig =
+        fun of(mod: MinecraftMod): FabricModConfig =
             FabricModConfig(
                 id = mod.id,
                 version = mod.version,
@@ -135,9 +122,9 @@ class FabricModConfig private constructor(
                 authors = listOf(mod.repo.owner.developer),
                 license = mod.license.id,
                 icon = buildPath("assets", mod.id, fileName("icon", Constants.File.Extension.PNG)),
-                environment = mod.config.environment.fabricConfigValue,
-                accessWidener = fileName(mod.id, "accesswidener"),
-                mixins = listOf(mod.mixinsConfigFileName),
+                environment = mod.getEnvironmentConfigValue(),
+                accessWidener = buildPath("assets", mod.id, mod.getAccessWidenerFileName()),
+                mixins = listOf(buildPath("assets", mod.id, mod.mixinsConfigFileName)),
                 links = Links.of(
                     homepageUrl = mod.metadata.publishingTargets
                         .first { it == PublishingTargetType.MODRINTH }
@@ -146,7 +133,7 @@ class FabricModConfig private constructor(
                     sourceCodeUrl = mod.repo.getUrl(),
                     issuesUrl = mod.repo.getIssuesUrl(),
                 ),
-                entryPoints = EntryPoints.of(mod, dataGenerators),
+                entryPoints = EntryPoints.of(mod),
                 dependencies = listOfNotNull(
                     "java" to InequalityVersionRange.min(
                         VersionBound.inclusive(
@@ -163,13 +150,7 @@ class FabricModConfig private constructor(
                             Versions.FABRIC_LOADER
                         )
                     ),
-                    when {
-                        mod.config.fabric.isApiRequired -> {
-                            mod.minSupportedVersion.getFabricApiDependencyName() to InequalityVersionRange.any
-                        }
-
-                        else -> null
-                    },
+                    mod.minSupportedVersion.getFabricApiDependencyName() to InequalityVersionRange.any,
                 ).toMap()
             )
     }

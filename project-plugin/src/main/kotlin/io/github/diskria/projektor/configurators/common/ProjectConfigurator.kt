@@ -5,6 +5,9 @@ import io.github.diskria.gradle.utils.extensions.*
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.appendPath
 import io.github.diskria.kotlin.utils.extensions.common.`Train-Case`
+import io.github.diskria.kotlin.utils.extensions.generics.joinByNewLine
+import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
+import io.github.diskria.kotlin.utils.extensions.toNullIfEmpty
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.Versions
 import io.github.diskria.projektor.common.ProjectModules
@@ -13,11 +16,12 @@ import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.extensions.mappers.toInt
+import io.github.diskria.projektor.helpers.AccessWidenerHelper
 import io.github.diskria.projektor.projekt.GradlePlugin
 import io.github.diskria.projektor.projekt.KotlinLibrary
+import io.github.diskria.projektor.projekt.MinecraftMod
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.tasks.ReleaseProjektTask
-import io.github.diskria.projektor.tasks.UnarchiveProjektArtifactTask
 import io.github.diskria.projektor.tasks.UpdateProjektRepoMetadataTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektGitAttributesTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektGitIgnoreTask
@@ -60,7 +64,7 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
         }
         java {
             toolchain {
-                languageVersion = JavaLanguageVersion.of(projekt.javaVersion)
+                languageVersion = JavaLanguageVersion.of(Versions.JAVA)
                 implementation = JvmImplementation.VENDOR_SPECIFIC
                 vendor = JvmVendorSpec.ADOPTIUM
             }
@@ -70,7 +74,7 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
             }
         }
         kotlin {
-            jvmToolchain(projekt.javaVersion)
+            jvmToolchain(Versions.JAVA)
         }
         sourceSets {
             named("main") {
@@ -121,10 +125,6 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                 }
                 archiveVersion = projekt.archiveVersion
             }
-            val unarchiveArtifactTask = registerTask<UnarchiveProjektArtifactTask>()
-            named("build") {
-                finalizedBy(unarchiveArtifactTask)
-            }
             if (rootProjektType != ProjektType.MINECRAFT_MOD) {
                 test {
                     useJUnitPlatform()
@@ -163,36 +163,72 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
         if (project.path == ProjectModules.Common.PATH) {
             return@with
         }
-        if (project.rootProject.findProject(ProjectModules.Common.PATH) != null) {
+        val commonProject = project.rootProject.findProject(ProjectModules.Common.PATH)
+        if (commonProject != null) {
             if (projekt is GradlePlugin || projekt is KotlinLibrary) {
                 ensurePluginApplied("com.gradleup.shadow")
                 dependencies {
-                    compileOnly(project(ProjectModules.Common.PATH))
+                    compileOnly(commonProject)
                 }
                 tasks {
                     shadowJar {
                         archiveClassifier = Constants.Char.EMPTY
                         configurations = emptyList()
 
-                        val jarTask = project(ProjectModules.Common.PATH).tasks.jar
+                        val jarTask = commonProject.tasks.jar
                         dependsOn(jarTask)
                         from(zipTree(jarTask.flatMap { it.archiveFile }))
                     }
                 }
-            } else {
-                dependencies {
-                    modImplementation(rootProject.project(ProjectModules.Common.PATH))
-                    include(rootProject.project(ProjectModules.Common.PATH))
+            } else if (projekt is MinecraftMod) {
+                ensurePluginApplied("com.gradleup.shadow")
+                tasks {
+                    shadowJar {
+                        configurations = emptyList()
+                        destinationDirectory = getBuildDirectory("devlibs")
+                        archiveBaseName = jar.get().archiveBaseName
+                        archiveVersion = jar.get().archiveVersion
+                        archiveClassifier = "dev"
+
+                        val sideProjects = children()
+                        val projectsToShadow = sideProjects + commonProject
+                        projectsToShadow.forEach {
+                            val jarTask = it.tasks.jar
+                            dependsOn(jarTask)
+                            from(zipTree(jarTask.flatMap { jar -> jar.archiveFile }))
+                        }
+
+                        val accessWidenerFileName = projekt.getAccessWidenerFileName()
+
+                        val mergedAccessWidenerFile = temporaryDir.resolve(accessWidenerFileName)
+                        from(mergedAccessWidenerFile) {
+                            into("assets/${projekt.id}")
+                        }
+                        doFirst {
+                            mergedAccessWidenerFile.writeText(
+                                sideProjects.mapNotNull { sideProject ->
+                                    sideProject.projectDir
+                                        .resolve("src/main/resources")
+                                        .resolve(accessWidenerFileName)
+                                        .readLines()
+                                        .mapNotNull { it.trim().toNullIfEmpty() }
+                                        .toNullIfEmpty()
+                                }.flatten().toSet().joinByNewLine()
+                            )
+                        }
+                    }
+                    jar {
+                        enabled = false
+                    }
                 }
             }
         }
-        val rootProject = project.rootProject
         val publishingTargetTasks = projekt.publishingTargets
             .filter { it.configurePublishTask(projekt, project) }
             .map { target ->
                 val publishTask = project.tasks.named(target.publishTaskName).get()
                 val rootPublishTask = rootProject.tasks.findByName(target.publishTaskName)
-                    ?: target.configureRootPublishTask(rootProject, publishTask)
+                    ?: target.configureRootPublishTask(rootProject, publishTask, projekt)
                 val distributeTask = target.configureDistributeTask(rootProject)
                 rootPublishTask to distributeTask
             }

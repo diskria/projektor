@@ -1,11 +1,13 @@
 package io.github.diskria.projektor.publishing.external
 
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar.Companion.shadowJar
 import com.modrinth.minotaur.TaskModrinthSyncBody
 import io.github.diskria.gradle.utils.extensions.findProjectRoot
 import io.github.diskria.gradle.utils.extensions.getTask
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
+import io.github.diskria.kotlin.utils.extensions.common.failWithUnsupportedType
 import io.github.diskria.kotlin.utils.extensions.generics.joinBySpace
 import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
@@ -32,6 +34,7 @@ data object Modrinth : ExternalPublishingTarget() {
 
         val loader = mod.loader
         val loaderName = loader.getDisplayName()
+        val minSupportedVersion = mod.supportedVersionRange.min.asString()
         val maxSupportedVersion = mod.supportedVersionRange.max.asString()
         modrinth {
             token.set(
@@ -40,16 +43,17 @@ data object Modrinth : ExternalPublishingTarget() {
             )
             projectId.set(mod.id)
             versionName.set(
-                listOf(mod.name, mod.version, "for", loaderName, maxSupportedVersion).joinBySpace()
+                listOf(
+                    mod.name,
+                    mod.version,
+                    "for",
+                    loaderName,
+                    minSupportedVersion,
+                    Constants.Char.EN_DASH,
+                    maxSupportedVersion
+                ).joinBySpace()
             )
-            versionNumber.set(buildString {
-                append(MinecraftMod.SHORT_NAME)
-                append(maxSupportedVersion)
-                append(Constants.Char.HYPHEN)
-                append(mod.version)
-                append(Constants.Char.HYPHEN)
-                append(loaderName)
-            })
+            versionNumber.set(mod.archiveVersion)
 
             changelog.set(Constants.Char.EMPTY)
             syncBodyFrom.set(
@@ -57,27 +61,24 @@ data object Modrinth : ExternalPublishingTarget() {
             )
             when (loader) {
                 Fabric -> {
-                    with(required) {
-                        project("fabric-language-kotlin")
-                        if (mod.config.fabric.isApiRequired) {
-                            project("fabric-api")
-                        }
-                    }
+                    required.project("fabric-api", "fabric-language-kotlin")
                 }
 
                 Ornithe -> {
+                    required.project("osl")
                 }
 
                 Forge -> TODO()
                 NeoForge -> TODO()
                 Quilt -> TODO()
+                else -> failWithUnsupportedType(loader::class)
             }
 
             gameVersions.set(mod.supportedVersionRange.expand().map { it.asString() })
             detectLoaders.set(false)
             loaders.set(listOf(loaderName))
 
-            uploadFile.set(getJarTask())
+            uploadFile.set(tasks.shadowJar)
             debugMode.set(!EnvironmentHelper.isCI())
         }
         val publishTask = tasks.named(publishTaskName).get()

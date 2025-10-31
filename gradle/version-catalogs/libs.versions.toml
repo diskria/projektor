@@ -12,10 +12,10 @@ shadow-plugin = "9.2.2"
 
 fabric-loom-plugin = "1.12-SNAPSHOT"
 
-kotlin = "2.2.21"
+kotlin = "2.3.0-Beta2"
 ktor = "3.3.1"
 kotlin-html = "0.12.0"
-kotlin-utils = "0.7.8"
+kotlin-utils = "0.7.10"
 kotlin-serialization-xml = "0.91.2"
 gradle-utils = "0.5.8"
 kotlin-shell-dsl = "0.4.2"

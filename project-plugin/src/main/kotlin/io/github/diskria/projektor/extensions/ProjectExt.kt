@@ -1,18 +1,25 @@
 package io.github.diskria.projektor.extensions
 
 import com.github.gmazzo.buildconfig.BuildConfigExtension
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar.Companion.shadowJar
 import com.modrinth.minotaur.ModrinthExtension
+import io.github.diskria.gradle.utils.extensions.hasTask
+import io.github.diskria.gradle.utils.extensions.jar
 import io.github.diskria.gradle.utils.extensions.runExtension
 import io.github.diskria.gradle.utils.extensions.withPluginExtension
 import io.github.diskria.projektor.projekt.common.BaseProjekt
 import net.fabricmc.loom.api.LoomGradleExtensionAPI
 import net.fabricmc.loom.api.fabricapi.FabricApiExtension
 import net.ornithemc.ploceus.api.PloceusGradleExtensionApi
+import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.api.tasks.TaskProvider
+import org.gradle.jvm.tasks.Jar
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
@@ -20,10 +27,25 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 fun Project.toProjekt(): BaseProjekt =
     BaseProjekt.of(this)
 
-fun Project.getLeafProjects(): List<Project> =
-    generateSequence(listOf(rootProject)) { parents ->
-        parents.flatMap { it.childProjects.values }.takeIf { it.isNotEmpty() }
-    }.last()
+fun Project.getLeafProjects(ignoredProjects: List<String> = emptyList()): List<Project> {
+    fun Project.collectLeaves(): List<Project> {
+        val validChildren = children().filterNot { it.name in ignoredProjects }
+        return if (validChildren.isEmpty()) listOf(this)
+        else validChildren.flatMap { it.collectLeaves() }
+    }
+    return rootProject.collectLeaves()
+}
+
+fun Project.getJarTask(): TaskProvider<out Jar> =
+    if (hasTask(ShadowJar.SHADOW_JAR_TASK_NAME)) tasks.shadowJar
+    else tasks.jar
+
+fun Project.configureJarTask(configuration: Action<in Jar>) {
+    getJarTask().configure(configuration)
+}
+
+fun Project.children(): List<Project> =
+    childProjects.values.toList()
 
 fun Project.base(block: BasePluginExtension.() -> Unit) {
     runExtension<BasePluginExtension>(block)

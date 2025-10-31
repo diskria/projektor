@@ -7,7 +7,6 @@ import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.serialization.annotations.EncodeDefaults
 import io.github.diskria.kotlin.utils.serialization.annotations.PrettyPrint
 import io.github.diskria.projektor.Versions
-import io.github.diskria.projektor.common.minecraft.versions.common.asString
 import io.github.diskria.projektor.common.publishing.PublishingTargetType
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.extensions.mappers.toInt
@@ -17,6 +16,7 @@ import io.github.diskria.projektor.projekt.MinecraftMod
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Suppress("unused")
 @Serializable
 @EncodeDefaults
 @PrettyPrint
@@ -82,9 +82,9 @@ class OrnitheModConfig private constructor(
                 authors = listOf(mod.repo.owner.developer),
                 license = mod.license.id,
                 icon = buildPath("assets", mod.id, fileName("icon", Constants.File.Extension.PNG)),
-                environment = mod.config.environment.fabricConfigValue,
-                accessWidener = fileName(mod.id, "accesswidener"),
-                mixins = listOf(mod.mixinsConfigFileName),
+                environment = mod.getEnvironmentConfigValue(),
+                accessWidener = buildPath("assets", mod.id, mod.getAccessWidenerFileName()),
+                mixins = listOf(buildPath("assets", mod.id, mod.mixinsConfigFileName)),
                 links = Links.of(
                     homepageUrl = mod.metadata.publishingTargets
                         .first { it == PublishingTargetType.MODRINTH }
@@ -100,20 +100,12 @@ class OrnitheModConfig private constructor(
                             mod.jvmTarget.toInt().toString()
                         )
                     ),
-                    "minecraft" to InequalityVersionRange.min(
-                        VersionBound.inclusive(
-                            mod.minSupportedVersion.asString()
-                        )
-                    ),
                     "fabricloader" to InequalityVersionRange.min(
                         VersionBound.inclusive(
                             Versions.FABRIC_LOADER
                         )
                     ),
-                    when {
-                        mod.config.ornithe.isOSLRequired -> "osl-entrypoints" to InequalityVersionRange.any
-                        else -> null
-                    },
+                    "osl-entrypoints" to InequalityVersionRange.any,
                 ).toMap()
             )
     }

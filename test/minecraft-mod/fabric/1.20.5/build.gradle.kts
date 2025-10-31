@@ -1,12 +1,12 @@
+import io.github.diskria.projektor.minecraft.ModEnvironment
+
 plugins {
+    alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.projektor)
-    alias(libs.plugins.fabric.loom)
 }
 
 projekt {
     minecraftMod {
-        fabric {
-            isApiRequired = true
-        }
+        environment = ModEnvironment.CLIENT_SERVER
     }
 }

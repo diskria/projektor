@@ -1,22 +1,22 @@
 package io.github.diskria.projektor.tasks.minecraft.generate
 
-import io.github.diskria.kotlin.utils.extensions.appendPackageName
-import io.github.diskria.kotlin.utils.extensions.common.buildPath
+import io.github.diskria.kotlin.utils.extensions.common.failWithUnsupportedType
 import io.github.diskria.kotlin.utils.extensions.ensureFileExists
-import io.github.diskria.kotlin.utils.extensions.listFilesWithExtension
 import io.github.diskria.kotlin.utils.extensions.serialization.serializeJsonToFile
 import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.minecraft.config.FabricModConfig
 import io.github.diskria.projektor.minecraft.config.OrnitheModConfig
-import io.github.diskria.projektor.minecraft.loaders.*
+import io.github.diskria.projektor.minecraft.loaders.Fabric
+import io.github.diskria.projektor.minecraft.loaders.Forge
+import io.github.diskria.projektor.minecraft.loaders.NeoForge
+import io.github.diskria.projektor.minecraft.loaders.Ornithe
+import io.github.diskria.projektor.minecraft.loaders.Quilt
 import io.github.diskria.projektor.projekt.MinecraftMod
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
@@ -28,9 +28,6 @@ abstract class GenerateModConfigTask : DefaultTask() {
 
     @get:Internal
     abstract val minecraftMod: Property<MinecraftMod>
-
-    @get:InputDirectory
-    abstract val sourceSetsRoot: DirectoryProperty
 
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
@@ -47,21 +44,12 @@ abstract class GenerateModConfigTask : DefaultTask() {
         val outputFile = outputFile.get().asFile.ensureFileExists()
 
         when (minecraftMod.loader) {
-            Fabric -> {
-                val dataGenerators = sourceSetsRoot.get().asFile
-                    .resolve(buildPath("datagen", "kotlin", minecraftMod.packagePath))
-                    .listFilesWithExtension("kt")
-                    .map { minecraftMod.packageName.appendPackageName(it.nameWithoutExtension) }
-                FabricModConfig.of(minecraftMod, dataGenerators).serializeJsonToFile(outputFile)
-            }
-
-            Ornithe -> {
-                OrnitheModConfig.of(minecraftMod).serializeJsonToFile(outputFile)
-            }
-
+            Fabric -> FabricModConfig.of(minecraftMod).serializeJsonToFile(outputFile)
+            Ornithe -> OrnitheModConfig.of(minecraftMod).serializeJsonToFile(outputFile)
             Quilt -> TODO()
             Forge -> TODO()
             NeoForge -> TODO()
+            else -> failWithUnsupportedType(minecraftMod.loader::class)
         }
     }
 }

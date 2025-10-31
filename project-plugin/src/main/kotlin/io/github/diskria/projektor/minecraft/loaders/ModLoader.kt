@@ -7,10 +7,14 @@ import io.github.diskria.projektor.extensions.mappers.mapToEnum
 import io.github.diskria.projektor.projekt.MinecraftMod
 import org.gradle.api.Project
 
-sealed interface ModLoader {
-    val supportedVersionRange: MinecraftVersionRange
-    fun getConfigFilePath(): String
-    fun configure(project: Project, mod: MinecraftMod): Any
+sealed class ModLoader {
+
+    abstract val supportedVersionRange: MinecraftVersionRange
+    abstract val configFilePath: String
+
+    abstract fun configure(modProject: Project, mod: MinecraftMod): Any
+
     fun getName(): String = mapToEnum().getName()
+
     fun getDisplayName(): String = this::class.className()
 }

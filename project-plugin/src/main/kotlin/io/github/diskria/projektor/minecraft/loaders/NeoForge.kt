@@ -7,15 +7,15 @@ import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVer
 import io.github.diskria.projektor.projekt.MinecraftMod
 import org.gradle.api.Project
 
-data object NeoForge : ModLoader {
+data object NeoForge : ModLoader() {
 
     override val supportedVersionRange: MinecraftVersionRange
         get() = TODO()
 
-    override fun getConfigFilePath(): String =
+    override val configFilePath: String =
         "META-INF".appendPath(fileName("mods", Constants.File.Extension.TOML))
 
-    override fun configure(project: Project, mod: MinecraftMod) = with(project) {
+    override fun configure(modProject: Project, mod: MinecraftMod) = with(modProject) {
         TODO()
     }
 }

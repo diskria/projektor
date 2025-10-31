@@ -2,7 +2,6 @@ package io.github.diskria.projektor.projekt.common
 
 import io.github.diskria.kotlin.utils.extensions.listDirectories
 import io.github.diskria.kotlin.utils.extensions.mappers.toEnum
-import io.github.diskria.projektor.Versions
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
@@ -12,11 +11,7 @@ import io.github.diskria.projektor.common.minecraft.versions.common.compareTo
 import io.github.diskria.projektor.common.minecraft.versions.common.previousOrNull
 import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.common.repo.github.GithubRepo
-import io.github.diskria.projektor.configurations.AndroidApplicationConfiguration
-import io.github.diskria.projektor.configurations.AndroidLibraryConfiguration
-import io.github.diskria.projektor.configurations.GradlePluginConfiguration
-import io.github.diskria.projektor.configurations.KotlinLibraryConfiguration
-import io.github.diskria.projektor.configurations.minecraft.MinecraftModConfiguration
+import io.github.diskria.projektor.configurations.*
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.licenses.License
 import io.github.diskria.projektor.projekt.*
@@ -34,8 +29,6 @@ data class BaseProjekt(
     override val tags: Set<String>,
     override val license: License,
     override val publishingTargets: List<PublishingTarget>,
-    override val javaVersion: Int,
-    override val kotlinVersion: String,
 ) : Projekt {
 
     fun toGradlePlugin(project: Project, config: GradlePluginConfiguration): GradlePlugin =
@@ -57,20 +50,15 @@ data class BaseProjekt(
         val loader = loaderDirectory.name.toEnum<ModLoaderType>().mapToModel()
         val minSupportedVersion = MinecraftVersion.parse(minSupportedVersionDirectory.name)
         val maxSupportedVersion = config.maxSupportedVersion
-            ?: loaderDirectory
-                .listDirectories()
-                .map { MinecraftVersion.parse(it.name) }
-                .filter { it > minSupportedVersion }
-                .minWithOrNull(MinecraftVersion.COMPARATOR)
-                ?.previousOrNull()
-            ?: loader.supportedVersionRange.max
-
-        return MinecraftMod(
-            projekt = this,
-            config = config,
-            loader = loader,
-            supportedVersionRange = MinecraftVersionRange(minSupportedVersion, maxSupportedVersion)
-        )
+            ?: run {
+                val minSupportedVersions = loaderDirectory.listDirectories().map { MinecraftVersion.parse(it.name) }
+                val nextMinSupportedVersion = minSupportedVersions
+                    .filter { it > minSupportedVersion }
+                    .minWithOrNull(MinecraftVersion.COMPARATOR)
+                nextMinSupportedVersion?.previousOrNull()
+            } ?: loader.supportedVersionRange.max
+        val supportedVersionRange = MinecraftVersionRange(minSupportedVersion, maxSupportedVersion)
+        return MinecraftMod(this, config, loader, supportedVersionRange)
     }
 
     companion object {
@@ -87,8 +75,6 @@ data class BaseProjekt(
                 tags = metadata.tags,
                 license = metadata.license.mapToModel(),
                 publishingTargets = metadata.publishingTargets.map { it.mapToModel() },
-                javaVersion = Versions.JAVA,
-                kotlinVersion = Versions.KOTLIN,
             )
         }
     }
