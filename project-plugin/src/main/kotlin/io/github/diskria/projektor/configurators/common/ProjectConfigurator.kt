@@ -2,6 +2,7 @@ package io.github.diskria.projektor.configurators.common
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar.Companion.shadowJar
 import io.github.diskria.gradle.utils.extensions.*
+import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.appendPath
 import io.github.diskria.kotlin.utils.extensions.common.`Train-Case`
@@ -16,7 +17,6 @@ import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.extensions.mappers.toInt
-import io.github.diskria.projektor.helpers.AccessWidenerHelper
 import io.github.diskria.projektor.projekt.GradlePlugin
 import io.github.diskria.projektor.projekt.KotlinLibrary
 import io.github.diskria.projektor.projekt.MinecraftMod
@@ -229,7 +229,10 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                 val publishTask = project.tasks.named(target.publishTaskName).get()
                 val rootPublishTask = rootProject.tasks.findByName(target.publishTaskName)
                     ?: target.configureRootPublishTask(rootProject, publishTask, projekt)
-                val distributeTask = target.configureDistributeTask(rootProject)
+                val distributeTask = when {
+                    EnvironmentHelper.isCI() -> target.configureDistributeTask(rootProject)
+                    else -> null
+                }
                 rootPublishTask to distributeTask
             }
         rootProject.ensureTaskRegistered<ReleaseProjektTask> {

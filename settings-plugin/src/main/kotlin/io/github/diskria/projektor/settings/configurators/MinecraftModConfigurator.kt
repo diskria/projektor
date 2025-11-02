@@ -46,6 +46,10 @@ open class MinecraftModConfigurator(
                         OrnitheFeatherSplitMappingsSynchronizer.sync(settings)
                     }
 
+                    ModLoaderType.FORGE -> {
+
+                    }
+
                     else -> TODO()
                 }
                 minSupportedVersionDirectories.forEach { minSupportedVersionDirectory ->
@@ -96,6 +100,22 @@ open class MinecraftModConfigurator(
                     name = "OrnitheSnapshots",
                     url = buildUrl("maven.ornithemc.net") {
                         path("snapshots")
+                    }
+                )
+                configureMaven(
+                    name = "Forge",
+                    url = buildUrl("maven.minecraftforge.net")
+                )
+                configureMaven(
+                    name = "NeoForge",
+                    url = buildUrl("maven.neoforged.net") {
+                        path("releases")
+                    }
+                )
+                configureMaven(
+                    name = "Quilt",
+                    url = buildUrl("maven.quiltmc.org") {
+                        path("repository", "release")
                     }
                 )
             }
