@@ -18,8 +18,8 @@ open class NeoforgeConfigDependencyEntry(
     val side: String,
 ) {
     companion object {
-        fun of(id: String, versionRange: String): Pair<String, NeoforgeConfigDependencyEntry> =
-            id to NeoforgeConfigDependencyEntry(
+        fun of(id: String, versionRange: String): NeoforgeConfigDependencyEntry =
+            NeoforgeConfigDependencyEntry(
                 id = id,
                 type = "required",
                 versionRange = versionRange,
@@ -27,7 +27,7 @@ open class NeoforgeConfigDependencyEntry(
                 side = "BOTH",
             )
 
-        fun createMinecraftDependency(mod: MinecraftMod): Pair<String, NeoforgeConfigDependencyEntry> =
+        fun createMinecraftDependency(mod: MinecraftMod): NeoforgeConfigDependencyEntry =
             of(
                 "minecraft", IntervalVersionRange.range(
                     VersionBound.inclusive(mod.minSupportedVersion.asString()),
@@ -35,7 +35,7 @@ open class NeoforgeConfigDependencyEntry(
                 )
             )
 
-        fun createLoaderDependency(mod: MinecraftMod): Pair<String, NeoforgeConfigDependencyEntry> =
+        fun createLoaderDependency(mod: MinecraftMod): NeoforgeConfigDependencyEntry =
             of(
                 "neoforge", IntervalVersionRange.min(
                     VersionBound.inclusive(mod.config.neoforge.loader)

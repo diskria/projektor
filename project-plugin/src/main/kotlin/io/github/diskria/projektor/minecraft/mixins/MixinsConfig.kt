@@ -47,12 +47,12 @@ class MixinsConfig(
                 injectorConfig = InjectorConfig.newInstance(),
                 overwriteConfig = OverwriteConfig.newInstance(),
                 mainMixins = when (mod.config.environment) {
-                    ModEnvironment.DEDICATED_SERVER_ONLY -> null
+                    ModEnvironment.DEDICATED_SERVER -> null
                     else -> sideMixins[ModSide.SERVER]
                 },
                 clientMixins = sideMixins[ModSide.CLIENT],
                 serverMixins = when (mod.config.environment) {
-                    ModEnvironment.DEDICATED_SERVER_ONLY -> sideMixins[ModSide.SERVER]
+                    ModEnvironment.DEDICATED_SERVER -> sideMixins[ModSide.SERVER]
                     else -> null
                 },
             )

@@ -1,9 +1,6 @@
 package io.github.diskria.projektor.configurations.minecraft
 
 import io.github.diskria.gradle.utils.extensions.common.gradleError
-import io.github.diskria.kotlin.utils.BracketsType
-import io.github.diskria.kotlin.utils.extensions.mappers.getName
-import io.github.diskria.kotlin.utils.extensions.wrapWithBrackets
 import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricApiSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricLoaderSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricYarnMappingsSynchronizer

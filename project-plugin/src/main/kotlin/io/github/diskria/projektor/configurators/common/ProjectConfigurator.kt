@@ -10,10 +10,10 @@ import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
 import io.github.diskria.kotlin.utils.extensions.toNullIfEmpty
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.Versions
-import io.github.diskria.projektor.common.ProjectModules
 import io.github.diskria.projektor.common.configurators.IProjektConfigurator
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.projekt.ProjektType
+import io.github.diskria.projektor.common.utils.ProjectModules
 import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.minecraft.loaders.fabric.Fabric
@@ -29,14 +29,10 @@ import io.github.diskria.projektor.tasks.generate.GenerateProjektGitAttributesTa
 import io.github.diskria.projektor.tasks.generate.GenerateProjektGitIgnoreTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektLicenseTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektReadmeTask
-import io.github.diskria.projektor.tasks.minecraft.generate.RemapShadowJarTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
-import org.gradle.jvm.toolchain.JavaLanguageVersion
-import org.gradle.jvm.toolchain.JvmImplementation
-import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -67,9 +63,7 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
         }
         java {
             toolchain {
-                languageVersion = JavaLanguageVersion.of(Versions.JAVA)
-                implementation = JvmImplementation.VENDOR_SPECIFIC
-                vendor = JvmVendorSpec.ADOPTIUM
+                configureAdoptium(Versions.JAVA)
             }
             withSourcesJar()
             if (projekt.isJavadocEnabled) {
@@ -171,25 +165,24 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                 }
                 tasks {
                     shadowJar {
+                        archiveClassifier = Constants.Char.EMPTY
                         configurations = emptyList()
 
                         val jarTask = commonProject.tasks.jar
                         dependsOn(jarTask)
-                        from(zipTree(jarTask.flatMap { it.archiveFile }))
+                        from(zipTree(jarTask.flatMap { jar -> jar.archiveFile }))
                     }
                 }
             } else if (projekt is MinecraftMod) {
                 ensurePluginApplied("com.gradleup.shadow")
                 tasks {
-                    jar {
+                    val jar = jar {
                         enabled = false
                     }
                     shadowJar {
                         configurations = emptyList()
                         destinationDirectory = getBuildDirectory("devlibs")
-                        archiveBaseName = jar.get().archiveBaseName
-                        archiveVersion = jar.get().archiveVersion
-                        archiveClassifier = "dev"
+                        copyArchiveNameParts(jar.get(), classifier = "dev")
 
                         val sideProjects = children()
                         val projectsToShadow = sideProjects + commonProject
@@ -238,12 +231,6 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                                 )
                             }
                         }
-                    }
-                    artifacts {
-                        add("archives", shadowJar)
-                    }
-                    named("build") {
-                        dependsOn(children().first().getTask<RemapShadowJarTask>())
                     }
                 }
             }

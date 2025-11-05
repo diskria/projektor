@@ -87,11 +87,11 @@ class FabricModConfig private constructor(
                         clientEntryPoints = listOf(clientEntryPoint),
                     )
 
-                    ModEnvironment.CLIENT_ONLY -> EntryPoints(
+                    ModEnvironment.CLIENT -> EntryPoints(
                         clientEntryPoints = listOf(clientEntryPoint),
                     )
 
-                    ModEnvironment.DEDICATED_SERVER_ONLY -> EntryPoints(
+                    ModEnvironment.DEDICATED_SERVER -> EntryPoints(
                         serverEntryPoints = listOf(serverEntryPoint),
                     )
                 }

@@ -7,6 +7,6 @@ plugins {
 
 projekt {
     minecraftMod {
-        environment = ModEnvironment.DEDICATED_SERVER_ONLY
+        environment = ModEnvironment.DEDICATED_SERVER
     }
 }

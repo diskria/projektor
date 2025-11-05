@@ -2,7 +2,7 @@ package io.github.diskria.projektor
 
 import io.github.diskria.gradle.utils.extensions.ensureTaskRegistered
 import io.github.diskria.gradle.utils.extensions.registerExtension
-import io.github.diskria.projektor.common.ProjectModules
+import io.github.diskria.projektor.common.utils.ProjectModules
 import io.github.diskria.projektor.extensions.gradle.ProjektExtension
 import io.github.diskria.projektor.tasks.UpdateProjektRepoMetadataTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektGitAttributesTask

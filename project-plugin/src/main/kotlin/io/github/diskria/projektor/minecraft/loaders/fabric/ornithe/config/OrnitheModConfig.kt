@@ -6,7 +6,6 @@ import io.github.diskria.kotlin.utils.extensions.common.buildPath
 import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.serialization.annotations.EncodeDefaults
 import io.github.diskria.kotlin.utils.serialization.annotations.PrettyPrint
-import io.github.diskria.projektor.Versions
 import io.github.diskria.projektor.common.publishing.PublishingTargetType
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.extensions.mappers.toInt

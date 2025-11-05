@@ -2,17 +2,18 @@ package io.github.diskria.projektor.projekt
 
 import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.kotlin.utils.Constants
-import io.github.diskria.kotlin.utils.extensions.common.SCREAMING_SNAKE_CASE
-import io.github.diskria.kotlin.utils.extensions.common.fileName
-import io.github.diskria.kotlin.utils.extensions.common.modifyUnless
+import io.github.diskria.kotlin.utils.extensions.common.*
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
+import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.kotlin.utils.poet.Property
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
+import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.projektor.common.minecraft.ModSide
 import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersionRange
 import io.github.diskria.projektor.common.minecraft.versions.common.asString
 import io.github.diskria.projektor.common.minecraft.versions.common.getMinJavaVersion
+import io.github.diskria.projektor.common.utils.MinecraftConstants
 import io.github.diskria.projektor.configurations.minecraft.MinecraftModConfiguration
 import io.github.diskria.projektor.extensions.mappers.toJvmTarget
 import io.github.diskria.projektor.helpers.AccessWidenerHelper
@@ -32,7 +33,7 @@ class MinecraftMod(
     val supportedVersionRange: MinecraftVersionRange,
 ) : AbstractProjekt(projekt) {
 
-    val id: String = repo.name
+    val id: String = repo.name.setCase(`kebab-case`, snake_case)
     val mixinsConfigFileName: String = fileName(id, "mixins", Constants.File.Extension.JSON)
     val minSupportedVersion: MinecraftVersion = supportedVersionRange.min
     val maxSupportedVersion: MinecraftVersion = supportedVersionRange.max
@@ -55,9 +56,11 @@ class MinecraftMod(
             append(Constants.Char.HYPHEN)
             append(version)
             append(Constants.Char.PLUS)
-            append(SHORT_NAME)
-            append(minSupportedVersion.asString())
-            append(Constants.Char.HYPHEN)
+            append(MinecraftConstants.SHORT_GAME_NAME)
+            if (minSupportedVersion != maxSupportedVersion) {
+                append(minSupportedVersion.asString())
+                append(Constants.Char.HYPHEN)
+            }
             append(maxSupportedVersion.asString())
         }
 
@@ -71,11 +74,9 @@ class MinecraftMod(
 
     fun getEntryPointName(side: ModSide): String =
         buildString {
-            append("Minecraft")
-            if (side == ModSide.CLIENT) {
-                append("Client")
-            } else if (config.environment == ModEnvironment.DEDICATED_SERVER_ONLY) {
-                append("Server")
+            append(MinecraftConstants.FULL_GAME_NAME)
+            if (side == ModSide.CLIENT || config.environment == ModEnvironment.DEDICATED_SERVER) {
+                append(side.getName(PascalCase))
             }
             append("Mod")
         }
@@ -90,10 +91,5 @@ class MinecraftMod(
         val modId by id.autoNamedProperty(SCREAMING_SNAKE_CASE)
         val modName by name.autoNamedProperty(SCREAMING_SNAKE_CASE)
         return listOf(modId, modName)
-    }
-
-    companion object {
-        const val SHORT_NAME: String = "mc"
-        const val RUN_DIRECTORY_NAME: String = "run"
     }
 }

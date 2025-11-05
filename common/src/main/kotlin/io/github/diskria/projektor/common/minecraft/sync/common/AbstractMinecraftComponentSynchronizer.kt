@@ -11,12 +11,12 @@ import io.github.diskria.kotlin.utils.extensions.serialization.deserializeJsonFr
 import io.github.diskria.kotlin.utils.extensions.serialization.serializeJsonToFile
 import io.github.diskria.kotlin.utils.extensions.toSemver
 import io.github.diskria.projektor.ProjektBuildConfig
-import io.github.diskria.projektor.common.ProjectDirectories
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
 import io.github.diskria.projektor.common.minecraft.loaders.getSupportedVersionRange
 import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.common.asString
 import io.github.diskria.projektor.common.minecraft.versions.common.compareTo
+import io.github.diskria.projektor.common.utils.ProjectDirectories
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.Project
 import java.io.File

@@ -1,11 +1,10 @@
 package io.github.diskria.projektor.tasks.minecraft.generate
 
-import com.palantir.javapoet.ClassName
-import com.palantir.javapoet.JavaFile
-import com.palantir.javapoet.MethodSpec
-import com.palantir.javapoet.TypeSpec
+import com.palantir.javapoet.*
+import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.appendPackageName
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
+import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.common.minecraft.ModSide
 import io.github.diskria.projektor.minecraft.ModEnvironment
@@ -35,6 +34,7 @@ abstract class GenerateModEntryPointTask : DefaultTask() {
         group = ProjektorGradlePlugin.TASK_GROUP
     }
 
+    @Suppress("SpellCheckingInspection")
     @TaskAction
     fun generate() {
         val mod = minecraftMod.get()
@@ -42,43 +42,53 @@ abstract class GenerateModEntryPointTask : DefaultTask() {
         val outputDirectory = outputDirectory.get().asFile
 
         val entryPointClassName = mod.getEntryPointName(side)
+        val entryPointBuilder = TypeSpec.classBuilder(entryPointClassName)
 
+        val isClientSide = side == ModSide.CLIENT
+        val isDedicatedServerEnvironment = mod.config.environment == ModEnvironment.DEDICATED_SERVER
+        val environmentName = when {
+            isClientSide -> side.getName(PascalCase)
+            isDedicatedServerEnvironment -> mod.config.environment.getName(PascalCase)
+            else -> Constants.Char.EMPTY
+        }
+        val sideName = when {
+            isClientSide || isDedicatedServerEnvironment -> side.getName(PascalCase)
+            else -> Constants.Char.EMPTY
+        }
         val entryPointClass = when (mod.loader) {
             Fabric -> {
-                val (superInterface, method) = when {
-                    side == ModSide.CLIENT -> {
-                        "ClientModInitializer" to "onInitializeClient"
-                    }
-
-                    mod.config.environment == ModEnvironment.DEDICATED_SERVER_ONLY -> {
-                        "DedicatedServerModInitializer" to "onInitializeServer"
-                    }
-
-                    else -> {
-                        "ModInitializer" to "onInitialize"
-                    }
-                }
-                val modInitializer = ClassName.get("net.fabricmc.api", superInterface)
-
-                val initializeMethod = MethodSpec.methodBuilder(method)
+                val superInterfaceClassName = ClassName.get("net.fabricmc.api", "${environmentName}ModInitializer")
+                val methodName = "onInitialize$sideName"
+                val initializeMethod = MethodSpec.methodBuilder(methodName)
                     .addAnnotation(Override::class.java)
                     .addModifiers(Modifier.PUBLIC)
                     .returns(Void.TYPE)
                     .build()
-
-                TypeSpec.classBuilder(entryPointClassName)
+                entryPointBuilder
                     .addModifiers(Modifier.PUBLIC)
-                    .addSuperinterface(modInitializer)
+                    .addSuperinterface(superInterfaceClassName)
                     .addMethod(initializeMethod)
                     .build()
             }
 
             Ornithe -> {
-                TODO()
+                entryPointBuilder
+                    .addModifiers(Modifier.PUBLIC)
+                    .build()
             }
 
             NeoForge -> {
-                TODO()
+                val annotation = AnnotationSpec.builder(ClassName.get("net.neoforged.fml.common", "Mod")).apply {
+                    addMember("value", $$"$S", mod.id)
+                    if (environmentName.isNotEmpty()) {
+                        val distEnumClassName = ClassName.get("net.neoforged.api.distmarker", "Dist")
+                        addMember("dist", $$"$T.$${environmentName.uppercase()}", distEnumClassName)
+                    }
+                }.build()
+                entryPointBuilder
+                    .addModifiers(Modifier.PUBLIC)
+                    .addAnnotation(annotation)
+                    .build()
             }
 
             else -> TODO()

@@ -17,6 +17,7 @@ import io.github.diskria.projektor.common.minecraft.ModSide
 import io.github.diskria.projektor.common.minecraft.versions.common.areSplitMixins
 import io.github.diskria.projektor.common.minecraft.versions.common.asString
 import io.github.diskria.projektor.common.minecraft.versions.common.getMinJavaVersion
+import io.github.diskria.projektor.common.utils.ProjectDirectories
 import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.helpers.AccessWidenerHelper
@@ -33,7 +34,6 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.compile.JavaCompile
-import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JavaToolchainService
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -70,7 +70,7 @@ abstract class AbstractFabric(val isOrnithe: Boolean = false) : ModLoader() {
                 runs {
                     named(side.getName()) {
                         name = side.getName(`Title Case`)
-                        runDir = MinecraftMod.RUN_DIRECTORY_NAME
+                        runDir = ProjectDirectories.MINECRAFT_RUN
                         source(mixins)
                         when (side) {
                             ModSide.CLIENT -> client()
@@ -135,7 +135,7 @@ abstract class AbstractFabric(val isOrnithe: Boolean = false) : ModLoader() {
                     )
                 }
             }
-            val runDirectory = projectDir.resolve(MinecraftMod.RUN_DIRECTORY_NAME).ensureDirectoryExists()
+            val runDirectory = projectDir.resolve(ProjectDirectories.MINECRAFT_RUN).ensureDirectoryExists()
             if (side == ModSide.SERVER) {
                 val eulaName = "eula"
                 val eulaFile = runDirectory.resolve(fileName(eulaName, Constants.File.Extension.TXT))
@@ -167,10 +167,10 @@ abstract class AbstractFabric(val isOrnithe: Boolean = false) : ModLoader() {
                 named<JavaExec>("run" + side.getName(PascalCase)) {
                     val shadowJar = modProject.tasks.shadowJar
                     dependsOn(shadowJar)
-                    classpath += files(shadowJar.get().archiveFile)
+                    classpath += files(shadowJar.get().archiveFile.get())
 
-                    javaLauncher = this@subprojects.extensions.getByType<JavaToolchainService>().launcherFor {
-                        languageVersion = JavaLanguageVersion.of(minecraftVersion.getMinJavaVersion())
+                    javaLauncher = this@subprojects.getExtension<JavaToolchainService>().launcherFor {
+                        configureAdoptium(minecraftVersion.getMinJavaVersion())
                     }
                 }
                 processResources {
@@ -183,8 +183,7 @@ abstract class AbstractFabric(val isOrnithe: Boolean = false) : ModLoader() {
                 inputFile.set(shadowJarTask.archiveFile)
 
                 destinationDirectory = modProject.getBuildDirectory("libs")
-                archiveBaseName = shadowJarTask.archiveBaseName
-                archiveVersion = shadowJarTask.archiveVersion
+                copyArchiveNameParts(shadowJarTask, classifier = Constants.Char.EMPTY)
             }
         }
         val generateMixinsConfigTask = registerTask<GenerateModMixinsConfigTask> {
@@ -196,6 +195,9 @@ abstract class AbstractFabric(val isOrnithe: Boolean = false) : ModLoader() {
             outputFile.set(temporaryDir.resolve(fileName(getLoaderName(), "mod", Constants.File.Extension.JSON)))
         }
         tasks {
+            named("build") {
+                dependsOn(children().first().getTask<RemapShadowJarTask>())
+            }
             processResources {
                 dependsOn(generateMixinsConfigTask)
                 from(generateMixinsConfigTask) {

@@ -14,7 +14,7 @@ data class NeoforgeModConfig(
     val mods: List<NeoforgeConfigModEntry>,
     val mixins: List<NeoforgeConfigMixinEntry>,
     val accessTransformers: List<NeoforgeConfigAccessTransformerEntry>,
-    val dependencies: Map<String, NeoforgeConfigDependencyEntry>,
+    val dependencies: Map<String, List<NeoforgeConfigDependencyEntry>>,
 ) {
     companion object {
         fun of(mod: MinecraftMod): NeoforgeModConfig =
@@ -31,8 +31,10 @@ data class NeoforgeModConfig(
                     NeoforgeConfigAccessTransformerEntry.of(mod),
                 ),
                 dependencies = mapOf(
-                    NeoforgeConfigDependencyEntry.createMinecraftDependency(mod),
-                    NeoforgeConfigDependencyEntry.createLoaderDependency(mod),
+                    mod.id to listOf(
+                        NeoforgeConfigDependencyEntry.createMinecraftDependency(mod),
+                        NeoforgeConfigDependencyEntry.createLoaderDependency(mod),
+                    )
                 ),
             )
     }

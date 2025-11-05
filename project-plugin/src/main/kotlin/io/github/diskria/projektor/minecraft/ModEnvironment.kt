@@ -6,10 +6,10 @@ enum class ModEnvironment(val sides: List<ModSide>) {
     CLIENT_SERVER(
         listOf(ModSide.CLIENT, ModSide.SERVER)
     ),
-    CLIENT_ONLY(
+    CLIENT(
         listOf(ModSide.CLIENT)
     ),
-    DEDICATED_SERVER_ONLY(
+    DEDICATED_SERVER(
         listOf(ModSide.SERVER)
     ),
 }

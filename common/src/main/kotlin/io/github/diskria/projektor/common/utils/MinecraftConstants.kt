@@ -1,0 +1,6 @@
+package io.github.diskria.projektor.common.utils
+
+object MinecraftConstants {
+    const val FULL_GAME_NAME: String = "Minecraft"
+    const val SHORT_GAME_NAME: String = "mc"
+}

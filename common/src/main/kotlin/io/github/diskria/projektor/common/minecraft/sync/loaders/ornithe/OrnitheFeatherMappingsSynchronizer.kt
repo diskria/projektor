@@ -4,7 +4,6 @@ import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.Semver
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.common.fileName
-import io.github.diskria.kotlin.utils.extensions.toSemver
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
 import io.github.diskria.projektor.common.minecraft.sync.maven.AbstractMinecraftMavenSynchronizer
 import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersion

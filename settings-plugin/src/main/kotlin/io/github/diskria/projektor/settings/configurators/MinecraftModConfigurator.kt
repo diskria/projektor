@@ -7,6 +7,7 @@ import io.github.diskria.kotlin.utils.extensions.listDirectories
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.common.minecraft.ModSide
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
+import io.github.diskria.projektor.common.utils.MinecraftConstants
 import io.github.diskria.projektor.settings.configurations.MinecraftModConfiguration
 import io.github.diskria.projektor.settings.configurators.common.SettingsConfigurator
 import io.github.diskria.projektor.settings.extensions.configureMaven
@@ -40,7 +41,7 @@ open class MinecraftModConfigurator(
         fun applyRepositories(settings: Settings) = with(settings) {
             dependencyRepositories {
                 configureMaven(
-                    name = "Minecraft",
+                    name = MinecraftConstants.FULL_GAME_NAME,
                     url = buildUrl("libraries.minecraft.net")
                 )
                 configureMaven(

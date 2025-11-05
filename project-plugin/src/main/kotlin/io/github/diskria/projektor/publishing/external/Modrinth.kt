@@ -8,7 +8,6 @@ import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.common.failWithUnsupportedType
-import io.github.diskria.kotlin.utils.extensions.generics.joinBySpace
 import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
@@ -46,15 +45,13 @@ data object Modrinth : ExternalPublishingTarget() {
             )
             projectId.set(mod.id)
             versionName.set(
-                listOf(
-                    mod.name,
-                    mod.version,
-                    "for",
-                    loaderName,
-                    minSupportedVersion,
-                    Constants.Char.EN_DASH,
-                    maxSupportedVersion
-                ).joinBySpace()
+                buildString {
+                    append("${mod.name} ${mod.version} for $loaderName ")
+                    if (minSupportedVersion != maxSupportedVersion) {
+                        append("$minSupportedVersion ${Constants.Char.EN_DASH} ")
+                    }
+                    append(maxSupportedVersion)
+                }
             )
             versionNumber.set(mod.archiveVersion)
 

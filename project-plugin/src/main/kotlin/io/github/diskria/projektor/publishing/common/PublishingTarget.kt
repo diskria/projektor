@@ -1,8 +1,8 @@
 package io.github.diskria.projektor.publishing.common
 
 import io.github.diskria.gradle.utils.extensions.getTaskPath
-import io.github.diskria.projektor.common.ProjectModules
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.utils.ProjectModules
 import io.github.diskria.projektor.extensions.getLeafProjects
 import io.github.diskria.projektor.projekt.MinecraftMod
 import io.github.diskria.projektor.projekt.common.Projekt
