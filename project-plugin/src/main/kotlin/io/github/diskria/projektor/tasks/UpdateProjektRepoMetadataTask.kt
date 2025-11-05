@@ -54,7 +54,11 @@ abstract class UpdateProjektRepoMetadataTask : DefaultTask() {
     private suspend fun updateInfo() {
         with(metadata.get()) {
             sendRequest(
-                UpdateInfoRequest(repo.name, description, publishingTargets.max().mapToModel().getHomepage(this))
+                UpdateInfoRequest(
+                    repo.name,
+                    description,
+                    publishingTargets.max().mapToModel().getHomepage(this).toString()
+                )
             )
         }
     }

@@ -4,13 +4,13 @@ import com.github.gmazzo.buildconfig.BuildConfigExtension
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar.Companion.shadowJar
 import com.modrinth.minotaur.ModrinthExtension
-import io.github.diskria.gradle.utils.extensions.hasTask
-import io.github.diskria.gradle.utils.extensions.jar
-import io.github.diskria.gradle.utils.extensions.runExtension
-import io.github.diskria.gradle.utils.extensions.withPluginExtension
+import io.github.diskria.gradle.utils.extensions.*
 import io.github.diskria.projektor.projekt.common.BaseProjekt
 import net.fabricmc.loom.api.LoomGradleExtensionAPI
 import net.fabricmc.loom.api.fabricapi.FabricApiExtension
+import net.minecraftforge.gradle.ClosureOwner
+import net.minecraftforge.gradle.MinecraftExtensionForProject
+import net.neoforged.moddevgradle.dsl.NeoForgeExtension
 import net.ornithemc.ploceus.api.PloceusGradleExtensionApi
 import org.gradle.api.Action
 import org.gradle.api.Project
@@ -23,6 +23,9 @@ import org.gradle.jvm.tasks.Jar
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
+
+val Project.sourceSets: SourceSetContainer
+    get() = getExtension<SourceSetContainer>()
 
 fun Project.toProjekt(): BaseProjekt =
     BaseProjekt.of(this)
@@ -64,7 +67,7 @@ fun Project.buildConfig(block: BuildConfigExtension.() -> Unit) {
 }
 
 fun Project.sourceSets(block: SourceSetContainer.() -> Unit) {
-    runExtension<SourceSetContainer>(block)
+    sourceSets.block()
 }
 
 fun Project.publishing(block: PublishingExtension.() -> Unit) {
@@ -93,4 +96,14 @@ fun Project.modrinth(block: ModrinthExtension.() -> Unit) {
 
 fun Project.ploceus(block: PloceusGradleExtensionApi.() -> Unit) {
     withPluginExtension<PloceusGradleExtensionApi>("ploceus", block)
+}
+
+fun Project.forge(block: MinecraftExtensionForProject<ClosureOwner.MinecraftDependency>.() -> Unit) {
+    withPluginExtension<MinecraftExtensionForProject<ClosureOwner.MinecraftDependency>>(
+        "net.minecraftforge.gradle", block
+    )
+}
+
+fun Project.neoforge(block: NeoForgeExtension.() -> Unit) {
+    withPluginExtension<NeoForgeExtension>("net.neoforged.moddev", block)
 }

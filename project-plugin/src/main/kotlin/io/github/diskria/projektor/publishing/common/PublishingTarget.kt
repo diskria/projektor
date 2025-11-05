@@ -7,6 +7,7 @@ import io.github.diskria.projektor.extensions.getLeafProjects
 import io.github.diskria.projektor.projekt.MinecraftMod
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
+import io.ktor.http.*
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
@@ -17,7 +18,7 @@ abstract class PublishingTarget {
 
     abstract fun configurePublishTask(projekt: Projekt, project: Project): Boolean
 
-    abstract fun getHomepage(metadata: ProjektMetadata): String
+    abstract fun getHomepage(metadata: ProjektMetadata): Url
 
     open fun configureDistributeTask(rootProject: Project): Task? = null
 

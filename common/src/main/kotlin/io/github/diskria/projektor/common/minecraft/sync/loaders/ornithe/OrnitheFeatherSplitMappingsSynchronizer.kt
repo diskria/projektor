@@ -1,63 +1,38 @@
 package io.github.diskria.projektor.common.minecraft.sync.loaders.ornithe
 
-import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.kotlin.utils.Semver
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.common.fileName
-import io.github.diskria.kotlin.utils.extensions.serialization.deserializeFromXml
-import io.github.diskria.kotlin.utils.extensions.splitToPairOrNull
+import io.github.diskria.kotlin.utils.extensions.toSemver
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
-import io.github.diskria.projektor.common.minecraft.sync.common.AbstractMinecraftArtifactSynchronizer
-import io.github.diskria.projektor.common.minecraft.sync.common.MinecraftArtifact
-import io.github.diskria.projektor.common.minecraft.sync.maven.MavenMetadata
+import io.github.diskria.projektor.common.minecraft.sync.maven.AbstractMinecraftMavenSynchronizer
 import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersion
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import java.util.concurrent.TimeUnit
 
-object OrnitheFeatherSplitMappingsSynchronizer : AbstractMinecraftArtifactSynchronizer() {
+object OrnitheFeatherSplitMappingsSynchronizer : AbstractMinecraftMavenSynchronizer() {
 
     override val loader: ModLoaderType = ModLoaderType.ORNITHE
 
-    override val name: String = "feather-split-mappings"
+    override val componentName: String = "feather-split-mappings"
 
     override val cacheDurationMillis: Long = TimeUnit.DAYS.toMillis(7)
 
-    override val isOldestFirst: Boolean = true
-
-    private fun fixArtifactVersion(artifactVersion: String): String =
-        artifactVersion.splitToPairOrNull("+build.")?.second ?: gradleError("Failed to parse artifact version")
-
-    override suspend fun loadArtifacts(): List<MinecraftArtifact> {
-        val artifactVersions = HttpClient(CIO).use { client ->
-            val mavenUrl = buildUrl("maven.ornithemc.net") {
-                path(
-                    "releases",
-                    "net",
-                    "ornithemc",
-                    "feather",
-                    fileName("maven-metadata", Constants.File.Extension.XML)
-                )
-            }
-            client.get(mavenUrl).bodyAsText().deserializeFromXml<MavenMetadata>()
-        }.versioning.versions.version
-        return artifactVersions.mapNotNull { artifactVersion ->
-            val (sideVersion, buildNumber) = artifactVersion.splitToPairOrNull("+build.") ?: return@mapNotNull null
-            val artifactVersionToFind = when {
-                sideVersion.contains("server") -> sideVersion.replace("server", "client")
-                sideVersion.contains("client") -> sideVersion.replace("client", "server")
-                else -> return@mapNotNull null
-            } + "+build.$buildNumber"
-            if (!artifactVersions.contains(artifactVersionToFind)) {
-                return@mapNotNull null
-            }
-            val minecraftVersionString = sideVersion.removePrefix("server-").removeSuffix("-server")
-                .removePrefix("client-").removeSuffix("-client")
-            val minecraftVersion = MinecraftVersion.parseOrNull(minecraftVersionString) ?: return@mapNotNull null
-            MinecraftArtifact(minecraftVersion, fixArtifactVersion(artifactVersion))
+    override val mavenUrl: Url =
+        buildUrl("maven.ornithemc.net") {
+            path("releases", "net", "ornithemc", "feather", fileName("maven-metadata", Constants.File.Extension.XML))
         }
+
+    override fun mapLatestVersion(version: String): String =
+        version.substringAfterLast(Constants.Char.DOT)
+
+    override fun parseMinecraftVersion(version: String): MinecraftVersion? =
+        if (version.contains("server")) MinecraftVersion.parseOrNull(version.substringBefore(Constants.Char.HYPHEN))
+        else null
+
+    override fun parseComponentSemver(version: String): Semver {
+        val build = version.substringAfterLast(Constants.Char.DOT).toInt()
+        return Semver.from(0, 0, build)
     }
 }

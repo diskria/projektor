@@ -31,7 +31,7 @@ data class GithubRepo(val owner: GithubOwner, val name: String) {
     fun getHostName(): String =
         owner.namespace.reverseSegments(Constants.Char.DOT)
 
-    fun getPagesUrl(): String =
+    fun getPagesUrl(): Url =
         buildUrl(getHostName()) {
             path(name)
         }

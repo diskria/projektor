@@ -7,6 +7,7 @@ dependencies {
     implementation(libs.kotlin.html)
     implementation(libs.kotlin.serialization.xml)
     implementation(libs.jsoup)
+    implementation(libs.java.poet)
 
     implementation(libs.bundles.diskria.utils)
     implementation(libs.bundles.ktor.client)

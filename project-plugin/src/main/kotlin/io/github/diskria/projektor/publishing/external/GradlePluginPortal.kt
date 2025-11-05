@@ -24,7 +24,7 @@ data object GradlePluginPortal : ExternalPublishingTarget() {
         return true
     }
 
-    override fun getHomepage(metadata: ProjektMetadata): String =
+    override fun getHomepage(metadata: ProjektMetadata): Url =
         buildUrl("plugins.gradle.org") {
             path("plugin", metadata.packageNameBase)
         }

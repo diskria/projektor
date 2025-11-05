@@ -5,13 +5,19 @@ import io.github.diskria.kotlin.utils.extensions.mappers.toEnum
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
+import io.github.diskria.projektor.common.minecraft.loaders.getSupportedVersionRange
 import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersionRange
 import io.github.diskria.projektor.common.minecraft.versions.common.compareTo
 import io.github.diskria.projektor.common.minecraft.versions.common.previousOrNull
 import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.common.repo.github.GithubRepo
-import io.github.diskria.projektor.configurations.*
+import io.github.diskria.projektor.configurations.AndroidApplicationConfiguration
+import io.github.diskria.projektor.configurations.AndroidLibraryConfiguration
+import io.github.diskria.projektor.configurations.GradlePluginConfiguration
+import io.github.diskria.projektor.configurations.KotlinLibraryConfiguration
+import io.github.diskria.projektor.configurations.minecraft.MinecraftModConfiguration
+import io.github.diskria.projektor.extensions.mappers.mapToEnum
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.licenses.License
 import io.github.diskria.projektor.projekt.*
@@ -49,6 +55,8 @@ data class BaseProjekt(
 
         val loader = loaderDirectory.name.toEnum<ModLoaderType>().mapToModel()
         val minSupportedVersion = MinecraftVersion.parse(minSupportedVersionDirectory.name)
+        config.resolveConfig(loader, project, minSupportedVersion)
+
         val maxSupportedVersion = config.maxSupportedVersion
             ?: run {
                 val minSupportedVersions = loaderDirectory.listDirectories().map { MinecraftVersion.parse(it.name) }
@@ -56,7 +64,7 @@ data class BaseProjekt(
                     .filter { it > minSupportedVersion }
                     .minWithOrNull(MinecraftVersion.COMPARATOR)
                 nextMinSupportedVersion?.previousOrNull()
-            } ?: loader.supportedVersionRange.max
+            } ?: loader.mapToEnum().getSupportedVersionRange().max
         val supportedVersionRange = MinecraftVersionRange(minSupportedVersion, maxSupportedVersion)
         return MinecraftMod(this, config, loader, supportedVersionRange)
     }

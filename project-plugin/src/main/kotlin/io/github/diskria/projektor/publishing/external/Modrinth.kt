@@ -13,9 +13,12 @@ import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.minecraft.versions.common.asString
-import io.github.diskria.projektor.extensions.getJarTask
 import io.github.diskria.projektor.extensions.modrinth
-import io.github.diskria.projektor.minecraft.loaders.*
+import io.github.diskria.projektor.minecraft.loaders.fabric.Fabric
+import io.github.diskria.projektor.minecraft.loaders.fabric.ornithe.Ornithe
+import io.github.diskria.projektor.minecraft.loaders.fabric.quilt.Quilt
+import io.github.diskria.projektor.minecraft.loaders.forge.Forge
+import io.github.diskria.projektor.minecraft.loaders.forge.neoforge.NeoForge
 import io.github.diskria.projektor.projekt.MinecraftMod
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.publishing.external.common.ExternalPublishingTarget
@@ -33,7 +36,7 @@ data object Modrinth : ExternalPublishingTarget() {
         val mod = projekt as? MinecraftMod ?: return false
 
         val loader = mod.loader
-        val loaderName = loader.getDisplayName()
+        val loaderName = loader.getLoaderDisplayName()
         val minSupportedVersion = mod.supportedVersionRange.min.asString()
         val maxSupportedVersion = mod.supportedVersionRange.max.asString()
         modrinth {
@@ -68,8 +71,11 @@ data object Modrinth : ExternalPublishingTarget() {
                     required.project("osl")
                 }
 
+                NeoForge -> {
+
+                }
+
                 Forge -> TODO()
-                NeoForge -> TODO()
                 Quilt -> TODO()
                 else -> failWithUnsupportedType(loader::class)
             }
@@ -86,7 +92,7 @@ data object Modrinth : ExternalPublishingTarget() {
         return true
     }
 
-    override fun getHomepage(metadata: ProjektMetadata): String =
+    override fun getHomepage(metadata: ProjektMetadata): Url =
         buildUrl("modrinth.com") {
             path("mod", metadata.repo.name)
         }

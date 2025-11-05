@@ -4,7 +4,6 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar.Companion.shad
 import io.github.diskria.gradle.utils.extensions.*
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.Constants
-import io.github.diskria.kotlin.utils.extensions.appendPath
 import io.github.diskria.kotlin.utils.extensions.common.`Train-Case`
 import io.github.diskria.kotlin.utils.extensions.generics.joinByNewLine
 import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
@@ -17,6 +16,9 @@ import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.extensions.mappers.toInt
+import io.github.diskria.projektor.minecraft.loaders.fabric.Fabric
+import io.github.diskria.projektor.minecraft.loaders.fabric.ornithe.Ornithe
+import io.github.diskria.projektor.minecraft.loaders.forge.neoforge.NeoForge
 import io.github.diskria.projektor.projekt.GradlePlugin
 import io.github.diskria.projektor.projekt.KotlinLibrary
 import io.github.diskria.projektor.projekt.MinecraftMod
@@ -27,6 +29,7 @@ import io.github.diskria.projektor.tasks.generate.GenerateProjektGitAttributesTa
 import io.github.diskria.projektor.tasks.generate.GenerateProjektGitIgnoreTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektLicenseTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektReadmeTask
+import io.github.diskria.projektor.tasks.minecraft.generate.RemapShadowJarTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
@@ -76,14 +79,10 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
         kotlin {
             jvmToolchain(Versions.JAVA)
         }
-        sourceSets {
-            named("main") {
-                val generatedDirectory = "src/main/generated"
-                resources.srcDirs(generatedDirectory)
-                java.srcDirs(generatedDirectory.appendPath("java"))
-            }
-        }
         tasks {
+            named("clean") {
+                dependsOn(subprojects.map { it.tasks.named("clean") })
+            }
             withType<JavaCompile>().configureEach {
                 with(options) {
                     release = projekt.jvmTarget.toInt()
@@ -172,7 +171,6 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                 }
                 tasks {
                     shadowJar {
-                        archiveClassifier = Constants.Char.EMPTY
                         configurations = emptyList()
 
                         val jarTask = commonProject.tasks.jar
@@ -183,6 +181,9 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
             } else if (projekt is MinecraftMod) {
                 ensurePluginApplied("com.gradleup.shadow")
                 tasks {
+                    jar {
+                        enabled = false
+                    }
                     shadowJar {
                         configurations = emptyList()
                         destinationDirectory = getBuildDirectory("devlibs")
@@ -198,27 +199,51 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                             from(zipTree(jarTask.flatMap { jar -> jar.archiveFile }))
                         }
 
-                        val accessWidenerFileName = projekt.getAccessWidenerFileName()
+                        if (projekt.loader == Fabric || projekt.loader == Ornithe) {
+                            val accessWidenerFileName = projekt.getAccessWidenerFileName()
 
-                        val mergedAccessWidenerFile = temporaryDir.resolve(accessWidenerFileName)
-                        from(mergedAccessWidenerFile) {
-                            into("assets/${projekt.id}")
-                        }
-                        doFirst {
-                            mergedAccessWidenerFile.writeText(
-                                sideProjects.mapNotNull { sideProject ->
-                                    sideProject.projectDir
-                                        .resolve("src/main/resources")
-                                        .resolve(accessWidenerFileName)
-                                        .readLines()
-                                        .mapNotNull { it.trim().toNullIfEmpty() }
-                                        .toNullIfEmpty()
-                                }.flatten().toSet().joinByNewLine()
-                            )
+                            val mergedAccessWidenerFile = temporaryDir.resolve(accessWidenerFileName)
+                            from(mergedAccessWidenerFile) {
+                                into("assets/${projekt.id}")
+                            }
+                            doFirst {
+                                mergedAccessWidenerFile.writeText(
+                                    sideProjects.mapNotNull { sideProject ->
+                                        sideProject.projectDir
+                                            .resolve("src/main/resources")
+                                            .resolve(accessWidenerFileName)
+                                            .readLines()
+                                            .mapNotNull { it.trim().toNullIfEmpty() }
+                                            .toNullIfEmpty()
+                                    }.flatten().toSet().joinByNewLine()
+                                )
+                            }
+                        } else if (projekt.loader == NeoForge) {
+                            val accessTransformerFileName = projekt.getAccessTransformerFileName()
+
+                            val mergedAccessTransformerFile = temporaryDir.resolve(accessTransformerFileName)
+                            from(mergedAccessTransformerFile) {
+                                into("META-INF")
+                            }
+                            doFirst {
+                                mergedAccessTransformerFile.writeText(
+                                    sideProjects.mapNotNull { sideProject ->
+                                        sideProject.projectDir
+                                            .resolve("src/main/resources/META-INF")
+                                            .resolve(accessTransformerFileName)
+                                            .readLines()
+                                            .mapNotNull { it.trim().toNullIfEmpty() }
+                                            .toNullIfEmpty()
+                                    }.flatten().toSet().joinByNewLine()
+                                )
+                            }
                         }
                     }
-                    jar {
-                        enabled = false
+                    artifacts {
+                        add("archives", shadowJar)
+                    }
+                    named("build") {
+                        dependsOn(children().first().getTask<RemapShadowJarTask>())
                     }
                 }
             }

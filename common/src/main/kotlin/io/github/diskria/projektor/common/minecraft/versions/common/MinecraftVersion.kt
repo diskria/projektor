@@ -6,10 +6,6 @@ import io.github.diskria.kotlin.utils.extensions.common.failWithDetails
 import io.github.diskria.kotlin.utils.extensions.previousEnumOrNull
 import io.github.diskria.kotlin.utils.extensions.previousOrNull
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
-import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricApiSynchronizer
-import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricYarnMappingsSynchronizer
-import io.github.diskria.projektor.common.minecraft.sync.loaders.ornithe.OrnitheFeatherMappingsSynchronizer
-import io.github.diskria.projektor.common.minecraft.sync.loaders.ornithe.OrnitheFeatherSplitMappingsSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.packs.DataPackFormatSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.packs.ResourcePackFormatSynchronizer
 import io.github.diskria.projektor.common.minecraft.versions.Release
@@ -37,7 +33,8 @@ interface MinecraftVersion {
 
         fun parseOrNull(version: String): MinecraftVersion? {
             val era = MinecraftEra.parse(version)
-            return era.versions.find { version == era.versionPrefix + it.getEnumVersion() }
+            val fixedVersion = version.removeSuffix(".0")
+            return era.versions.find { fixedVersion == era.versionPrefix + it.getEnumVersion() }
         }
 
         fun of(enum: Enum<*>): MinecraftVersion =
@@ -83,22 +80,10 @@ fun MinecraftVersion.getMinJavaVersion(): Int =
         .value
 
 fun MinecraftVersion.getDataPackFormat(project: Project): String =
-    DataPackFormatSynchronizer.getArtifactVersion(project, this)
+    DataPackFormatSynchronizer.getLatestVersion(project, this)
 
 fun MinecraftVersion.getResourcePackFormat(project: Project): String =
-    ResourcePackFormatSynchronizer.getArtifactVersion(project, this)
-
-fun MinecraftVersion.getFabricYarnMappingsVersion(project: Project): String =
-    FabricYarnMappingsSynchronizer.getArtifactVersion(project, this)
-
-fun MinecraftVersion.getFabricApiVersion(project: Project): String =
-    FabricApiSynchronizer.getArtifactVersion(project, this)
-
-fun MinecraftVersion.getOrnitheFeatherMappingsVersion(project: Project): String =
-    when {
-        areSplitMixins() -> OrnitheFeatherSplitMappingsSynchronizer.getArtifactVersion(project, this)
-        else -> OrnitheFeatherMappingsSynchronizer.getArtifactVersion(project, this)
-    }
+    ResourcePackFormatSynchronizer.getLatestVersion(project, this)
 
 fun MinecraftVersion.getFabricApiDependencyName(): String =
     if (this >= Release.V_1_18_2) "fabric-api"

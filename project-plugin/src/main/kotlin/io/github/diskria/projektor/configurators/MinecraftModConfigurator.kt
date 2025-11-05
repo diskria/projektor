@@ -1,6 +1,6 @@
 package io.github.diskria.projektor.configurators
 
-import io.github.diskria.projektor.configurations.MinecraftModConfiguration
+import io.github.diskria.projektor.configurations.minecraft.MinecraftModConfiguration
 import io.github.diskria.projektor.configurators.common.ProjectConfigurator
 import io.github.diskria.projektor.extensions.toProjekt
 import io.github.diskria.projektor.projekt.MinecraftMod

@@ -10,7 +10,7 @@ abstract class ReadmeShield() {
 
     abstract fun getLabel(): String
 
-    abstract fun getUrl(): String
+    abstract fun getUrl(): Url
 
     abstract fun getAlt(): String
 

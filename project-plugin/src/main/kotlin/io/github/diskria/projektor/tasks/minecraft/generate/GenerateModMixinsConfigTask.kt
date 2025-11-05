@@ -6,14 +6,15 @@ import io.github.diskria.kotlin.utils.extensions.common.`dot․case`
 import io.github.diskria.kotlin.utils.extensions.common.`path∕case`
 import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.extensions.listFilesWithExtension
-import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.extensions.mappers.toEnumOrNull
 import io.github.diskria.kotlin.utils.extensions.serialization.serializeJsonToFile
 import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.common.minecraft.ModSide
 import io.github.diskria.projektor.extensions.children
-import io.github.diskria.projektor.minecraft.config.MixinsConfig
+import io.github.diskria.projektor.extensions.sourceSets
+import io.github.diskria.projektor.minecraft.loaders.fabric.common.AbstractFabric
+import io.github.diskria.projektor.minecraft.mixins.MixinsConfig
 import io.github.diskria.projektor.projekt.MinecraftMod
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.Directory
@@ -23,6 +24,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.gradle.kotlin.dsl.get
 
 abstract class GenerateModMixinsConfigTask : DefaultTask() {
 
@@ -30,7 +32,7 @@ abstract class GenerateModMixinsConfigTask : DefaultTask() {
     abstract val minecraftMod: Property<MinecraftMod>
 
     @get:Internal
-    abstract val sideProjectDirectories: MapProperty<ModSide, Directory>
+    abstract val sideProjectMixinSourceDirectories: MapProperty<ModSide, Directory>
 
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
@@ -38,21 +40,26 @@ abstract class GenerateModMixinsConfigTask : DefaultTask() {
     init {
         group = ProjektorGradlePlugin.TASK_GROUP
 
-        sideProjectDirectories.convention(
-            project.children()
-                .mapNotNull { it.name.toEnumOrNull<ModSide>() }
-                .associateWith { project.getDirectory(it.getName()) }
+        sideProjectMixinSourceDirectories.convention(
+            project
+                .children()
+                .mapNotNull { it.name.toEnumOrNull<ModSide>()?.to(it) }
+                .toMap()
+                .mapValues { (_, sideProject) ->
+                    val mixinsSourceSet = sideProject.sourceSets[AbstractFabric.MIXINS_SOURCE_SET_NAME]
+                    sideProject.getDirectory(mixinsSourceSet.java.srcDirs.single().path)
+                }
         )
     }
 
     @TaskAction
     fun generate() {
         val minecraftMod = minecraftMod.get()
-        val sideProjectDirectories = sideProjectDirectories.get()
+        val sideProjectMixinSourceDirectories = sideProjectMixinSourceDirectories.get()
         val outputFile = outputFile.get().asFile.ensureFileExists()
 
-        val sideMixins = sideProjectDirectories.mapValues { (_, directory) ->
-            val mixinsRoot = directory.asFile.resolve("src/main").resolve("java/${minecraftMod.packagePath}/mixins")
+        val sideMixins = sideProjectMixinSourceDirectories.mapValues { (_, directory) ->
+            val mixinsRoot = directory.asFile.resolve(minecraftMod.packagePath).resolve("mixins")
             mixinsRoot
                 .walkTopDown()
                 .filter { it.isDirectory && !it.isHidden }

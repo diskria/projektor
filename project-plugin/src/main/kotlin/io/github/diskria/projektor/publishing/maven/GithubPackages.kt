@@ -44,7 +44,7 @@ data object GithubPackages : MavenPublishingTarget() {
             super.registerRootPublishTask(rootProject)
         }
 
-    override fun getHomepage(metadata: ProjektMetadata): String =
+    override fun getHomepage(metadata: ProjektMetadata): Url =
         buildUrl(RepoHost.GITHUB.hostName) {
             path(metadata.repo.owner.name, metadata.repo.name, "packages")
         }

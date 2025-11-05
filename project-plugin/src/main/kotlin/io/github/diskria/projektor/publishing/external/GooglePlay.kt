@@ -17,7 +17,7 @@ data object GooglePlay : ExternalPublishingTarget() {
         return true
     }
 
-    override fun getHomepage(metadata: ProjektMetadata): String =
+    override fun getHomepage(metadata: ProjektMetadata): Url =
         buildUrl("play.google.com") {
             path("store", "apps", "details")
             parameters.append("id", metadata.packageNameBase)

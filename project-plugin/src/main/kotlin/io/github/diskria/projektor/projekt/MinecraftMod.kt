@@ -8,18 +8,19 @@ import io.github.diskria.kotlin.utils.extensions.common.modifyUnless
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.poet.Property
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
+import io.github.diskria.projektor.common.minecraft.ModSide
 import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersionRange
 import io.github.diskria.projektor.common.minecraft.versions.common.asString
 import io.github.diskria.projektor.common.minecraft.versions.common.getMinJavaVersion
-import io.github.diskria.projektor.configurations.MinecraftModConfiguration
+import io.github.diskria.projektor.configurations.minecraft.MinecraftModConfiguration
 import io.github.diskria.projektor.extensions.mappers.toJvmTarget
 import io.github.diskria.projektor.helpers.AccessWidenerHelper
 import io.github.diskria.projektor.minecraft.ModEnvironment
 import io.github.diskria.projektor.minecraft.ModEnvironment.CLIENT_SERVER
-import io.github.diskria.projektor.minecraft.loaders.Fabric
 import io.github.diskria.projektor.minecraft.loaders.ModLoader
-import io.github.diskria.projektor.minecraft.loaders.Ornithe
+import io.github.diskria.projektor.minecraft.loaders.fabric.Fabric
+import io.github.diskria.projektor.minecraft.loaders.fabric.ornithe.Ornithe
 import io.github.diskria.projektor.projekt.common.AbstractProjekt
 import io.github.diskria.projektor.projekt.common.Projekt
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -50,7 +51,7 @@ class MinecraftMod(
 
     override val archiveVersion: String
         get() = buildString {
-            append(loader.getName())
+            append(loader.getLoaderName())
             append(Constants.Char.HYPHEN)
             append(version)
             append(Constants.Char.PLUS)
@@ -68,8 +69,22 @@ class MinecraftMod(
         }
     }
 
+    fun getEntryPointName(side: ModSide): String =
+        buildString {
+            append("Minecraft")
+            if (side == ModSide.CLIENT) {
+                append("Client")
+            } else if (config.environment == ModEnvironment.DEDICATED_SERVER_ONLY) {
+                append("Server")
+            }
+            append("Mod")
+        }
+
     fun getAccessWidenerFileName(): String =
         AccessWidenerHelper.getFileName(id)
+
+    fun getAccessTransformerFileName(): String =
+        "accesstransformer.cfg"
 
     override fun getBuildConfigFields(): List<Property<String>> {
         val modId by id.autoNamedProperty(SCREAMING_SNAKE_CASE)

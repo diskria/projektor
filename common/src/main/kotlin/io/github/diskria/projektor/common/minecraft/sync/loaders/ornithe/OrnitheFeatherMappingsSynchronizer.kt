@@ -1,33 +1,37 @@
 package io.github.diskria.projektor.common.minecraft.sync.loaders.ornithe
 
-import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.kotlin.utils.Semver
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.common.fileName
-import io.github.diskria.kotlin.utils.extensions.splitToPairOrNull
+import io.github.diskria.kotlin.utils.extensions.toSemver
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
-import io.github.diskria.projektor.common.minecraft.sync.maven.AbstractMinecraftMavenArtifactSynchronizer
+import io.github.diskria.projektor.common.minecraft.sync.maven.AbstractMinecraftMavenSynchronizer
+import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersion
 import io.ktor.http.*
 import java.util.concurrent.TimeUnit
 
-object OrnitheFeatherMappingsSynchronizer : AbstractMinecraftMavenArtifactSynchronizer() {
+object OrnitheFeatherMappingsSynchronizer : AbstractMinecraftMavenSynchronizer() {
 
     override val loader: ModLoaderType = ModLoaderType.ORNITHE
 
-    override val name: String = "feather-mappings"
+    override val componentName: String = "feather-mappings"
 
     override val cacheDurationMillis: Long = TimeUnit.DAYS.toMillis(7)
 
-    override val isOldestFirst: Boolean = true
-
-    override val mavenUrl: String =
+    override val mavenUrl: Url =
         buildUrl("maven.ornithemc.net") {
             path("releases", "net", "ornithemc", "feather", fileName("maven-metadata", Constants.File.Extension.XML))
         }
 
-    override fun parseMinecraftVersionString(artifactVersion: String): String? =
-        artifactVersion.splitToPairOrNull("+build.")?.first
+    override fun mapLatestVersion(version: String): String =
+        version.substringAfterLast(Constants.Char.DOT)
 
-    override fun fixArtifactVersion(artifactVersion: String): String =
-        artifactVersion.splitToPairOrNull("+build.")?.second ?: gradleError("Failed to parse artifact version")
+    override fun parseMinecraftVersion(version: String): MinecraftVersion? =
+        MinecraftVersion.parseOrNull(version.substringBefore(Constants.Char.PLUS))
+
+    override fun parseComponentSemver(version: String): Semver {
+        val build = version.substringAfterLast(Constants.Char.DOT).toInt()
+        return Semver.from(0, 0, build)
+    }
 }

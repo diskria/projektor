@@ -6,6 +6,7 @@ import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.primitives.repeat
 import io.github.diskria.kotlin.utils.extensions.wrap
 import io.github.diskria.kotlin.utils.extensions.wrapWithBrackets
+import io.ktor.http.*
 
 object MarkdownHelper {
 
@@ -28,12 +29,12 @@ object MarkdownHelper {
             appendLine()
         }
 
-    fun link(url: String, text: String): String =
+    fun link(url: Url, text: String): String =
         buildString {
             append(text.wrapWithBrackets(BracketsType.SQUARE))
-            append(url.wrapWithBrackets(BracketsType.ROUND))
+            append(url.toString().wrapWithBrackets(BracketsType.ROUND))
         }
 
-    fun image(url: String, alt: String): String =
+    fun image(url: Url, alt: String): String =
         Constants.Char.EXCLAMATION_MARK + link(url, alt)
 }

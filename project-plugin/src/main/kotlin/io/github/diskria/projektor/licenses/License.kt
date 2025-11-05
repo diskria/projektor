@@ -11,12 +11,12 @@ import io.ktor.http.*
 
 sealed class License(val id: String) {
 
-    val templateUrl: String
+    val templateUrl: Url
         get() = buildUrl("raw.githubusercontent.com") {
             path("spdx", "license-list-data", "main", "text", fileName(id, Constants.File.Extension.TXT))
         }
 
-    val url: String
+    val url: Url
         get() = buildUrl("spdx.org") {
             path("licenses", id)
         }

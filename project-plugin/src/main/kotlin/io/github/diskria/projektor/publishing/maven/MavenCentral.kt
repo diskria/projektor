@@ -37,7 +37,7 @@ data object MavenCentral : MavenPublishingTarget() {
                     license {
                         projekt.license.let { license ->
                             name.set(license.id)
-                            url.set(license.url)
+                            url.set(license.url.toString())
                         }
                     }
                 }
@@ -65,7 +65,7 @@ data object MavenCentral : MavenPublishingTarget() {
         }
     }
 
-    override fun getHomepage(metadata: ProjektMetadata): String =
+    override fun getHomepage(metadata: ProjektMetadata): Url =
         buildUrl("central.sonatype.com") {
             path("artifact", metadata.repo.owner.namespace, metadata.repo.name)
         }

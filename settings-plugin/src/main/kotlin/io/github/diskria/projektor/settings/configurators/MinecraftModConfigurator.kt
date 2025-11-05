@@ -2,16 +2,11 @@ package io.github.diskria.projektor.settings.configurators
 
 import io.github.diskria.gradle.utils.extensions.common.buildGradleProjectPath
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
+import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
 import io.github.diskria.kotlin.utils.extensions.listDirectories
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.common.minecraft.ModSide
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
-import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricApiSynchronizer
-import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricYarnMappingsSynchronizer
-import io.github.diskria.projektor.common.minecraft.sync.loaders.ornithe.OrnitheFeatherMappingsSynchronizer
-import io.github.diskria.projektor.common.minecraft.sync.loaders.ornithe.OrnitheFeatherSplitMappingsSynchronizer
-import io.github.diskria.projektor.common.minecraft.sync.packs.DataPackFormatSynchronizer
-import io.github.diskria.projektor.common.minecraft.sync.packs.ResourcePackFormatSynchronizer
 import io.github.diskria.projektor.settings.configurations.MinecraftModConfiguration
 import io.github.diskria.projektor.settings.configurators.common.SettingsConfigurator
 import io.github.diskria.projektor.settings.extensions.configureMaven
@@ -29,35 +24,13 @@ open class MinecraftModConfigurator(
     }
 
     override fun configureProjects(settings: Settings) = with(settings) {
-        DataPackFormatSynchronizer.sync(settings)
-        ResourcePackFormatSynchronizer.sync(settings)
         ModLoaderType.entries.forEach { loader ->
             val loaderName = loader.getName()
-            val minSupportedVersionDirectories = rootDir.resolve(loaderName).listDirectories()
-            if (minSupportedVersionDirectories.isNotEmpty()) {
-                when (loader) {
-                    ModLoaderType.FABRIC -> {
-                        FabricYarnMappingsSynchronizer.sync(settings)
-                        FabricApiSynchronizer.sync(settings)
-                    }
+            rootDir.resolve(loaderName).listDirectories().toNullIfEmpty()?.forEach { minSupportedVersionDirectory ->
+                include(buildGradleProjectPath(loaderName, minSupportedVersionDirectory.name))
 
-                    ModLoaderType.ORNITHE -> {
-                        OrnitheFeatherMappingsSynchronizer.sync(settings)
-                        OrnitheFeatherSplitMappingsSynchronizer.sync(settings)
-                    }
-
-                    ModLoaderType.FORGE -> {
-
-                    }
-
-                    else -> TODO()
-                }
-                minSupportedVersionDirectories.forEach { minSupportedVersionDirectory ->
-                    include(buildGradleProjectPath(loaderName, minSupportedVersionDirectory.name))
-
-                    ModSide.entries.forEach {
-                        include(buildGradleProjectPath(loaderName, minSupportedVersionDirectory.name, it.getName()))
-                    }
+                ModSide.entries.forEach {
+                    include(buildGradleProjectPath(loaderName, minSupportedVersionDirectory.name, it.getName()))
                 }
             }
         }

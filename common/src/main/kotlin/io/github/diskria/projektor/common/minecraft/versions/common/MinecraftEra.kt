@@ -1,17 +1,13 @@
 package io.github.diskria.projektor.common.minecraft.versions.common
 
 import io.github.diskria.kotlin.utils.Constants
-import io.github.diskria.projektor.common.minecraft.versions.*
+import io.github.diskria.projektor.common.minecraft.versions.Beta
+import io.github.diskria.projektor.common.minecraft.versions.Release
 
 enum class MinecraftEra(
     val versions: List<MinecraftVersion>,
     val versionPrefix: String,
 ) {
-    PRE_CLASSIC(PreClassic.entries.toList(), "rd-"),
-    CLASSIC(Classic.entries.toList(), "c"),
-    INDEV(Indev.entries.toList(), "in-"),
-    INFDEV(Infdev.entries.toList(), "inf-"),
-    ALPHA(Alpha.entries.toList(), "a"),
     BETA(Beta.entries.toList(), "b"),
     RELEASE(Release.entries.toList(), Constants.Char.EMPTY);
 
