@@ -7,103 +7,92 @@ import com.modrinth.minotaur.ModrinthExtension
 import io.github.diskria.gradle.utils.extensions.*
 import io.github.diskria.projektor.projekt.common.BaseProjekt
 import net.fabricmc.loom.api.LoomGradleExtensionAPI
-import net.fabricmc.loom.api.fabricapi.FabricApiExtension
 import net.minecraftforge.gradle.ClosureOwner
 import net.minecraftforge.gradle.MinecraftExtensionForProject
 import net.neoforged.moddevgradle.dsl.NeoForgeExtension
 import net.ornithemc.ploceus.api.PloceusGradleExtensionApi
-import org.gradle.api.Action
 import org.gradle.api.Project
-import org.gradle.api.plugins.BasePluginExtension
-import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.file.Directory
 import org.gradle.api.publish.PublishingExtension
-import org.gradle.api.tasks.SourceSetContainer
-import org.gradle.api.tasks.TaskProvider
-import org.gradle.jvm.tasks.Jar
+import org.gradle.kotlin.dsl.assign
+import org.gradle.kotlin.dsl.invoke
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 
-val Project.sourceSets: SourceSetContainer
-    get() = getExtension<SourceSetContainer>()
+fun Project.configureShadowJar(
+    projects: List<Project>,
+    classifier: String? = null,
+    destination: Directory? = null,
+    shouldDisableJar: Boolean = false,
+    configuration: ShadowJar.() -> Unit = {},
+) {
+    tasks {
+        ensurePluginApplied("com.gradleup.shadow")
+        val jar = jar.get()
+        shadowJar {
+            configurations = emptyList()
+            copyArchiveNameParts(jar, classifier.orEmpty())
+            destination?.let { destinationDirectory = it }
+            projects.forEach {
+                val jarTask = it.tasks.jar
+                dependsOn(jarTask)
+                from(zipTree(jarTask.flatMap { jar -> jar.archiveFile }))
+            }
+            configuration()
+        }
+        if (shouldDisableJar) {
+            jar.disable()
+        }
+    }
+}
 
 fun Project.toProjekt(): BaseProjekt =
     BaseProjekt.of(this)
 
-fun Project.getLeafProjects(ignoredProjects: List<String> = emptyList()): List<Project> {
-    fun Project.collectLeaves(): List<Project> {
-        val validChildren = children().filterNot { it.name in ignoredProjects }
-        return if (validChildren.isEmpty()) listOf(this)
-        else validChildren.flatMap { it.collectLeaves() }
-    }
-    return rootProject.collectLeaves()
+fun Project.ensureKotlinPluginsApplied() {
+    ensurePluginApplied("org.jetbrains.kotlin.jvm")
+    ensurePluginApplied("org.jetbrains.kotlin.plugin.serialization")
 }
 
-fun Project.getJarTask(): TaskProvider<out Jar> =
-    if (hasTask(ShadowJar.SHADOW_JAR_TASK_NAME)) tasks.shadowJar
-    else tasks.jar
-
-fun Project.configureJarTask(configuration: Action<in Jar>) {
-    getJarTask().configure(configuration)
+fun Project.kotlin(configuration: KotlinProjectExtension.() -> Unit = {}) {
+    configureExtension<KotlinProjectExtension>(configuration)
 }
 
-fun Project.children(): List<Project> =
-    childProjects.values.toList()
-
-fun Project.base(block: BasePluginExtension.() -> Unit) {
-    runExtension<BasePluginExtension>(block)
+fun Project.buildConfig(configuration: BuildConfigExtension.() -> Unit = {}) {
+    withPluginExtension<BuildConfigExtension>("com.github.gmazzo.buildconfig", configuration)
 }
 
-fun Project.java(block: JavaPluginExtension.() -> Unit) {
-    runExtension<JavaPluginExtension>(block)
+fun Project.publishing(configuration: PublishingExtension.() -> Unit = {}) {
+    withPluginExtension<PublishingExtension>("maven-publish", configuration)
 }
 
-fun Project.kotlin(block: KotlinProjectExtension.() -> Unit) {
-    runExtension<KotlinProjectExtension>(block)
+fun Project.signing(configuration: SigningExtension.() -> Unit = {}) {
+    withPluginExtension<SigningExtension>("signing", configuration)
 }
 
-fun Project.buildConfig(block: BuildConfigExtension.() -> Unit) {
-    withPluginExtension<BuildConfigExtension>("com.github.gmazzo.buildconfig", block)
+fun Project.gradlePlugin(configuration: GradlePluginDevelopmentExtension.() -> Unit = {}) {
+    configureExtension<GradlePluginDevelopmentExtension>(configuration)
 }
 
-fun Project.sourceSets(block: SourceSetContainer.() -> Unit) {
-    sourceSets.block()
+fun Project.modrinth(configuration: ModrinthExtension.() -> Unit = {}) {
+    withPluginExtension<ModrinthExtension>("com.modrinth.minotaur", configuration)
 }
 
-fun Project.publishing(block: PublishingExtension.() -> Unit) {
-    withPluginExtension<PublishingExtension>("maven-publish", block)
+fun Project.fabric(configuration: LoomGradleExtensionAPI.() -> Unit = {}) {
+    withPluginExtension<LoomGradleExtensionAPI>("fabric-loom", configuration)
 }
 
-fun Project.signing(block: SigningExtension.() -> Unit) {
-    withPluginExtension<SigningExtension>("signing", block)
+fun Project.ploceus(configuration: PloceusGradleExtensionApi.() -> Unit = {}) {
+    withPluginExtension<PloceusGradleExtensionApi>("ploceus", configuration)
 }
 
-fun Project.gradlePlugin(block: GradlePluginDevelopmentExtension.() -> Unit) {
-    runExtension<GradlePluginDevelopmentExtension>(block)
-}
-
-fun Project.loom(block: LoomGradleExtensionAPI.() -> Unit) {
-    withPluginExtension<LoomGradleExtensionAPI>("fabric-loom", block)
-}
-
-fun Project.fabric(block: FabricApiExtension.() -> Unit) {
-    withPluginExtension<FabricApiExtension>("fabric-loom", block)
-}
-
-fun Project.modrinth(block: ModrinthExtension.() -> Unit) {
-    withPluginExtension<ModrinthExtension>("com.modrinth.minotaur", block)
-}
-
-fun Project.ploceus(block: PloceusGradleExtensionApi.() -> Unit) {
-    withPluginExtension<PloceusGradleExtensionApi>("ploceus", block)
-}
-
-fun Project.forge(block: MinecraftExtensionForProject<ClosureOwner.MinecraftDependency>.() -> Unit) {
+fun Project.forge(configuration: MinecraftExtensionForProject<ClosureOwner.MinecraftDependency>.() -> Unit = {}) {
     withPluginExtension<MinecraftExtensionForProject<ClosureOwner.MinecraftDependency>>(
-        "net.minecraftforge.gradle", block
+        "net.minecraftforge.gradle", configuration
     )
 }
 
-fun Project.neoforge(block: NeoForgeExtension.() -> Unit) {
-    withPluginExtension<NeoForgeExtension>("net.neoforged.moddev", block)
+fun Project.neoforge(configuration: NeoForgeExtension.() -> Unit = {}) {
+    withPluginExtension<NeoForgeExtension>("net.neoforged.moddev", configuration)
 }

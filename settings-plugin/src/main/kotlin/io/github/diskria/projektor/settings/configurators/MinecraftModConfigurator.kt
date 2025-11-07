@@ -1,18 +1,24 @@
 package io.github.diskria.projektor.settings.configurators
 
 import io.github.diskria.gradle.utils.extensions.common.buildGradleProjectPath
+import io.github.diskria.gradle.utils.extensions.common.gradleError
+import io.github.diskria.gradle.utils.extensions.rootDirectory
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
-import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
 import io.github.diskria.kotlin.utils.extensions.listDirectories
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
-import io.github.diskria.projektor.common.minecraft.ModSide
+import io.github.diskria.projektor.common.extensions.configureMaven
+import io.github.diskria.projektor.common.minecraft.MinecraftConstants
+import io.github.diskria.projektor.common.minecraft.era.common.MinecraftEra
+import io.github.diskria.projektor.common.minecraft.era.common.firstVersion
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
-import io.github.diskria.projektor.common.utils.MinecraftConstants
+import io.github.diskria.projektor.common.minecraft.sides.ModSide
+import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
+import io.github.diskria.projektor.common.minecraft.versions.asString
+import io.github.diskria.projektor.common.minecraft.versions.compareTo
 import io.github.diskria.projektor.settings.configurations.MinecraftModConfiguration
 import io.github.diskria.projektor.settings.configurators.common.SettingsConfigurator
-import io.github.diskria.projektor.settings.extensions.configureMaven
-import io.github.diskria.projektor.settings.extensions.dependencyRepositories
-import io.github.diskria.projektor.settings.extensions.repositories
+import io.github.diskria.projektor.settings.configurators.common.dependencyRepositories
+import io.github.diskria.projektor.settings.configurators.common.repositories
 import io.ktor.http.*
 import org.gradle.api.initialization.Settings
 
@@ -21,24 +27,36 @@ open class MinecraftModConfigurator(
 ) : SettingsConfigurator() {
 
     override fun configureRepositories(settings: Settings) {
-        applyRepositories(settings)
+        applyMainRepositories(settings)
+        applyExternalRepositories(settings)
     }
 
     override fun configureProjects(settings: Settings) = with(settings) {
         ModLoaderType.entries.forEach { loader ->
             val loaderName = loader.getName()
-            rootDir.resolve(loaderName).listDirectories().toNullIfEmpty()?.forEach { minSupportedVersionDirectory ->
-                include(buildGradleProjectPath(loaderName, minSupportedVersionDirectory.name))
+            val loaderDirectory = rootDirectory.resolve(loaderName)
+            val minSupportedVersionDirectories = loaderDirectory.listDirectories().map {
+                MinecraftVersion.parseOrNull(it.name)
+                    ?: gradleError("Unknown Minecraft version directory: ${it.relativeTo(rootDirectory)}")
+            }
+            minSupportedVersionDirectories.forEach { minSupportedVersionDirectory ->
+                val modProjectPath = buildGradleProjectPath(loaderName, minSupportedVersionDirectory.asString())
+                include(modProjectPath)
 
-                ModSide.entries.forEach {
-                    include(buildGradleProjectPath(loaderName, minSupportedVersionDirectory.name, it.getName()))
+                if (minSupportedVersionDirectory < MinecraftEra.BETA.firstVersion()) {
+                    include(buildGradleProjectPath(modProjectPath, ModSide.CLIENT.getName()))
+                } else {
+                    ModSide.entries.forEach {
+                        val sideProjectPath = buildGradleProjectPath(modProjectPath, it.getName())
+                        include(sideProjectPath)
+                    }
                 }
             }
         }
     }
 
     companion object {
-        fun applyRepositories(settings: Settings) = with(settings) {
+        fun applyMainRepositories(settings: Settings) = with(settings) {
             dependencyRepositories {
                 configureMaven(
                     name = MinecraftConstants.FULL_GAME_NAME,
@@ -59,10 +77,17 @@ open class MinecraftModConfigurator(
                     includeSubgroups = false
                 )
             }
+        }
+
+        fun applyExternalRepositories(settings: Settings) = with(settings) {
             repositories {
                 configureMaven(
                     name = "Fabric",
                     url = buildUrl("maven.fabricmc.net")
+                )
+                configureMaven(
+                    name = "LegacyFabric",
+                    url = buildUrl("maven.legacyfabric.net")
                 )
                 configureMaven(
                     name = "OrnitheReleases",
@@ -77,6 +102,12 @@ open class MinecraftModConfigurator(
                     }
                 )
                 configureMaven(
+                    name = "Babric",
+                    url = buildUrl("maven.glass-launcher.net") {
+                        path("babric")
+                    }
+                )
+                configureMaven(
                     name = "Forge",
                     url = buildUrl("maven.minecraftforge.net")
                 )
@@ -84,12 +115,6 @@ open class MinecraftModConfigurator(
                     name = "NeoForge",
                     url = buildUrl("maven.neoforged.net") {
                         path("releases")
-                    }
-                )
-                configureMaven(
-                    name = "Quilt",
-                    url = buildUrl("maven.quiltmc.org") {
-                        path("repository", "release")
                     }
                 )
             }

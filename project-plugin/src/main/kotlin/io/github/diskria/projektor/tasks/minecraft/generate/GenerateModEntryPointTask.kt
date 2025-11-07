@@ -6,11 +6,10 @@ import io.github.diskria.kotlin.utils.extensions.appendPackageName
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.projektor.ProjektorGradlePlugin
-import io.github.diskria.projektor.common.minecraft.ModSide
+import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
+import io.github.diskria.projektor.common.minecraft.sides.ModSide
+import io.github.diskria.projektor.extensions.mappers.mapToEnum
 import io.github.diskria.projektor.minecraft.ModEnvironment
-import io.github.diskria.projektor.minecraft.loaders.fabric.Fabric
-import io.github.diskria.projektor.minecraft.loaders.fabric.ornithe.Ornithe
-import io.github.diskria.projektor.minecraft.loaders.forge.neoforge.NeoForge
 import io.github.diskria.projektor.projekt.MinecraftMod
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
@@ -55,8 +54,8 @@ abstract class GenerateModEntryPointTask : DefaultTask() {
             isClientSide || isDedicatedServerEnvironment -> side.getName(PascalCase)
             else -> Constants.Char.EMPTY
         }
-        val entryPointClass = when (mod.loader) {
-            Fabric -> {
+        val entryPointClass = when (mod.loader.mapToEnum()) {
+            ModLoaderType.FABRIC -> {
                 val superInterfaceClassName = ClassName.get("net.fabricmc.api", "${environmentName}ModInitializer")
                 val methodName = "onInitialize$sideName"
                 val initializeMethod = MethodSpec.methodBuilder(methodName)
@@ -71,13 +70,17 @@ abstract class GenerateModEntryPointTask : DefaultTask() {
                     .build()
             }
 
-            Ornithe -> {
+            ModLoaderType.LEGACY_FABRIC -> TODO()
+
+            ModLoaderType.ORNITHE -> {
                 entryPointBuilder
                     .addModifiers(Modifier.PUBLIC)
                     .build()
             }
 
-            NeoForge -> {
+            ModLoaderType.BABRIC -> TODO()
+
+            ModLoaderType.NEOFORGE -> {
                 val annotation = AnnotationSpec.builder(ClassName.get("net.neoforged.fml.common", "Mod")).apply {
                     addMember("value", $$"$S", mod.id)
                     if (environmentName.isNotEmpty()) {
@@ -91,7 +94,7 @@ abstract class GenerateModEntryPointTask : DefaultTask() {
                     .build()
             }
 
-            else -> TODO()
+            ModLoaderType.FORGE -> TODO()
         }
         val javaFile = JavaFile.builder(mod.packageName.appendPackageName(side.getName()), entryPointClass).build()
         javaFile.writeTo(outputDirectory)

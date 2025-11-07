@@ -2,10 +2,11 @@ package io.github.diskria.projektor.tasks.generate
 
 import io.github.diskria.kotlin.shell.dsl.git.commits.CommitType
 import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.kotlin.utils.extensions.common.emptyFileName
 import io.github.diskria.kotlin.utils.extensions.generics.joinByNewLine
+import io.github.diskria.projektor.common.ProjectDirectories
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.projekt.ProjektType.MINECRAFT_MOD
-import io.github.diskria.projektor.common.utils.ProjectDirectories
 import io.github.diskria.projektor.tasks.generate.common.AbstractGenerateFileTask
 import java.io.File
 
@@ -28,7 +29,7 @@ abstract class GenerateProjektGitIgnoreTask : AbstractGenerateFileTask() {
         return patterns.joinByNewLine()
     }
 
-    override fun getOutputFileName(): String = ".gitignore"
+    override fun getOutputFileName(): String = emptyFileName("gitignore")
 
     override fun getCommitType(): CommitType = CommitType.CHORE
 }

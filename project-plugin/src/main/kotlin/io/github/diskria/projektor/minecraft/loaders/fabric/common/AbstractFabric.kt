@@ -12,16 +12,19 @@ import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.extensions.mappers.toEnumOrNull
 import io.github.diskria.kotlin.utils.words.PascalCase
-import io.github.diskria.projektor.Versions
-import io.github.diskria.projektor.common.minecraft.ModSide
-import io.github.diskria.projektor.common.minecraft.versions.common.areSplitMixins
-import io.github.diskria.projektor.common.minecraft.versions.common.asString
-import io.github.diskria.projektor.common.minecraft.versions.common.getMinJavaVersion
-import io.github.diskria.projektor.common.utils.ProjectDirectories
+import io.github.diskria.projektor.common.ProjectDirectories
+import io.github.diskria.projektor.common.minecraft.MinecraftConstants
+import io.github.diskria.projektor.common.minecraft.era.Release
+import io.github.diskria.projektor.common.minecraft.era.common.MappingsEra
+import io.github.diskria.projektor.common.minecraft.era.common.MinecraftEra
+import io.github.diskria.projektor.common.minecraft.sides.ModSide
+import io.github.diskria.projektor.common.minecraft.versions.asString
+import io.github.diskria.projektor.common.minecraft.versions.compareTo
+import io.github.diskria.projektor.common.minecraft.versions.getMappingsEra
+import io.github.diskria.projektor.common.minecraft.versions.getMinJavaVersion
 import io.github.diskria.projektor.extensions.*
-import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.helpers.AccessWidenerHelper
-import io.github.diskria.projektor.minecraft.loaders.ModLoader
+import io.github.diskria.projektor.minecraft.loaders.common.ModLoader
 import io.github.diskria.projektor.projekt.MinecraftMod
 import io.github.diskria.projektor.tasks.minecraft.generate.GenerateModConfigTask
 import io.github.diskria.projektor.tasks.minecraft.generate.GenerateModEntryPointTask
@@ -29,27 +32,26 @@ import io.github.diskria.projektor.tasks.minecraft.generate.GenerateModMixinsCon
 import io.github.diskria.projektor.tasks.minecraft.generate.RemapShadowJarTask
 import io.github.diskria.projektor.tasks.minecraft.test.TestClientModTask
 import io.github.diskria.projektor.tasks.minecraft.test.TestServerModTask
-import net.ornithemc.ploceus.api.GameSide
 import org.gradle.api.Project
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.toolchain.JavaToolchainService
+import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.*
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 abstract class AbstractFabric(val isOrnithe: Boolean = false) : ModLoader() {
 
     override fun configure(modProject: Project, mod: MinecraftMod) = with(modProject) {
-        val minecraftVersion = mod.minSupportedVersion
-        val areSplitMixins = minecraftVersion.areSplitMixins()
+        val mappingsEra = mod.minecraftVersion.getMappingsEra()
 
         subprojects {
             val side = name.toEnumOrNull<ModSide>() ?: return@subprojects
             val sideName = side.getName()
-            logger.lifecycle("[Crafter] Mod side: $sideName")
+            log("[Crafter] Configuring $sideName side...")
 
-            ensurePluginApplied("org.jetbrains.kotlin.jvm")
+            ensureKotlinPluginsApplied()
 
             val generateModEntryPointTask = registerTask<GenerateModEntryPointTask> {
                 minecraftMod = mod
@@ -57,11 +59,11 @@ abstract class AbstractFabric(val isOrnithe: Boolean = false) : ModLoader() {
                 outputDirectory = getBuildDirectory("generated/sources/crafter")
             }
             val (main, mixins) = configureSourceSets(
-                sideProject = this@subprojects,
-                mainSrcDirs = listOf(generateModEntryPointTask.map { it.outputDirectory })
+                sourceSets = sourceSets,
+                mainSources = listOf(generateModEntryPointTask.map { it.outputDirectory })
             )
-            loom {
-                if (areSplitMixins) {
+            fabric {
+                if (mappingsEra != MappingsEra.MERGED) {
                     when (side) {
                         ModSide.CLIENT -> clientOnlyMinecraftJar()
                         ModSide.SERVER -> serverOnlyMinecraftJar()
@@ -83,29 +85,37 @@ abstract class AbstractFabric(val isOrnithe: Boolean = false) : ModLoader() {
                         vmArgs(
                             *JvmArguments.memory(memoryRange, Size.GIGABYTES),
                         )
+                        if (mod.minecraftVersion.getEra() < MinecraftEra.ALPHA) {
+                            vmArgs(
+                                JvmArguments.property("fabric.gameVersion", mod.minecraftVersion.asString()),
+                            )
+                        }
                         if (side == ModSide.CLIENT) {
                             programArgs(
-                                *JvmArguments.program("username", mod.repo.owner.developer + "_test"),
-                                *JvmArguments.program("userProperties", "{}"),
+                                *JvmArguments.program(
+                                    "username",
+                                    mod.repo.owner.developer + MinecraftConstants.PLAYER_NAME_DEVELOPER_SUFFIX
+                                ),
                             )
+                            if (mod.minecraftVersion < Release.V_1_8) {
+                                programArgs(*JvmArguments.program("userProperties", "{}"))
+                            }
                         }
                     }
                 }
-                val resourcesDirectory = projectDir.resolve("src/main/resources")
-                val accessWidenerFile = resourcesDirectory.resolve(mod.getAccessWidenerFileName())
-                if (!accessWidenerFile.exists()) {
-                    accessWidenerFile.ensureFileExists().writeText(AccessWidenerHelper.HEADER_LINE)
+                accessWidenerPath = main.resourcesDirectory.resolve(mod.accessorConfigFileName).ensureFileExists {
+                    writeText(AccessWidenerHelper.TEMPLATE)
                 }
-                accessWidenerPath.set(accessWidenerFile)
             }
+            restoreDependencyResolutionRepositories()
             dependencies {
-                minecraft("com.mojang", "minecraft", minecraftVersion.asString())
+                minecraft("com.mojang", "minecraft", mod.minecraftVersion.asString())
                 val loaderVersion = if (isOrnithe) mod.config.ornithe.loader else mod.config.fabric.loader
                 modImplementation("net.fabricmc", "fabric-loader", loaderVersion)
 
                 if (isOrnithe) {
                     ploceus {
-                        if (areSplitMixins) {
+                        if (mappingsEra != MappingsEra.MERGED) {
                             @Suppress("DEPRECATION")
                             when (side) {
                                 ModSide.CLIENT -> clientOnlyMappings()
@@ -113,68 +123,40 @@ abstract class AbstractFabric(val isOrnithe: Boolean = false) : ModLoader() {
                             }
                         }
                         mappings(featherMappings(mod.config.ornithe.feather))
-                        dependOsl(
-                            "0.16.3",
-                            if (areSplitMixins) {
-                                when (side) {
-                                    ModSide.CLIENT -> GameSide.CLIENT
-                                    ModSide.SERVER -> GameSide.SERVER
-                                }
-                            } else {
-                                GameSide.MERGED
-                            }
-                        )
                     }
                 } else {
                     mappings("net.fabricmc", "yarn", mod.config.fabric.yarn, "v2")
-                    modImplementation("net.fabricmc.fabric-api", "fabric-api", mod.config.fabric.api)
-                    modImplementation(
-                        "net.fabricmc",
-                        "fabric-language-kotlin",
-                        "${Versions.FABRIC_KOTLIN}+kotlin.${Versions.KOTLIN}"
-                    )
                 }
             }
-            val runDirectory = projectDir.resolve(ProjectDirectories.MINECRAFT_RUN).ensureDirectoryExists()
+            val runDirectory = projectDirectory.resolve(ProjectDirectories.MINECRAFT_RUN).ensureDirectoryExists()
             if (side == ModSide.SERVER) {
-                val eulaName = "eula"
-                val eulaFile = runDirectory.resolve(fileName(eulaName, Constants.File.Extension.TXT))
-                if (!eulaFile.exists()) {
-                    eulaFile.ensureFileExists().writeText("$eulaName=${true}")
+                runDirectory.resolve(fileName("eula", Constants.File.Extension.TXT)).ensureFileExists {
+                    writeText("$nameWithoutExtension=${true}")
                 }
-                val serverPropertiesFile = runDirectory.resolve(
-                    fileName("server", Constants.File.Extension.PROPERTIES)
-                )
-                if (!serverPropertiesFile.exists()) {
-                    serverPropertiesFile.ensureFileExists().writeText("online-mode=${false}")
+                runDirectory.resolve(fileName("server", Constants.File.Extension.PROPERTIES)).ensureFileExists {
+                    writeText("online-mode=${false}")
                 }
             }
             tasks {
+                configureJvmTarget(mod.jvmTarget)
                 withType<JavaCompile>().configureEach {
-                    with(options) {
-                        release = mod.jvmTarget.toInt()
-                        encoding = Charsets.UTF_8.toString()
-                    }
-                }
-                withType<KotlinCompile>().configureEach {
-                    compilerOptions {
-                        jvmTarget = mod.jvmTarget
-                    }
+                    options.encoding = Charsets.UTF_8.toString()
                 }
                 jar {
                     from(mixins.output)
                 }
                 named<JavaExec>("run" + side.getName(PascalCase)) {
-                    val shadowJar = modProject.tasks.shadowJar
-                    dependsOn(shadowJar)
-                    classpath += files(shadowJar.get().archiveFile.get())
+                    val shadowJarTask = modProject.tasks.shadowJar.get()
+                    dependsOn(shadowJarTask)
+                    addToClasspath(shadowJarTask.archiveFile)
 
                     javaLauncher = this@subprojects.getExtension<JavaToolchainService>().launcherFor {
-                        configureAdoptium(minecraftVersion.getMinJavaVersion())
+                        val javaVersion = mod.minecraftVersion.getMinJavaVersion()
+                        configureJavaVendor(javaVersion, JvmVendorSpec.ADOPTIUM, JvmVendorSpec.AZUL)
                     }
                 }
                 processResources {
-                    exclude(mod.getAccessWidenerFileName())
+                    exclude(mod.accessorConfigFileName)
                 }
             }
             registerTask<RemapShadowJarTask> {
@@ -188,28 +170,20 @@ abstract class AbstractFabric(val isOrnithe: Boolean = false) : ModLoader() {
         }
         val generateMixinsConfigTask = registerTask<GenerateModMixinsConfigTask> {
             minecraftMod.set(mod)
-            outputFile.set(temporaryDir.resolve(mod.mixinsConfigFileName))
+            outputFile.set(getTempFile(mod.mixinsConfigFileName))
         }
         val generateModConfigTask = registerTask<GenerateModConfigTask> {
             minecraftMod.set(mod)
-            outputFile.set(temporaryDir.resolve(fileName(getLoaderName(), "mod", Constants.File.Extension.JSON)))
+            outputFile.set(getTempFile(mod.configFileName))
         }
         tasks {
-            named("build") {
-                dependsOn(children().first().getTask<RemapShadowJarTask>())
+            build {
+                dependsOn(children.first().getTask<RemapShadowJarTask>())
             }
             processResources {
-                dependsOn(generateMixinsConfigTask)
-                from(generateMixinsConfigTask) {
-                    into("assets/${mod.id}")
-                }
-
-                from(rootProject.getFile(fileName("icon", Constants.File.Extension.PNG))) {
-                    into("assets/${mod.id}")
-                }
-
-                dependsOn(generateModConfigTask)
-                from(generateModConfigTask)
+                copyTaskOutput(generateMixinsConfigTask, mod.assetsPath)
+                copyFile(rootProject.getFile(mod.iconFileName).asFile, mod.assetsPath)
+                copyTaskOutput(generateModConfigTask)
             }
         }
         mod.config.environment.sides.forEach {
@@ -220,20 +194,12 @@ abstract class AbstractFabric(val isOrnithe: Boolean = false) : ModLoader() {
         }
     }
 
-    private fun configureSourceSets(sideProject: Project, mainSrcDirs: List<Any>): Pair<SourceSet, SourceSet> {
-        val main = sideProject.sourceSets.named(SourceSet.MAIN_SOURCE_SET_NAME) {
-            java {
-                srcDirs(mainSrcDirs)
-            }
-        }.get()
-        val mixins = sideProject.sourceSets.create(MIXINS_SOURCE_SET_NAME) {
-            compileClasspath += main.output + main.compileClasspath
-            runtimeClasspath += main.output + main.runtimeClasspath
-        }
+    private fun configureSourceSets(
+        sourceSets: SourceSetContainer,
+        mainSources: List<Any>
+    ): Pair<SourceSet, SourceSet> {
+        val main = sourceSets.main.apply { java.srcDirs(mainSources) }
+        val mixins = sourceSets.create(ProjectDirectories.MINECRAFT_MIXINS).apply { addToClasspath(main) }
         return main to mixins
-    }
-
-    companion object {
-        const val MIXINS_SOURCE_SET_NAME: String = "mixins"
     }
 }

@@ -1,9 +1,10 @@
 package io.github.diskria.projektor.readme.shields.common
 
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
+import io.github.diskria.kotlin.utils.extensions.ktor.parameters
 import io.github.diskria.kotlin.utils.poet.Property
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
-import io.github.diskria.projektor.readme.MarkdownHelper
+import io.github.diskria.projektor.common.helpers.MarkdownHelper
 import io.ktor.http.*
 
 abstract class ReadmeShield() {
@@ -24,9 +25,7 @@ abstract class ReadmeShield() {
         val shieldUrl = buildUrl("img.shields.io") {
             path(*getPathSegments().toTypedArray())
             val totalParameters = getCommonParameters() + getParameters()
-            totalParameters.forEach {
-                parameters.append(it.name, it.value)
-            }
+            parameters(totalParameters.associate { it.name to it.value })
         }
         return MarkdownHelper.link(getUrl(), MarkdownHelper.image(shieldUrl, getAlt()))
     }

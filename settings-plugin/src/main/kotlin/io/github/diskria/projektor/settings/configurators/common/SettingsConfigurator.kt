@@ -1,11 +1,11 @@
 package io.github.diskria.projektor.settings.configurators.common
 
+import io.github.diskria.gradle.utils.extensions.rootDirectory
+import io.github.diskria.gradle.utils.helpers.GradleProjects
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.projektor.common.configurators.IProjektConfigurator
-import io.github.diskria.projektor.common.utils.ProjectModules
-import io.github.diskria.projektor.settings.extensions.configureMaven
-import io.github.diskria.projektor.settings.extensions.pluginRepositories
-import io.github.diskria.projektor.settings.extensions.repositories
+import io.github.diskria.projektor.common.extensions.configureMaven
+import io.github.diskria.projektor.settings.configurators.*
 import io.ktor.http.*
 import org.gradle.api.initialization.Settings
 
@@ -17,13 +17,9 @@ abstract class SettingsConfigurator : IProjektConfigurator {
         configureProjects(settings)
     }
 
-    protected open fun configureRepositories(settings: Settings) {
+    protected abstract fun configureRepositories(settings: Settings)
 
-    }
-
-    protected open fun configureProjects(settings: Settings) {
-
-    }
+    protected abstract fun configureProjects(settings: Settings)
 
     private fun applyCommonConfiguration(settings: Settings) = with(settings) {
         repositories {
@@ -38,8 +34,14 @@ abstract class SettingsConfigurator : IProjektConfigurator {
         pluginRepositories {
             gradlePluginPortal()
         }
-        if (rootDir.resolve(ProjectModules.Common.NAME).exists()) {
-            include(ProjectModules.Common.PATH)
+        AndroidApplicationConfigurator.applyExternalRepositories(settings)
+        AndroidLibraryConfigurator.applyExternalRepositories(settings)
+        GradlePluginConfigurator.applyExternalRepositories(settings)
+        KotlinLibraryConfigurator.applyExternalRepositories(settings)
+        MinecraftModConfigurator.applyExternalRepositories(settings)
+
+        if (rootDirectory.resolve(GradleProjects.Common.NAME).exists()) {
+            include(GradleProjects.Common.PATH)
         }
     }
 }

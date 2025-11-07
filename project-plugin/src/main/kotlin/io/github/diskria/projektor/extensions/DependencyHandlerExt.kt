@@ -52,6 +52,3 @@ fun DependencyHandler.clientNests(dependencyNotation: Any): Dependency? =
 
 fun DependencyHandler.serverNests(dependencyNotation: Any): Dependency? =
     add("serverNests", dependencyNotation)
-
-fun DependencyHandler.include(dependencyNotation: Any): Dependency? =
-    add("include", dependencyNotation)

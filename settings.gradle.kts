@@ -1,3 +1,5 @@
+import io.github.diskria.kotlin.utils.extensions.asDirectoryOrNull
+import io.github.diskria.kotlin.utils.extensions.listDirectories
 import io.github.diskria.projektor.common.licenses.LicenseType.MIT
 import io.github.diskria.projektor.common.publishing.PublishingTargetType.GITHUB_PACKAGES
 import io.github.diskria.projektor.common.publishing.PublishingTargetType.GITHUB_PAGES
@@ -5,21 +7,10 @@ import io.github.diskria.projektor.settings.configurators.MinecraftModConfigurat
 
 pluginManagement {
     repositories {
-        maven("https://diskria.github.io/projektor")
-        gradlePluginPortal()
-    }
-
-    if (rootDir.resolve("build/maven").listFiles().orEmpty().isNotEmpty()) {
-        val task = gradle.startParameter.taskNames.singleOrNull()
-        val testProjectsRoot = rootDir.resolve("test")
-        if (task?.startsWith(":") == true) {
-            val testProjectDirectory = testProjectsRoot.resolve(task.split(":").first { it.isNotBlank() })
-            if (testProjectDirectory.exists()) {
-                includeBuild(testProjectDirectory)
-            }
-        } else if (task != "releaseProjekt") {
-            testProjectsRoot.listFiles { it.isDirectory && !it.isHidden }?.forEach { includeBuild(it) }
+        maven("https://diskria.github.io/projektor") {
+            name = "Projektor"
         }
+        gradlePluginPortal()
     }
 }
 
@@ -28,7 +19,7 @@ plugins {
 }
 
 projekt {
-    version = "4.5.1"
+    version = "4.6.0"
     license = MIT
     publish = setOf(
         GITHUB_PAGES,
@@ -36,7 +27,19 @@ projekt {
     )
 
     gradlePlugin()
-    MinecraftModConfigurator.applyRepositories(settings)
 }
 
-include(":common", ":settings-plugin", ":project-plugin")
+MinecraftModConfigurator.applyRepositories(settings)
+
+include(":settings-plugin", ":project-plugin")
+
+if (rootDir.resolve("build/maven").listFiles().orEmpty().isNotEmpty()) {
+    val taskName = gradle.startParameter.taskNames.singleOrNull()
+    val testProjectsRoot = rootDir.resolve("test")
+    if (taskName?.startsWith(":") == true) {
+        val testProjectName = taskName.split(":").first { it.isNotBlank() }
+        testProjectsRoot.resolve(testProjectName).asDirectoryOrNull()?.let { includeBuild(it) }
+    } else if (taskName != "releaseProjekt") {
+        testProjectsRoot.listDirectories().forEach { includeBuild(it) }
+    }
+}

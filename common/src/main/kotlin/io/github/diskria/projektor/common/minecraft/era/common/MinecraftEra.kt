@@ -1,0 +1,27 @@
+package io.github.diskria.projektor.common.minecraft.era.common
+
+import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.projektor.common.minecraft.era.*
+import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
+
+enum class MinecraftEra(val versions: List<MinecraftVersion>, val versionPrefix: String) {
+
+    PRE_CLASSIC(PreClassic.entries.toList(), "rd-"),
+    CLASSIC(Classic.entries.toList(), "c"),
+    INDEV(Indev.entries.toList(), "in-"),
+    INFDEV(Infdev.entries.toList(), "inf-"),
+    ALPHA(Alpha.entries.toList(), "a"),
+    BETA(Beta.entries.toList(), "b"),
+    RELEASE(Release.entries.toList(), Constants.Char.EMPTY);
+
+    companion object {
+        fun parse(version: String): MinecraftEra =
+            entries.filterNot { it == RELEASE }.find { version.startsWith(it.versionPrefix) } ?: RELEASE
+    }
+}
+
+fun MinecraftEra.firstVersion(): MinecraftVersion =
+    versions.first()
+
+fun MinecraftEra.lastVersion(): MinecraftVersion =
+    versions.last()

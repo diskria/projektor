@@ -8,7 +8,7 @@ import io.github.diskria.kotlin.utils.extensions.toSemver
 import io.github.diskria.projektor.common.minecraft.sync.common.AbstractMinecraftComponentSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.common.MinecraftComponent
 import io.github.diskria.projektor.common.minecraft.sync.jfrog.JFrogFolderInfo
-import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersion
+import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*

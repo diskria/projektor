@@ -6,10 +6,10 @@ import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
 import io.github.diskria.projektor.common.minecraft.loaders.getSupportedVersionRange
-import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersion
-import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersionRange
-import io.github.diskria.projektor.common.minecraft.versions.common.compareTo
-import io.github.diskria.projektor.common.minecraft.versions.common.previousOrNull
+import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
+import io.github.diskria.projektor.common.minecraft.versions.compareTo
+import io.github.diskria.projektor.common.minecraft.versions.previousOrNull
+import io.github.diskria.projektor.common.minecraft.versions.rangeTo
 import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.common.repo.github.GithubRepo
 import io.github.diskria.projektor.configurations.AndroidApplicationConfiguration
@@ -65,8 +65,7 @@ data class BaseProjekt(
                     .minWithOrNull(MinecraftVersion.COMPARATOR)
                 nextMinSupportedVersion?.previousOrNull()
             } ?: loader.mapToEnum().getSupportedVersionRange().max
-        val supportedVersionRange = MinecraftVersionRange(minSupportedVersion, maxSupportedVersion)
-        return MinecraftMod(this, config, loader, supportedVersionRange)
+        return MinecraftMod(this, config, loader, minSupportedVersion..maxSupportedVersion)
     }
 
     companion object {

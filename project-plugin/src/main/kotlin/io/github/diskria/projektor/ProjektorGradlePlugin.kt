@@ -1,8 +1,8 @@
 package io.github.diskria.projektor
 
 import io.github.diskria.gradle.utils.extensions.ensureTaskRegistered
+import io.github.diskria.gradle.utils.extensions.isCommonProject
 import io.github.diskria.gradle.utils.extensions.registerExtension
-import io.github.diskria.projektor.common.utils.ProjectModules
 import io.github.diskria.projektor.extensions.gradle.ProjektExtension
 import io.github.diskria.projektor.tasks.UpdateProjektRepoMetadataTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektGitAttributesTask
@@ -15,7 +15,7 @@ import org.gradle.api.Project
 class ProjektorGradlePlugin : Plugin<Project> {
 
     override fun apply(project: Project) = with(project) {
-        if (path != ProjectModules.Common.PATH) {
+        if (!isCommonProject()) {
             with(rootProject) {
                 ensureTaskRegistered<GenerateProjektGitAttributesTask>()
                 ensureTaskRegistered<GenerateProjektGitIgnoreTask>()
@@ -26,7 +26,7 @@ class ProjektorGradlePlugin : Plugin<Project> {
         }
 
         val extension = registerExtension<ProjektExtension>()
-        extension.onConfiguratorReady { it.configure(this) }
+        extension.onConfiguratorReady { configurator -> configurator.configure(this) }
 
         afterEvaluate {
             extension.ensureConfigured()

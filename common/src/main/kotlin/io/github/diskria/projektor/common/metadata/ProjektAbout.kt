@@ -1,10 +1,9 @@
 package io.github.diskria.projektor.common.metadata
 
 import io.github.diskria.gradle.utils.extensions.common.gradleError
-import io.github.diskria.kotlin.utils.Constants
-import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.ensureDirectoryExists
 import io.github.diskria.kotlin.utils.extensions.ensureFileExists
+import io.github.diskria.projektor.common.helpers.MarkdownHelper
 import java.io.File
 
 data class ProjektAbout(val description: String, val details: String, val tags: Set<String>) {
@@ -12,9 +11,9 @@ data class ProjektAbout(val description: String, val details: String, val tags: 
     companion object {
         private const val ABOUT_DIRECTORY_NAME: String = "about"
 
-        private val DESCRIPTION_FILE_NAME: String = fileName("DESCRIPTION", Constants.File.Extension.MARKDOWN)
-        private val DETAILS_FILE_NAME: String = fileName("DETAILS", Constants.File.Extension.MARKDOWN)
-        private val TAGS_FILE_NAME: String = fileName("TAGS", Constants.File.Extension.MARKDOWN)
+        private val DESCRIPTION_FILE_NAME: String = MarkdownHelper.fileName("description")
+        private val DETAILS_FILE_NAME: String = MarkdownHelper.fileName("details")
+        private val TAGS_FILE_NAME: String = MarkdownHelper.fileName("tags")
 
         fun of(repoDirectory: File): ProjektAbout {
             val aboutDirectory = repoDirectory.resolve(ABOUT_DIRECTORY_NAME).ensureDirectoryExists()
@@ -43,7 +42,7 @@ data class ProjektAbout(val description: String, val details: String, val tags: 
         private fun missingMetadataError(repoDirectory: File, targetFile: File, content: () -> String): Nothing =
             gradleError(
                 buildString {
-                    appendLine("Missing or empty projekt metadata file.")
+                    appendLine("Missing or empty projekt about file.")
                     appendLine("Path: ${targetFile.relativeTo(repoDirectory).path}")
                     appendLine("Please provide ${content()} in this file.")
                 }

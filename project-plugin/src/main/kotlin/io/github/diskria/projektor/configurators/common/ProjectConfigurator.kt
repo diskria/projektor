@@ -1,6 +1,5 @@
 package io.github.diskria.projektor.configurators.common
 
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar.Companion.shadowJar
 import io.github.diskria.gradle.utils.extensions.*
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.Constants
@@ -12,13 +11,9 @@ import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.Versions
 import io.github.diskria.projektor.common.configurators.IProjektConfigurator
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
+import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderFamily
 import io.github.diskria.projektor.common.projekt.ProjektType
-import io.github.diskria.projektor.common.utils.ProjectModules
 import io.github.diskria.projektor.extensions.*
-import io.github.diskria.projektor.extensions.mappers.toInt
-import io.github.diskria.projektor.minecraft.loaders.fabric.Fabric
-import io.github.diskria.projektor.minecraft.loaders.fabric.ornithe.Ornithe
-import io.github.diskria.projektor.minecraft.loaders.forge.neoforge.NeoForge
 import io.github.diskria.projektor.projekt.GradlePlugin
 import io.github.diskria.projektor.projekt.KotlinLibrary
 import io.github.diskria.projektor.projekt.MinecraftMod
@@ -33,8 +28,8 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.*
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
 
@@ -47,15 +42,16 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
         group = projekt.repo.owner.namespace
         version = projekt.archiveVersion
 
-        ensurePluginApplied("org.jetbrains.kotlin.jvm")
-        ensurePluginApplied("org.jetbrains.kotlin.plugin.serialization")
+        ensureKotlinPluginsApplied()
+        dependencies {
+            implementation("org.jetbrains.kotlinx", "kotlinx-serialization-json", Versions.KOTLIN_SERIALIZATION)
+        }
 
         val rootProjektType = project.getProjektMetadata().type
         if (rootProjektType != ProjektType.MINECRAFT_MOD) {
             dependencies {
                 testImplementation(kotlin("test"))
                 testImplementation("org.junit.jupiter", "junit-jupiter", Versions.JUNIT)
-                implementation("org.jetbrains.kotlinx", "kotlinx-serialization-json", Versions.KOTLIN_SERIALIZATION)
             }
         }
         base {
@@ -63,9 +59,11 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
         }
         java {
             toolchain {
-                configureAdoptium(Versions.JAVA)
+                configureJavaVendor(Versions.JAVA, JvmVendorSpec.ADOPTIUM, JvmVendorSpec.AZUL)
             }
-            withSourcesJar()
+            if (projekt.isSourcesEnabled) {
+                withSourcesJar()
+            }
             if (projekt.isJavadocEnabled) {
                 withJavadocJar()
             }
@@ -74,23 +72,18 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
             jvmToolchain(Versions.JAVA)
         }
         tasks {
-            named("clean") {
-                dependsOn(subprojects.map { it.tasks.named("clean") })
+            clean {
+                dependsOnIncludedBuilds()
+                dependsOnSubprojects()
             }
+            configureJvmTarget(projekt.jvmTarget)
             withType<JavaCompile>().configureEach {
-                with(options) {
-                    release = projekt.jvmTarget.toInt()
-                    encoding = Charsets.UTF_8.toString()
-                }
+                options.encoding = Charsets.UTF_8.toString()
             }
-            withType<KotlinCompile>().configureEach {
-                compilerOptions {
-                    jvmTarget = projekt.jvmTarget
-                }
-            }
-            configureJarTask {
-                dependsOn(withType<GenerateProjektLicenseTask>())
-                from(GenerateProjektLicenseTask.LICENSE_FILE_NAME) {
+            jar {
+                val generateLicenseTask = rootProject.getTask<GenerateProjektLicenseTask>()
+                dependsOn(generateLicenseTask)
+                from(generateLicenseTask) {
                     rename { it + Constants.Char.UNDERSCORE + projekt.repo.name }
                 }
                 manifest {
@@ -153,84 +146,36 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                 }
             }
         }
-        if (project.path == ProjectModules.Common.PATH) {
+        if (project.isCommonProject()) {
             return@with
         }
-        val commonProject = project.rootProject.findProject(ProjectModules.Common.PATH)
+        val commonProject = project.rootProject.findCommonProject()
         if (commonProject != null) {
             if (projekt is GradlePlugin || projekt is KotlinLibrary) {
-                ensurePluginApplied("com.gradleup.shadow")
-                dependencies {
-                    compileOnly(commonProject)
-                }
-                tasks {
-                    shadowJar {
-                        archiveClassifier = Constants.Char.EMPTY
-                        configurations = emptyList()
-
-                        val jarTask = commonProject.tasks.jar
-                        dependsOn(jarTask)
-                        from(zipTree(jarTask.flatMap { jar -> jar.archiveFile }))
-                    }
-                }
+                configureShadowJar(listOf(commonProject))
             } else if (projekt is MinecraftMod) {
-                ensurePluginApplied("com.gradleup.shadow")
-                tasks {
-                    val jar = jar {
-                        enabled = false
-                    }
-                    shadowJar {
-                        configurations = emptyList()
-                        destinationDirectory = getBuildDirectory("devlibs")
-                        copyArchiveNameParts(jar.get(), classifier = "dev")
-
-                        val sideProjects = children()
-                        val projectsToShadow = sideProjects + commonProject
-                        projectsToShadow.forEach {
-                            val jarTask = it.tasks.jar
-                            dependsOn(jarTask)
-                            from(zipTree(jarTask.flatMap { jar -> jar.archiveFile }))
-                        }
-
-                        if (projekt.loader == Fabric || projekt.loader == Ornithe) {
-                            val accessWidenerFileName = projekt.getAccessWidenerFileName()
-
-                            val mergedAccessWidenerFile = temporaryDir.resolve(accessWidenerFileName)
-                            from(mergedAccessWidenerFile) {
-                                into("assets/${projekt.id}")
-                            }
-                            doFirst {
-                                mergedAccessWidenerFile.writeText(
-                                    sideProjects.mapNotNull { sideProject ->
-                                        sideProject.projectDir
-                                            .resolve("src/main/resources")
-                                            .resolve(accessWidenerFileName)
-                                            .readLines()
-                                            .mapNotNull { it.trim().toNullIfEmpty() }
-                                            .toNullIfEmpty()
-                                    }.flatten().toSet().joinByNewLine()
-                                )
-                            }
-                        } else if (projekt.loader == NeoForge) {
-                            val accessTransformerFileName = projekt.getAccessTransformerFileName()
-
-                            val mergedAccessTransformerFile = temporaryDir.resolve(accessTransformerFileName)
-                            from(mergedAccessTransformerFile) {
-                                into("META-INF")
-                            }
-                            doFirst {
-                                mergedAccessTransformerFile.writeText(
-                                    sideProjects.mapNotNull { sideProject ->
-                                        sideProject.projectDir
-                                            .resolve("src/main/resources/META-INF")
-                                            .resolve(accessTransformerFileName)
-                                            .readLines()
-                                            .mapNotNull { it.trim().toNullIfEmpty() }
-                                            .toNullIfEmpty()
-                                    }.flatten().toSet().joinByNewLine()
-                                )
-                            }
-                        }
+                val mod = projekt
+                val sideProjects = children
+                val projectsToShadow = sideProjects + commonProject
+                val isFabricFamily = mod.loader.family == ModLoaderFamily.FABRIC
+                configureShadowJar(
+                    projects = projectsToShadow,
+                    classifier = if (isFabricFamily) "dev" else null,
+                    destination = if (isFabricFamily) getBuildDirectory("devlibs").get() else null,
+                    shouldDisableJar = true,
+                ) {
+                    val mergedAccessorConfigFile = getTempFile(mod.accessorConfigFileName)
+                    copyFile(mergedAccessorConfigFile, mod.assetsPath)
+                    doFirst {
+                        mergedAccessorConfigFile.writeText(
+                            sideProjects.mapNotNull { sideProject ->
+                                sideProject.sourceSets.main.resourcesDirectory
+                                    .resolve(mod.accessorConfigFileName)
+                                    .readLines()
+                                    .mapNotNull { it.trim().toNullIfEmpty() }
+                                    .toNullIfEmpty()
+                            }.flatten().toSet().joinByNewLine()
+                        )
                     }
                 }
             }
@@ -239,7 +184,7 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
             .filter { it.configurePublishTask(projekt, project) }
             .map { target ->
                 val publishTask = project.tasks.named(target.publishTaskName).get()
-                val rootPublishTask = rootProject.tasks.findByName(target.publishTaskName)
+                val rootPublishTask = rootProject.getTaskOrNull(target.publishTaskName)
                     ?: target.configureRootPublishTask(rootProject, publishTask, projekt)
                 val distributeTask = when {
                     EnvironmentHelper.isCI() -> target.configureDistributeTask(rootProject)
@@ -248,22 +193,23 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                 rootPublishTask to distributeTask
             }
         rootProject.ensureTaskRegistered<ReleaseProjektTask> {
-            val tasksOrder = mutableListOf(
-                rootProject.getTask<GenerateProjektGitAttributesTask>(),
-                rootProject.getTask<GenerateProjektGitIgnoreTask>(),
-                rootProject.getTask<GenerateProjektLicenseTask>(),
-                rootProject.getTask<GenerateProjektReadmeTask>(),
+            dependsSequentiallyOn(
+                buildList {
+                    addAll(
+                        listOf(
+                            rootProject.getTask<GenerateProjektGitAttributesTask>(),
+                            rootProject.getTask<GenerateProjektGitIgnoreTask>(),
+                            rootProject.getTask<GenerateProjektLicenseTask>(),
+                            rootProject.getTask<GenerateProjektReadmeTask>(),
+                        )
+                    )
+                    publishingTargetTasks.forEach { (rootPublishTask, distributeTask) ->
+                        add(rootPublishTask)
+                        distributeTask?.let { add(it) }
+                    }
+                    add(rootProject.getTask<UpdateProjektRepoMetadataTask>())
+                }
             )
-            publishingTargetTasks.forEach { (rootPublishTask, distributeTask) ->
-                tasksOrder.add(rootPublishTask)
-                distributeTask?.let { tasksOrder.add(it) }
-            }
-            tasksOrder.add(rootProject.getTask<UpdateProjektRepoMetadataTask>())
-
-            dependsOn(tasksOrder)
-            tasksOrder.windowed(2).forEach { (before, after) ->
-                after.mustRunAfter(before)
-            }
         }
     }
 

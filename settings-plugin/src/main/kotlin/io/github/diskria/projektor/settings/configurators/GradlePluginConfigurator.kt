@@ -2,7 +2,7 @@ package io.github.diskria.projektor.settings.configurators
 
 import io.github.diskria.projektor.settings.configurations.GradlePluginConfiguration
 import io.github.diskria.projektor.settings.configurators.common.SettingsConfigurator
-import io.github.diskria.projektor.settings.extensions.dependencyRepositories
+import io.github.diskria.projektor.settings.configurators.common.dependencyRepositories
 import org.gradle.api.initialization.Settings
 
 open class GradlePluginConfigurator(
@@ -10,14 +10,23 @@ open class GradlePluginConfigurator(
 ) : SettingsConfigurator() {
 
     override fun configureRepositories(settings: Settings) {
-        applyRepositories(settings)
+        applyMainRepositories(settings)
+        applyExternalRepositories(settings)
+    }
+
+    override fun configureProjects(settings: Settings) {
+
     }
 
     companion object {
-        fun applyRepositories(settings: Settings) = with(settings) {
+        fun applyMainRepositories(settings: Settings) = with(settings) {
             dependencyRepositories {
                 gradlePluginPortal()
             }
+        }
+
+        fun applyExternalRepositories(settings: Settings) = with(settings) {
+
         }
     }
 }

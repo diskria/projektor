@@ -1,23 +1,19 @@
 package io.github.diskria.projektor.configurations.minecraft
 
 import io.github.diskria.gradle.utils.extensions.common.gradleError
-import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricApiSynchronizer
+import io.github.diskria.gradle.utils.extensions.log
+import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
 import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricLoaderSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricYarnMappingsSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.loaders.neoforge.NeoforgeLoaderSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.loaders.ornithe.OrnitheFeatherMappingsSynchronizer
-import io.github.diskria.projektor.common.minecraft.sync.loaders.ornithe.OrnitheFeatherSplitMappingsSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.parchment.ParchmentSynchronizer
-import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersion
-import io.github.diskria.projektor.common.minecraft.versions.common.areSplitMixins
-import io.github.diskria.projektor.common.minecraft.versions.common.asString
+import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
+import io.github.diskria.projektor.common.minecraft.versions.asString
+import io.github.diskria.projektor.common.minecraft.versions.getMappingsEra
+import io.github.diskria.projektor.extensions.mappers.mapToEnum
 import io.github.diskria.projektor.minecraft.ModEnvironment
-import io.github.diskria.projektor.minecraft.loaders.ModLoader
-import io.github.diskria.projektor.minecraft.loaders.fabric.Fabric
-import io.github.diskria.projektor.minecraft.loaders.fabric.ornithe.Ornithe
-import io.github.diskria.projektor.minecraft.loaders.fabric.quilt.Quilt
-import io.github.diskria.projektor.minecraft.loaders.forge.Forge
-import io.github.diskria.projektor.minecraft.loaders.forge.neoforge.NeoForge
+import io.github.diskria.projektor.minecraft.loaders.common.ModLoader
 import org.gradle.api.Project
 
 open class MinecraftModConfiguration {
@@ -29,7 +25,7 @@ open class MinecraftModConfiguration {
         get() = ornitheConfig ?: gradleError("Ornithe loader not configured")
 
     internal val neoforge: NeoforgeModConfiguration
-        get() = neoforgeConfig ?: gradleError("Neoforge loader not configured")
+        get() = neoforgeConfig ?: gradleError("NeoForge loader not configured")
 
     var environment: ModEnvironment = ModEnvironment.CLIENT_SERVER
     var maxSupportedVersion: MinecraftVersion? = null
@@ -51,9 +47,8 @@ open class MinecraftModConfiguration {
     }
 
     internal fun resolveConfig(modLoader: ModLoader, project: Project, minecraftVersion: MinecraftVersion) {
-        project.logger.lifecycle("[Crafter] Components:")
-        when (modLoader) {
-            Fabric -> {
+        when (modLoader.mapToEnum()) {
+            ModLoaderType.FABRIC -> {
                 val userConfig = fabricConfig ?: FabricModConfiguration()
                 fabricConfig = FabricModConfiguration().apply {
                     loader = userConfig.loader.ifEmpty {
@@ -62,34 +57,31 @@ open class MinecraftModConfiguration {
                     yarn = userConfig.yarn.ifEmpty {
                         FabricYarnMappingsSynchronizer.getLatestVersion(project, minecraftVersion)
                     }
-                    api = userConfig.api.ifEmpty {
-                        FabricApiSynchronizer.getLatestVersion(project, minecraftVersion)
-                    }
-                    println("Fabric Loader: $loader")
-                    println("Fabric API: $api")
-                    println("Fabric Yarn: $yarn")
+                    project.log("[Crafter] Fabric Loader: $loader")
+                    project.log("[Crafter] Yarn Mappings: $yarn")
                 }
             }
 
-            Ornithe -> {
+            ModLoaderType.LEGACY_FABRIC -> TODO()
+
+            ModLoaderType.ORNITHE -> {
                 val userConfig = ornitheConfig ?: OrnitheModConfiguration()
                 ornitheConfig = OrnitheModConfiguration().apply {
                     loader = userConfig.loader.ifEmpty {
                         FabricLoaderSynchronizer.getLatestVersion(project, minecraftVersion)
                     }
                     feather = userConfig.feather.ifEmpty {
-                        if (minecraftVersion.areSplitMixins()) {
-                            OrnitheFeatherSplitMappingsSynchronizer.getLatestVersion(project, minecraftVersion)
-                        } else {
-                            OrnitheFeatherMappingsSynchronizer.getLatestVersion(project, minecraftVersion)
-                        }
+                        val mappingsSynchronizer = OrnitheFeatherMappingsSynchronizer(minecraftVersion.getMappingsEra())
+                        mappingsSynchronizer.getLatestVersion(project, minecraftVersion)
                     }
-                    println("Fabric Loader: $loader")
-                    println("Ornithe Feather: $feather")
+                    project.log("[Crafter] Ornithe Loader: $loader")
+                    project.log("[Crafter] Feather Mappings: $feather")
                 }
             }
 
-            NeoForge -> {
+            ModLoaderType.BABRIC -> TODO()
+
+            ModLoaderType.NEOFORGE -> {
                 val userConfig = neoforgeConfig ?: NeoforgeModConfiguration()
                 neoforgeConfig = NeoforgeModConfiguration().apply {
                     loader = userConfig.loader.ifEmpty {
@@ -101,16 +93,12 @@ open class MinecraftModConfiguration {
                     parchmentMappings = userConfig.parchmentMappings.ifEmpty {
                         ParchmentSynchronizer.getLatestVersion(project, minecraftVersion)
                     }
-                    println("NeoForge: $loader")
-                    println("Parchment: $parchmentMappings for $parchmentMinecraft")
+                    project.log("[Crafter] NeoForge Loader: $loader")
+                    project.log("[Crafter] Parchment Mappings: $parchmentMappings")
                 }
             }
 
-            Forge -> {
-
-            }
-
-            Quilt -> {
+            ModLoaderType.FORGE -> {
 
             }
         }

@@ -1,6 +1,7 @@
 package io.github.diskria.projektor.publishing.external
 
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
+import io.github.diskria.kotlin.utils.extensions.ktor.parameters
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.projekt.AndroidApplication
 import io.github.diskria.projektor.projekt.common.Projekt
@@ -20,7 +21,7 @@ data object GooglePlay : ExternalPublishingTarget() {
     override fun getHomepage(metadata: ProjektMetadata): Url =
         buildUrl("play.google.com") {
             path("store", "apps", "details")
-            parameters.append("id", metadata.packageNameBase)
+            parameters("id" to metadata.packageNameBase)
         }
 
     override fun configureDistributeTask(rootProject: Project) = TODO()

@@ -4,7 +4,9 @@ import io.github.diskria.projektor.common.publishing.PublishingTargetType.MODRIN
 pluginManagement {
     repositories {
         val mavenDirectory = rootDir.parentFile.parentFile.resolve("build/maven")
-        maven(uri(mavenDirectory.listFiles().orEmpty().min()))
+        maven(uri(mavenDirectory.listFiles().orEmpty().min())) {
+            name = "Projektor"
+        }
         gradlePluginPortal()
     }
 }

@@ -1,23 +1,15 @@
 package io.github.diskria.projektor.publishing.external
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar.Companion.shadowJar
-import com.modrinth.minotaur.TaskModrinthSyncBody
-import io.github.diskria.gradle.utils.extensions.findProjectRoot
-import io.github.diskria.gradle.utils.extensions.getTask
+import io.github.diskria.gradle.utils.extensions.findGradleProjectRoot
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
-import io.github.diskria.kotlin.utils.extensions.common.failWithUnsupportedType
 import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
-import io.github.diskria.projektor.common.minecraft.versions.common.asString
+import io.github.diskria.projektor.common.minecraft.versions.asString
 import io.github.diskria.projektor.extensions.modrinth
-import io.github.diskria.projektor.minecraft.loaders.fabric.Fabric
-import io.github.diskria.projektor.minecraft.loaders.fabric.ornithe.Ornithe
-import io.github.diskria.projektor.minecraft.loaders.fabric.quilt.Quilt
-import io.github.diskria.projektor.minecraft.loaders.forge.Forge
-import io.github.diskria.projektor.minecraft.loaders.forge.neoforge.NeoForge
 import io.github.diskria.projektor.projekt.MinecraftMod
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.publishing.external.common.ExternalPublishingTarget
@@ -36,14 +28,14 @@ data object Modrinth : ExternalPublishingTarget() {
 
         val loader = mod.loader
         val loaderName = loader.getLoaderDisplayName()
-        val minSupportedVersion = mod.supportedVersionRange.min.asString()
-        val maxSupportedVersion = mod.supportedVersionRange.max.asString()
+        val minSupportedVersion = mod.minSupportedVersion.asString()
+        val maxSupportedVersion = mod.maxSupportedVersion.asString()
         modrinth {
             token.set(
                 if (EnvironmentHelper.isCI()) Secrets.modrinthToken
                 else Constants.Char.EMPTY
             )
-            projectId.set(mod.id)
+            projectId.set(mod.repo.name)
             versionName.set(
                 buildString {
                     append("${mod.name} ${mod.version} for $loaderName ")
@@ -57,26 +49,12 @@ data object Modrinth : ExternalPublishingTarget() {
 
             changelog.set(Constants.Char.EMPTY)
             syncBodyFrom.set(
-                GenerateProjektReadmeTask.generateText(findProjectRoot(), getProjektMetadata(), isModrinthBody = true)
+                GenerateProjektReadmeTask.generateText(
+                    findGradleProjectRoot(),
+                    getProjektMetadata(),
+                    isModrinthBody = true
+                )
             )
-            when (loader) {
-                Fabric -> {
-                    required.project("fabric-api", "fabric-language-kotlin")
-                }
-
-                Ornithe -> {
-                    required.project("osl")
-                }
-
-                NeoForge -> {
-
-                }
-
-                Forge -> TODO()
-                Quilt -> TODO()
-                else -> failWithUnsupportedType(loader::class)
-            }
-
             gameVersions.set(mod.supportedVersionRange.expand().map { it.asString() })
             detectLoaders.set(false)
             loaders.set(listOf(loaderName))
@@ -85,7 +63,7 @@ data object Modrinth : ExternalPublishingTarget() {
             debugMode.set(!EnvironmentHelper.isCI())
         }
         val publishTask = tasks.named(publishTaskName).get()
-        publishTask.dependsOn(getTask<TaskModrinthSyncBody>())
+        publishTask.dependsOn("modrinthSyncBody")
         return true
     }
 

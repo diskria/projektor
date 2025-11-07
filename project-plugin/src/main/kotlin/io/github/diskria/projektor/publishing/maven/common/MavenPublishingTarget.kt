@@ -1,5 +1,6 @@
 package io.github.diskria.projektor.publishing.maven.common
 
+import io.github.diskria.gradle.utils.extensions.children
 import io.github.diskria.gradle.utils.extensions.getBuildDirectory
 import io.github.diskria.gradle.utils.extensions.isRootProject
 import io.github.diskria.kotlin.utils.Constants
@@ -9,7 +10,6 @@ import io.github.diskria.kotlin.utils.extensions.common.modifyUnless
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.kotlin.utils.words.PascalCase
-import io.github.diskria.projektor.extensions.children
 import io.github.diskria.projektor.extensions.mappers.mapToEnum
 import io.github.diskria.projektor.extensions.publishing
 import io.github.diskria.projektor.projekt.common.Projekt
@@ -57,7 +57,7 @@ abstract class MavenPublishingTarget : PublishingTarget() {
 
     override fun registerRootPublishTask(rootProject: Project): TaskProvider<out Task> =
         rootProject.tasks.register<Sync>(publishTaskName) {
-            rootProject.children().forEach { from(getLocalMavenDirectory(it)) }
+            rootProject.children.forEach { from(getLocalMavenDirectory(it)) }
             into(getLocalMavenDirectory(rootProject))
         }
 

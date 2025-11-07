@@ -1,11 +1,23 @@
 package io.github.diskria.projektor.helpers
 
-import io.github.diskria.kotlin.utils.extensions.common.fileName
-
 object AccessWidenerHelper {
 
-    const val HEADER_LINE: String = "accessWidener v2 named"
-
-    fun getFileName(modId: String): String =
-        fileName(modId, "accesswidener")
+    val TEMPLATE: String by lazy {
+        buildString {
+            appendLine("accessWidener v2 named")
+            appendLine()
+            appendLine("# region class")
+            appendLine()
+            appendLine("# endregion class")
+            appendLine()
+            appendLine("# region method")
+            appendLine()
+            appendLine("# endregion method")
+            appendLine()
+            appendLine("# region field")
+            appendLine()
+            appendLine("# endregion field")
+            appendLine()
+        }
+    }
 }

@@ -1,7 +1,7 @@
 package io.github.diskria.projektor.common.minecraft.sync.common
 
-import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersion
-import io.github.diskria.projektor.common.minecraft.versions.common.MinecraftVersionSerializer
+import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
+import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersionSerializer
 import kotlinx.serialization.Serializable
 
 @Serializable

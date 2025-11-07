@@ -1,9 +1,9 @@
 package io.github.diskria.projektor.publishing.common
 
+import io.github.diskria.gradle.utils.extensions.getLeafProjects
 import io.github.diskria.gradle.utils.extensions.getTaskPath
+import io.github.diskria.gradle.utils.extensions.isCommonProject
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
-import io.github.diskria.projektor.common.utils.ProjectModules
-import io.github.diskria.projektor.extensions.getLeafProjects
 import io.github.diskria.projektor.projekt.MinecraftMod
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
@@ -30,15 +30,15 @@ abstract class PublishingTarget {
                 group = publishTask.group
                 description = publishTask.description
 
-                val ignoredProjects = when (projekt) {
-                    is MinecraftMod -> listOf("client", "server")
-                    else -> emptyList()
-                }
-                rootProject.getLeafProjects(ignoredProjects).forEach {
-                    if (it.path != ProjectModules.Common.PATH) {
-                        dependsOn(it.getTaskPath(publishTaskName))
+                rootProject
+                    .getLeafProjects { subproject ->
+                        when {
+                            subproject.isCommonProject() -> false
+                            projekt is MinecraftMod -> subproject.name != "client" && subproject.name != "server"
+                            else -> true
+                        }
                     }
-                }
+                    .forEach { dependsOn(it.getTaskPath(publishTaskName)) }
             }
         }.get()
 

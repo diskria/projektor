@@ -8,8 +8,5 @@ plugins {
 projekt {
     minecraftMod {
         environment = ModEnvironment.CLIENT_SERVER
-        neoforge {
-            loader = "21.10.43-beta"
-        }
     }
 }

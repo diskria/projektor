@@ -29,6 +29,7 @@ interface Projekt {
     val license: License
     val publishingTargets: List<PublishingTarget>
 
+    val isSourcesEnabled: Boolean get() = true
     val isJavadocEnabled: Boolean get() = true
     val publicationComponentName: String? get() = null
     val packageNameSuffix: String? get() = null

@@ -42,6 +42,7 @@ class ReplaceGrassWithCobblestone {
                 entity instanceof Player &&
                 world.getBlockState(blockPos).getBlock() == Blocks.GRASS_BLOCK
         ) {
+            world.canHaveWeather();
             world.setBlock(blockPos, Blocks.COBBLESTONE.defaultBlockState(), UPDATE_NEIGHBORS | UPDATE_CLIENTS);
             ci.cancel();
         }

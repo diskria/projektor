@@ -4,6 +4,7 @@
       <w>accesstransformer</w>
       <w>accesswidener</w>
       <w>adoptium</w>
+      <w>babric</w>
       <w>configureondemand</w>
       <w>darlingram</w>
       <w>datagen</w>
@@ -20,6 +21,7 @@
       <w>javafml</w>
       <w>jvmargs</w>
       <w>ldtteam</w>
+      <w>legacyfabric</w>
       <w>minecraftforge</w>
       <w>modid</w>
       <w>modrinth</w>
@@ -34,6 +36,7 @@
       <w>projekt</w>
       <w>projektor</w>
       <w>projektorlab</w>
+      <w>quiltmc</w>
       <w>spdx</w>
       <w>spongepowered</w>
       <w>temurin</w>

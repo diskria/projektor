@@ -3,7 +3,8 @@ package io.github.diskria.projektor.minecraft.mixins
 import io.github.diskria.kotlin.utils.extensions.appendPackageName
 import io.github.diskria.kotlin.utils.serialization.annotations.EncodeDefaults
 import io.github.diskria.kotlin.utils.serialization.annotations.PrettyPrint
-import io.github.diskria.projektor.common.minecraft.ModSide
+import io.github.diskria.projektor.common.ProjectDirectories
+import io.github.diskria.projektor.common.minecraft.sides.ModSide
 import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.minecraft.ModEnvironment
 import io.github.diskria.projektor.projekt.MinecraftMod
@@ -42,7 +43,7 @@ class MixinsConfig(
     companion object {
         fun of(mod: MinecraftMod, sideMixins: Map<ModSide, List<String>>): MixinsConfig =
             MixinsConfig(
-                packageName = mod.packageName.appendPackageName("mixins"),
+                packageName = mod.packageName.appendPackageName(ProjectDirectories.MINECRAFT_MIXINS),
                 jvmTargetVersion = "JAVA_${mod.jvmTarget.toInt()}",
                 injectorConfig = InjectorConfig.newInstance(),
                 overwriteConfig = OverwriteConfig.newInstance(),

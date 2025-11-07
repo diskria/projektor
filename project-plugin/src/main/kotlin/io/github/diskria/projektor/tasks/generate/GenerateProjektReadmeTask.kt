@@ -1,13 +1,11 @@
 package io.github.diskria.projektor.tasks.generate
 
 import io.github.diskria.kotlin.shell.dsl.git.commits.CommitType
-import io.github.diskria.kotlin.utils.Constants
-import io.github.diskria.kotlin.utils.extensions.common.fileName
 import io.github.diskria.kotlin.utils.extensions.generics.joinBySpace
+import io.github.diskria.projektor.common.helpers.MarkdownHelper
 import io.github.diskria.projektor.common.metadata.ProjektAbout
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.mappers.mapToModel
-import io.github.diskria.projektor.readme.MarkdownHelper
 import io.github.diskria.projektor.readme.shields.static.LicenseShield
 import io.github.diskria.projektor.tasks.generate.common.AbstractGenerateFileTask
 import java.io.File
@@ -17,7 +15,7 @@ abstract class GenerateProjektReadmeTask : AbstractGenerateFileTask() {
     override fun getFileText(metadata: ProjektMetadata, repoDirectory: File, file: File): String =
         generateText(repoDirectory, metadata)
 
-    override fun getOutputFileName(): String = fileName("README", Constants.File.Extension.MARKDOWN)
+    override fun getOutputFileName(): String = MarkdownHelper.fileName("readme")
 
     override fun getCommitType(): CommitType = CommitType.DOCS
 

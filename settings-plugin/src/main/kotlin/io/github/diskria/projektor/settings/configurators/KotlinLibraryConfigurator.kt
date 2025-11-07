@@ -9,11 +9,20 @@ open class KotlinLibraryConfigurator(
 ) : SettingsConfigurator() {
 
     override fun configureRepositories(settings: Settings) {
-        applyRepositories(settings)
+        applyMainRepositories(settings)
+        applyExternalRepositories(settings)
+    }
+
+    override fun configureProjects(settings: Settings) {
+
     }
 
     companion object {
-        fun applyRepositories(settings: Settings) = with(settings) {
+        fun applyMainRepositories(settings: Settings) = with(settings) {
+
+        }
+
+        fun applyExternalRepositories(settings: Settings) = with(settings) {
 
         }
     }

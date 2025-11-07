@@ -5,6 +5,7 @@ import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
+import io.github.diskria.kotlin.utils.extensions.ktor.parameters
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.Secrets
@@ -49,7 +50,7 @@ abstract class UploadBundleToMavenCentralTask : Zip() {
         val bearer = (username + Constants.Char.COLON + password).toByteArray().encodeBase64()
         val url = buildUrl("central.sonatype.com") {
             path("api", "v1", "publisher", "upload")
-            parameters.append("publishingType", "AUTOMATIC")
+            parameters("publishingType" to "AUTOMATIC")
         }
         val bundleFile = archiveFile.get().asFile
         val part = PartData.FileItem({ bundleFile.readChannel() }, {}, Headers.build {
