@@ -16,7 +16,7 @@ abstract class AbstractMinecraftMavenSynchronizer : AbstractMinecraftComponentSy
 
     abstract fun parseMinecraftVersion(version: String): MinecraftVersion?
 
-    override suspend fun fetchComponents(): List<MinecraftComponent> =
+    final override suspend fun fetchComponents(): List<MinecraftComponent> =
         HttpClient(CIO).use { client ->
             val mavenMetadata = client.get(mavenUrl).bodyAsText().deserializeFromXml<MavenMetadata>()
             val versions = mavenMetadata.versioning.versions.version

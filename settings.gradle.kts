@@ -3,7 +3,6 @@ import io.github.diskria.kotlin.utils.extensions.listDirectories
 import io.github.diskria.projektor.common.licenses.LicenseType.MIT
 import io.github.diskria.projektor.common.publishing.PublishingTargetType.GITHUB_PACKAGES
 import io.github.diskria.projektor.common.publishing.PublishingTargetType.GITHUB_PAGES
-import io.github.diskria.projektor.settings.configurators.MinecraftModConfigurator
 
 pluginManagement {
     repositories {
@@ -19,7 +18,7 @@ plugins {
 }
 
 projekt {
-    version = "4.6.0"
+    version = "4.6.1"
     license = MIT
     publish = setOf(
         GITHUB_PAGES,
@@ -29,8 +28,7 @@ projekt {
     gradlePlugin()
 }
 
-MinecraftModConfigurator.applyRepositories(settings)
-
+include(":common")
 include(":settings-plugin", ":project-plugin")
 
 if (rootDir.resolve("build/maven").listFiles().orEmpty().isNotEmpty()) {

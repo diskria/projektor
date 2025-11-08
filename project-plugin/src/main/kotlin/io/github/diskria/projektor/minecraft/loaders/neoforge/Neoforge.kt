@@ -19,6 +19,7 @@ import io.github.diskria.projektor.tasks.minecraft.generate.GenerateModEntryPoin
 import io.github.diskria.projektor.tasks.minecraft.generate.GenerateModMixinsConfigTask
 import io.github.diskria.projektor.tasks.minecraft.test.TestClientModTask
 import io.github.diskria.projektor.tasks.minecraft.test.TestServerModTask
+import net.fabricmc.loom.task.RunGameTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.SourceSet
@@ -31,7 +32,7 @@ import org.gradle.kotlin.dsl.invoke
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
 
-data object NeoForge : ModLoader() {
+data object Neoforge : ModLoader() {
 
     override fun configure(modProject: Project, mod: MinecraftMod) = with(modProject) {
         subprojects {

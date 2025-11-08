@@ -68,7 +68,7 @@ class MinecraftMod(
 
     val configFileName: String =
         when (val type = loader.mapToEnum()) {
-            ModLoaderType.FABRIC, ModLoaderType.LEGACY_FABRIC, ModLoaderType.ORNITHE, ModLoaderType.BABRIC -> {
+            ModLoaderType.FABRIC, ModLoaderType.LEGACY_FABRIC, ModLoaderType.ORNITHE -> {
                 fileName(ModLoaderType.FABRIC.getName(), "mod", Constants.File.Extension.JSON)
             }
 

@@ -1,11 +1,14 @@
 package io.github.diskria.projektor.projekt.common
 
+import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
+import io.github.diskria.kotlin.utils.extensions.common.snake_case
 import io.github.diskria.kotlin.utils.extensions.listDirectories
 import io.github.diskria.kotlin.utils.extensions.mappers.toEnum
+import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
-import io.github.diskria.projektor.common.minecraft.loaders.getSupportedVersionRange
+import io.github.diskria.projektor.common.minecraft.loaders.getSupportedVersionRanges
 import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.compareTo
 import io.github.diskria.projektor.common.minecraft.versions.previousOrNull
@@ -53,7 +56,7 @@ data class BaseProjekt(
         val minSupportedVersionDirectory = project.projectDir
         val loaderDirectory = minSupportedVersionDirectory.parentFile
 
-        val loader = loaderDirectory.name.toEnum<ModLoaderType>().mapToModel()
+        val loader = loaderDirectory.name.setCase(`kebab-case`, snake_case).toEnum<ModLoaderType>().mapToModel()
         val minSupportedVersion = MinecraftVersion.parse(minSupportedVersionDirectory.name)
         config.resolveConfig(loader, project, minSupportedVersion)
 
@@ -64,7 +67,11 @@ data class BaseProjekt(
                     .filter { it > minSupportedVersion }
                     .minWithOrNull(MinecraftVersion.COMPARATOR)
                 nextMinSupportedVersion?.previousOrNull()
-            } ?: loader.mapToEnum().getSupportedVersionRange().max
+            }
+            ?: run {
+                val supportedRanges = loader.mapToEnum().getSupportedVersionRanges()
+                supportedRanges.maxWith(compareBy(MinecraftVersion.COMPARATOR) { it.max }).max
+            }
         return MinecraftMod(this, config, loader, minSupportedVersion..maxSupportedVersion)
     }
 

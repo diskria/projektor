@@ -5,6 +5,7 @@ import io.github.diskria.gradle.utils.extensions.rootDirectory
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.Semver
 import io.github.diskria.kotlin.utils.extensions.common.fileName
+import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.common.nowMillis
 import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
@@ -16,7 +17,7 @@ import io.github.diskria.projektor.ProjektBuildConfig
 import io.github.diskria.projektor.common.ProjectDirectories
 import io.github.diskria.projektor.common.minecraft.era.common.MappingsEra
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
-import io.github.diskria.projektor.common.minecraft.loaders.getSupportedVersionRange
+import io.github.diskria.projektor.common.minecraft.loaders.getSupportedVersionRanges
 import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.asString
 import io.github.diskria.projektor.common.minecraft.versions.compareTo
@@ -49,7 +50,7 @@ abstract class AbstractMinecraftComponentSynchronizer {
                 .groupBy { it.minecraftVersion }
                 .filterKeys { minecraftVersion ->
                     loader?.let { loader ->
-                        loader.getSupportedVersionRange().includesMinecraftVersion(minecraftVersion) &&
+                        loader.getSupportedVersionRanges().any { it.includesMinecraftVersion(minecraftVersion) } &&
                                 (mappingsEra == null || mappingsEra == minecraftVersion.getMappingsEra())
                     } ?: true
                 }
@@ -78,7 +79,7 @@ abstract class AbstractMinecraftComponentSynchronizer {
             .rootDirectory
             .resolve(ProjectDirectories.GRADLE_CACHE)
             .resolve(ProjektBuildConfig.LIBRARY_NAME.lowercase())
-        val parentDirectory = loader?.let { cacheRoot.resolve(it.getName()) } ?: cacheRoot
+        val parentDirectory = loader?.let { cacheRoot.resolve(it.getName(`kebab-case`)) } ?: cacheRoot
         return parentDirectory.resolve(fileName("$componentName-versions", Constants.File.Extension.JSON))
     }
 }

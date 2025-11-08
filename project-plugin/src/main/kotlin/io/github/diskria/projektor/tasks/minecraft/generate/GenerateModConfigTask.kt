@@ -43,9 +43,8 @@ abstract class GenerateModConfigTask : DefaultTask() {
 
         when (minecraftMod.loader.mapToEnum()) {
             ModLoaderType.FABRIC -> FabricModConfig.of(minecraftMod).serializeJsonToFile(outputFile)
-            ModLoaderType.LEGACY_FABRIC -> TODO()
+            ModLoaderType.LEGACY_FABRIC -> FabricModConfig.of(minecraftMod).serializeJsonToFile(outputFile)
             ModLoaderType.ORNITHE -> OrnitheModConfig.of(minecraftMod).serializeJsonToFile(outputFile)
-            ModLoaderType.BABRIC -> TODO()
             ModLoaderType.FORGE -> TODO()
             ModLoaderType.NEOFORGE -> NeoforgeModConfig.of(minecraftMod).serializeTomlToFile(outputFile)
         }

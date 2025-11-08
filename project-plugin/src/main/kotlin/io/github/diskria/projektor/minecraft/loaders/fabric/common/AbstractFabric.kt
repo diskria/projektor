@@ -14,12 +14,10 @@ import io.github.diskria.kotlin.utils.extensions.mappers.toEnumOrNull
 import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.projektor.common.ProjectDirectories
 import io.github.diskria.projektor.common.minecraft.MinecraftConstants
-import io.github.diskria.projektor.common.minecraft.era.Release
 import io.github.diskria.projektor.common.minecraft.era.common.MappingsEra
 import io.github.diskria.projektor.common.minecraft.era.common.MinecraftEra
 import io.github.diskria.projektor.common.minecraft.sides.ModSide
 import io.github.diskria.projektor.common.minecraft.versions.asString
-import io.github.diskria.projektor.common.minecraft.versions.compareTo
 import io.github.diskria.projektor.common.minecraft.versions.getMappingsEra
 import io.github.diskria.projektor.common.minecraft.versions.getMinJavaVersion
 import io.github.diskria.projektor.extensions.*
@@ -41,7 +39,10 @@ import org.gradle.jvm.toolchain.JavaToolchainService
 import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.*
 
-abstract class AbstractFabric(val isOrnithe: Boolean = false) : ModLoader() {
+abstract class AbstractFabric(
+    val isOrnithe: Boolean = false,
+    val isLegacy: Boolean = false,
+) : ModLoader() {
 
     override fun configure(modProject: Project, mod: MinecraftMod) = with(modProject) {
         val mappingsEra = mod.minecraftVersion.getMappingsEra()
@@ -96,10 +97,8 @@ abstract class AbstractFabric(val isOrnithe: Boolean = false) : ModLoader() {
                                     "username",
                                     mod.repo.owner.developer + MinecraftConstants.PLAYER_NAME_DEVELOPER_SUFFIX
                                 ),
+                                *JvmArguments.program("userProperties", "{}"),
                             )
-                            if (mod.minecraftVersion < Release.V_1_8) {
-                                programArgs(*JvmArguments.program("userProperties", "{}"))
-                            }
                         }
                     }
                 }
@@ -110,22 +109,38 @@ abstract class AbstractFabric(val isOrnithe: Boolean = false) : ModLoader() {
             restoreDependencyResolutionRepositories()
             dependencies {
                 minecraft("com.mojang", "minecraft", mod.minecraftVersion.asString())
-                val loaderVersion = if (isOrnithe) mod.config.ornithe.loader else mod.config.fabric.loader
+                val loaderVersion = when {
+                    isOrnithe -> mod.config.ornithe.loader
+                    isLegacy -> mod.config.legacyFabric.loader
+                    else -> mod.config.fabric.loader
+                }
                 modImplementation("net.fabricmc", "fabric-loader", loaderVersion)
 
-                if (isOrnithe) {
-                    ploceus {
-                        if (mappingsEra != MappingsEra.MERGED) {
-                            @Suppress("DEPRECATION")
-                            when (side) {
-                                ModSide.CLIENT -> clientOnlyMappings()
-                                ModSide.SERVER -> serverOnlyMappings()
+                when {
+                    isOrnithe -> {
+                        ornithe {
+                            if (mappingsEra != MappingsEra.MERGED) {
+                                @Suppress("DEPRECATION")
+                                when (side) {
+                                    ModSide.CLIENT -> clientOnlyMappings()
+                                    ModSide.SERVER -> serverOnlyMappings()
+                                }
                             }
+                            mappings(featherMappings(mod.config.ornithe.feather))
                         }
-                        mappings(featherMappings(mod.config.ornithe.feather))
                     }
-                } else {
-                    mappings("net.fabricmc", "yarn", mod.config.fabric.yarn, "v2")
+
+                    isLegacy -> {
+                        legacyFabric {
+                            mappings(yarn(mod.config.legacyFabric.yarnMinecraft, mod.config.legacyFabric.yarnMappings))
+                        }
+                    }
+
+                    else -> {
+                        fabric {
+                            mappings("net.fabricmc", "yarn", mod.config.fabric.yarn, "v2")
+                        }
+                    }
                 }
             }
             val runDirectory = projectDirectory.resolve(ProjectDirectories.MINECRAFT_RUN).ensureDirectoryExists()

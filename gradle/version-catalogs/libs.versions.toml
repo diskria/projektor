@@ -9,10 +9,11 @@ modrinth-minotaur-plugin = "2.8.10"
 plugin-publish-plugin = "1.3.1"
 shadow-plugin = "9.2.2"
 
-fabric-plugin = "1.13.3"
-ornithe-plugin = "1.13.1"
+fabric-plugin = "1.11-SNAPSHOT"
+legacy-fabric-plugin = "1.11-SNAPSHOT"
+ornithe-plugin = "1.11-SNAPSHOT"
 neoforge-plugin = "2.0.116"
-forge-plugin = "7.0.0-beta.45"
+forge-plugin = "6.0.44"
 
 kotlin = "2.3.0-Beta2"
 ktor = "3.3.2"
@@ -20,7 +21,7 @@ kotlin-serialization-xml = "0.91.2"
 kotlin-html = "0.12.0"
 
 kotlin-utils = "0.7.15"
-gradle-utils = "0.6.12"
+gradle-utils = "0.6.13"
 kotlin-shell-dsl = "0.4.2"
 
 java-poet = "0.7.0"
@@ -53,6 +54,7 @@ plugin-publish-plugin = { group = "com.gradle.publish", name = "plugin-publish-p
 shadow-plugin = { group = "com.gradleup.shadow", name = "com.gradleup.shadow.gradle.plugin", version.ref = "shadow-plugin" }
 
 fabric-plugin = { group = "fabric-loom", name = "fabric-loom.gradle.plugin", version.ref = "fabric-plugin" }
+legacy-fabric-plugin = { group = "legacy-looming", name = "legacy-looming.gradle.plugin", version.ref = "legacy-fabric-plugin" }
 ornithe-plugin = { group = "ploceus", name = "ploceus.gradle.plugin", version.ref = "ornithe-plugin" }
 neoforge-plugin = { group = "net.neoforged.moddev", name = "net.neoforged.moddev.gradle.plugin", version.ref = "neoforge-plugin" }
 forge-plugin = { group = "net.minecraftforge.gradle", name = "net.minecraftforge.gradle.gradle.plugin", version.ref = "forge-plugin" }
@@ -83,6 +85,7 @@ implementation-project-plugins = [
     "plugin-publish-plugin",
     "shadow-plugin",
     "fabric-plugin",
+    "legacy-fabric-plugin",
     "ornithe-plugin",
     "neoforge-plugin",
     "forge-plugin",

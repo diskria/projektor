@@ -1,6 +1,8 @@
 package io.github.diskria.projektor.minecraft.loaders.fabric.config
 
+import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
 import io.github.diskria.projektor.common.minecraft.versions.asString
+import io.github.diskria.projektor.extensions.mappers.mapToEnum
 import io.github.diskria.projektor.extensions.mappers.toInt
 import io.github.diskria.projektor.minecraft.versions.VersionBound
 import io.github.diskria.projektor.minecraft.versions.range.InequalityVersionRange
@@ -25,7 +27,12 @@ class FabricModDependenciesConfig private constructor(
             FabricModDependenciesConfig(
                 javaVersion = InequalityVersionRange.min(VersionBound.inclusive(mod.jvmTarget.toInt().toString())),
                 minecraftVersion = InequalityVersionRange.min(VersionBound.inclusive(mod.minecraftVersion.asString())),
-                loaderVersion = InequalityVersionRange.min(VersionBound.inclusive(mod.config.fabric.loader)),
+                loaderVersion = InequalityVersionRange.min(
+                    VersionBound.inclusive(
+                        if (mod.loader.mapToEnum() == ModLoaderType.LEGACY_FABRIC) mod.config.legacyFabric.loader
+                        else mod.config.fabric.loader
+                    )
+                ),
             )
     }
 }

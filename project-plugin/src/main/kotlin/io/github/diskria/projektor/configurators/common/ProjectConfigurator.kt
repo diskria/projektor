@@ -24,6 +24,7 @@ import io.github.diskria.projektor.tasks.generate.GenerateProjektGitAttributesTa
 import io.github.diskria.projektor.tasks.generate.GenerateProjektGitIgnoreTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektLicenseTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektReadmeTask
+import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
@@ -47,7 +48,7 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
             implementation("org.jetbrains.kotlinx", "kotlinx-serialization-json", Versions.KOTLIN_SERIALIZATION)
         }
 
-        val rootProjektType = project.getProjektMetadata().type
+        val rootProjektType = getProjektMetadata().type
         if (rootProjektType != ProjektType.MINECRAFT_MOD) {
             dependencies {
                 testImplementation(kotlin("test"))
@@ -146,12 +147,15 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                 }
             }
         }
-        if (project.isCommonProject()) {
+        if (isCommonProject()) {
             return@with
         }
-        val commonProject = project.rootProject.findCommonProject()
+        val commonProject = rootProject.findCommonProject()
         if (commonProject != null) {
             if (projekt is GradlePlugin || projekt is KotlinLibrary) {
+                dependencies {
+                    compileOnly(commonProject)
+                }
                 configureShadowJar(listOf(commonProject))
             } else if (projekt is MinecraftMod) {
                 val mod = projekt
@@ -181,9 +185,9 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
             }
         }
         val publishingTargetTasks = projekt.publishingTargets
-            .filter { it.configurePublishTask(projekt, project) }
+            .filter { it.configurePublishTask(projekt, this) }
             .map { target ->
-                val publishTask = project.tasks.named(target.publishTaskName).get()
+                val publishTask = tasks.named(target.publishTaskName).get()
                 val rootPublishTask = rootProject.getTaskOrNull(target.publishTaskName)
                     ?: target.configureRootPublishTask(rootProject, publishTask, projekt)
                 val distributeTask = when {

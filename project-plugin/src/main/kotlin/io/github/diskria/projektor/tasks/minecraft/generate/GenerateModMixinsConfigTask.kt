@@ -66,6 +66,7 @@ abstract class GenerateModMixinsConfigTask : DefaultTask() {
                         .listFilesWithExtension(Constants.File.Extension.JAVA)
                         .map { javaFile -> javaFile.nameWithoutExtension }
                         .map { className ->
+                            println("AAAA $className")
                             if (relativePath.isEmpty()) className
                             else relativePath.setCase(`path∕case`, `dot․case`).appendPackageName(className)
                         }
@@ -73,6 +74,7 @@ abstract class GenerateModMixinsConfigTask : DefaultTask() {
                 .toList()
                 .sorted()
         }.filterValues { it.isNotEmpty() }
+        println(sideMixins)
 
         val config = MixinsConfig.of(minecraftMod, sideMixins)
         config.serializeJsonToFile(outputFile.get().asFile.ensureFileExists())

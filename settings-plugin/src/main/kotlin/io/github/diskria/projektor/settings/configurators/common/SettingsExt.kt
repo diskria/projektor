@@ -11,7 +11,6 @@ fun Settings.pluginRepositories(block: RepositoryHandler.() -> Unit) {
     }
 }
 
-@Suppress("UnstableApiUsage")
 fun Settings.dependencyRepositories(block: RepositoryHandler.() -> Unit) {
     dependencyResolutionManagement {
         repositories {

@@ -55,7 +55,7 @@ abstract class GenerateModEntryPointTask : DefaultTask() {
             else -> Constants.Char.EMPTY
         }
         val entryPointClass = when (mod.loader.mapToEnum()) {
-            ModLoaderType.FABRIC -> {
+            ModLoaderType.FABRIC, ModLoaderType.LEGACY_FABRIC -> {
                 val superInterfaceClassName = ClassName.get("net.fabricmc.api", "${environmentName}ModInitializer")
                 val methodName = "onInitialize$sideName"
                 val initializeMethod = MethodSpec.methodBuilder(methodName)
@@ -70,15 +70,11 @@ abstract class GenerateModEntryPointTask : DefaultTask() {
                     .build()
             }
 
-            ModLoaderType.LEGACY_FABRIC -> TODO()
-
             ModLoaderType.ORNITHE -> {
                 entryPointBuilder
                     .addModifiers(Modifier.PUBLIC)
                     .build()
             }
-
-            ModLoaderType.BABRIC -> TODO()
 
             ModLoaderType.NEOFORGE -> {
                 val annotation = AnnotationSpec.builder(ClassName.get("net.neoforged.fml.common", "Mod")).apply {

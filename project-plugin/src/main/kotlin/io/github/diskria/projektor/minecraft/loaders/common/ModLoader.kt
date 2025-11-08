@@ -12,7 +12,7 @@ abstract class ModLoader {
 
     val family: ModLoaderFamily
         get() = when (mapToEnum()) {
-            FABRIC, LEGACY_FABRIC, ORNITHE, BABRIC -> ModLoaderFamily.FABRIC
+            FABRIC, LEGACY_FABRIC, ORNITHE -> ModLoaderFamily.FABRIC
             FORGE, NEOFORGE -> ModLoaderFamily.FORGE
         }
 

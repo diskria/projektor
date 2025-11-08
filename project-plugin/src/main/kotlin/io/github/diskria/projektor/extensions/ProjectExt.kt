@@ -7,8 +7,9 @@ import com.modrinth.minotaur.ModrinthExtension
 import io.github.diskria.gradle.utils.extensions.*
 import io.github.diskria.projektor.projekt.common.BaseProjekt
 import net.fabricmc.loom.api.LoomGradleExtensionAPI
-import net.minecraftforge.gradle.ClosureOwner
-import net.minecraftforge.gradle.MinecraftExtensionForProject
+import net.legacyfabric.legacylooming.LegacyLoomingExtensionAPI
+import net.legacyfabric.legacylooming.LegacyUtilsExtension
+import net.minecraftforge.gradle.common.util.MinecraftExtension
 import net.neoforged.moddevgradle.dsl.NeoForgeExtension
 import net.ornithemc.ploceus.api.PloceusGradleExtensionApi
 import org.gradle.api.Project
@@ -83,14 +84,16 @@ fun Project.fabric(configuration: LoomGradleExtensionAPI.() -> Unit = {}) {
     withPluginExtension<LoomGradleExtensionAPI>("fabric-loom", configuration)
 }
 
-fun Project.ploceus(configuration: PloceusGradleExtensionApi.() -> Unit = {}) {
+fun Project.legacyFabric(configuration: LegacyUtilsExtension.() -> Unit = {}) {
+    withPluginExtension<LegacyUtilsExtension>("legacy-looming", configuration)
+}
+
+fun Project.ornithe(configuration: PloceusGradleExtensionApi.() -> Unit = {}) {
     withPluginExtension<PloceusGradleExtensionApi>("ploceus", configuration)
 }
 
-fun Project.forge(configuration: MinecraftExtensionForProject<ClosureOwner.MinecraftDependency>.() -> Unit = {}) {
-    withPluginExtension<MinecraftExtensionForProject<ClosureOwner.MinecraftDependency>>(
-        "net.minecraftforge.gradle", configuration
-    )
+fun Project.forge(configuration: MinecraftExtension.() -> Unit = {}) {
+    withPluginExtension<MinecraftExtension>("net.minecraftforge.gradle", configuration)
 }
 
 fun Project.neoforge(configuration: NeoForgeExtension.() -> Unit = {}) {
