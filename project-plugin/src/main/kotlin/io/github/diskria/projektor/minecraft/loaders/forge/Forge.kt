@@ -9,9 +9,9 @@ data object Forge : ModLoader() {
 
     override fun configure(modProject: Project, mod: MinecraftMod) = with(modProject) {
         subprojects {
-            forge {
-
-            }
+//            forge {
+//
+//            }
         }
     }
 }

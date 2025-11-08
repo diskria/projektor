@@ -29,7 +29,7 @@ fun ModLoaderType.getSupportedVersionRanges(): List<MinecraftVersionRange> =
         )
 
         FORGE -> listOf(
-            TODO(),
+            Release.V_1_17_1..MinecraftVersion.LATEST,
         )
 
         NEOFORGE -> listOf(
