@@ -4,8 +4,6 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":common"))
-
     implementation(libs.bundles.diskria.utils)
     implementation(libs.bundles.ktor.client)
     implementation(libs.bundles.implementation.settings.plugins)

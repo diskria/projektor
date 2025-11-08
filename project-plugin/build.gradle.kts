@@ -4,8 +4,6 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":common"))
-
     implementation(libs.kotlin.html)
     implementation(libs.kotlin.serialization.xml)
     implementation(libs.jsoup)

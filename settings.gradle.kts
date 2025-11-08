@@ -18,7 +18,7 @@ plugins {
 }
 
 projekt {
-    version = "4.6.2"
+    version = "4.6.3"
     license = MIT
     publish = setOf(
         GITHUB_PAGES,
@@ -28,7 +28,6 @@ projekt {
     gradlePlugin()
 }
 
-include(":common")
 include(":settings-plugin", ":project-plugin")
 
 if (rootDir.resolve("build/maven").listFiles().orEmpty().isNotEmpty()) {
