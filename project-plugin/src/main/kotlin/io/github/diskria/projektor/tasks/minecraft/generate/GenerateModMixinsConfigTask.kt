@@ -66,7 +66,6 @@ abstract class GenerateModMixinsConfigTask : DefaultTask() {
                         .listFilesWithExtension(Constants.File.Extension.JAVA)
                         .map { javaFile -> javaFile.nameWithoutExtension }
                         .map { className ->
-                            println("AAAA $className")
                             if (relativePath.isEmpty()) className
                             else relativePath.setCase(`path∕case`, `dot․case`).appendPackageName(className)
                         }

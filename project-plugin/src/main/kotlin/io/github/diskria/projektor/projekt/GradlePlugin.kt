@@ -6,6 +6,7 @@ import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.configurations.GradlePluginConfiguration
 import io.github.diskria.projektor.projekt.common.AbstractProjekt
 import io.github.diskria.projektor.projekt.common.Projekt
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 class GradlePlugin(projekt: Projekt, val config: GradlePluginConfiguration) : AbstractProjekt(projekt) {
 
@@ -15,6 +16,9 @@ class GradlePlugin(projekt: Projekt, val config: GradlePluginConfiguration) : Ab
     override val packageNameSuffix: String? =
         if (config.isSettingsPlugin) "settings"
         else null
+
+    override val jvmTarget: JvmTarget
+        get() = config.jvmTarget ?: super.jvmTarget
 
     override fun getBuildConfigFields(): List<Property<String>> {
         val pluginName by name.autoNamedProperty(SCREAMING_SNAKE_CASE)

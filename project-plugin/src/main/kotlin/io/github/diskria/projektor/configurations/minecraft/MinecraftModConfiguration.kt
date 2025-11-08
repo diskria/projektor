@@ -16,6 +16,7 @@ import io.github.diskria.projektor.extensions.mappers.mapToEnum
 import io.github.diskria.projektor.minecraft.ModEnvironment
 import io.github.diskria.projektor.minecraft.loaders.common.ModLoader
 import org.gradle.api.Project
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 open class MinecraftModConfiguration {
 

@@ -10,8 +10,11 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 class KotlinLibrary(projekt: Projekt, val config: KotlinLibraryConfiguration) : AbstractProjekt(projekt) {
 
-    override val publicationComponentName: String get() = "java"
-    override val jvmTarget: JvmTarget get() = config.jvmTarget ?: super.jvmTarget
+    override val publicationComponentName: String
+        get() = "java"
+
+    override val jvmTarget: JvmTarget
+        get() = config.jvmTarget ?: super.jvmTarget
 
     override fun getBuildConfigFields(): List<Property<String>> {
         val libraryName by name.autoNamedProperty(SCREAMING_SNAKE_CASE)

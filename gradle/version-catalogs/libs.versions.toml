@@ -15,14 +15,14 @@ ornithe-plugin = "1.11-SNAPSHOT"
 neoforge-plugin = "2.0.116"
 forge-plugin = "6.0.44"
 
-kotlin = "2.3.0-Beta2"
+kotlin = "2.2.21"
 ktor = "3.3.2"
 kotlin-serialization-xml = "0.91.2"
 kotlin-html = "0.12.0"
 
-kotlin-utils = "0.7.16"
+kotlin-utils = "0.7.17"
 gradle-utils = "0.6.14"
-kotlin-shell-dsl = "0.4.2"
+kotlin-shell-dsl = "0.4.3"
 
 java-poet = "0.7.0"
 jsoup = "1.21.2"

@@ -46,7 +46,9 @@ abstract class GenerateModConfigTask : DefaultTask() {
             ModLoaderType.LEGACY_FABRIC -> FabricModConfig.of(minecraftMod).serializeJsonToFile(outputFile)
             ModLoaderType.ORNITHE -> OrnitheModConfig.of(minecraftMod).serializeJsonToFile(outputFile)
             ModLoaderType.FORGE -> TODO()
-            ModLoaderType.NEOFORGE -> NeoforgeModConfig.of(minecraftMod).serializeTomlToFile(outputFile)
+            ModLoaderType.NEOFORGE -> {
+                NeoforgeModConfig.of(minecraftMod).serializeTomlToFile(outputFile)
+            }
         }
     }
 }

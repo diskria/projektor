@@ -78,10 +78,10 @@ abstract class GenerateModEntryPointTask : DefaultTask() {
 
             ModLoaderType.NEOFORGE -> {
                 val annotation = AnnotationSpec.builder(ClassName.get("net.neoforged.fml.common", "Mod")).apply {
-                    addMember("value", $$"$S", mod.id)
+                    addMember("value", "\$S", mod.id)
                     if (environmentName.isNotEmpty()) {
                         val distEnumClassName = ClassName.get("net.neoforged.api.distmarker", "Dist")
-                        addMember("dist", $$"$T.$${environmentName.uppercase()}", distEnumClassName)
+                        addMember("dist", "\$T.${environmentName.uppercase()}", distEnumClassName)
                     }
                 }.build()
                 entryPointBuilder
