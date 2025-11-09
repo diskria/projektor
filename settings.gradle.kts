@@ -18,7 +18,7 @@ plugins {
 }
 
 projekt {
-    version = "4.6.6"
+    version = "4.6.7"
     license = MIT
     publish = setOf(
         GITHUB_PAGES,
@@ -30,13 +30,13 @@ projekt {
 
 include(":settings-plugin", ":project-plugin")
 
-//if (rootDir.resolve("build/maven").listFiles().orEmpty().isNotEmpty()) {
-//    val taskName = gradle.startParameter.taskNames.singleOrNull()
-//    val testProjectsRoot = rootDir.resolve("test")
-//    if (taskName?.startsWith(":") == true) {
-//        val testProjectName = taskName.split(":").first { it.isNotBlank() }
-//        testProjectsRoot.resolve(testProjectName).asDirectoryOrNull()?.let { includeBuild(it) }
-//    } else if (taskName != "releaseProjekt") {
-//        testProjectsRoot.listDirectories().forEach { includeBuild(it) }
-//    }
-//}
+if (rootDir.resolve("build/maven").listFiles().orEmpty().isNotEmpty()) {
+    val taskName = gradle.startParameter.taskNames.singleOrNull()
+    val testProjectsRoot = rootDir.resolve("test")
+    if (taskName?.startsWith(":") == true) {
+        val testProjectName = taskName.split(":").first { it.isNotBlank() }
+        testProjectsRoot.resolve(testProjectName).asDirectoryOrNull()?.let { includeBuild(it) }
+    } else if (taskName != "releaseProjekt") {
+        testProjectsRoot.listDirectories().forEach { includeBuild(it) }
+    }
+}

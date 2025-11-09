@@ -13,14 +13,14 @@ fabric-plugin = "1.11-SNAPSHOT"
 legacy-fabric-plugin = "1.11-SNAPSHOT"
 ornithe-plugin = "1.11-SNAPSHOT"
 neoforge-plugin = "2.0.116"
-forge-plugin = "6.0.44"
+forge-plugin = "6.0.46"
 
 kotlin = "2.2.21"
-ktor = "3.3.2"
 kotlin-serialization-xml = "0.91.2"
+ktor = "3.3.2"
 kotlin-html = "0.12.0"
 
-kotlin-utils = "0.8.0"
+kotlin-utils = "0.8.1"
 gradle-utils = "0.8.0"
 kotlin-shell-dsl = "0.8.0"
 

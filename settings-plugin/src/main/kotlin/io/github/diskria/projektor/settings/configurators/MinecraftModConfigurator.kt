@@ -83,6 +83,10 @@ open class MinecraftModConfigurator(
         fun applyExternalRepositories(settings: Settings) = with(settings) {
             repositories {
                 configureMaven(
+                    name = "Parchment",
+                    url = buildUrl("maven.parchmentmc.org")
+                )
+                configureMaven(
                     name = ModLoaderType.FABRIC.getName(PascalCase),
                     url = buildUrl("maven.fabricmc.net")
                 )

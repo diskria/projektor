@@ -61,9 +61,9 @@ class ProjektorGradlePlugin : Plugin<Settings> {
 
     private fun configureRootProject(settings: Settings, metadata: ProjektMetadata) = with(settings) {
         val owner = metadata.repo.owner
-        rootProject.name = metadata.name.modifyIf(owner.type == GithubOwnerType.BRAND) {
-            owner.name + Constants.Char.SPACE + it
-        }
+//        rootProject.name = metadata.name.modifyIf(owner.type == GithubOwnerType.BRAND) {
+//            owner.name + Constants.Char.SPACE + it
+//        }
         gradle.rootProject {
             description = metadata.description
             version = metadata.version
