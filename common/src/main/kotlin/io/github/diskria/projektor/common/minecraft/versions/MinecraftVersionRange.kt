@@ -8,7 +8,7 @@ open class MinecraftVersionRange(val min: MinecraftVersion, val max: MinecraftVe
         val minEra = min.getEra()
         val maxEra = max.getEra()
 
-        return MinecraftEra.entries.filter { it in minEra..maxEra }.flatMap { era ->
+        return MinecraftEra.values().filter { it in minEra..maxEra }.flatMap { era ->
             val versions = era.versions
             when {
                 minEra == maxEra -> versions.filter { it >= min && it <= max }

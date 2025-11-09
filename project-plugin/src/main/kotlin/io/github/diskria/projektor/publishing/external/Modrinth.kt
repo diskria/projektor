@@ -19,7 +19,7 @@ import io.github.diskria.projektor.tasks.generate.GenerateProjektReadmeTask
 import io.ktor.http.*
 import org.gradle.api.Project
 
-data object Modrinth : ExternalPublishingTarget() {
+object Modrinth : ExternalPublishingTarget() {
 
     override val publishTaskName: String = "modrinth"
 

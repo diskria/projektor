@@ -6,17 +6,17 @@ import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
 
 enum class MinecraftEra(val versions: List<MinecraftVersion>, val versionPrefix: String) {
 
-    PRE_CLASSIC(PreClassic.entries.toList(), "rd-"),
-    CLASSIC(Classic.entries.toList(), "c"),
-    INDEV(Indev.entries.toList(), "in-"),
-    INFDEV(Infdev.entries.toList(), "inf-"),
-    ALPHA(Alpha.entries.toList(), "a"),
-    BETA(Beta.entries.toList(), "b"),
-    RELEASE(Release.entries.toList(), Constants.Char.EMPTY);
+    PRE_CLASSIC(PreClassic.values().toList(), "rd-"),
+    CLASSIC(Classic.values().toList(), "c"),
+    INDEV(Indev.values().toList(), "in-"),
+    INFDEV(Infdev.values().toList(), "inf-"),
+    ALPHA(Alpha.values().toList(), "a"),
+    BETA(Beta.values().toList(), "b"),
+    RELEASE(Release.values().toList(), Constants.Char.EMPTY);
 
     companion object {
         fun parse(version: String): MinecraftEra =
-            entries.filterNot { it == RELEASE }.find { version.startsWith(it.versionPrefix) } ?: RELEASE
+            values().filterNot { it == RELEASE }.find { version.startsWith(it.versionPrefix) } ?: RELEASE
     }
 }
 

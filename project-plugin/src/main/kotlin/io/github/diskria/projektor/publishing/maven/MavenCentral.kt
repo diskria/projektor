@@ -17,7 +17,7 @@ import org.gradle.api.Task
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.get
 
-data object MavenCentral : MavenPublishingTarget() {
+object MavenCentral : MavenPublishingTarget() {
 
     override val shouldCreatePublication: Boolean = true
 

@@ -15,6 +15,6 @@ dependencies {
 
 projekt {
     kotlinLibrary {
-        jvmTarget = JvmTarget.JVM_24
+        jvmTarget = JvmTarget.JVM_21
     }
 }

@@ -32,7 +32,7 @@ import org.gradle.kotlin.dsl.invoke
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
 
-data object Neoforge : ModLoader() {
+object Neoforge : ModLoader() {
 
     override fun configure(modProject: Project, mod: MinecraftMod) = with(modProject) {
         subprojects {

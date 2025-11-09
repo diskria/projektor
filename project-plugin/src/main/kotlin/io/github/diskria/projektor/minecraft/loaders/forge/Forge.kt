@@ -5,7 +5,7 @@ import io.github.diskria.projektor.minecraft.loaders.common.ModLoader
 import io.github.diskria.projektor.projekt.MinecraftMod
 import org.gradle.api.Project
 
-data object Forge : ModLoader() {
+object Forge : ModLoader() {
 
     override fun configure(modProject: Project, mod: MinecraftMod) = with(modProject) {
         subprojects {

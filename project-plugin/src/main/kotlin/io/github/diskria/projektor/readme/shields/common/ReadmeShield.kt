@@ -37,6 +37,6 @@ abstract class ReadmeShield() {
     }
 
     companion object {
-        protected const val LATEST_VERSION_PATH_SEGMENT: String = "v"
+        const val LATEST_VERSION_PATH_SEGMENT: String = "v"
     }
 }

@@ -17,8 +17,8 @@ interface MinecraftVersion {
     fun getEnumVersion(): String
 
     companion object {
-        val EARLIEST: MinecraftVersion = MinecraftEra.entries.first().firstVersion()
-        val LATEST: MinecraftVersion = MinecraftEra.entries.last().lastVersion()
+        val EARLIEST: MinecraftVersion = MinecraftEra.values().first().firstVersion()
+        val LATEST: MinecraftVersion = MinecraftEra.values().last().lastVersion()
 
         val COMPARATOR: Comparator<MinecraftVersion> = Comparator { before, after -> before.compareTo(after) }
 

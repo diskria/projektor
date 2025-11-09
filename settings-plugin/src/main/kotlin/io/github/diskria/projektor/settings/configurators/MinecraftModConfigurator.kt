@@ -33,21 +33,21 @@ open class MinecraftModConfigurator(
     }
 
     override fun configureProjects(settings: Settings) = with(settings) {
-        ModLoaderType.entries.forEach { loader ->
+        ModLoaderType.values().forEach { loader ->
             val loaderName = loader.getName(`kebab-case`)
             val loaderDirectory = rootDirectory.resolve(loaderName)
-            val minSupportedVersion = loaderDirectory.listDirectories().map {
+            val minSupportedVersions = loaderDirectory.listDirectories().map {
                 MinecraftVersion.parseOrNull(it.name)
                     ?: gradleError("Unknown Minecraft version directory: ${it.relativeTo(rootDirectory)}")
             }
-            minSupportedVersion.forEach { minSupportedVersion ->
+            minSupportedVersions.forEach { minSupportedVersion ->
                 val modProjectPath = buildGradleProjectPath(loaderName, minSupportedVersion.asString())
                 include(modProjectPath)
 
                 if (minSupportedVersion.getMappingsEra() == MappingsEra.CLIENT) {
                     include(buildGradleProjectPath(modProjectPath, ModSide.CLIENT.getName()))
                 } else {
-                    ModSide.entries.forEach {
+                    ModSide.values().forEach {
                         val sideProjectPath = buildGradleProjectPath(modProjectPath, it.getName())
                         include(sideProjectPath)
                     }

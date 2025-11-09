@@ -17,7 +17,7 @@ import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.maven
 
-data object GithubPackages : MavenPublishingTarget() {
+object GithubPackages : MavenPublishingTarget() {
 
     override fun configureMaven(
         repositories: RepositoryHandler,

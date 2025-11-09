@@ -10,7 +10,7 @@ import io.ktor.http.*
 import org.gradle.api.Project
 import org.gradle.api.Task
 
-data object GithubPages : MavenPublishingTarget() {
+object GithubPages : MavenPublishingTarget() {
 
     override fun getHomepage(metadata: ProjektMetadata): Url =
         metadata.repo.getPagesUrl()

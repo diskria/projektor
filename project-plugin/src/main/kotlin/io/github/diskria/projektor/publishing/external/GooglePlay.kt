@@ -9,7 +9,7 @@ import io.github.diskria.projektor.publishing.external.common.ExternalPublishing
 import io.ktor.http.*
 import org.gradle.api.Project
 
-data object GooglePlay : ExternalPublishingTarget() {
+object GooglePlay : ExternalPublishingTarget() {
 
     override val publishTaskName: String = TODO()
 
