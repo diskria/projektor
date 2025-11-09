@@ -23,8 +23,8 @@ import io.github.diskria.projektor.configurations.minecraft.MinecraftModConfigur
 import io.github.diskria.projektor.extensions.mappers.mapToEnum
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.extensions.mappers.toJvmTarget
-import io.github.diskria.projektor.minecraft.ModEnvironment
-import io.github.diskria.projektor.minecraft.loaders.common.ModLoader
+import io.github.diskria.projektor.common.minecraft.sides.ModEnvironment
+import io.github.diskria.projektor.minecraft.loaders.ModLoader
 import io.github.diskria.projektor.projekt.common.AbstractProjekt
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.ktor.http.*
@@ -66,6 +66,12 @@ class MinecraftMod(
     val mixinsConfigPath: String =
         assetsPath.appendPath(mixinsConfigFileName)
 
+    val resourcePackConfigFileName: String =
+        fileName("pack", "mcmeta")
+
+    val developerPlayerName: String =
+        repo.owner.developer + MinecraftConstants.PLAYER_NAME_DEVELOPER_SUFFIX
+
     val configFileName: String =
         when (val type = loader.mapToEnum()) {
             ModLoaderType.FABRIC, ModLoaderType.LEGACY_FABRIC, ModLoaderType.ORNITHE -> {
@@ -97,8 +103,8 @@ class MinecraftMod(
 
     override val jvmTarget: JvmTarget
         get() {
-            val minJvmTarget = minSupportedVersion.getMinJavaVersion().toJvmTarget()
-            val maxJvmTarget = maxSupportedVersion.getMinJavaVersion().toJvmTarget()
+            val minJvmTarget = minSupportedVersion.minJavaVersion.toJvmTarget()
+            val maxJvmTarget = maxSupportedVersion.minJavaVersion.toJvmTarget()
             if (minJvmTarget != maxJvmTarget) {
                 gradleError("Minecraft version range crosses Java compatibility: $minJvmTarget -> $maxJvmTarget")
             }

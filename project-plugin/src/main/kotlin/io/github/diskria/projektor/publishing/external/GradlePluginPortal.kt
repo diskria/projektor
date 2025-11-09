@@ -15,7 +15,7 @@ object GradlePluginPortal : ExternalPublishingTarget() {
 
     override val publishTaskName: String = "publishPlugins"
 
-    override fun configurePublishTask(projekt: Projekt, project: Project): Boolean = with(project) {
+    override fun configurePublishTask(project: Project, projekt: Projekt): Boolean = with(project) {
         if (projekt !is GradlePlugin) return false
         project.ensurePluginApplied("com.gradle.plugin-publish")
         if (EnvironmentHelper.isCI()) {

@@ -14,8 +14,11 @@ open class GradlePluginConfigurator(
     val config: GradlePluginConfiguration = GradlePluginConfiguration()
 ) : ProjectConfigurator<GradlePlugin>() {
 
-    override fun configureProject(project: Project): GradlePlugin = with(project) {
-        val plugin = project.toProjekt().toGradlePlugin(project, config)
+    override fun buildProjekt(project: Project): GradlePlugin =
+        project.toProjekt().toGradlePlugin(config)
+
+    override fun configureProject(project: Project, projekt: GradlePlugin) = with(project) {
+        val plugin = projekt
         dependencies {
             testImplementation(gradleTestKit())
         }
@@ -34,6 +37,5 @@ open class GradlePluginConfigurator(
                 }
             }
         }
-        return plugin
     }
 }

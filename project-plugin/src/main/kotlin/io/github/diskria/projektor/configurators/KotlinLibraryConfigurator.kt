@@ -10,8 +10,10 @@ open class KotlinLibraryConfigurator(
     val config: KotlinLibraryConfiguration = KotlinLibraryConfiguration()
 ) : ProjectConfigurator<KotlinLibrary>() {
 
-    override fun configureProject(project: Project): KotlinLibrary {
-        val library = project.toProjekt().toKotlinLibrary(project, config)
-        return library
+    override fun buildProjekt(project: Project): KotlinLibrary =
+        project.toProjekt().toKotlinLibrary(config)
+
+    override fun configureProject(project: Project, projekt: KotlinLibrary) {
+        val library = projekt
     }
 }

@@ -23,7 +23,7 @@ object Modrinth : ExternalPublishingTarget() {
 
     override val publishTaskName: String = "modrinth"
 
-    override fun configurePublishTask(projekt: Projekt, project: Project): Boolean = with(project) {
+    override fun configurePublishTask(project: Project, projekt: Projekt): Boolean = with(project) {
         val mod = projekt as? MinecraftMod ?: return false
 
         val loader = mod.loader

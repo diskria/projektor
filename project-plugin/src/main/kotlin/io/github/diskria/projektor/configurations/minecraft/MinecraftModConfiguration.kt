@@ -12,12 +12,11 @@ import io.github.diskria.projektor.common.minecraft.sync.loaders.ornithe.Ornithe
 import io.github.diskria.projektor.common.minecraft.sync.parchment.ParchmentSynchronizer
 import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.asString
-import io.github.diskria.projektor.common.minecraft.versions.getMappingsEra
+import io.github.diskria.projektor.common.minecraft.versions.mappingsEra
 import io.github.diskria.projektor.extensions.mappers.mapToEnum
-import io.github.diskria.projektor.minecraft.ModEnvironment
-import io.github.diskria.projektor.minecraft.loaders.common.ModLoader
+import io.github.diskria.projektor.common.minecraft.sides.ModEnvironment
+import io.github.diskria.projektor.minecraft.loaders.ModLoader
 import org.gradle.api.Project
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 open class MinecraftModConfiguration {
 
@@ -109,8 +108,8 @@ open class MinecraftModConfiguration {
                         FabricLoaderSynchronizer.getLatestVersion(project, minecraftVersion)
                     }
                     feather = userConfig.feather.ifEmpty {
-                        val mappingsSynchronizer = OrnitheFeatherMappingsSynchronizer(minecraftVersion.getMappingsEra())
-                        mappingsSynchronizer.getLatestVersion(project, minecraftVersion)
+                        val synchronizer = OrnitheFeatherMappingsSynchronizer(minecraftVersion.mappingsEra)
+                        synchronizer.getLatestVersion(project, minecraftVersion)
                     }
                     project.log("[Crafter] Ornithe Loader: $loader")
                     project.log("[Crafter] Feather Mappings: $feather")

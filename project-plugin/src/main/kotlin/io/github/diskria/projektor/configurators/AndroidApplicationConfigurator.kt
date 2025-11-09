@@ -10,8 +10,10 @@ open class AndroidApplicationConfigurator(
     val config: AndroidApplicationConfiguration
 ) : ProjectConfigurator<AndroidApplication>() {
 
-    override fun configureProject(project: Project): AndroidApplication {
-        val application = project.toProjekt().toAndroidApplication(project, config)
-        return application
+    override fun buildProjekt(project: Project): AndroidApplication =
+        project.toProjekt().toAndroidApplication(config)
+
+    override fun configureProject(project: Project, projekt: AndroidApplication) {
+
     }
 }

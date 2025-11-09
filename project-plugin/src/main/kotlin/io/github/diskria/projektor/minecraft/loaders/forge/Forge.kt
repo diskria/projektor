@@ -1,136 +1,172 @@
 package io.github.diskria.projektor.minecraft.loaders.forge
 
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar.Companion.shadowJar
 import io.github.diskria.gradle.utils.extensions.*
 import io.github.diskria.gradle.utils.helpers.jvm.JvmArguments
 import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
-import io.github.diskria.kotlin.utils.extensions.mappers.toEnumOrNull
+import io.github.diskria.kotlin.utils.properties.autoNamedProperty
+import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.projektor.common.ProjectDirectories
-import io.github.diskria.projektor.common.minecraft.MinecraftConstants
+import io.github.diskria.projektor.common.minecraft.era.Release
 import io.github.diskria.projektor.common.minecraft.sides.ModSide
 import io.github.diskria.projektor.common.minecraft.versions.asString
+import io.github.diskria.projektor.common.minecraft.versions.compareTo
+import io.github.diskria.projektor.common.minecraft.versions.getResourcePackFormat
+import io.github.diskria.projektor.common.minecraft.versions.minJavaVersion
 import io.github.diskria.projektor.extensions.*
-import io.github.diskria.projektor.minecraft.loaders.common.ModLoader
+import io.github.diskria.projektor.minecraft.loaders.ModLoader
+import io.github.diskria.projektor.minecraft.loaders.SideSourceSets
 import io.github.diskria.projektor.projekt.MinecraftMod
-import io.github.diskria.projektor.tasks.minecraft.generate.GenerateModConfigTask
-import io.github.diskria.projektor.tasks.minecraft.generate.GenerateModEntryPointTask
-import io.github.diskria.projektor.tasks.minecraft.generate.GenerateModMixinsConfigTask
+import io.github.diskria.projektor.tasks.minecraft.generate.*
 import io.github.diskria.projektor.tasks.minecraft.test.TestClientModTask
 import io.github.diskria.projektor.tasks.minecraft.test.TestServerModTask
-import net.minecraftforge.gradle.common.util.MinecraftExtension
-import net.minecraftforge.gradle.common.util.RunConfig
-import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
-import org.gradle.api.tasks.SourceSet
-import org.gradle.api.tasks.SourceSetContainer
-import org.gradle.api.tasks.compile.JavaCompile
-import org.gradle.kotlin.dsl.assign
-import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.invoke
-import org.gradle.kotlin.dsl.withType
+import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.api.tasks.AbstractCopyTask
+import org.gradle.api.tasks.Delete
+import org.gradle.api.tasks.JavaExec
+import org.gradle.internal.Actions.with
+import org.gradle.jvm.tasks.Jar
+import org.gradle.jvm.toolchain.JavaToolchainService
+import org.gradle.jvm.toolchain.JvmVendorSpec
+import org.gradle.kotlin.dsl.*
 
 object Forge : ModLoader() {
 
-    override fun configure(modProject: Project, mod: MinecraftMod) = with(modProject) {
-        subprojects {
-            val side = name.toEnumOrNull<ModSide>() ?: return@subprojects
-            val sideName = side.getName()
-            log("[Crafter] Configuring $sideName side...")
-
-            ensurePluginApplied("org.jetbrains.kotlin.jvm")
-
-            val generateModEntryPointTask = registerTask<GenerateModEntryPointTask> {
-                minecraftMod = mod
-                modSide = side
-                outputDirectory = getBuildDirectory("generated/sources/crafter")
-            }
-            val (main, mixins) = configureSourceSets(
-                sourceSets = sourceSets,
-                mainSources = listOf(generateModEntryPointTask.map { it.outputDirectory })
-            )
-            forge {
-                ensurePluginApplied("org.parchmentmc.librarian.forgegradle")
-                mappings("official", mod.minecraftVersion.asString())
-//                mappings("parchment", "${mod.config.forge.parchmentMappings}-${mod.config.forge.parchmentMinecraft}")
-                dependencies {
-                    minecraft("net.minecraftforge", "forge", mod.config.forge.loader)
-                }
-                setAccessTransformers(main.resourcesDirectory.resolve(mod.accessorConfigFileName).ensureFileExists())
-                runs {
+    override fun configure(
+        modProject: Project,
+        sideProjects: Map<ModSide, Project>,
+        mod: MinecraftMod
+    ) = with(modProject) {
+        val sides = sideProjects.keys
+        val generateModEntryPointsTask = registerTask<GenerateModEntryPointsTask> {
+            minecraftMod = mod
+            modSides = sides
+            outputDirectory = getBuildDirectory("generated/sources/crafter")
+        }
+        val modMain = sourceSets.main
+        val sourceSetBySides = sideProjects.mapValues { (side, project) ->
+            val sideMain = project.sourceSets.main.apply { addToClasspath(modMain) }
+            val sideMixins = project.sourceSets.create(SideSourceSets.MIXINS_NAME).apply { addToClasspath(modMain) }
+            SideSourceSets(side, sideMain, sideMixins)
+        }
+        val generateMixinsConfigTask = registerTask<GenerateModMixinsConfigTask> {
+            minecraftMod = mod
+            sideMixinSourceSetDirectories = sourceSetBySides.mapValues { it.value.mixins.javaSourcesDirectory }
+            outputFile = getTempFile(mod.mixinsConfigFileName)
+        }
+        val generateResourcePackConfigTask = registerTask<GenerateResourcePackConfigTask> {
+            minecraftMod = mod
+            outputFile = getTempFile(mod.resourcePackConfigFileName)
+            minFormat = mod.minSupportedVersion.getResourcePackFormat(project)
+            maxFormat = mod.maxSupportedVersion.getResourcePackFormat(project)
+        }
+        val generateMergedAccessorConfigTask = registerTask<GenerateMergedAccessorConfigTask> {
+            minecraftMod = mod
+            sideResourcesDirectories = sourceSetBySides.values.map { it.main.resourcesDirectory }
+            outputFile = getTempFile(mod.accessorConfigFileName)
+        }
+        val generateModConfigTask = registerTask<GenerateModConfigTask> {
+            minecraftMod = mod
+            outputFile = getTempFile(mod.configFileName)
+        }
+        forge {
+            reobf = mod.minecraftVersion < Release.V_1_20_6
+            mappings("official", mod.minecraftVersion.asString())
+            setAccessTransformer(generateMergedAccessorConfigTask.map { it.outputFile })
+            runs {
+                sides.forEach { side ->
                     create(side.getName()) {
+                        workingDirectory = sideProjects.getValue(side)
+                            .projectDirectory
+                            .resolve(ProjectDirectories.MINECRAFT_RUN)
+                            .absolutePath
+                        args(
+                            *JvmArguments.program("mixin.config", mod.mixinsConfigPath),
+                        )
                         when (side) {
-                            ModSide.CLIENT -> {
-                                args(
-                                    *JvmArguments.program(
-                                        "username",
-                                        mod.repo.owner.developer + MinecraftConstants.PLAYER_NAME_DEVELOPER_SUFFIX
-                                    )
-                                )
-                            }
+                            ModSide.CLIENT -> args(
+                                *JvmArguments.program("username", mod.developerPlayerName),
+                            )
 
-                            ModSide.SERVER -> {
-                                args(*JvmArguments.program("nogui"))
-                            }
+                            ModSide.SERVER -> args(
+                                *JvmArguments.program("nogui"),
+                            )
                         }
                     }
                 }
-                tasks {
-                    configureJvmTarget(mod.jvmTarget)
-                    withType<JavaCompile>().configureEach {
-                        options.encoding = Charsets.UTF_8.toString()
-                    }
-                    jar {
-                        from(mixins.output)
-                    }
-//                    named<JavaExec>("run" + side.getName(PascalCase)) {
-//                        val shadowJarTask = modProject.tasks.shadowJar.get()
-//                        dependsOn(shadowJarTask)
-//                        addToClasspath(shadowJarTask.archiveFile)
-//
-//                        javaLauncher = this@subprojects.getExtension<JavaToolchainService>().launcherFor {
-//                            val javaVersion = mod.minecraftVersion.getMinJavaVersion()
-//                            configureJavaVendor(javaVersion, JvmVendorSpec.ADOPTIUM, JvmVendorSpec.AZUL)
-//                        }
-//                    }
-                    processResources {
-                        exclude(mod.accessorConfigFileName)
-                    }
+            }
+        }
+        dependencies {
+            val forgeVersion = "${mod.minecraftVersion.asString()}-${mod.config.forge.loader}"
+            minecraft("net.minecraftforge", "forge", forgeVersion)
+        }
+        tasks {
+            jar {
+                manifest {
+                    val mixinConfigs by mod.mixinsConfigPath.autoNamedProperty(PascalCase)
+                    attributes(
+                        listOf(
+                            mixinConfigs,
+                        ).associate { it.name to it.value }
+                    )
+                }
+            }
+            withType<AbstractCopyTask> {
+                duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+            }
+            processResources {
+                copyTaskOutput(generateResourcePackConfigTask)
+                copyTaskOutput(generateMixinsConfigTask, mod.assetsPath)
+                copyTaskOutput(generateModConfigTask, "META-INF")
+                copyTaskOutput(generateMergedAccessorConfigTask, mod.assetsPath)
+
+                copyFile(rootProject.getFile(mod.iconFileName).asFile, mod.assetsPath)
+            }
+            shadowJar {
+                exclude(mod.accessorConfigFileName)
+            }
+            withType<JavaExec> {
+                dependsOn(shadowJar)
+                javaLauncher = modProject.getExtension<JavaToolchainService>().launcherFor {
+                    val javaVersion = mod.minecraftVersion.minJavaVersion
+                    configureJavaVendor(javaVersion, JvmVendorSpec.ADOPTIUM, JvmVendorSpec.AZUL)
                 }
             }
         }
-        val generateMixinsConfigTask = registerTask<GenerateModMixinsConfigTask> {
-            minecraftMod.set(mod)
-            outputFile.set(getTempFile(mod.mixinsConfigFileName))
-        }
-        val generateModConfigTask = registerTask<GenerateModConfigTask> {
-            minecraftMod.set(mod)
-            outputFile.set(getTempFile(mod.configFileName))
-        }
-        tasks {
-            processResources {
-                copyTaskOutput(generateMixinsConfigTask, mod.assetsPath)
-                copyFile(rootProject.getFile(mod.iconFileName).asFile, mod.assetsPath)
-                copyTaskOutput(generateModConfigTask, "META-INF")
+        sideProjects.values.forEach { project ->
+            project.tasks {
+                jar {
+                    from(project.sourceSets.mixins.output)
+                }
+                processResources {
+                    exclude(mod.accessorConfigFileName)
+                }
             }
         }
-        mod.config.environment.sides.forEach {
-            when (it) {
+        sides.forEach { side ->
+            when (side) {
                 ModSide.CLIENT -> registerTask<TestClientModTask>()
                 ModSide.SERVER -> registerTask<TestServerModTask>()
+            } {
+                dependsOn("prepareRun" + side.getName(PascalCase))
             }
         }
-    }
 
-    private fun MinecraftExtension.runs(configure: NamedDomainObjectContainer<RunConfig>.() -> Unit) {
-        runs.configure()
-    }
-
-    private fun configureSourceSets(
-        sourceSets: SourceSetContainer,
-        mainSources: List<Any>
-    ): Pair<SourceSet, SourceSet> {
-        val main = sourceSets.main.apply { java.srcDirs(mainSources) }
-        val mixins = sourceSets.create(ProjectDirectories.MINECRAFT_MIXINS).apply { addToClasspath(main) }
-        return main to mixins
+        modMain.apply {
+            val sourceSetDirectory = getBuildDirectory("sourcesSets")
+            val sideSourceSets = sideProjects.flatMap { it.value.sourceSets }
+            java {
+                srcDirs(generateModEntryPointsTask.map { it.outputDirectory })
+                srcDirs(sideSourceSets.map { it.javaSourcesDirectory })
+                destinationDirectory = sourceSetDirectory
+            }
+            resources {
+                exclude(mod.accessorConfigFileName)
+                srcDirs(sideSourceSets.map { it.resourcesDirectory })
+            }
+            output.setResourcesDir(sourceSetDirectory)
+        }
     }
 }

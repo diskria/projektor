@@ -13,7 +13,7 @@ object GooglePlay : ExternalPublishingTarget() {
 
     override val publishTaskName: String = TODO()
 
-    override fun configurePublishTask(projekt: Projekt, project: Project): Boolean = with(project) {
+    override fun configurePublishTask(project: Project, projekt: Projekt): Boolean = with(project) {
         return projekt is AndroidApplication
     }
 

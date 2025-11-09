@@ -16,7 +16,7 @@ abstract class PublishingTarget {
 
     abstract val publishTaskName: String
 
-    abstract fun configurePublishTask(projekt: Projekt, project: Project): Boolean
+    abstract fun configurePublishTask(project: Project, projekt: Projekt): Boolean
 
     abstract fun getHomepage(metadata: ProjektMetadata): Url
 

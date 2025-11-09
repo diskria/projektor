@@ -10,8 +10,10 @@ open class AndroidLibraryConfigurator(
     val config: AndroidLibraryConfiguration = AndroidLibraryConfiguration()
 ) : ProjectConfigurator<AndroidLibrary>() {
 
-    override fun configureProject(project: Project): AndroidLibrary {
-        val library = project.toProjekt().toAndroidLibrary(project, config)
-        return library
+    override fun buildProjekt(project: Project): AndroidLibrary =
+        project.toProjekt().toAndroidLibrary(config)
+
+    override fun configureProject(project: Project, projekt: AndroidLibrary) {
+
     }
 }

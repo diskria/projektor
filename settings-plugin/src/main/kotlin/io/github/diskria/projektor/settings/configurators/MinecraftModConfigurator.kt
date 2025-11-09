@@ -9,12 +9,10 @@ import io.github.diskria.kotlin.utils.extensions.listDirectories
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.projektor.common.minecraft.MinecraftConstants
-import io.github.diskria.projektor.common.minecraft.era.common.MappingsEra
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
-import io.github.diskria.projektor.common.minecraft.sides.ModSide
 import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.asString
-import io.github.diskria.projektor.common.minecraft.versions.getMappingsEra
+import io.github.diskria.projektor.common.minecraft.versions.mappingsEra
 import io.github.diskria.projektor.settings.configurations.MinecraftModConfiguration
 import io.github.diskria.projektor.settings.configurators.common.SettingsConfigurator
 import io.github.diskria.projektor.settings.configurators.common.dependencyRepositories
@@ -34,21 +32,23 @@ open class MinecraftModConfigurator(
 
     override fun configureProjects(settings: Settings) = with(settings) {
         ModLoaderType.values().forEach { loader ->
-            val loaderName = loader.getName(`kebab-case`)
-            val loaderDirectory = rootDirectory.resolve(loaderName)
-            val minSupportedVersions = loaderDirectory.listDirectories().map {
+            val loaderDirectoryName = loader.getName(`kebab-case`)
+            val loaderDirectory = rootDirectory.resolve(loaderDirectoryName)
+            val minecraftVersions = loaderDirectory.listDirectories().map {
                 MinecraftVersion.parseOrNull(it.name)
                     ?: gradleError("Unknown Minecraft version directory: ${it.relativeTo(rootDirectory)}")
             }
-            minSupportedVersions.forEach { minSupportedVersion ->
-                val modProjectPath = buildGradleProjectPath(loaderName, minSupportedVersion.asString())
+            minecraftVersions.forEach { minecraftVersion ->
+                val modProjectDirectoryName = minecraftVersion.asString()
+                val modProjectDirectory = loaderDirectory.resolve(modProjectDirectoryName)
+                val modProjectPath = buildGradleProjectPath(loaderDirectoryName, modProjectDirectoryName)
                 include(modProjectPath)
 
-                if (minSupportedVersion.getMappingsEra() == MappingsEra.CLIENT) {
-                    include(buildGradleProjectPath(modProjectPath, ModSide.CLIENT.getName()))
-                } else {
-                    ModSide.values().forEach {
-                        val sideProjectPath = buildGradleProjectPath(modProjectPath, it.getName())
+                minecraftVersion.mappingsEra.sides.forEach { side ->
+                    val sideProjectDirectoryName = side.getName()
+                    val sideProjectDirectory = modProjectDirectory.resolve(sideProjectDirectoryName)
+                    if (sideProjectDirectory.exists()) {
+                        val sideProjectPath = buildGradleProjectPath(modProjectPath, sideProjectDirectoryName)
                         include(sideProjectPath)
                     }
                 }

@@ -61,7 +61,7 @@ abstract class MavenPublishingTarget : PublishingTarget() {
             into(getLocalMavenDirectory(rootProject))
         }
 
-    override fun configurePublishTask(projekt: Projekt, project: Project): Boolean = with(project) {
+    override fun configurePublishTask(project: Project, projekt: Projekt): Boolean = with(project) {
         val artifactId = projekt.repo.name.modifyUnless(isRootProject()) {
             it + Constants.Char.HYPHEN + name
         }

@@ -24,6 +24,9 @@ object ForgeLoaderSynchronizer : AbstractMinecraftMavenSynchronizer() {
             path("net", "minecraftforge", "forge", MavenMetadata.FILE_NAME)
         }
 
+    override fun mapLatestVersion(version: String): String =
+        version.substringAfterLast(Constants.Char.HYPHEN)
+
     override fun parseMinecraftVersion(version: String): MinecraftVersion? =
         MinecraftVersion.parseOrNull(version.substringBefore(Constants.Char.HYPHEN))
 

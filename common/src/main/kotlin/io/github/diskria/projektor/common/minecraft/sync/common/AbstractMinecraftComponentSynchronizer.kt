@@ -17,11 +17,10 @@ import io.github.diskria.projektor.ProjektBuildConfig
 import io.github.diskria.projektor.common.ProjectDirectories
 import io.github.diskria.projektor.common.minecraft.era.common.MappingsEra
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
-import io.github.diskria.projektor.common.minecraft.loaders.getSupportedVersionRanges
 import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.asString
 import io.github.diskria.projektor.common.minecraft.versions.compareTo
-import io.github.diskria.projektor.common.minecraft.versions.getMappingsEra
+import io.github.diskria.projektor.common.minecraft.versions.mappingsEra
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.Project
 import java.io.File
@@ -50,8 +49,8 @@ abstract class AbstractMinecraftComponentSynchronizer {
                 .groupBy { it.minecraftVersion }
                 .filterKeys { minecraftVersion ->
                     loader?.let { loader ->
-                        loader.getSupportedVersionRanges().any { it.includesMinecraftVersion(minecraftVersion) } &&
-                                (mappingsEra == null || mappingsEra == minecraftVersion.getMappingsEra())
+                        loader.supportedVersionRanges.any { it.includesMinecraftVersion(minecraftVersion) } &&
+                                (mappingsEra == null || mappingsEra == minecraftVersion.mappingsEra)
                     } ?: true
                 }
                 .mapValues {

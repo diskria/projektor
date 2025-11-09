@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     `kotlin-dsl`
     alias(libs.plugins.projektor)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {

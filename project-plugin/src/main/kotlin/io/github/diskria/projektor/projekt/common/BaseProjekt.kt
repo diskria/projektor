@@ -8,7 +8,6 @@ import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
-import io.github.diskria.projektor.common.minecraft.loaders.getSupportedVersionRanges
 import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.compareTo
 import io.github.diskria.projektor.common.minecraft.versions.previousOrNull
@@ -40,20 +39,16 @@ data class BaseProjekt(
     override val publishingTargets: List<PublishingTarget>,
 ) : Projekt {
 
-    @Suppress("unused")
-    fun toGradlePlugin(project: Project, config: GradlePluginConfiguration): GradlePlugin =
+    fun toGradlePlugin(config: GradlePluginConfiguration): GradlePlugin =
         GradlePlugin(this, config)
 
-    @Suppress("unused")
-    fun toKotlinLibrary(project: Project, config: KotlinLibraryConfiguration): KotlinLibrary =
+    fun toKotlinLibrary(config: KotlinLibraryConfiguration): KotlinLibrary =
         KotlinLibrary(this, config)
 
-    @Suppress("unused")
-    fun toAndroidLibrary(project: Project, config: AndroidLibraryConfiguration): AndroidLibrary =
+    fun toAndroidLibrary(config: AndroidLibraryConfiguration): AndroidLibrary =
         AndroidLibrary(this, config)
 
-    @Suppress("unused")
-    fun toAndroidApplication(project: Project, config: AndroidApplicationConfiguration): AndroidApplication =
+    fun toAndroidApplication(config: AndroidApplicationConfiguration): AndroidApplication =
         AndroidApplication(this, config)
 
     fun toMinecraftMod(project: Project, config: MinecraftModConfiguration): MinecraftMod {
@@ -66,14 +61,16 @@ data class BaseProjekt(
 
         val maxSupportedVersion = config.maxSupportedVersion
             ?: run {
-                val minSupportedVersions = loaderDirectory.listDirectories().map { MinecraftVersion.parse(it.name) }
-                val nextMinSupportedVersion = minSupportedVersions
+                val minecraftVersions = loaderDirectory
+                    .listDirectories()
+                    .mapNotNull { MinecraftVersion.parseOrNull(it.name) }
+                val nextMinSupportedVersion = minecraftVersions
                     .filter { it > minSupportedVersion }
                     .minWithOrNull(MinecraftVersion.COMPARATOR)
-                nextMinSupportedVersion?.previousOrNull()
+                return@run nextMinSupportedVersion?.previousOrNull()
             }
             ?: run {
-                val supportedRanges = loader.mapToEnum().getSupportedVersionRanges()
+                val supportedRanges = loader.mapToEnum().supportedVersionRanges
                 supportedRanges.maxWith(compareBy(MinecraftVersion.COMPARATOR) { it.max }).max
             }
         return MinecraftMod(this, config, loader, minSupportedVersion..maxSupportedVersion)

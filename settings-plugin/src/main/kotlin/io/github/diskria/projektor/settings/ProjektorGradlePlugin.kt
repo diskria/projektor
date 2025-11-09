@@ -4,13 +4,8 @@ import io.github.diskria.gradle.utils.extensions.*
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.gradle.utils.helpers.VersionCatalogsHelper
 import io.github.diskria.kotlin.utils.Constants
-import io.github.diskria.kotlin.utils.extensions.asDirectory
+import io.github.diskria.kotlin.utils.extensions.*
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
-import io.github.diskria.kotlin.utils.extensions.common.modifyIf
-import io.github.diskria.kotlin.utils.extensions.ensureDirectoryExists
-import io.github.diskria.kotlin.utils.extensions.ensureFileExists
-import io.github.diskria.kotlin.utils.extensions.listFilesWithExtension
-import io.github.diskria.kotlin.utils.extensions.nameWithoutExtensions
 import io.github.diskria.kotlin.utils.helpers.EmailType
 import io.github.diskria.kotlin.utils.properties.common.autoNamed
 import io.github.diskria.kotlin.utils.properties.common.environmentVariable
@@ -18,10 +13,10 @@ import io.github.diskria.projektor.common.extensions.setProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektAbout
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.repo.github.GithubOwner
-import io.github.diskria.projektor.common.repo.github.GithubOwnerType
 import io.github.diskria.projektor.common.repo.github.GithubRepo
 import io.github.diskria.projektor.settings.extensions.develocity
 import io.github.diskria.projektor.settings.extensions.gradle.ProjektExtension
+import io.github.diskria.projektor.settings.helpers.BuildscriptPatches
 import io.ktor.http.*
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
@@ -30,6 +25,8 @@ import org.gradle.api.initialization.Settings
 class ProjektorGradlePlugin : Plugin<Settings> {
 
     override fun apply(settings: Settings) = with(settings) {
+        BuildscriptPatches.patchLoomGsonCompatibility(settings)
+
         ensurePluginApplied("org.gradle.toolchains.foojay-resolver-convention")
 
         develocity {

@@ -14,14 +14,14 @@ enum class MinecraftEra(val versions: List<MinecraftVersion>, val versionPrefix:
     BETA(Beta.values().toList(), "b"),
     RELEASE(Release.values().toList(), Constants.Char.EMPTY);
 
+    fun firstVersion(): MinecraftVersion =
+        versions.first()
+
+    fun lastVersion(): MinecraftVersion =
+        versions.last()
+
     companion object {
         fun parse(version: String): MinecraftEra =
             values().filterNot { it == RELEASE }.find { version.startsWith(it.versionPrefix) } ?: RELEASE
     }
 }
-
-fun MinecraftEra.firstVersion(): MinecraftVersion =
-    versions.first()
-
-fun MinecraftEra.lastVersion(): MinecraftVersion =
-    versions.last()

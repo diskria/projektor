@@ -4,22 +4,16 @@ import io.github.diskria.gradle.utils.extensions.*
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.`Train-Case`
-import io.github.diskria.kotlin.utils.extensions.generics.joinByNewLine
-import io.github.diskria.kotlin.utils.extensions.generics.toNullIfEmpty
-import io.github.diskria.kotlin.utils.extensions.toNullIfEmpty
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.Versions
 import io.github.diskria.projektor.common.configurators.IProjektConfigurator
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
-import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderFamily
 import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.projekt.GradlePlugin
 import io.github.diskria.projektor.projekt.KotlinLibrary
-import io.github.diskria.projektor.projekt.MinecraftMod
 import io.github.diskria.projektor.projekt.common.Projekt
-import io.github.diskria.projektor.tasks.ReleaseProjektTask
-import io.github.diskria.projektor.tasks.UpdateProjektRepoMetadataTask
+import io.github.diskria.projektor.tasks.*
 import io.github.diskria.projektor.tasks.generate.GenerateProjektGitAttributesTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektGitIgnoreTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektLicenseTask
@@ -33,17 +27,37 @@ import org.gradle.kotlin.dsl.*
 
 abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
 
-    fun configure(project: Project): T =
-        configureProject(project).apply { applyCommonConfiguration(this, project) }
+    fun configure(project: Project): T {
+        val projekt = buildProjekt(project)
+        applyCommonConfiguration(project, projekt, project.getProjektMetadata().type)
+        configureProject(project, projekt)
 
-    abstract fun configureProject(project: Project): T
+        with(project) {
+            val commonProject = rootProject.findCommonProject()
+            if (commonProject != null && project != commonProject) {
+                if (projekt is GradlePlugin || projekt is KotlinLibrary) {
+                    dependencies {
+                        compileOnly(commonProject)
+                    }
+                    configureShadowJar(listOf(commonProject))
+                }
+                configurePublishing(project, projekt)
+            }
+        }
+        return projekt
+    }
 
-    private fun applyCommonConfiguration(projekt: Projekt, project: Project) = with(project) {
+    abstract fun buildProjekt(project: Project): T
+
+    abstract fun configureProject(project: Project, projekt: T): Any
+
+    private fun applyCommonConfiguration(project: Project, projekt: T, rootType: ProjektType) = with(project) {
+        ensureKotlinPluginsApplied()
+
         group = projekt.repo.owner.namespace
         version = projekt.archiveVersion
 
-        val rootProjektType = getProjektMetadata().type
-        if (rootProjektType != ProjektType.MINECRAFT_MOD) {
+        if (rootType != ProjektType.MINECRAFT_MOD) {
             dependencies {
                 testImplementation(kotlin("test"))
                 testImplementation("org.junit.jupiter", "junit-jupiter", Versions.JUNIT)
@@ -67,10 +81,6 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
             jvmToolchain(projekt.javaVersion)
         }
         tasks {
-            clean {
-                dependsOnIncludedBuilds()
-                dependsOnSubprojects()
-            }
             configureJvmTarget(projekt.jvmTarget)
             withType<JavaCompile>().configureEach {
                 options.encoding = Charsets.UTF_8.toString()
@@ -106,7 +116,7 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                 }
                 archiveVersion = projekt.archiveVersion
             }
-            if (rootProjektType != ProjektType.MINECRAFT_MOD) {
+            if (rootType != ProjektType.MINECRAFT_MOD) {
                 test {
                     useJUnitPlatform()
                     testLogging {
@@ -141,45 +151,11 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                 }
             }
         }
-        if (isCommonProject()) {
-            return@with
-        }
-        val commonProject = rootProject.findCommonProject()
-        if (commonProject != null) {
-            if (projekt is GradlePlugin || projekt is KotlinLibrary) {
-                dependencies {
-                    compileOnly(commonProject)
-                }
-                configureShadowJar(listOf(commonProject))
-            } else if (projekt is MinecraftMod) {
-                val mod = projekt
-                val sideProjects = children
-                val projectsToShadow = sideProjects + commonProject
-                val isFabricFamily = mod.loader.family == ModLoaderFamily.FABRIC
-                configureShadowJar(
-                    projects = projectsToShadow,
-                    classifier = if (isFabricFamily) "dev" else null,
-                    destination = if (isFabricFamily) getBuildDirectory("devlibs").get() else null,
-                    shouldDisableJar = true,
-                ) {
-                    val mergedAccessorConfigFile = getTempFile(mod.accessorConfigFileName)
-                    copyFile(mergedAccessorConfigFile, mod.assetsPath)
-                    doFirst {
-                        mergedAccessorConfigFile.writeText(
-                            sideProjects.mapNotNull { sideProject ->
-                                sideProject.sourceSets.main.resourcesDirectory
-                                    .resolve(mod.accessorConfigFileName)
-                                    .readLines()
-                                    .mapNotNull { it.trim().toNullIfEmpty() }
-                                    .toNullIfEmpty()
-                            }.flatten().toSet().joinByNewLine()
-                        )
-                    }
-                }
-            }
-        }
+    }
+
+    private fun configurePublishing(project: Project, projekt: T) = with(project) {
         val publishingTargetTasks = projekt.publishingTargets
-            .filter { it.configurePublishTask(projekt, this) }
+            .filter { it.configurePublishTask(this, projekt) }
             .map { target ->
                 val publishTask = tasks.named(target.publishTaskName).get()
                 val rootPublishTask = rootProject.getTaskOrNull(target.publishTaskName)
@@ -209,6 +185,9 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                 }
             )
         }
+        rootProject.ensureTaskRegistered<CleanIncludedBuildsTask>()
+        rootProject.ensureTaskRegistered<CleanSubprojectsTask>()
+        rootProject.ensureTaskRegistered<CleanAllTask>()
     }
 
     companion object {

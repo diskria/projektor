@@ -4,7 +4,6 @@ import io.github.diskria.kotlin.utils.extensions.common.failWithDetails
 import io.github.diskria.kotlin.utils.extensions.previousEnumOrNull
 import io.github.diskria.kotlin.utils.extensions.previousOrNull
 import io.github.diskria.kotlin.utils.extensions.toSemverOrNull
-import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.common.minecraft.era.common.*
 import io.github.diskria.projektor.common.minecraft.sync.packs.DataPackFormatSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.packs.ResourcePackFormatSynchronizer
@@ -23,10 +22,7 @@ interface MinecraftVersion {
         val COMPARATOR: Comparator<MinecraftVersion> = Comparator { before, after -> before.compareTo(after) }
 
         fun parse(version: String): MinecraftVersion =
-            parseOrNull(version) ?: failWithDetails("Failed to parse Minecraft version") {
-                val version by version.autoNamedProperty()
-                listOf(version)
-            }
+            parseOrNull(version) ?: failWithDetails("Failed to parse Minecraft version $version")
 
         fun parseOrNull(version: String): MinecraftVersion? {
             val era = MinecraftEra.parse(version)
@@ -63,14 +59,14 @@ fun MinecraftVersion.getOrdinal(): Int =
 fun MinecraftVersion.previousOrNull(): MinecraftVersion? =
     asEnum().previousEnumOrNull()?.let { MinecraftVersion.of(it) } ?: getEra().previousOrNull()?.lastVersion()
 
-fun MinecraftVersion.getMinJavaVersion(): Int =
-    JavaCompatibility.getMinJavaVersion(this)
+val MinecraftVersion.minJavaVersion: Int
+    get() = JavaCompatibility.getMinJavaVersion(this)
+
+val MinecraftVersion.mappingsEra: MappingsEra
+    get() = MappingsEra.of(this)
 
 fun MinecraftVersion.getDataPackFormat(project: Project): String =
     DataPackFormatSynchronizer.getLatestVersion(project, this)
 
 fun MinecraftVersion.getResourcePackFormat(project: Project): String =
     ResourcePackFormatSynchronizer.getLatestVersion(project, this)
-
-fun MinecraftVersion.getMappingsEra(): MappingsEra =
-    MappingsEra.of(this)
