@@ -53,24 +53,24 @@ abstract class UploadBundleToMavenCentralTask : Zip() {
             parameters("publishingType" to "AUTOMATIC")
         }
         val bundleFile = archiveFile.get().asFile
-//        val part = PartData.FileItem({ bundleFile.readChannel() }, {}, Headers.build {
-//            append(
-//                HttpHeaders.ContentDisposition,
-//                ContentDisposition(ContentType.MultiPart.FormData.contentSubtype)
-//                    .withParameter(ContentDisposition.Parameters.Name, FORM_NAME)
-//                    .withParameter(ContentDisposition.Parameters.FileName, bundleFile.name)
-//            )
-//            append(
-//                HttpHeaders.ContentType,
-//                ContentType.Application.OctetStream
-//            )
-//        })
-//        HttpClient(CIO).use { client ->
-//            client.post(url) {
-//                bearerAuth(bearer)
-//                setBody(MultiPartFormDataContent(listOf(part)))
-//            }
-//        }
+        val part = PartData.FileItem({ bundleFile.readChannel() }, {}, Headers.build {
+            append(
+                HttpHeaders.ContentDisposition,
+                ContentDisposition(ContentType.MultiPart.FormData.contentSubtype)
+                    .withParameter(ContentDisposition.Parameters.Name, FORM_NAME)
+                    .withParameter(ContentDisposition.Parameters.FileName, bundleFile.name)
+            )
+            append(
+                HttpHeaders.ContentType,
+                ContentType.Application.OctetStream
+            )
+        })
+        HttpClient(CIO).use { client ->
+            client.post(url) {
+                bearerAuth(bearer)
+                setBody(MultiPartFormDataContent(listOf(part)))
+            }
+        }
     }
 
     companion object {
