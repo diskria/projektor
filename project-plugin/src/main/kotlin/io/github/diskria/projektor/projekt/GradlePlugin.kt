@@ -17,6 +17,9 @@ class GradlePlugin(projekt: Projekt, val config: GradlePluginConfiguration) : Ab
         if (config.isSettingsPlugin) "settings"
         else null
 
+    override val javaVersion: Int
+        get() = config.javaVersion ?: super.javaVersion
+
     override val jvmTarget: JvmTarget
         get() = config.jvmTarget ?: super.jvmTarget
 

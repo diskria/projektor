@@ -12,7 +12,7 @@ enum class MappingsEra(val startMinecraftVersion: MinecraftVersion) {
 
     companion object {
         fun of(minecraftVersion: MinecraftVersion): MappingsEra =
-            entries
+            values()
                 .sortedWith(compareByDescending(MinecraftVersion.COMPARATOR) { it.startMinecraftVersion })
                 .first { minecraftVersion >= it.startMinecraftVersion }
     }

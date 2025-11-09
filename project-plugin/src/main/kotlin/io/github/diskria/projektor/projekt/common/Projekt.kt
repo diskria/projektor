@@ -33,7 +33,8 @@ interface Projekt {
     val isJavadocEnabled: Boolean get() = true
     val publicationComponentName: String? get() = null
     val packageNameSuffix: String? get() = null
-    val jvmTarget: JvmTarget get() = Versions.JAVA.toJvmTarget()
+    val javaVersion: Int get() = Versions.JAVA
+    val jvmTarget: JvmTarget get() = javaVersion.toJvmTarget()
     val archiveVersion: String get() = version
     val packageName: String get() = packageNameSuffix?.let { packageNameBase.appendPackageName(it) } ?: packageNameBase
     val packagePath: String get() = packageName.setCase(`dot․case`, `path∕case`)

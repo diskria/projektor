@@ -4,4 +4,5 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 open class KotlinLibraryConfiguration {
     var jvmTarget: JvmTarget? = null
+    var javaVersion: Int? = null
 }

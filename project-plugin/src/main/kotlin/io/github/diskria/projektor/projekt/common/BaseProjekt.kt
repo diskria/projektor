@@ -40,15 +40,19 @@ data class BaseProjekt(
     override val publishingTargets: List<PublishingTarget>,
 ) : Projekt {
 
+    @Suppress("unused")
     fun toGradlePlugin(project: Project, config: GradlePluginConfiguration): GradlePlugin =
         GradlePlugin(this, config)
 
+    @Suppress("unused")
     fun toKotlinLibrary(project: Project, config: KotlinLibraryConfiguration): KotlinLibrary =
         KotlinLibrary(this, config)
 
+    @Suppress("unused")
     fun toAndroidLibrary(project: Project, config: AndroidLibraryConfiguration): AndroidLibrary =
         AndroidLibrary(this, config)
 
+    @Suppress("unused")
     fun toAndroidApplication(project: Project, config: AndroidApplicationConfiguration): AndroidApplication =
         AndroidApplication(this, config)
 

@@ -13,6 +13,9 @@ class KotlinLibrary(projekt: Projekt, val config: KotlinLibraryConfiguration) : 
     override val publicationComponentName: String
         get() = "java"
 
+    override val javaVersion: Int
+        get() = config.javaVersion ?: super.javaVersion
+
     override val jvmTarget: JvmTarget
         get() = config.jvmTarget ?: super.jvmTarget
 

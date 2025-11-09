@@ -18,8 +18,8 @@ object LegacyFabricYarnMappingsSynchronizer : AbstractMinecraftMavenSynchronizer
 
     override val cacheDurationMillis: Long = TimeUnit.DAYS.toMillis(14)
 
-    override val mavenUrl: Url
-        get() = buildUrl("repo.legacyfabric.net") {
+    override val mavenUrl: Url =
+        buildUrl("repo.legacyfabric.net") {
             path("legacyfabric", "net", "legacyfabric", "yarn", MavenMetadata.FILE_NAME)
         }
 

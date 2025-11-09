@@ -52,7 +52,7 @@ abstract class AbstractFabric(
             val sideName = side.getName()
             log("[Crafter] Configuring $sideName side...")
 
-            ensureKotlinPluginsApplied()
+            ensurePluginApplied("org.jetbrains.kotlin.jvm")
 
             val generateModEntryPointTask = registerTask<GenerateModEntryPointTask> {
                 minecraftMod = mod

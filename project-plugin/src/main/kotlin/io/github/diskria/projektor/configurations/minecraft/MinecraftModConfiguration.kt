@@ -5,6 +5,7 @@ import io.github.diskria.gradle.utils.extensions.log
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
 import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricLoaderSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricYarnMappingsSynchronizer
+import io.github.diskria.projektor.common.minecraft.sync.loaders.forge.ForgeLoaderSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.loaders.legacy_fabric.LegacyFabricYarnMappingsSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.loaders.neoforge.NeoforgeLoaderSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.loaders.ornithe.OrnitheFeatherMappingsSynchronizer
@@ -29,15 +30,20 @@ open class MinecraftModConfiguration {
     internal val ornithe: OrnitheModConfiguration
         get() = ornitheConfig ?: gradleError("Ornithe loader not configured")
 
+    internal val forge: ForgeModConfiguration
+        get() = forgeConfig ?: gradleError("Forge loader not configured")
+
     internal val neoforge: NeoforgeModConfiguration
         get() = neoforgeConfig ?: gradleError("Neoforge loader not configured")
 
     var environment: ModEnvironment = ModEnvironment.CLIENT_SERVER
     var maxSupportedVersion: MinecraftVersion? = null
+    var javaVersion: Int? = null
 
     private var fabricConfig: FabricModConfiguration? = null
     private var legacyFabricConfig: LegacyFabricModConfiguration? = null
     private var ornitheConfig: OrnitheModConfiguration? = null
+    private var forgeConfig: ForgeModConfiguration? = null
     private var neoforgeConfig: NeoforgeModConfiguration? = null
 
     fun fabric(configuration: FabricModConfiguration.() -> Unit) {
@@ -50,6 +56,10 @@ open class MinecraftModConfiguration {
 
     fun ornithe(configuration: OrnitheModConfiguration.() -> Unit) {
         ornitheConfig = OrnitheModConfiguration().apply(configuration)
+    }
+
+    fun forge(configuration: ForgeModConfiguration.() -> Unit) {
+        forgeConfig = ForgeModConfiguration().apply(configuration)
     }
 
     fun neoforge(configuration: NeoforgeModConfiguration.() -> Unit) {
@@ -107,6 +117,23 @@ open class MinecraftModConfiguration {
                 }
             }
 
+            ModLoaderType.FORGE -> {
+                val userConfig = forgeConfig ?: ForgeModConfiguration()
+                forgeConfig = ForgeModConfiguration().apply {
+                    loader = userConfig.loader.ifEmpty {
+                        ForgeLoaderSynchronizer.getLatestVersion(project, minecraftVersion)
+                    }
+                    parchmentMinecraft = userConfig.parchmentMinecraft.ifEmpty {
+                        ParchmentSynchronizer.getLatestComponent(project, minecraftVersion).minecraftVersion.asString()
+                    }
+                    parchmentMappings = userConfig.parchmentMappings.ifEmpty {
+                        ParchmentSynchronizer.getLatestVersion(project, minecraftVersion)
+                    }
+                    project.log("[Crafter] Forge Loader: $loader")
+                    project.log("[Crafter] Parchment Mappings: $parchmentMappings")
+                }
+            }
+
             ModLoaderType.NEOFORGE -> {
                 val userConfig = neoforgeConfig ?: NeoforgeModConfiguration()
                 neoforgeConfig = NeoforgeModConfiguration().apply {
@@ -122,10 +149,6 @@ open class MinecraftModConfiguration {
                     project.log("[Crafter] Neoforge Loader: $loader")
                     project.log("[Crafter] Parchment Mappings: $parchmentMappings")
                 }
-            }
-
-            ModLoaderType.FORGE -> {
-
             }
         }
     }

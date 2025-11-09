@@ -20,6 +20,7 @@ import org.gradle.kotlin.dsl.invoke
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
+import org.parchmentmc.librarian.forgegradle.ParchmentChannelProvider
 
 fun Project.configureShadowJar(
     projects: List<Project>,
@@ -50,11 +51,6 @@ fun Project.configureShadowJar(
 
 fun Project.toProjekt(): BaseProjekt =
     BaseProjekt.of(this)
-
-fun Project.ensureKotlinPluginsApplied() {
-    ensurePluginApplied("org.jetbrains.kotlin.jvm")
-    ensurePluginApplied("org.jetbrains.kotlin.plugin.serialization")
-}
 
 fun Project.kotlin(configuration: KotlinProjectExtension.() -> Unit = {}) {
     configureExtension<KotlinProjectExtension>(configuration)

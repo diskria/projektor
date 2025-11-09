@@ -90,7 +90,15 @@ abstract class GenerateModEntryPointTask : DefaultTask() {
                     .build()
             }
 
-            ModLoaderType.FORGE -> TODO()
+            ModLoaderType.FORGE -> {
+                val annotation = AnnotationSpec.builder(ClassName.get("net.minecraftforge.fml.common", "Mod"))
+                    .addMember("value", "\$S", mod.id)
+                    .build()
+                entryPointBuilder
+                    .addModifiers(Modifier.PUBLIC)
+                    .addAnnotation(annotation)
+                    .build()
+            }
         }
         val javaFile = JavaFile.builder(mod.packageName.appendPackageName(side.getName()), entryPointClass).build()
         javaFile.writeTo(outputDirectory)

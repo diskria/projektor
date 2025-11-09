@@ -92,6 +92,9 @@ class MinecraftMod(
 
     override val isJavadocEnabled: Boolean = false
 
+    override val javaVersion: Int
+        get() = config.javaVersion ?: super.javaVersion
+
     override val jvmTarget: JvmTarget
         get() {
             val minJvmTarget = minSupportedVersion.getMinJavaVersion().toJvmTarget()

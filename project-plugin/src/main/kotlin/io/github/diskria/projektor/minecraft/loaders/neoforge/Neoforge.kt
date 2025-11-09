@@ -11,7 +11,10 @@ import io.github.diskria.projektor.common.ProjectDirectories
 import io.github.diskria.projektor.common.minecraft.MinecraftConstants
 import io.github.diskria.projektor.common.minecraft.sides.ModSide
 import io.github.diskria.projektor.common.minecraft.versions.getMinJavaVersion
-import io.github.diskria.projektor.extensions.*
+import io.github.diskria.projektor.extensions.configureJvmTarget
+import io.github.diskria.projektor.extensions.copyFile
+import io.github.diskria.projektor.extensions.copyTaskOutput
+import io.github.diskria.projektor.extensions.neoforge
 import io.github.diskria.projektor.minecraft.loaders.common.ModLoader
 import io.github.diskria.projektor.projekt.MinecraftMod
 import io.github.diskria.projektor.tasks.minecraft.generate.GenerateModConfigTask
@@ -19,7 +22,6 @@ import io.github.diskria.projektor.tasks.minecraft.generate.GenerateModEntryPoin
 import io.github.diskria.projektor.tasks.minecraft.generate.GenerateModMixinsConfigTask
 import io.github.diskria.projektor.tasks.minecraft.test.TestClientModTask
 import io.github.diskria.projektor.tasks.minecraft.test.TestServerModTask
-import net.fabricmc.loom.task.RunGameTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.SourceSet
@@ -40,7 +42,7 @@ object Neoforge : ModLoader() {
             val sideName = side.getName()
             log("[Crafter] Configuring $sideName side...")
 
-            ensureKotlinPluginsApplied()
+            ensurePluginApplied("org.jetbrains.kotlin.jvm")
 
             val generateModEntryPointTask = registerTask<GenerateModEntryPointTask> {
                 minecraftMod = mod
@@ -78,15 +80,6 @@ object Neoforge : ModLoader() {
                                 )
                             }
                         }
-                    }
-                    create("data") {
-                        clientData()
-                        programArguments.addAll(
-                            *JvmArguments.program("mod", mod.id),
-                            *JvmArguments.program("all"),
-                            *JvmArguments.program("output", file("src/generated/resources").absolutePath),
-                            *JvmArguments.program("existing", main.resourcesDirectory.absolutePath),
-                        )
                     }
                 }
             }

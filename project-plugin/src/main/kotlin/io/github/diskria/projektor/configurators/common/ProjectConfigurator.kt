@@ -24,7 +24,6 @@ import io.github.diskria.projektor.tasks.generate.GenerateProjektGitAttributesTa
 import io.github.diskria.projektor.tasks.generate.GenerateProjektGitIgnoreTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektLicenseTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektReadmeTask
-import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
@@ -43,11 +42,6 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
         group = projekt.repo.owner.namespace
         version = projekt.archiveVersion
 
-        ensureKotlinPluginsApplied()
-        dependencies {
-            implementation("org.jetbrains.kotlinx", "kotlinx-serialization-json", Versions.KOTLIN_SERIALIZATION)
-        }
-
         val rootProjektType = getProjektMetadata().type
         if (rootProjektType != ProjektType.MINECRAFT_MOD) {
             dependencies {
@@ -60,7 +54,7 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
         }
         java {
             toolchain {
-                configureJavaVendor(Versions.JAVA, JvmVendorSpec.ADOPTIUM, JvmVendorSpec.AZUL)
+                configureJavaVendor(projekt.javaVersion, JvmVendorSpec.ADOPTIUM, JvmVendorSpec.AZUL)
             }
             if (projekt.isSourcesEnabled) {
                 withSourcesJar()
@@ -70,7 +64,7 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
             }
         }
         kotlin {
-            jvmToolchain(Versions.JAVA)
+            jvmToolchain(projekt.javaVersion)
         }
         tasks {
             clean {

@@ -14,8 +14,7 @@ object GooglePlay : ExternalPublishingTarget() {
     override val publishTaskName: String = TODO()
 
     override fun configurePublishTask(projekt: Projekt, project: Project): Boolean = with(project) {
-        val application = projekt as? AndroidApplication ?: return false
-        return true
+        return projekt is AndroidApplication
     }
 
     override fun getHomepage(metadata: ProjektMetadata): Url =
