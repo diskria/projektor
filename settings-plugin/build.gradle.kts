@@ -16,6 +16,7 @@ dependencies {
 projekt {
     gradlePlugin {
         isSettingsPlugin = true
+        packageNameSuffix = "settings"
         jvmTarget = JvmTarget.JVM_21
     }
 }
