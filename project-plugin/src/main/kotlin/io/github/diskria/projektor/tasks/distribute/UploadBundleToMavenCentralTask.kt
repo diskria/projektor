@@ -53,10 +53,9 @@ abstract class UploadBundleToMavenCentralTask : Zip() {
             partHeaders = Headers.build {
                 append(
                     HttpHeaders.ContentDisposition,
-                    ContentDisposition(ContentType.MultiPart.FormData.contentSubtype).apply {
-                        withParameter(ContentDisposition.Parameters.Name, FORM_NAME)
-                        withParameter(ContentDisposition.Parameters.FileName, bundleFile.name)
-                    }
+                    ContentDisposition(ContentType.MultiPart.FormData.contentSubtype)
+                        .withParameter(ContentDisposition.Parameters.Name, FORM_NAME)
+                        .withParameter(ContentDisposition.Parameters.FileName, bundleFile.name)
                 )
                 append(
                     HttpHeaders.ContentType,
