@@ -11,10 +11,10 @@ import io.github.diskria.kotlin.utils.extensions.serialization.deserializeFromJs
 import io.github.diskria.kotlin.utils.extensions.wrapWithBrackets
 import io.github.diskria.projektor.ProjektBuildConfig
 import io.github.diskria.projektor.ProjektorGradlePlugin
-import io.github.diskria.projektor.helpers.SecretsHelper
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.mappers.mapToModel
+import io.github.diskria.projektor.helpers.SecretsHelper
 import io.github.diskria.projektor.tasks.generate.models.requests.github.GetLanguagesRequest
 import io.github.diskria.projektor.tasks.generate.models.requests.github.UpdateInfoRequest
 import io.github.diskria.projektor.tasks.generate.models.requests.github.UpdateTopicsRequest

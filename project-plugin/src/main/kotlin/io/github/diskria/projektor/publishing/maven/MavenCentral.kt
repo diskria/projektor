@@ -3,9 +3,9 @@ package io.github.diskria.projektor.publishing.maven
 import io.github.diskria.gradle.utils.extensions.ensureTaskRegistered
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
-import io.github.diskria.projektor.helpers.SecretsHelper
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.signing
+import io.github.diskria.projektor.helpers.SecretsHelper
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.publishing.maven.common.MavenPublishingTarget
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield

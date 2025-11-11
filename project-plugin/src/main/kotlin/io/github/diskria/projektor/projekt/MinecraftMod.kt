@@ -73,6 +73,9 @@ class MinecraftMod(
     val resourcePackConfigFileName: String =
         fileName("pack", "mcmeta")
 
+    val refmapFileName: String =
+        fileName(id + "_refmap", Constants.File.Extension.JSON)
+
     val configFileName: String =
         when (loader.family) {
             ModLoaderFamily.FABRIC -> fileName(ModLoaderFamily.FABRIC.getName(), "mod", Constants.File.Extension.JSON)
@@ -105,6 +108,8 @@ class MinecraftMod(
 
     override val isJavadocEnabled: Boolean = false
 
+    override val isSourcesEnabled: Boolean = false
+
     override val javaVersion: Int
         get() = config.javaVersion ?: super.javaVersion
 
@@ -117,6 +122,9 @@ class MinecraftMod(
             }
             return maxJvmTarget
         }
+
+    override val archiveName: String
+        get() = id
 
     override val archiveVersion: String
         get() = buildString {

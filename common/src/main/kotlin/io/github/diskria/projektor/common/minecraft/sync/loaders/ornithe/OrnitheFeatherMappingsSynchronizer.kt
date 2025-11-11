@@ -4,7 +4,7 @@ import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.Semver
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
-import io.github.diskria.projektor.common.minecraft.era.common.MappingsEra
+import io.github.diskria.projektor.common.minecraft.era.common.MappingsType
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
 import io.github.diskria.projektor.common.minecraft.sides.ModSide
 import io.github.diskria.projektor.common.minecraft.sync.maven.AbstractMinecraftMavenSynchronizer
@@ -13,11 +13,11 @@ import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
 import io.ktor.http.*
 import java.util.concurrent.TimeUnit
 
-class OrnitheFeatherMappingsSynchronizer(override val mappingsEra: MappingsEra) : AbstractMinecraftMavenSynchronizer() {
+class OrnitheFeatherMappingsSynchronizer(override val mappingsType: MappingsType) : AbstractMinecraftMavenSynchronizer() {
 
     override val loader: ModLoaderType = ModLoaderType.ORNITHE
 
-    override val componentName: String = "feather-${mappingsEra.getName()}-mappings"
+    override val componentName: String = "feather-${mappingsType.getName()}-mappings"
 
     override val cacheDurationMillis: Long = TimeUnit.DAYS.toMillis(7)
 
@@ -27,10 +27,10 @@ class OrnitheFeatherMappingsSynchronizer(override val mappingsEra: MappingsEra) 
         }
 
     override fun parseMinecraftVersion(version: String): MinecraftVersion? =
-        if (mappingsEra == MappingsEra.MERGED) {
+        if (mappingsType == MappingsType.MERGED) {
             MinecraftVersion.parseOrNull(version.substringBefore(Constants.Char.PLUS))
         } else {
-            val side = if (mappingsEra == MappingsEra.SPLIT) ModSide.SERVER else ModSide.CLIENT
+            val side = if (mappingsType == MappingsType.SPLIT) ModSide.SERVER else ModSide.CLIENT
             if (version.contains(side.getName())) {
                 MinecraftVersion.parseOrNull(version.substringBefore(Constants.Char.HYPHEN + side.getName()))
             } else {

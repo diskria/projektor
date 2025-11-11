@@ -1,14 +1,10 @@
 package io.github.diskria.projektor.tasks.minecraft.generate
 
 import io.github.diskria.kotlin.utils.Constants
-import io.github.diskria.kotlin.utils.extensions.appendPackageName
+import io.github.diskria.kotlin.utils.extensions.*
 import io.github.diskria.kotlin.utils.extensions.common.`dot․case`
 import io.github.diskria.kotlin.utils.extensions.common.`path∕case`
-import io.github.diskria.kotlin.utils.extensions.ensureFileExists
-import io.github.diskria.kotlin.utils.extensions.listFilesWithExtension
 import io.github.diskria.kotlin.utils.extensions.serialization.serializeJsonToFile
-import io.github.diskria.kotlin.utils.extensions.setCase
-import io.github.diskria.kotlin.utils.extensions.walkDirectories
 import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.common.ProjectDirectories
 import io.github.diskria.projektor.common.minecraft.sides.ModSide

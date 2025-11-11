@@ -7,7 +7,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -22,7 +21,7 @@ class ReplaceGrassWithCobblestone {
             cancellable = true
     )
     private void replaceGrassWithCobblestone(
-            @NotNull World world,
+            World world,
             BlockPos blockPos,
             BlockState state,
             Entity entity,
@@ -32,7 +31,6 @@ class ReplaceGrassWithCobblestone {
                 entity instanceof PlayerEntity &&
                 world.getBlockState(blockPos).getBlock() == Blocks.GRASS_BLOCK
         ) {
-//            world.canHaveWeather();
             world.setBlockState(blockPos, Blocks.COBBLESTONE.getDefaultState());
             ci.cancel();
         }

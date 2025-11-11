@@ -12,7 +12,7 @@ import io.github.diskria.projektor.common.minecraft.MinecraftConstants
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
 import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.asString
-import io.github.diskria.projektor.common.minecraft.versions.mappingsEra
+import io.github.diskria.projektor.common.minecraft.versions.mappingsType
 import io.github.diskria.projektor.settings.configurations.MinecraftModConfiguration
 import io.github.diskria.projektor.settings.configurators.common.SettingsConfigurator
 import io.github.diskria.projektor.settings.configurators.common.dependencyRepositories
@@ -44,7 +44,7 @@ open class MinecraftModConfigurator(
                 val modProjectPath = buildGradleProjectPath(loaderDirectoryName, modProjectDirectoryName)
                 include(modProjectPath)
 
-                minecraftVersion.mappingsEra.sides.forEach { side ->
+                minecraftVersion.mappingsType.sides.forEach { side ->
                     val sideProjectDirectoryName = side.getName()
                     val sideProjectDirectory = modProjectDirectory.resolve(sideProjectDirectoryName)
                     if (sideProjectDirectory.exists()) {

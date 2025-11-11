@@ -4,8 +4,8 @@ import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.shell.dsl.git.GitShell
 import io.github.diskria.kotlin.shell.dsl.git.commits.CommitMessage
 import io.github.diskria.kotlin.shell.dsl.git.commits.CommitType
-import io.github.diskria.projektor.helpers.SecretsHelper
 import io.github.diskria.projektor.common.repo.github.GithubRepo
+import io.github.diskria.projektor.helpers.SecretsHelper
 import java.io.File
 
 fun GithubRepo.pushFile(repoDirectory: File, commitType: CommitType, file: File, wasFileExists: Boolean) {

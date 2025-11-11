@@ -45,8 +45,8 @@ fun Project.configureShadowJar(
 
         shadowJar {
             configurations = emptyList()
-            copyArchiveNameParts(jar, classifier.orEmpty())
             destination?.let { destinationDirectory = it }
+            copyArchiveNameParts(jar, classifier.orEmpty())
             projects.forEach {
                 val jarTask = it.tasks.jar
                 dependsOn(jarTask)
@@ -58,6 +58,11 @@ fun Project.configureShadowJar(
             jar.disable()
         }
     }
+}
+
+fun Project.kotlinApply(block: Project.() -> Unit): Project {
+    block(this)
+    return this
 }
 
 fun Project.ensureKotlinPluginsApplied() {

@@ -7,8 +7,6 @@ import io.github.diskria.kotlin.utils.extensions.common.`Train-Case`
 import io.github.diskria.kotlin.utils.extensions.generics.addIfNotNull
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.common.configurators.IProjektConfigurator
-import io.github.diskria.projektor.common.extensions.getProjektMetadata
-import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.projekt.GradlePlugin
 import io.github.diskria.projektor.projekt.KotlinLibrary
@@ -28,7 +26,7 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
 
     fun configure(project: Project): T {
         val projekt = buildProjekt(project)
-        applyCommonConfiguration(project, projekt, project.getProjektMetadata().type)
+        applyCommonConfiguration(project, projekt)
         configureProject(project, projekt)
 
         if (!project.isCommonProject()) {
@@ -52,14 +50,14 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
 
     abstract fun configureProject(project: Project, projekt: T): Any
 
-    private fun applyCommonConfiguration(project: Project, projekt: T, rootType: ProjektType) = with(project) {
+    private fun applyCommonConfiguration(project: Project, projekt: T) = with(project) {
         ensureKotlinPluginsApplied()
 
         group = projekt.repo.owner.namespace
         version = projekt.archiveVersion
 
         base {
-            archivesName = projekt.repo.name
+            archivesName = projekt.archiveName
         }
         java {
             toolchain {

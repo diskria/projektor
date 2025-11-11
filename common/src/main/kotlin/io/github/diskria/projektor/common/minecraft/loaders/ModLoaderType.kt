@@ -1,6 +1,7 @@
 package io.github.diskria.projektor.common.minecraft.loaders
 
 import io.github.diskria.projektor.common.minecraft.era.Release
+import io.github.diskria.projektor.common.minecraft.era.common.MappingsType
 import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersionRange
 import io.github.diskria.projektor.common.minecraft.versions.rangeTo
@@ -13,7 +14,7 @@ enum class ModLoaderType(val supportedVersionRanges: List<MinecraftVersionRange>
     ),
     LEGACY_FABRIC(
         listOf(
-            Release.V_1_3_1..Release.V_1_13_2,
+            MappingsType.MERGED.startMinecraftVersion..Release.V_1_13_2,
         )
     ),
     ORNITHE(

@@ -4,9 +4,10 @@ import io.github.diskria.kotlin.utils.extensions.appendPackageName
 import io.github.diskria.kotlin.utils.serialization.annotations.EncodeDefaults
 import io.github.diskria.kotlin.utils.serialization.annotations.PrettyPrint
 import io.github.diskria.projektor.common.ProjectDirectories
+import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderFamily
+import io.github.diskria.projektor.common.minecraft.sides.ModEnvironment
 import io.github.diskria.projektor.common.minecraft.sides.ModSide
 import io.github.diskria.projektor.extensions.mappers.toInt
-import io.github.diskria.projektor.common.minecraft.sides.ModEnvironment
 import io.github.diskria.projektor.projekt.MinecraftMod
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -31,6 +32,8 @@ class MixinsConfig(
     @SerialName("overwrites")
     val overwriteConfig: OverwriteConfig,
 
+    val refmap: String? = null,
+
     @SerialName("mixins")
     val mainMixins: List<String>? = null,
 
@@ -47,6 +50,7 @@ class MixinsConfig(
                 jvmTargetVersion = "JAVA_${mod.jvmTarget.toInt()}",
                 injectorConfig = InjectorConfig.newInstance(),
                 overwriteConfig = OverwriteConfig.newInstance(),
+                refmap = if (mod.loader.family == ModLoaderFamily.FABRIC) mod.refmapFileName else null,
                 mainMixins = when (mod.config.environment) {
                     ModEnvironment.DEDICATED_SERVER -> null
                     else -> sideMixins[ModSide.SERVER]

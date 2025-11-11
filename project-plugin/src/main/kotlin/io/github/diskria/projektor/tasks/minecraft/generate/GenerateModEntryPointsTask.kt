@@ -9,9 +9,9 @@ import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
+import io.github.diskria.projektor.common.minecraft.sides.ModEnvironment
 import io.github.diskria.projektor.common.minecraft.sides.ModSide
 import io.github.diskria.projektor.extensions.mappers.mapToEnum
-import io.github.diskria.projektor.common.minecraft.sides.ModEnvironment
 import io.github.diskria.projektor.projekt.MinecraftMod
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
@@ -26,7 +26,7 @@ abstract class GenerateModEntryPointsTask : DefaultTask() {
     @get:Internal
     abstract val minecraftMod: Property<MinecraftMod>
 
-    @get: Internal
+    @get:Internal
     abstract val modSides: SetProperty<ModSide>
 
     @get:Internal

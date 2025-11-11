@@ -4,7 +4,9 @@ import io.github.diskria.kotlin.utils.extensions.common.failWithDetails
 import io.github.diskria.kotlin.utils.extensions.previousEnumOrNull
 import io.github.diskria.kotlin.utils.extensions.previousOrNull
 import io.github.diskria.kotlin.utils.extensions.toSemverOrNull
-import io.github.diskria.projektor.common.minecraft.era.common.*
+import io.github.diskria.projektor.common.minecraft.era.common.JavaCompatibility
+import io.github.diskria.projektor.common.minecraft.era.common.MappingsType
+import io.github.diskria.projektor.common.minecraft.era.common.MinecraftEra
 import io.github.diskria.projektor.common.minecraft.sync.packs.DataPackFormatSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.packs.ResourcePackFormatSynchronizer
 import org.gradle.api.Project
@@ -62,8 +64,8 @@ fun MinecraftVersion.previousOrNull(): MinecraftVersion? =
 val MinecraftVersion.minJavaVersion: Int
     get() = JavaCompatibility.getMinJavaVersion(this)
 
-val MinecraftVersion.mappingsEra: MappingsEra
-    get() = MappingsEra.of(this)
+val MinecraftVersion.mappingsType: MappingsType
+    get() = MappingsType.of(this)
 
 fun MinecraftVersion.getDataPackFormat(project: Project): String =
     DataPackFormatSynchronizer.getLatestVersion(project, this)

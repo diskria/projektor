@@ -15,12 +15,12 @@ import io.github.diskria.kotlin.utils.extensions.serialization.serializeJsonToFi
 import io.github.diskria.kotlin.utils.extensions.toSemver
 import io.github.diskria.kotlin.utils.extensions.wrapWithSingleQuote
 import io.github.diskria.projektor.ProjektBuildConfig
-import io.github.diskria.projektor.common.minecraft.era.common.MappingsEra
+import io.github.diskria.projektor.common.minecraft.era.common.MappingsType
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
 import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.asString
 import io.github.diskria.projektor.common.minecraft.versions.compareTo
-import io.github.diskria.projektor.common.minecraft.versions.mappingsEra
+import io.github.diskria.projektor.common.minecraft.versions.mappingsType
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.Project
 import java.io.File
@@ -29,7 +29,7 @@ abstract class AbstractMinecraftComponentSynchronizer {
 
     protected open val loader: ModLoaderType? = null
 
-    protected open val mappingsEra: MappingsEra? = null
+    protected open val mappingsType: MappingsType? = null
 
     protected abstract val componentName: String
 
@@ -50,7 +50,7 @@ abstract class AbstractMinecraftComponentSynchronizer {
                 .filterKeys { minecraftVersion ->
                     loader?.let { loader ->
                         loader.supportedVersionRanges.any { it.includesMinecraftVersion(minecraftVersion) } &&
-                                (mappingsEra == null || mappingsEra == minecraftVersion.mappingsEra)
+                                (mappingsType == null || mappingsType == minecraftVersion.mappingsType)
                     } ?: true
                 }
                 .mapValues {

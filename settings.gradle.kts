@@ -1,3 +1,4 @@
+import io.github.diskria.gradle.utils.helpers.GradleConstants
 import io.github.diskria.kotlin.utils.extensions.asDirectoryOrNull
 import io.github.diskria.kotlin.utils.extensions.listDirectories
 import io.github.diskria.projektor.common.licenses.LicenseType.MIT
@@ -18,7 +19,7 @@ plugins {
 }
 
 projekt {
-    version = "4.6.14"
+    version = "4.7.0"
     license = MIT
     publish = setOf(
         GITHUB_PAGES,
@@ -30,11 +31,11 @@ projekt {
 
 include(":settings-plugin", ":project-plugin")
 
-if (rootDir.resolve("build/maven").listFiles().orEmpty().isNotEmpty()) {
+if (rootDir.resolve("build/maven").listDirectories().isNotEmpty()) {
     val taskName = gradle.startParameter.taskNames.singleOrNull()
     val testProjectsRoot = rootDir.resolve("test")
-    if (taskName?.startsWith(":") == true) {
-        val testProjectName = taskName.split(":").first { it.isNotBlank() }
+    if (taskName?.startsWith(GradleConstants.PATH_SEPARATOR) == true) {
+        val testProjectName = taskName.split(GradleConstants.PATH_SEPARATOR).first { it.isNotBlank() }
         testProjectsRoot.resolve(testProjectName).asDirectoryOrNull()?.let { includeBuild(it) }
     } else if (taskName != "releaseProjekt") {
         testProjectsRoot.listDirectories().forEach { includeBuild(it) }

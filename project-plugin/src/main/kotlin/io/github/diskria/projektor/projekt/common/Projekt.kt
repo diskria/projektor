@@ -35,6 +35,7 @@ interface Projekt {
     val packageNameSuffix: String? get() = null
     val javaVersion: Int get() = JavaVersion.VERSION_21.majorVersion.toInt()
     val jvmTarget: JvmTarget get() = javaVersion.toJvmTarget()
+    val archiveName: String get() = repo.name
     val archiveVersion: String get() = version
     val packageName: String get() = packageNameSuffix?.let { packageNameBase.appendPackageName(it) } ?: packageNameBase
     val packagePath: String get() = packageName.setCase(`dot․case`, `path∕case`)

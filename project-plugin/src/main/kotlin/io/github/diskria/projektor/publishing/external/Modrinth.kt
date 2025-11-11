@@ -1,9 +1,6 @@
 package io.github.diskria.projektor.publishing.external
 
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar.Companion.shadowJar
 import io.github.diskria.gradle.utils.extensions.findGradleProjectRoot
-import io.github.diskria.gradle.utils.extensions.hasTask
 import io.github.diskria.gradle.utils.extensions.jar
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.Constants
@@ -28,6 +25,7 @@ object Modrinth : ExternalPublishingTarget() {
 
     override fun configurePublishTask(project: Project, projekt: Projekt): Boolean = with(project) {
         val mod = projekt as? MinecraftMod ?: return false
+        if (true) return@with false
 
         val loader = mod.loader
         val loaderName = loader.getLoaderDisplayName()
@@ -62,10 +60,7 @@ object Modrinth : ExternalPublishingTarget() {
             detectLoaders.set(false)
             loaders.set(listOf(loaderName))
 
-            uploadFile.set(
-                if (hasTask(ShadowJar.SHADOW_JAR_TASK_NAME)) tasks.shadowJar
-                else tasks.jar
-            )
+            uploadFile.set(tasks.jar)
             debugMode.set(!EnvironmentHelper.isCI())
         }
         val publishTask = tasks.named(publishTaskName).get()

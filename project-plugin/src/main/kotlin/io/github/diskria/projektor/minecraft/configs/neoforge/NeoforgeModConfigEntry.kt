@@ -23,6 +23,9 @@ data class NeoforgeModConfigEntry(
     @SerialName("logoFile")
     val iconPath: String,
 
+    @SerialName("logoBlur")
+    val isIconLinearInterpolationEnabled: Boolean,
+
     @SerialName("authors")
     val developer: String,
 
@@ -37,6 +40,7 @@ data class NeoforgeModConfigEntry(
                 checkUpdatesUrl = null,
                 homepageUrl = mod.getModrinthUrl().toString(),
                 iconPath = mod.iconPath,
+                isIconLinearInterpolationEnabled = false,
                 developer = mod.repo.owner.developer,
                 description = mod.description,
             )

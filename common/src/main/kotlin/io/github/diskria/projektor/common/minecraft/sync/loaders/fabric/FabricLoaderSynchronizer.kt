@@ -3,7 +3,7 @@ package io.github.diskria.projektor.common.minecraft.sync.loaders.fabric
 import io.github.diskria.kotlin.utils.Semver
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.toSemverOrNull
-import io.github.diskria.projektor.common.minecraft.era.common.MappingsEra
+import io.github.diskria.projektor.common.minecraft.era.common.MappingsType
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
 import io.github.diskria.projektor.common.minecraft.sync.maven.AbstractMinecraftMavenSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.maven.MavenMetadata
@@ -15,7 +15,7 @@ object FabricLoaderSynchronizer : AbstractMinecraftMavenSynchronizer() {
 
     override val loader: ModLoaderType = ModLoaderType.ORNITHE
 
-    override val mappingsEra: MappingsEra = MappingsEra.CLIENT
+    override val mappingsType: MappingsType = MappingsType.CLIENT
 
     override val componentName: String = "loader"
 

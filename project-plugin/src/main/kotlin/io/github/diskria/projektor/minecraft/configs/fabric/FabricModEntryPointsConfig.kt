@@ -2,8 +2,8 @@ package io.github.diskria.projektor.minecraft.configs.fabric
 
 import io.github.diskria.kotlin.utils.extensions.appendPackageName
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
-import io.github.diskria.projektor.common.minecraft.sides.ModSide
 import io.github.diskria.projektor.common.minecraft.sides.ModEnvironment
+import io.github.diskria.projektor.common.minecraft.sides.ModSide
 import io.github.diskria.projektor.projekt.MinecraftMod
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

@@ -2,6 +2,7 @@ package io.github.diskria.projektor.configurations.minecraft
 
 import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.gradle.utils.extensions.log
+import io.github.diskria.projektor.common.ProjectDirectories
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType.*
 import io.github.diskria.projektor.common.minecraft.sides.ModEnvironment
@@ -14,7 +15,7 @@ import io.github.diskria.projektor.common.minecraft.sync.loaders.ornithe.Ornithe
 import io.github.diskria.projektor.common.minecraft.sync.parchment.ParchmentSynchronizer
 import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.asString
-import io.github.diskria.projektor.common.minecraft.versions.mappingsEra
+import io.github.diskria.projektor.common.minecraft.versions.mappingsType
 import io.github.diskria.projektor.extensions.mappers.mapToEnum
 import io.github.diskria.projektor.minecraft.loaders.ModLoader
 import org.gradle.api.Project
@@ -39,6 +40,7 @@ open class MinecraftModConfiguration {
     var environment: ModEnvironment = ModEnvironment.CLIENT_SERVER
     var maxSupportedVersion: MinecraftVersion? = null
     var javaVersion: Int? = null
+    var runDirectory: String = ProjectDirectories.MINECRAFT_RUN
 
     private var fabricConfig: MinecraftVersionsConfig? = null
     private var legacyFabricConfig: MinecraftVersionsConfig? = null
@@ -117,7 +119,7 @@ open class MinecraftModConfiguration {
                         FabricLoaderSynchronizer.getLatestVersion(project, minSupportedVersion)
                     }
                     mappings = userConfig.mappings.ifEmpty {
-                        val synchronizer = OrnitheFeatherMappingsSynchronizer(minSupportedVersion.mappingsEra)
+                        val synchronizer = OrnitheFeatherMappingsSynchronizer(minSupportedVersion.mappingsType)
                         synchronizer.getLatestVersion(project, minSupportedVersion)
                     }
                     project.log("[Crafter] Ornithe Loader: $loader")
