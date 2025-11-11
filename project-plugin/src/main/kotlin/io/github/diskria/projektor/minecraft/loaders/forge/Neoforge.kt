@@ -8,7 +8,6 @@ import io.github.diskria.gradle.utils.extensions.getExtension
 import io.github.diskria.gradle.utils.extensions.getFile
 import io.github.diskria.gradle.utils.extensions.getTempFile
 import io.github.diskria.gradle.utils.extensions.jar
-import io.github.diskria.gradle.utils.extensions.log
 import io.github.diskria.gradle.utils.extensions.main
 import io.github.diskria.gradle.utils.extensions.processResources
 import io.github.diskria.gradle.utils.extensions.registerTask
@@ -57,7 +56,6 @@ object Neoforge : ModLoader() {
         subprojects {
             val side = name.toEnumOrNull<ModSide>() ?: return@subprojects
             val sideName = side.getName()
-            log("[Crafter] Configuring $sideName side...")
 
             ensureKotlinPluginsApplied()
 
@@ -72,8 +70,8 @@ object Neoforge : ModLoader() {
             neoforge {
                 version = mod.config.neoforge.loader
                 parchment {
-                    minecraftVersion.set(mod.config.neoforge.parchmentMinecraft)
-                    mappingsVersion.set(mod.config.neoforge.parchmentMappings)
+                    minecraftVersion = mod.config.neoforge.parchmentMinecraft
+                    mappingsVersion = mod.config.neoforge.parchmentMappings
                 }
                 setAccessTransformers(main.resourcesDirectory.resolve(mod.accessorConfigFileName).ensureFileExists())
                 runs {
@@ -123,24 +121,27 @@ object Neoforge : ModLoader() {
             }
         }
         val generateMixinsConfigTask = registerTask<GenerateModMixinsConfigTask> {
-            minecraftMod.set(mod)
-            outputFile.set(getTempFile(mod.mixinsConfigFileName))
+            minecraftMod = mod
+            outputFile = getTempFile(mod.mixinsConfigFileName)
         }
         val generateModConfigTask = registerTask<GenerateModConfigTask> {
-            minecraftMod.set(mod)
-            outputFile.set(getTempFile(mod.configFileName))
+            minecraftMod = mod
+            outputFile = getTempFile(mod.configFileName)
         }
         tasks {
             processResources {
                 copyTaskOutput(generateMixinsConfigTask, mod.assetsPath)
+                copyTaskOutput(generateModConfigTask, mod.configFileParentPath)
+
                 copyFile(rootProject.getFile(mod.iconFileName).asFile, mod.assetsPath)
-                copyTaskOutput(generateModConfigTask, "META-INF")
             }
         }
         mod.config.environment.sides.forEach {
             when (it) {
                 ModSide.CLIENT -> registerTask<TestClientModTask>()
                 ModSide.SERVER -> registerTask<TestServerModTask>()
+            } {
+                dependsOn(sideProjects.getValue(getSide()).tasks.named<JavaExec>("run" + getSide().getName(PascalCase)))
             }
         }
     }

@@ -52,7 +52,6 @@ abstract class FabricFamilyLoader(val type: ModLoaderType) : ModLoader() {
         subprojects {
             val side = name.toEnumOrNull<ModSide>() ?: return@subprojects
             val sideName = side.getName()
-            log("[Crafter] Configuring $sideName side...")
 
             ensureKotlinPluginsApplied()
 
@@ -161,6 +160,9 @@ abstract class FabricFamilyLoader(val type: ModLoaderType) : ModLoader() {
                 jar {
                     from(mixins.output)
                 }
+                processResources {
+                    exclude(mod.accessorConfigFileName)
+                }
                 named<JavaExec>("run" + side.getName(PascalCase)) {
                     val shadowJarTask = modProject.tasks.shadowJar.get()
                     dependsOn(shadowJarTask)
@@ -171,26 +173,23 @@ abstract class FabricFamilyLoader(val type: ModLoaderType) : ModLoader() {
                         configureJavaVendor(javaVersion, JvmVendorSpec.ADOPTIUM, JvmVendorSpec.AZUL)
                     }
                 }
-                processResources {
-                    exclude(mod.accessorConfigFileName)
-                }
             }
             registerTask<RemapShadowJarTask> {
                 val shadowJarTask = modProject.tasks.shadowJar.get()
                 dependsOn(shadowJarTask)
-                inputFile.set(shadowJarTask.archiveFile)
+                inputFile = shadowJarTask.archiveFile
 
                 destinationDirectory = modProject.getBuildDirectory("libs")
                 copyArchiveNameParts(shadowJarTask, classifier = Constants.Char.EMPTY)
             }
         }
         val generateMixinsConfigTask = registerTask<GenerateModMixinsConfigTask> {
-            minecraftMod.set(mod)
-            outputFile.set(getTempFile(mod.mixinsConfigFileName))
+            minecraftMod = mod
+            outputFile = getTempFile(mod.mixinsConfigFileName)
         }
         val generateModConfigTask = registerTask<GenerateModConfigTask> {
-            minecraftMod.set(mod)
-            outputFile.set(getTempFile(mod.configFileName))
+            minecraftMod = mod
+            outputFile = getTempFile(mod.configFileName)
         }
         tasks {
             build {
@@ -198,14 +197,17 @@ abstract class FabricFamilyLoader(val type: ModLoaderType) : ModLoader() {
             }
             processResources {
                 copyTaskOutput(generateMixinsConfigTask, mod.assetsPath)
+                copyTaskOutput(generateModConfigTask, mod.configFileParentPath)
+
                 copyFile(rootProject.getFile(mod.iconFileName).asFile, mod.assetsPath)
-                copyTaskOutput(generateModConfigTask)
             }
         }
         mod.config.environment.sides.forEach {
             when (it) {
-                ModSide.CLIENT -> modProject.registerTask<TestClientModTask>()
-                ModSide.SERVER -> modProject.registerTask<TestServerModTask>()
+                ModSide.CLIENT -> registerTask<TestClientModTask>()
+                ModSide.SERVER -> registerTask<TestServerModTask>()
+            } {
+                dependsOn(sideProjects.getValue(getSide()).tasks.named<JavaExec>("run" + getSide().getName(PascalCase)))
             }
         }
     }

@@ -69,9 +69,6 @@ class MinecraftMod(
     val resourcePackConfigFileName: String =
         fileName("pack", "mcmeta")
 
-    val developerPlayerName: String =
-        repo.owner.developer + MinecraftConstants.PLAYER_NAME_DEVELOPER_SUFFIX
-
     val configFileName: String =
         when (val type = loader.mapToEnum()) {
             ModLoaderType.FABRIC, ModLoaderType.LEGACY_FABRIC, ModLoaderType.ORNITHE -> {
@@ -87,6 +84,12 @@ class MinecraftMod(
             }
         }
 
+    val configFileParentPath: String =
+        when (loader.family) {
+            ModLoaderFamily.FABRIC -> Constants.Char.EMPTY
+            ModLoaderFamily.FORGE -> "META-INF"
+        }
+
     val configEnvironment: String
         get() {
             val singleSide = config.environment.sides.singleOrNull()
@@ -95,6 +98,9 @@ class MinecraftMod(
                 ModLoaderFamily.FORGE -> singleSide?.getName(SCREAMING_SNAKE_CASE) ?: "BOTH"
             }
         }
+
+    val developerPlayerName: String =
+        repo.owner.developer + MinecraftConstants.PLAYER_NAME_DEVELOPER_SUFFIX
 
     override val isJavadocEnabled: Boolean = false
 

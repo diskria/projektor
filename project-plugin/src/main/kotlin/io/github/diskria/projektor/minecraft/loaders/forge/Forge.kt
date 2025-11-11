@@ -3,7 +3,6 @@ package io.github.diskria.projektor.minecraft.loaders.forge
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar.Companion.shadowJar
 import io.github.diskria.gradle.utils.extensions.*
 import io.github.diskria.gradle.utils.helpers.jvm.JvmArguments
-import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.kotlin.utils.words.PascalCase
@@ -24,10 +23,8 @@ import io.github.diskria.projektor.tasks.minecraft.test.TestServerModTask
 import org.gradle.api.Project
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.tasks.AbstractCopyTask
-import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.JavaExec
 import org.gradle.internal.Actions.with
-import org.gradle.jvm.tasks.Jar
 import org.gradle.jvm.toolchain.JavaToolchainService
 import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.*
@@ -119,7 +116,7 @@ object Forge : ModLoader() {
             processResources {
                 copyTaskOutput(generateResourcePackConfigTask)
                 copyTaskOutput(generateMixinsConfigTask, mod.assetsPath)
-                copyTaskOutput(generateModConfigTask, "META-INF")
+                copyTaskOutput(generateModConfigTask, mod.configFileParentPath)
                 copyTaskOutput(generateMergedAccessorConfigTask, mod.assetsPath)
 
                 copyFile(rootProject.getFile(mod.iconFileName).asFile, mod.assetsPath)
@@ -128,7 +125,10 @@ object Forge : ModLoader() {
                 exclude(mod.accessorConfigFileName)
             }
             withType<JavaExec> {
-                dependsOn(shadowJar)
+                val shadowJarTask = modProject.tasks.shadowJar.get()
+                dependsOn(shadowJarTask)
+                addToClasspath(shadowJarTask.archiveFile)
+
                 javaLauncher = modProject.getExtension<JavaToolchainService>().launcherFor {
                     val javaVersion = mod.minecraftVersion.minJavaVersion
                     configureJavaVendor(javaVersion, JvmVendorSpec.ADOPTIUM, JvmVendorSpec.AZUL)
@@ -150,7 +150,12 @@ object Forge : ModLoader() {
                 ModSide.CLIENT -> registerTask<TestClientModTask>()
                 ModSide.SERVER -> registerTask<TestServerModTask>()
             } {
-                dependsOn("prepareRun" + side.getName(PascalCase))
+                dependsSequentiallyOn(
+                    listOfNotNull(
+                        tasks.findByName("prepareRun" + side.getName(PascalCase)),
+                        tasks.findByName("run" + side.getName(PascalCase))
+                    )
+                )
             }
         }
 

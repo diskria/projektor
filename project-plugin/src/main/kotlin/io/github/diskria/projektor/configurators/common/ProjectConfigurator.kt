@@ -33,13 +33,15 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
         configureProject(project, projekt)
 
         with(project) {
-            val commonProject = rootProject.findCommonProject()
-            if (commonProject != null && project != commonProject) {
-                if (projekt is GradlePlugin || projekt is KotlinLibrary) {
-                    dependencies {
-                        compileOnly(commonProject)
+            if (!isCommonProject()) {
+                val commonProject = rootProject.findCommonProject()
+                if (commonProject != null) {
+                    if (projekt is GradlePlugin || projekt is KotlinLibrary) {
+                        dependencies {
+                            compileOnly(commonProject)
+                        }
+                        configureShadowJar(listOf(commonProject))
                     }
-                    configureShadowJar(listOf(commonProject))
                 }
                 configurePublishing(project, projekt)
             }
