@@ -1,9 +1,9 @@
-package io.github.diskria.projektor
+package io.github.diskria.projektor.helpers
 
 import io.github.diskria.kotlin.utils.properties.common.autoNamed
 import io.github.diskria.kotlin.utils.properties.common.environmentVariable
 
-object Secrets {
+object SecretsHelper {
     val githubToken: String by autoNamed.environmentVariable(isRequired = true)
     val githubPackagesToken: String by autoNamed.environmentVariable(isRequired = true)
 

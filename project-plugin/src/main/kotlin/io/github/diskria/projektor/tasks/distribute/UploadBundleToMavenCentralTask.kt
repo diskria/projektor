@@ -8,10 +8,9 @@ import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.ktor.parameters
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.ProjektorGradlePlugin
-import io.github.diskria.projektor.Secrets
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
-import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.mappers.mapToEnum
+import io.github.diskria.projektor.helpers.SecretsHelper
 import io.github.diskria.projektor.publishing.maven.MavenCentral
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -22,21 +21,14 @@ import io.ktor.http.content.*
 import io.ktor.util.*
 import io.ktor.util.cio.*
 import kotlinx.coroutines.runBlocking
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.bundling.Zip
 
 abstract class UploadBundleToMavenCentralTask : Zip() {
-
-    @get:Internal
-    abstract val metadata: Property<ProjektMetadata>
 
     init {
         group = ProjektorGradlePlugin.TASK_GROUP
 
         val projektMetadata = project.getProjektMetadata()
-        metadata.convention(projektMetadata)
-
         archiveBaseName.set(projektMetadata.repo.name)
         archiveVersion.set(projektMetadata.version)
 
@@ -53,10 +45,8 @@ abstract class UploadBundleToMavenCentralTask : Zip() {
     }
 
     private suspend fun uploadBundle() {
-        val metadata = metadata.get()
         val bundleFile = archiveFile.get().asFile
 
-        val deploymentName = metadata.name + Constants.Char.SPACE + metadata.version
         val part = PartData.FileItem(
             provider = { bundleFile.readChannel() },
             dispose = {},
@@ -65,7 +55,7 @@ abstract class UploadBundleToMavenCentralTask : Zip() {
                     HttpHeaders.ContentDisposition,
                     ContentDisposition(ContentType.MultiPart.FormData.contentSubtype).apply {
                         withParameter(ContentDisposition.Parameters.Name, FORM_NAME)
-                        withParameter(ContentDisposition.Parameters.FileName, deploymentName)
+                        withParameter(ContentDisposition.Parameters.FileName, bundleFile.name)
                     }
                 )
                 append(
@@ -79,7 +69,7 @@ abstract class UploadBundleToMavenCentralTask : Zip() {
                 path("api", "v1", "publisher", "upload")
                 parameters("publishingType" to "AUTOMATIC")
             }
-            val token = Secrets.sonatypeUsername + Constants.Char.COLON + Secrets.sonatypePassword
+            val token = SecretsHelper.sonatypeUsername + Constants.Char.COLON + SecretsHelper.sonatypePassword
             client.post(url) {
                 bearerAuth(token.toByteArray().encodeBase64())
                 setBody(MultiPartFormDataContent(listOf(part)))

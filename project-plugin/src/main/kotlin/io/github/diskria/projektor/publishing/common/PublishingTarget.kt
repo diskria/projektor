@@ -36,7 +36,7 @@ abstract class PublishingTarget {
                     .getLeafProjects { subproject ->
                         when {
                             subproject.isCommonProject() -> false
-                            projekt is MinecraftMod -> ModSide.values().map { it.getName() }.contains(subproject.name)
+                            projekt is MinecraftMod -> !ModSide.values().map { it.getName() }.contains(subproject.name)
                             else -> true
                         }
                     }

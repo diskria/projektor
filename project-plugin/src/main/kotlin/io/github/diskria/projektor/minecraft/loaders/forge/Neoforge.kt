@@ -31,11 +31,7 @@ import org.gradle.kotlin.dsl.withType
 
 object Neoforge : ModLoader() {
 
-    override fun configure(
-        modProject: Project,
-        sideProjects: Map<ModSide, Project>,
-        mod: MinecraftMod
-    ) = with(modProject) {
+    override fun configure(project: Project, sideProjects: Map<ModSide, Project>, mod: MinecraftMod) = with(project) {
         val sides = sideProjects.keys
         val generateModEntryPointsTask = registerTask<GenerateModEntryPointsTask> {
             minecraftMod = mod
@@ -60,11 +56,10 @@ object Neoforge : ModLoader() {
             maxFormat = mod.maxSupportedVersion.getResourcePackFormat(project)
         }
         val accessorConfigFiles = sourceSetBySides.map {
-            it.value.main.resourcesDirectory.resolve(mod.accessorConfigFileName)
+            it.value.main.resourcesDirectory.resolve(mod.accessorConfigFileName).ensureFileExists()
         }
         val generateMergedAccessorConfigTask = registerTask<GenerateMergedAccessorConfigTask> {
-            minecraftMod = mod
-            sideAccessorConfigFiles = accessorConfigFiles
+            accessorConfigs = accessorConfigFiles
             outputFile = getTempFile(mod.accessorConfigFileName)
         }
         val generateModConfigTask = registerTask<GenerateModConfigTask> {
@@ -74,8 +69,8 @@ object Neoforge : ModLoader() {
         neoforge {
             version = mod.config.neoforge.loader
             parchment {
-                minecraftVersion = mod.config.neoforge.parchmentMinecraft
-                mappingsVersion = mod.config.neoforge.parchmentMappings
+                minecraftVersion = mod.config.neoforge.minecraft
+                mappingsVersion = mod.config.neoforge.mappings
             }
             setAccessTransformers(accessorConfigFiles)
             runs {
@@ -108,7 +103,7 @@ object Neoforge : ModLoader() {
                 copyTaskOutput(generateResourcePackConfigTask)
                 copyTaskOutput(generateMixinsConfigTask, mod.assetsPath)
                 copyTaskOutput(generateModConfigTask, mod.configFileParentPath)
-                copyTaskOutput(generateMergedAccessorConfigTask, mod.assetsPath)
+                copyTaskOutput(generateMergedAccessorConfigTask, mod.accessorConfigParentPath)
 
                 copyFile(rootProject.getFile(mod.iconFileName).asFile, mod.assetsPath)
             }
@@ -117,11 +112,11 @@ object Neoforge : ModLoader() {
             }
             sides.forEach { side ->
                 lazyConfigure<JavaExec>("run" + side.getName(PascalCase)) {
-                    val shadowJarTask = modProject.tasks.shadowJar.get()
+                    val shadowJarTask = tasks.shadowJar.get()
                     dependsOn(shadowJarTask)
                     addToClasspath(shadowJarTask.archiveFile)
 
-                    javaLauncher = modProject.getExtension<JavaToolchainService>().launcherFor {
+                    javaLauncher = this@with.getExtension<JavaToolchainService>().launcherFor {
                         val javaVersion = mod.minecraftVersion.minJavaVersion
                         configureJavaVendor(javaVersion, JvmVendorSpec.ADOPTIUM, JvmVendorSpec.AZUL)
                     }

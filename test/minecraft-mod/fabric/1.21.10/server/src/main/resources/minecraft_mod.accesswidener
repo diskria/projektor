@@ -5,7 +5,7 @@ accessWidener v2 named
 # endregion class
 
 # region method
-
+accessible method net/minecraft/world/World canHaveWeather ()Z
 # endregion method
 
 # region field

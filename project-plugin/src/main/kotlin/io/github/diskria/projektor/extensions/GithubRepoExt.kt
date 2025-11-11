@@ -4,7 +4,7 @@ import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.shell.dsl.git.GitShell
 import io.github.diskria.kotlin.shell.dsl.git.commits.CommitMessage
 import io.github.diskria.kotlin.shell.dsl.git.commits.CommitType
-import io.github.diskria.projektor.Secrets
+import io.github.diskria.projektor.helpers.SecretsHelper
 import io.github.diskria.projektor.common.repo.github.GithubRepo
 import java.io.File
 
@@ -20,7 +20,7 @@ fun GithubRepo.pushFile(repoDirectory: File, commitMessage: CommitMessage, file:
             configureUser(owner.developer, owner.email)
             commit(commitMessage)
 
-            setRemoteUrl(GitShell.ORIGIN_REMOTE_NAME, getUrl(isVcs = true, token = Secrets.githubToken))
+            setRemoteUrl(GitShell.ORIGIN_REMOTE_NAME, getUrl(isVcs = true, token = SecretsHelper.githubToken))
             push()
         }
     }

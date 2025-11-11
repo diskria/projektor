@@ -20,6 +20,18 @@ import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 
+val Project.legacyFabric: LegacyUtilsExtension
+    get() {
+        ensurePluginApplied("legacy-looming")
+        return getExtension<LegacyUtilsExtension>()
+    }
+
+val Project.ornithe: PloceusGradleExtensionApi
+    get() {
+        ensurePluginApplied("ploceus")
+        return getExtension<PloceusGradleExtensionApi>()
+    }
+
 fun Project.configureShadowJar(
     projects: List<Project>,
     classifier: String? = null,
@@ -85,11 +97,11 @@ fun Project.fabric(configure: LoomGradleExtensionAPI.() -> Unit = {}) {
 }
 
 fun Project.legacyFabric(configure: LegacyUtilsExtension.() -> Unit = {}) {
-    withPluginExtension<LegacyUtilsExtension>("legacy-looming", configure)
+    legacyFabric.apply(configure)
 }
 
 fun Project.ornithe(configure: PloceusGradleExtensionApi.() -> Unit = {}) {
-    withPluginExtension<PloceusGradleExtensionApi>("ploceus", configure)
+    ornithe.apply(configure)
 }
 
 fun Project.forge(configure: UserDevExtension.() -> Unit = {}) {

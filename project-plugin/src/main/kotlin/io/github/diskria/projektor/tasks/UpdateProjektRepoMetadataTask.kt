@@ -11,7 +11,7 @@ import io.github.diskria.kotlin.utils.extensions.serialization.deserializeFromJs
 import io.github.diskria.kotlin.utils.extensions.wrapWithBrackets
 import io.github.diskria.projektor.ProjektBuildConfig
 import io.github.diskria.projektor.ProjektorGradlePlugin
-import io.github.diskria.projektor.Secrets
+import io.github.diskria.projektor.helpers.SecretsHelper
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.mappers.mapToModel
@@ -90,7 +90,7 @@ abstract class UpdateProjektRepoMetadataTask : DefaultTask() {
             }
             return client.request(url) {
                 method = request.getHttpMethod()
-                bearerAuth(Secrets.githubToken)
+                bearerAuth(SecretsHelper.githubToken)
                 header(
                     HttpHeaders.UserAgent,
                     buildString {

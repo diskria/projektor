@@ -13,7 +13,7 @@ abstract class ModLoader {
     val family: ModLoaderFamily
         get() = ModLoaderFamily.of(mapToEnum())
 
-    abstract fun configure(modProject: Project, sideProjects: Map<ModSide, Project>, mod: MinecraftMod): Any
+    abstract fun configure(project: Project, sideProjects: Map<ModSide, Project>, mod: MinecraftMod): Any
 
     fun getLoaderName(): String = mapToEnum().getName()
 

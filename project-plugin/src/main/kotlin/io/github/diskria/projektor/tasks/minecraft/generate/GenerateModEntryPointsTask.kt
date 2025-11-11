@@ -62,15 +62,16 @@ abstract class GenerateModEntryPointsTask : DefaultTask() {
         val builder = TypeSpec.classBuilder(className).apply {
             addModifiers(Modifier.PUBLIC)
         }
-        when (val loader = mod.loader.mapToEnum()) {
+        return when (val loader = mod.loader.mapToEnum()) {
             ModLoaderType.FABRIC, ModLoaderType.LEGACY_FABRIC -> {
                 val initializerPrefix = when (environmentSide) {
                     ModSide.CLIENT -> environmentSide.getName(PascalCase)
                     ModSide.SERVER -> environment.getName(PascalCase)
                     else -> Constants.Char.EMPTY
                 }
+
                 val superInterfaceClass = ClassName.get("net.fabricmc.api", initializerPrefix + "ModInitializer")
-                val methodName = "onInitialize" + side.getName(PascalCase)
+                val methodName = "onInitialize" + environmentSide?.getName(PascalCase).orEmpty()
                 val initializeMethod = MethodSpec.methodBuilder(methodName).run {
                     addAnnotation(Override::class.java)
                     addModifiers(Modifier.PUBLIC)
@@ -80,10 +81,11 @@ abstract class GenerateModEntryPointsTask : DefaultTask() {
                 builder
                     .addSuperinterface(superInterfaceClass)
                     .addMethod(initializeMethod)
+                    .build()
             }
 
             ModLoaderType.ORNITHE -> {
-
+                builder.build()
             }
 
             else -> {
@@ -108,9 +110,10 @@ abstract class GenerateModEntryPointsTask : DefaultTask() {
                     }
                     build()
                 }
-                builder.addAnnotation(modAnnotation)
+                builder
+                    .addAnnotation(modAnnotation)
+                    .build()
             }
         }
-        return builder.build()
     }
 }

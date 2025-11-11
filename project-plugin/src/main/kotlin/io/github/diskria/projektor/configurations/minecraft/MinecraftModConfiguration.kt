@@ -3,6 +3,8 @@ package io.github.diskria.projektor.configurations.minecraft
 import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.gradle.utils.extensions.log
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
+import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType.*
+import io.github.diskria.projektor.common.minecraft.sides.ModEnvironment
 import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricLoaderSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricYarnMappingsSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.loaders.forge.ForgeLoaderSynchronizer
@@ -14,139 +16,146 @@ import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.asString
 import io.github.diskria.projektor.common.minecraft.versions.mappingsEra
 import io.github.diskria.projektor.extensions.mappers.mapToEnum
-import io.github.diskria.projektor.common.minecraft.sides.ModEnvironment
 import io.github.diskria.projektor.minecraft.loaders.ModLoader
 import org.gradle.api.Project
 
 open class MinecraftModConfiguration {
 
-    internal val fabric: FabricModConfiguration
+    internal val fabric: MinecraftVersionsConfig
         get() = fabricConfig ?: gradleError("Fabric loader not configured")
 
-    internal val legacyFabric: LegacyFabricModConfiguration
+    internal val legacyFabric: MinecraftVersionsConfig
         get() = legacyFabricConfig ?: gradleError("Legacy Fabric loader not configured")
 
-    internal val ornithe: OrnitheModConfiguration
+    internal val ornithe: MinecraftVersionsConfig
         get() = ornitheConfig ?: gradleError("Ornithe loader not configured")
 
-    internal val forge: ForgeModConfiguration
+    internal val forge: MinecraftVersionsConfig
         get() = forgeConfig ?: gradleError("Forge loader not configured")
 
-    internal val neoforge: NeoforgeModConfiguration
+    internal val neoforge: MinecraftVersionsConfig
         get() = neoforgeConfig ?: gradleError("Neoforge loader not configured")
 
     var environment: ModEnvironment = ModEnvironment.CLIENT_SERVER
     var maxSupportedVersion: MinecraftVersion? = null
     var javaVersion: Int? = null
 
-    private var fabricConfig: FabricModConfiguration? = null
-    private var legacyFabricConfig: LegacyFabricModConfiguration? = null
-    private var ornitheConfig: OrnitheModConfiguration? = null
-    private var forgeConfig: ForgeModConfiguration? = null
-    private var neoforgeConfig: NeoforgeModConfiguration? = null
+    private var fabricConfig: MinecraftVersionsConfig? = null
+    private var legacyFabricConfig: MinecraftVersionsConfig? = null
+    private var ornitheConfig: MinecraftVersionsConfig? = null
+    private var forgeConfig: MinecraftVersionsConfig? = null
+    private var neoforgeConfig: MinecraftVersionsConfig? = null
 
-    fun fabric(configure: FabricModConfiguration.() -> Unit) {
-        fabricConfig = FabricModConfiguration().apply(configure)
+    fun fabric(configure: MinecraftVersionsConfig.() -> Unit) {
+        fabricConfig = MinecraftVersionsConfig().apply(configure)
     }
 
-    fun legacyFabric(configure: LegacyFabricModConfiguration.() -> Unit) {
-        legacyFabricConfig = LegacyFabricModConfiguration().apply(configure)
+    fun legacyFabric(configure: MinecraftVersionsConfig.() -> Unit) {
+        legacyFabricConfig = MinecraftVersionsConfig().apply(configure)
     }
 
-    fun ornithe(configure: OrnitheModConfiguration.() -> Unit) {
-        ornitheConfig = OrnitheModConfiguration().apply(configure)
+    fun ornithe(configure: MinecraftVersionsConfig.() -> Unit) {
+        ornitheConfig = MinecraftVersionsConfig().apply(configure)
     }
 
-    fun forge(configure: ForgeModConfiguration.() -> Unit) {
-        forgeConfig = ForgeModConfiguration().apply(configure)
+    fun forge(configure: MinecraftVersionsConfig.() -> Unit) {
+        forgeConfig = MinecraftVersionsConfig().apply(configure)
     }
 
-    fun neoforge(configure: NeoforgeModConfiguration.() -> Unit) {
-        neoforgeConfig = NeoforgeModConfiguration().apply(configure)
+    fun neoforge(configure: MinecraftVersionsConfig.() -> Unit) {
+        neoforgeConfig = MinecraftVersionsConfig().apply(configure)
     }
 
-    internal fun resolveConfig(modLoader: ModLoader, project: Project, minecraftVersion: MinecraftVersion) {
+    internal fun getVersions(loader: ModLoaderType): MinecraftVersionsConfig =
+        when (loader) {
+            FABRIC -> fabric
+            LEGACY_FABRIC -> legacyFabric
+            ORNITHE -> ornithe
+            FORGE -> forge
+            NEOFORGE -> neoforge
+        }
+
+    internal fun resolveConfig(modLoader: ModLoader, project: Project, minSupportedVersion: MinecraftVersion) {
         when (modLoader.mapToEnum()) {
-            ModLoaderType.FABRIC -> {
-                val userConfig = fabricConfig ?: FabricModConfiguration()
-                fabricConfig = FabricModConfiguration().apply {
+            FABRIC -> {
+                val userConfig = fabricConfig ?: MinecraftVersionsConfig()
+                fabricConfig = MinecraftVersionsConfig().apply {
                     loader = userConfig.loader.ifEmpty {
-                        FabricLoaderSynchronizer.getLatestVersion(project, minecraftVersion)
+                        FabricLoaderSynchronizer.getLatestVersion(project, minSupportedVersion)
                     }
-                    yarn = userConfig.yarn.ifEmpty {
-                        FabricYarnMappingsSynchronizer.getLatestVersion(project, minecraftVersion)
+                    mappings = userConfig.mappings.ifEmpty {
+                        FabricYarnMappingsSynchronizer.getLatestVersion(project, minSupportedVersion)
                     }
+                    minecraft = minSupportedVersion.asString()
                     project.log("[Crafter] Fabric Loader: $loader")
-                    project.log("[Crafter] Yarn Mappings: $yarn")
+                    project.log("[Crafter] Yarn Mappings: $mappings")
                 }
             }
 
-            ModLoaderType.LEGACY_FABRIC -> {
-                val userConfig = legacyFabricConfig ?: LegacyFabricModConfiguration()
-                legacyFabricConfig = LegacyFabricModConfiguration().apply {
+            LEGACY_FABRIC -> {
+                val userConfig = legacyFabricConfig ?: MinecraftVersionsConfig()
+                legacyFabricConfig = MinecraftVersionsConfig().apply {
                     loader = userConfig.loader.ifEmpty {
-                        FabricLoaderSynchronizer.getLatestVersion(project, minecraftVersion)
+                        FabricLoaderSynchronizer.getLatestVersion(project, minSupportedVersion)
                     }
-                    yarnMinecraft = userConfig.yarnMinecraft.ifEmpty {
-                        LegacyFabricYarnMappingsSynchronizer
-                            .getLatestComponent(project, minecraftVersion)
-                            .minecraftVersion
-                            .asString()
+                    mappings = userConfig.mappings.ifEmpty {
+                        LegacyFabricYarnMappingsSynchronizer.getLatestVersion(project, minSupportedVersion)
                     }
-                    yarnMappings = userConfig.yarnMappings.ifEmpty {
-                        LegacyFabricYarnMappingsSynchronizer.getLatestVersion(project, minecraftVersion)
-                    }
+                    minecraft = userConfig.minecraft
+                        ?: LegacyFabricYarnMappingsSynchronizer.getLatestComponent(project, minSupportedVersion)
+                            .minecraftVersion.asString()
+
                     project.log("[Crafter] Legacy Fabric Loader: $loader")
-                    project.log("[Crafter] Legacy Fabric Yarn Mappings: $yarnMappings")
+                    project.log("[Crafter] Legacy Fabric Yarn Mappings: $mappings")
                 }
             }
 
-            ModLoaderType.ORNITHE -> {
-                val userConfig = ornitheConfig ?: OrnitheModConfiguration()
-                ornitheConfig = OrnitheModConfiguration().apply {
+            ORNITHE -> {
+                val userConfig = ornitheConfig ?: MinecraftVersionsConfig()
+                ornitheConfig = MinecraftVersionsConfig().apply {
                     loader = userConfig.loader.ifEmpty {
-                        FabricLoaderSynchronizer.getLatestVersion(project, minecraftVersion)
+                        FabricLoaderSynchronizer.getLatestVersion(project, minSupportedVersion)
                     }
-                    feather = userConfig.feather.ifEmpty {
-                        val synchronizer = OrnitheFeatherMappingsSynchronizer(minecraftVersion.mappingsEra)
-                        synchronizer.getLatestVersion(project, minecraftVersion)
+                    mappings = userConfig.mappings.ifEmpty {
+                        val synchronizer = OrnitheFeatherMappingsSynchronizer(minSupportedVersion.mappingsEra)
+                        synchronizer.getLatestVersion(project, minSupportedVersion)
                     }
                     project.log("[Crafter] Ornithe Loader: $loader")
-                    project.log("[Crafter] Feather Mappings: $feather")
+                    project.log("[Crafter] Feather Mappings: $mappings")
                 }
             }
 
-            ModLoaderType.FORGE -> {
-                val userConfig = forgeConfig ?: ForgeModConfiguration()
-                forgeConfig = ForgeModConfiguration().apply {
+            FORGE -> {
+                val userConfig = forgeConfig ?: MinecraftVersionsConfig()
+                forgeConfig = MinecraftVersionsConfig().apply {
                     loader = userConfig.loader.ifEmpty {
-                        ForgeLoaderSynchronizer.getLatestVersion(project, minecraftVersion)
+                        ForgeLoaderSynchronizer.getLatestVersion(project, minSupportedVersion)
                     }
-                    parchmentMinecraft = userConfig.parchmentMinecraft.ifEmpty {
-                        ParchmentSynchronizer.getLatestComponent(project, minecraftVersion).minecraftVersion.asString()
+                    mappings = userConfig.mappings.ifEmpty {
+                        ParchmentSynchronizer.getLatestVersion(project, minSupportedVersion)
                     }
-                    parchmentMappings = userConfig.parchmentMappings.ifEmpty {
-                        ParchmentSynchronizer.getLatestVersion(project, minecraftVersion)
-                    }
+                    minecraft = userConfig.minecraft
+                        ?: ParchmentSynchronizer.getLatestComponent(project, minSupportedVersion)
+                            .minecraftVersion.asString()
                     project.log("[Crafter] Forge Loader: $loader")
-                    project.log("[Crafter] Parchment Mappings: $parchmentMappings")
+                    project.log("[Crafter] Parchment Mappings: $mappings")
                 }
             }
 
-            ModLoaderType.NEOFORGE -> {
-                val userConfig = neoforgeConfig ?: NeoforgeModConfiguration()
-                neoforgeConfig = NeoforgeModConfiguration().apply {
+            NEOFORGE -> {
+                val userConfig = neoforgeConfig ?: MinecraftVersionsConfig()
+                neoforgeConfig = MinecraftVersionsConfig().apply {
                     loader = userConfig.loader.ifEmpty {
-                        NeoforgeLoaderSynchronizer.getLatestVersion(project, minecraftVersion)
+                        NeoforgeLoaderSynchronizer.getLatestVersion(project, minSupportedVersion)
                     }
-                    parchmentMinecraft = userConfig.parchmentMinecraft.ifEmpty {
-                        ParchmentSynchronizer.getLatestComponent(project, minecraftVersion).minecraftVersion.asString()
+                    mappings = userConfig.mappings.ifEmpty {
+                        ParchmentSynchronizer.getLatestVersion(project, minSupportedVersion)
                     }
-                    parchmentMappings = userConfig.parchmentMappings.ifEmpty {
-                        ParchmentSynchronizer.getLatestVersion(project, minecraftVersion)
-                    }
+                    minecraft = userConfig.minecraft
+                        ?: ParchmentSynchronizer.getLatestComponent(project, minSupportedVersion)
+                            .minecraftVersion.asString()
                     project.log("[Crafter] Neoforge Loader: $loader")
-                    project.log("[Crafter] Parchment Mappings: $parchmentMappings")
+                    project.log("[Crafter] Parchment Mappings: $mappings")
                 }
             }
         }

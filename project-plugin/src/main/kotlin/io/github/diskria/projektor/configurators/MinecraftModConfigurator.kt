@@ -1,7 +1,6 @@
 package io.github.diskria.projektor.configurators
 
 import io.github.diskria.gradle.utils.extensions.findCommonProject
-import io.github.diskria.gradle.utils.extensions.getBuildDirectory
 import io.github.diskria.kotlin.utils.extensions.generics.addIfNotNull
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderFamily
@@ -34,12 +33,12 @@ open class MinecraftModConfigurator(
             addAll(sideProjects.values)
         }
         val isFabricFamily = mod.loader.family == ModLoaderFamily.FABRIC
-        configureShadowJar(
-            projects = projectsToShadow,
-            classifier = if (isFabricFamily) "dev" else null,
-            destination = if (isFabricFamily) getBuildDirectory("devlibs").get() else null,
-            shouldDisableJar = true,
-        )
+        if (!isFabricFamily) {
+            configureShadowJar(
+                projects = projectsToShadow,
+                shouldDisableJar = true,
+            )
+        }
         mod.loader.configure(modProject, sideProjects, mod)
     }
 }

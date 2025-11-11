@@ -6,7 +6,6 @@ import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.`Train-Case`
 import io.github.diskria.kotlin.utils.extensions.generics.addIfNotNull
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
-import io.github.diskria.projektor.Versions
 import io.github.diskria.projektor.common.configurators.IProjektConfigurator
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.projekt.ProjektType
@@ -22,8 +21,6 @@ import io.github.diskria.projektor.tasks.generate.GenerateProjektLicenseTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektReadmeTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.compile.JavaCompile
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.*
 
@@ -61,12 +58,6 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
         group = projekt.repo.owner.namespace
         version = projekt.archiveVersion
 
-        if (rootType != ProjektType.MINECRAFT_MOD) {
-            dependencies {
-                testImplementation(kotlin("test"))
-                testImplementation("org.junit.jupiter", "junit-jupiter", Versions.JUNIT)
-            }
-        }
         base {
             archivesName = projekt.repo.name
         }
@@ -119,26 +110,6 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                     )
                 }
                 archiveVersion = projekt.archiveVersion
-            }
-            if (rootType != ProjektType.MINECRAFT_MOD) {
-                test {
-                    useJUnitPlatform()
-                    testLogging {
-                        events(
-                            TestLogEvent.PASSED,
-                            TestLogEvent.SKIPPED,
-                            TestLogEvent.FAILED,
-                        )
-                        exceptionFormat = TestExceptionFormat.FULL
-
-                        ignoreFailures = true
-
-                        showCauses = true
-                        showExceptions = true
-                        showStackTraces = true
-                        showStandardStreams = true
-                    }
-                }
             }
         }
         val buildConfigFields = projekt.getBuildConfigFields()

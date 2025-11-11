@@ -3,7 +3,7 @@ package io.github.diskria.projektor.publishing.maven
 import io.github.diskria.gradle.utils.extensions.ensureTaskRegistered
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
-import io.github.diskria.projektor.Secrets
+import io.github.diskria.projektor.helpers.SecretsHelper
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.signing
 import io.github.diskria.projektor.projekt.common.Projekt
@@ -59,7 +59,7 @@ object MavenCentral : MavenPublishingTarget() {
         }
         if (EnvironmentHelper.isCI()) {
             signing {
-                useInMemoryPgpKeys(Secrets.gpgKey, Secrets.gpgPassphrase)
+                useInMemoryPgpKeys(SecretsHelper.gpgKey, SecretsHelper.gpgPassphrase)
                 sign(publication)
             }
         }

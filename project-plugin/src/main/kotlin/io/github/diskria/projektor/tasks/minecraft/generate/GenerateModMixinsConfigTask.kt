@@ -8,6 +8,7 @@ import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.extensions.listFilesWithExtension
 import io.github.diskria.kotlin.utils.extensions.serialization.serializeJsonToFile
 import io.github.diskria.kotlin.utils.extensions.setCase
+import io.github.diskria.kotlin.utils.extensions.walkDirectories
 import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.common.ProjectDirectories
 import io.github.diskria.projektor.common.minecraft.sides.ModSide
@@ -45,8 +46,7 @@ abstract class GenerateModMixinsConfigTask : DefaultTask() {
         val sideMixins = sideMixinSourceSetDirectories.mapValues {
             val mixinsRoot = it.value.resolve(minecraftMod.packagePath).resolve(ProjectDirectories.MINECRAFT_MIXINS)
             mixinsRoot
-                .walkTopDown()
-                .filter { file -> file.isDirectory && !file.isHidden }
+                .walkDirectories()
                 .flatMap { directory ->
                     val relativePath = directory.relativeTo(mixinsRoot).path
                     directory.listFilesWithExtension(Constants.File.Extension.JAVA).map { javaFile ->

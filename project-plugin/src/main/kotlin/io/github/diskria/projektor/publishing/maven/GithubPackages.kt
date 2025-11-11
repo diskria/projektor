@@ -2,7 +2,7 @@ package io.github.diskria.projektor.publishing.maven
 
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
-import io.github.diskria.projektor.Secrets
+import io.github.diskria.projektor.helpers.SecretsHelper
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.repo.RepoHost
 import io.github.diskria.projektor.projekt.common.Projekt
@@ -29,7 +29,7 @@ object GithubPackages : MavenPublishingTarget() {
                 name = repositoryName
                 credentials {
                     username = projekt.repo.owner.developer
-                    password = Secrets.githubPackagesToken
+                    password = SecretsHelper.githubPackagesToken
                 }
             }
         } else {

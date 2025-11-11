@@ -7,13 +7,13 @@ import io.github.diskria.kotlin.utils.extensions.common.`path∕case`
 import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.kotlin.utils.poet.Property
 import io.github.diskria.kotlin.utils.words.PascalCase
-import io.github.diskria.projektor.Versions
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.common.repo.github.GithubRepo
 import io.github.diskria.projektor.extensions.mappers.toJvmTarget
 import io.github.diskria.projektor.licenses.License
 import io.github.diskria.projektor.publishing.common.PublishingTarget
+import org.gradle.api.JavaVersion
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 interface Projekt {
@@ -33,7 +33,7 @@ interface Projekt {
     val isJavadocEnabled: Boolean get() = true
     val publicationComponentName: String? get() = null
     val packageNameSuffix: String? get() = null
-    val javaVersion: Int get() = Versions.JAVA
+    val javaVersion: Int get() = JavaVersion.VERSION_21.majorVersion.toInt()
     val jvmTarget: JvmTarget get() = javaVersion.toJvmTarget()
     val archiveVersion: String get() = version
     val packageName: String get() = packageNameSuffix?.let { packageNameBase.appendPackageName(it) } ?: packageNameBase
