@@ -2,6 +2,7 @@ package io.github.diskria.projektor.common.minecraft.sync.common
 
 import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.gradle.utils.extensions.rootDirectory
+import io.github.diskria.gradle.utils.helpers.GradleDirectories
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.Semver
 import io.github.diskria.kotlin.utils.extensions.common.fileName
@@ -14,7 +15,6 @@ import io.github.diskria.kotlin.utils.extensions.serialization.serializeJsonToFi
 import io.github.diskria.kotlin.utils.extensions.toSemver
 import io.github.diskria.kotlin.utils.extensions.wrapWithSingleQuote
 import io.github.diskria.projektor.ProjektBuildConfig
-import io.github.diskria.projektor.common.ProjectDirectories
 import io.github.diskria.projektor.common.minecraft.era.common.MappingsEra
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
 import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
@@ -76,7 +76,7 @@ abstract class AbstractMinecraftComponentSynchronizer {
     private fun getCacheFile(project: Project): File {
         val cacheRoot = project
             .rootDirectory
-            .resolve(ProjectDirectories.GRADLE_CACHE)
+            .resolve(GradleDirectories.CACHE)
             .resolve(ProjektBuildConfig.LIBRARY_NAME.lowercase())
         val parentDirectory = loader?.let { cacheRoot.resolve(it.getName(`kebab-case`)) } ?: cacheRoot
         return parentDirectory.resolve(fileName("$componentName-versions", Constants.File.Extension.JSON))

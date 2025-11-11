@@ -42,7 +42,6 @@ class ReplaceGrassWithCobblestone {
                 entity instanceof Player &&
                 world.getBlockState(blockPos).getBlock() == Blocks.GRASS_BLOCK
         ) {
-            world.isThundering();
             world.setBlockAndUpdate(blockPos, Blocks.COBBLESTONE.defaultBlockState());
             ci.cancel();
         }

@@ -1,49 +1,32 @@
 package io.github.diskria.projektor.minecraft.loaders.forge
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar.Companion.shadowJar
-import io.github.diskria.gradle.utils.extensions.addToClasspath
-import io.github.diskria.gradle.utils.extensions.configureJavaVendor
-import io.github.diskria.gradle.utils.extensions.getBuildDirectory
-import io.github.diskria.gradle.utils.extensions.getExtension
-import io.github.diskria.gradle.utils.extensions.getFile
-import io.github.diskria.gradle.utils.extensions.getTempFile
-import io.github.diskria.gradle.utils.extensions.jar
-import io.github.diskria.gradle.utils.extensions.main
-import io.github.diskria.gradle.utils.extensions.processResources
-import io.github.diskria.gradle.utils.extensions.registerTask
-import io.github.diskria.gradle.utils.extensions.resourcesDirectory
-import io.github.diskria.gradle.utils.extensions.sourceSets
+import io.github.diskria.gradle.utils.extensions.*
 import io.github.diskria.gradle.utils.helpers.jvm.JvmArguments
 import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
-import io.github.diskria.kotlin.utils.extensions.mappers.toEnumOrNull
 import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.projektor.common.ProjectDirectories
-import io.github.diskria.projektor.common.minecraft.MinecraftConstants
 import io.github.diskria.projektor.common.minecraft.sides.ModSide
+import io.github.diskria.projektor.common.minecraft.versions.getResourcePackFormat
 import io.github.diskria.projektor.common.minecraft.versions.minJavaVersion
-import io.github.diskria.projektor.extensions.configureJvmTarget
-import io.github.diskria.projektor.extensions.copyFile
-import io.github.diskria.projektor.extensions.copyTaskOutput
-import io.github.diskria.projektor.extensions.ensureKotlinPluginsApplied
-import io.github.diskria.projektor.extensions.neoforge
+import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.minecraft.loaders.ModLoader
+import io.github.diskria.projektor.minecraft.loaders.SideSourceSets
 import io.github.diskria.projektor.projekt.MinecraftMod
-import io.github.diskria.projektor.tasks.minecraft.generate.GenerateModConfigTask
-import io.github.diskria.projektor.tasks.minecraft.generate.GenerateModEntryPointsTask
-import io.github.diskria.projektor.tasks.minecraft.generate.GenerateModMixinsConfigTask
+import io.github.diskria.projektor.tasks.minecraft.generate.*
 import io.github.diskria.projektor.tasks.minecraft.test.TestClientModTask
 import io.github.diskria.projektor.tasks.minecraft.test.TestServerModTask
 import org.gradle.api.Project
+import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.api.tasks.AbstractCopyTask
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
-import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.toolchain.JavaToolchainService
 import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.invoke
-import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
 
 object Neoforge : ModLoader() {
@@ -53,37 +36,56 @@ object Neoforge : ModLoader() {
         sideProjects: Map<ModSide, Project>,
         mod: MinecraftMod
     ) = with(modProject) {
-        subprojects {
-            val side = name.toEnumOrNull<ModSide>() ?: return@subprojects
-            val sideName = side.getName()
-
-            ensureKotlinPluginsApplied()
-
-            val generateModEntryPointTask = registerTask<GenerateModEntryPointsTask> {
-                minecraftMod = mod
-                outputDirectory = getBuildDirectory("generated/sources/crafter")
+        val sides = sideProjects.keys
+        val generateModEntryPointsTask = registerTask<GenerateModEntryPointsTask> {
+            minecraftMod = mod
+            modSides = sides
+            outputDirectory = getBuildDirectory("generated/sources/crafter")
+        }
+        val modMain = sourceSets.main
+        val sourceSetBySides = sideProjects.mapValues { (side, project) ->
+            val sideMain = project.sourceSets.main.apply { addToClasspath(modMain) }
+            val sideMixins = project.sourceSets.create(SideSourceSets.MIXINS_NAME).apply { addToClasspath(modMain) }
+            SideSourceSets(side, sideMain, sideMixins)
+        }
+        val generateMixinsConfigTask = registerTask<GenerateModMixinsConfigTask> {
+            minecraftMod = mod
+            sideMixinSourceSetDirectories = sourceSetBySides.mapValues { it.value.mixins.javaSourcesDirectory }
+            outputFile = getTempFile(mod.mixinsConfigFileName)
+        }
+        val generateResourcePackConfigTask = registerTask<GenerateResourcePackConfigTask> {
+            minecraftMod = mod
+            outputFile = getTempFile(mod.resourcePackConfigFileName)
+            minFormat = mod.minSupportedVersion.getResourcePackFormat(project)
+            maxFormat = mod.maxSupportedVersion.getResourcePackFormat(project)
+        }
+        val accessorConfigFiles = sourceSetBySides.map {
+            it.value.main.resourcesDirectory.resolve(mod.accessorConfigFileName)
+        }
+        val generateMergedAccessorConfigTask = registerTask<GenerateMergedAccessorConfigTask> {
+            minecraftMod = mod
+            sideAccessorConfigFiles = accessorConfigFiles
+            outputFile = getTempFile(mod.accessorConfigFileName)
+        }
+        val generateModConfigTask = registerTask<GenerateModConfigTask> {
+            minecraftMod = mod
+            outputFile = getTempFile(mod.configFileName)
+        }
+        neoforge {
+            version = mod.config.neoforge.loader
+            parchment {
+                minecraftVersion = mod.config.neoforge.parchmentMinecraft
+                mappingsVersion = mod.config.neoforge.parchmentMappings
             }
-            val (main, mixins) = configureSourceSets(
-                sourceSets = sourceSets,
-                mainSources = listOf(generateModEntryPointTask.map { it.outputDirectory })
-            )
-            neoforge {
-                version = mod.config.neoforge.loader
-                parchment {
-                    minecraftVersion = mod.config.neoforge.parchmentMinecraft
-                    mappingsVersion = mod.config.neoforge.parchmentMappings
-                }
-                setAccessTransformers(main.resourcesDirectory.resolve(mod.accessorConfigFileName).ensureFileExists())
-                runs {
+            setAccessTransformers(accessorConfigFiles)
+            runs {
+                sides.forEach { side ->
                     create(side.getName()) {
                         when (side) {
                             ModSide.CLIENT -> {
                                 client()
                                 programArguments.addAll(
-                                    *JvmArguments.program(
-                                        "username",
-                                        mod.repo.owner.developer + MinecraftConstants.PLAYER_NAME_DEVELOPER_SUFFIX
-                                    ),
+                                    *JvmArguments.program("username", mod.developerUsername),
                                 )
                             }
 
@@ -97,52 +99,63 @@ object Neoforge : ModLoader() {
                     }
                 }
             }
-            tasks {
-                configureJvmTarget(mod.jvmTarget)
-                withType<JavaCompile>().configureEach {
-                    options.encoding = Charsets.UTF_8.toString()
-                }
-                jar {
-                    from(mixins.output)
-                }
-                named<JavaExec>("run" + side.getName(PascalCase)) {
+        }
+        tasks {
+            withType<AbstractCopyTask> {
+                duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+            }
+            processResources {
+                copyTaskOutput(generateResourcePackConfigTask)
+                copyTaskOutput(generateMixinsConfigTask, mod.assetsPath)
+                copyTaskOutput(generateModConfigTask, mod.configFileParentPath)
+                copyTaskOutput(generateMergedAccessorConfigTask, mod.assetsPath)
+
+                copyFile(rootProject.getFile(mod.iconFileName).asFile, mod.assetsPath)
+            }
+            shadowJar {
+                exclude(mod.accessorConfigFileName)
+            }
+            sides.forEach { side ->
+                lazyConfigure<JavaExec>("run" + side.getName(PascalCase)) {
                     val shadowJarTask = modProject.tasks.shadowJar.get()
                     dependsOn(shadowJarTask)
                     addToClasspath(shadowJarTask.archiveFile)
 
-                    javaLauncher = this@subprojects.getExtension<JavaToolchainService>().launcherFor {
+                    javaLauncher = modProject.getExtension<JavaToolchainService>().launcherFor {
                         val javaVersion = mod.minecraftVersion.minJavaVersion
                         configureJavaVendor(javaVersion, JvmVendorSpec.ADOPTIUM, JvmVendorSpec.AZUL)
                     }
                 }
-                processResources {
-                    exclude(mod.accessorConfigFileName)
+            }
+        }
+        sideProjects.values.forEach { project ->
+            project.tasks {
+                jar {
+                    from(project.sourceSets.mixins.output)
                 }
             }
         }
-        val generateMixinsConfigTask = registerTask<GenerateModMixinsConfigTask> {
-            minecraftMod = mod
-            outputFile = getTempFile(mod.mixinsConfigFileName)
-        }
-        val generateModConfigTask = registerTask<GenerateModConfigTask> {
-            minecraftMod = mod
-            outputFile = getTempFile(mod.configFileName)
-        }
-        tasks {
-            processResources {
-                copyTaskOutput(generateMixinsConfigTask, mod.assetsPath)
-                copyTaskOutput(generateModConfigTask, mod.configFileParentPath)
-
-                copyFile(rootProject.getFile(mod.iconFileName).asFile, mod.assetsPath)
-            }
-        }
-        mod.config.environment.sides.forEach {
-            when (it) {
+        sides.forEach { side ->
+            when (side) {
                 ModSide.CLIENT -> registerTask<TestClientModTask>()
                 ModSide.SERVER -> registerTask<TestServerModTask>()
             } {
-                dependsOn(sideProjects.getValue(getSide()).tasks.named<JavaExec>("run" + getSide().getName(PascalCase)))
+                dependsOn(tasks.findByName("run" + side.getName(PascalCase)))
             }
+        }
+        modMain.apply {
+            val sourceSetDirectory = getBuildDirectory("sourcesSets")
+            val sideSourceSets = sideProjects.flatMap { it.value.sourceSets }
+            java {
+                srcDirs(generateModEntryPointsTask.map { it.outputDirectory })
+                srcDirs(sideSourceSets.map { it.javaSourcesDirectory })
+                destinationDirectory = sourceSetDirectory
+            }
+            resources {
+                exclude(mod.accessorConfigFileName)
+                srcDirs(sideSourceSets.map { it.resourcesDirectory })
+            }
+            output.setResourcesDir(sourceSetDirectory)
         }
     }
 

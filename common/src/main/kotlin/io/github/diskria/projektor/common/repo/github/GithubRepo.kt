@@ -52,7 +52,7 @@ data class GithubRepo(val owner: GithubOwner, val name: String) {
         isVcs: Boolean = false,
         isPackagesMaven: Boolean = false,
         token: String? = null,
-        block: (URLBuilder.() -> Unit)? = null
+        build: URLBuilder.() -> Unit = {}
     ): Url =
         URLBuilder().apply {
             protocol = URLProtocol.HTTPS
@@ -62,7 +62,7 @@ data class GithubRepo(val owner: GithubOwner, val name: String) {
             }
             host = RepoHost.GITHUB.hostName.modifyIf(isPackagesMaven) { PACKAGES_MAVEN_PREFIX + it }
             path(owner.name, name.modifyIf(isVcs) { it + Constants.Char.DOT + GIT.shortName })
-            block?.invoke(this)
+            build(this)
         }.build()
 
     companion object {

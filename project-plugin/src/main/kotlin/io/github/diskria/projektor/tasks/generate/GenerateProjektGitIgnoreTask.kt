@@ -1,5 +1,6 @@
 package io.github.diskria.projektor.tasks.generate
 
+import io.github.diskria.gradle.utils.helpers.GradleDirectories
 import io.github.diskria.kotlin.shell.dsl.git.commits.CommitType
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.emptyFileName
@@ -16,9 +17,9 @@ abstract class GenerateProjektGitIgnoreTask : AbstractGenerateFileTask() {
         val patterns = mutableListOf(
             ".idea/*",
             "!.idea/dictionaries/",
-            "${ProjectDirectories.GRADLE_CACHE}/",
+            "${GradleDirectories.CACHE}/",
             ".kotlin/",
-            "${ProjectDirectories.BUILD}/",
+            "${GradleDirectories.BUILD}/",
         )
         patterns.addAll(
             when (metadata.type) {

@@ -1,6 +1,7 @@
 package io.github.diskria.projektor.extensions
 
 import io.github.diskria.projektor.extensions.mappers.toInt
+import org.gradle.api.Task
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.kotlin.dsl.assign
@@ -15,4 +16,8 @@ fun TaskContainer.configureJvmTarget(target: JvmTarget) {
     withType<KotlinCompile>().configureEach {
         compilerOptions.jvmTarget = target
     }
+}
+
+inline fun <reified T : Task> TaskContainer.lazyConfigure(taskName: String, crossinline configure: T.() -> Unit) {
+    matching { it.name == taskName && T::class.isInstance(it) }.configureEach { (this as T).configure() }
 }

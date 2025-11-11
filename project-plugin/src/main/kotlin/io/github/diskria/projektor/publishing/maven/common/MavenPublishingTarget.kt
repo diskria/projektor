@@ -10,6 +10,7 @@ import io.github.diskria.kotlin.utils.extensions.common.modifyUnless
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.kotlin.utils.words.PascalCase
+import io.github.diskria.projektor.common.ProjectDirectories
 import io.github.diskria.projektor.extensions.mappers.mapToEnum
 import io.github.diskria.projektor.extensions.publishing
 import io.github.diskria.projektor.projekt.common.Projekt
@@ -43,7 +44,9 @@ abstract class MavenPublishingTarget : PublishingTarget() {
     }
 
     fun getLocalMavenDirectory(project: Project): Provider<Directory> =
-        project.getBuildDirectory("maven/" + this::class.className().setCase(PascalCase, `kebab-case`))
+        project.getBuildDirectory(
+            ProjectDirectories.LOCAL_MAVEN + "/" + this::class.className().setCase(PascalCase, `kebab-case`)
+        )
 
     open fun configureMaven(
         repositories: RepositoryHandler,

@@ -17,12 +17,12 @@ abstract class AbstractProjektExtension<C : IProjektConfigurator> : GradleExtens
         configurator ?: notConfiguredError()
     }
 
-    protected fun setConfigurator(configuration: C) {
+    protected fun setConfigurator(configurator: C) {
         if (this.configurator != null) {
             alreadyConfiguredError()
         }
-        this.configurator = configuration
-        onConfiguratorReadyCallback?.invoke(configuration)
+        this.configurator = configurator
+        onConfiguratorReadyCallback?.invoke(configurator)
     }
 
     private fun notConfiguredError(): Nothing =

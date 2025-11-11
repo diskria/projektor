@@ -95,7 +95,7 @@ abstract class FabricFamilyLoader(val type: ModLoaderType) : ModLoader() {
                             programArgs(
                                 *JvmArguments.program(
                                     "username",
-                                    mod.repo.owner.developer + MinecraftConstants.PLAYER_NAME_DEVELOPER_SUFFIX
+                                    mod.repo.owner.developer + MinecraftConstants.DEVELOPER_USERNAME_SUFFIX
                                 ),
                                 *JvmArguments.program("userProperties", "{}"),
                             )

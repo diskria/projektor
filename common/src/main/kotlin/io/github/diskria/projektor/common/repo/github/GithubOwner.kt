@@ -20,5 +20,9 @@ data class GithubOwner(val name: String, val email: String) {
         get() = name.lowercase().modifyIf(type == GithubOwnerType.DOMAIN) { it.substringBefore(Constants.Char.HYPHEN) }
 
     val namespace: String
-        get() = "io".appendPackageName(RepoHost.GITHUB.shortName).appendPackageName(developer)
+        get() = TOP_LEVEL_DOMAIN.appendPackageName(RepoHost.GITHUB.shortName).appendPackageName(developer)
+
+    companion object {
+        private const val TOP_LEVEL_DOMAIN: String = "io"
+    }
 }

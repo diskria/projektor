@@ -10,6 +10,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
@@ -20,8 +21,8 @@ abstract class GenerateMergedAccessorConfigTask : DefaultTask() {
     @get:Internal
     abstract val minecraftMod: Property<MinecraftMod>
 
-    @get:Internal
-    abstract val sideResourcesDirectories: ListProperty<File>
+    @get:Input
+    abstract val sideAccessorConfigFiles: ListProperty<File>
 
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
@@ -33,17 +34,15 @@ abstract class GenerateMergedAccessorConfigTask : DefaultTask() {
     @TaskAction
     fun generate() {
         val minecraftMod = minecraftMod.get()
-        val sideResourcesDirectories = sideResourcesDirectories.get()
+        val sideAccessorConfigFiles = sideAccessorConfigFiles.get()
         val outputFile = outputFile.get().asFile.ensureFileExists()
 
         outputFile.writeText(
-            sideResourcesDirectories.mapNotNull { resourcesDirectory ->
-                resourcesDirectory
-                    .resolve(minecraftMod.accessorConfigFileName)
-                    .readLines()
-                    .mapNotNull { it.trim().toNullIfEmpty() }
-                    .toNullIfEmpty()
-            }.flatten().toSet().joinByNewLine()
+            sideAccessorConfigFiles
+                .mapNotNull { it.readLines().mapNotNull { line -> line.trim().toNullIfEmpty() }.toNullIfEmpty() }
+                .flatten()
+                .toSet()
+                .joinByNewLine()
         )
     }
 }

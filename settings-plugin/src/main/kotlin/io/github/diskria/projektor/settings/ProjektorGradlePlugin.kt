@@ -2,6 +2,7 @@ package io.github.diskria.projektor.settings
 
 import io.github.diskria.gradle.utils.extensions.*
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
+import io.github.diskria.gradle.utils.helpers.GradleConstants
 import io.github.diskria.gradle.utils.helpers.VersionCatalogsHelper
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.*
@@ -9,6 +10,7 @@ import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.helpers.EmailType
 import io.github.diskria.kotlin.utils.properties.common.autoNamed
 import io.github.diskria.kotlin.utils.properties.common.environmentVariable
+import io.github.diskria.projektor.common.ProjectDirectories
 import io.github.diskria.projektor.common.extensions.setProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektAbout
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
@@ -57,10 +59,6 @@ class ProjektorGradlePlugin : Plugin<Settings> {
     }
 
     private fun configureRootProject(settings: Settings, metadata: ProjektMetadata) = with(settings) {
-//        val owner = metadata.repo.owner
-//        rootProject.name = metadata.name.modifyIf(owner.type == GithubOwnerType.BRAND) {
-//            owner.name + Constants.Char.SPACE + it
-//        }
         gradle.rootProject {
             description = metadata.description
             version = metadata.version
@@ -86,7 +84,8 @@ class ProjektorGradlePlugin : Plugin<Settings> {
     }
 
     private fun configureVersionCatalogs(settings: Settings) = with(settings) {
-        val catalogsDirectory = findGradleProjectRoot().resolve("gradle/version-catalogs").ensureDirectoryExists()
+        val gradleDirectory = findGradleProjectRoot().resolve(GradleConstants.GRADLE_NAME)
+        val catalogsDirectory = gradleDirectory.resolve(ProjectDirectories.VERSION_CATALOGS).ensureDirectoryExists()
         catalogsDirectory.resolve(VersionCatalogsHelper.buildCatalogFileName()).ensureFileExists {
             writeText(VersionCatalogsHelper.TEMPLATE)
         }

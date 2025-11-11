@@ -6,4 +6,5 @@ open class GradlePluginConfiguration {
     var isSettingsPlugin: Boolean = false
     var javaVersion: Int? = null
     var jvmTarget: JvmTarget? = null
+    var packageNameSuffix: String? = null
 }

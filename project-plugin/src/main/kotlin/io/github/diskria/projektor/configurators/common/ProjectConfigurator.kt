@@ -4,6 +4,7 @@ import io.github.diskria.gradle.utils.extensions.*
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.`Train-Case`
+import io.github.diskria.kotlin.utils.extensions.generics.addIfNotNull
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.Versions
 import io.github.diskria.projektor.common.configurators.IProjektConfigurator
@@ -13,7 +14,8 @@ import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.projekt.GradlePlugin
 import io.github.diskria.projektor.projekt.KotlinLibrary
 import io.github.diskria.projektor.projekt.common.Projekt
-import io.github.diskria.projektor.tasks.*
+import io.github.diskria.projektor.tasks.ReleaseProjektTask
+import io.github.diskria.projektor.tasks.UpdateProjektRepoMetadataTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektGitAttributesTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektGitIgnoreTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektLicenseTask
@@ -32,19 +34,19 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
         applyCommonConfiguration(project, projekt, project.getProjektMetadata().type)
         configureProject(project, projekt)
 
-        with(project) {
-            if (!isCommonProject()) {
-                val commonProject = rootProject.findCommonProject()
-                if (commonProject != null) {
-                    if (projekt is GradlePlugin || projekt is KotlinLibrary) {
+        if (!project.isCommonProject()) {
+            val commonProject = project.rootProject.findCommonProject()
+            if (commonProject != null) {
+                if (projekt is GradlePlugin || projekt is KotlinLibrary) {
+                    with(project) {
                         dependencies {
                             compileOnly(commonProject)
                         }
                         configureShadowJar(listOf(commonProject))
                     }
                 }
-                configurePublishing(project, projekt)
             }
+            configurePublishing(project, projekt)
         }
         return projekt
     }
@@ -181,15 +183,12 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                     )
                     publishingTargetTasks.forEach { (rootPublishTask, distributeTask) ->
                         add(rootPublishTask)
-                        distributeTask?.let { add(it) }
+                        addIfNotNull(distributeTask)
                     }
                     add(rootProject.getTask<UpdateProjektRepoMetadataTask>())
                 }
             )
         }
-        rootProject.ensureTaskRegistered<CleanIncludedBuildsTask>()
-        rootProject.ensureTaskRegistered<CleanSubprojectsTask>()
-        rootProject.ensureTaskRegistered<CleanAllTask>()
     }
 
     companion object {

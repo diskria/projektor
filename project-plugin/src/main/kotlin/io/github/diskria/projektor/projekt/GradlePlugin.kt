@@ -13,9 +13,8 @@ class GradlePlugin(projekt: Projekt, val config: GradlePluginConfiguration) : Ab
     val id: String
         get() = packageName
 
-    override val packageNameSuffix: String? =
-        if (config.isSettingsPlugin) "settings"
-        else null
+    override val packageNameSuffix: String?
+        get() = config.packageNameSuffix ?: super.packageNameSuffix
 
     override val javaVersion: Int
         get() = config.javaVersion ?: super.javaVersion

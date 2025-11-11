@@ -6,5 +6,6 @@ plugins {
 projekt {
     gradlePlugin {
         isSettingsPlugin = true
+        packageNameSuffix = "settings"
     }
 }

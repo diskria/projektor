@@ -5,6 +5,7 @@ import io.github.diskria.kotlin.utils.BracketsType
 import io.github.diskria.kotlin.utils.Constants
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
+import io.github.diskria.kotlin.utils.extensions.generics.addIfNotNull
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.extensions.serialization.deserializeFromJson
 import io.github.diskria.kotlin.utils.extensions.wrapWithBrackets
@@ -67,7 +68,7 @@ abstract class UpdateProjektRepoMetadataTask : DefaultTask() {
         val metadata = metadata.get()
 
         val topics = buildSet {
-            getTopLanguage()?.let { add(it) }
+            addIfNotNull(getTopLanguage())
             add(metadata.type.getName(`kebab-case`))
             addAll(metadata.tags)
             addAll(metadata.publishingTargets.sorted().map { it.getName(`kebab-case`) })
@@ -76,7 +77,8 @@ abstract class UpdateProjektRepoMetadataTask : DefaultTask() {
     }
 
     private suspend fun getTopLanguage(): String? =
-        sendRequest(GetLanguagesRequest()).bodyAsText()
+        sendRequest(GetLanguagesRequest())
+            .bodyAsText()
             .deserializeFromJson<Map<String, Int>>()
             .maxByOrNull { it.value }?.key
 

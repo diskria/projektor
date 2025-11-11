@@ -45,24 +45,24 @@ open class MinecraftModConfiguration {
     private var forgeConfig: ForgeModConfiguration? = null
     private var neoforgeConfig: NeoforgeModConfiguration? = null
 
-    fun fabric(configuration: FabricModConfiguration.() -> Unit) {
-        fabricConfig = FabricModConfiguration().apply(configuration)
+    fun fabric(configure: FabricModConfiguration.() -> Unit) {
+        fabricConfig = FabricModConfiguration().apply(configure)
     }
 
-    fun legacyFabric(configuration: LegacyFabricModConfiguration.() -> Unit) {
-        legacyFabricConfig = LegacyFabricModConfiguration().apply(configuration)
+    fun legacyFabric(configure: LegacyFabricModConfiguration.() -> Unit) {
+        legacyFabricConfig = LegacyFabricModConfiguration().apply(configure)
     }
 
-    fun ornithe(configuration: OrnitheModConfiguration.() -> Unit) {
-        ornitheConfig = OrnitheModConfiguration().apply(configuration)
+    fun ornithe(configure: OrnitheModConfiguration.() -> Unit) {
+        ornitheConfig = OrnitheModConfiguration().apply(configure)
     }
 
-    fun forge(configuration: ForgeModConfiguration.() -> Unit) {
-        forgeConfig = ForgeModConfiguration().apply(configuration)
+    fun forge(configure: ForgeModConfiguration.() -> Unit) {
+        forgeConfig = ForgeModConfiguration().apply(configure)
     }
 
-    fun neoforge(configuration: NeoforgeModConfiguration.() -> Unit) {
-        neoforgeConfig = NeoforgeModConfiguration().apply(configuration)
+    fun neoforge(configure: NeoforgeModConfiguration.() -> Unit) {
+        neoforgeConfig = NeoforgeModConfiguration().apply(configure)
     }
 
     internal fun resolveConfig(modLoader: ModLoader, project: Project, minecraftVersion: MinecraftVersion) {

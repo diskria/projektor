@@ -2,6 +2,7 @@ package io.github.diskria.projektor.configurators
 
 import io.github.diskria.gradle.utils.extensions.findCommonProject
 import io.github.diskria.gradle.utils.extensions.getBuildDirectory
+import io.github.diskria.kotlin.utils.extensions.generics.addIfNotNull
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderFamily
 import io.github.diskria.projektor.configurations.minecraft.MinecraftModConfiguration
@@ -29,7 +30,7 @@ open class MinecraftModConfigurator(
             return@associateWith sideProject
         }
         val projectsToShadow = buildList {
-            rootProject.findCommonProject()?.let { add(it) }
+            addIfNotNull(rootProject.findCommonProject())
             addAll(sideProjects.values)
         }
         val isFabricFamily = mod.loader.family == ModLoaderFamily.FABRIC

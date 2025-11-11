@@ -25,7 +25,7 @@ fun Project.configureShadowJar(
     classifier: String? = null,
     destination: Directory? = null,
     shouldDisableJar: Boolean = false,
-    configuration: ShadowJar.() -> Unit = {},
+    configure: ShadowJar.() -> Unit = {},
 ) {
     tasks {
         ensurePluginApplied("com.gradleup.shadow")
@@ -40,7 +40,7 @@ fun Project.configureShadowJar(
                 dependsOn(jarTask)
                 from(zipTree(jarTask.flatMap { jar -> jar.archiveFile }))
             }
-            configuration()
+            configure()
         }
         if (shouldDisableJar) {
             jar.disable()
@@ -56,46 +56,46 @@ fun Project.ensureKotlinPluginsApplied() {
 fun Project.toProjekt(): BaseProjekt =
     BaseProjekt.of(this)
 
-fun Project.kotlin(configuration: KotlinProjectExtension.() -> Unit = {}) {
-    configureExtension<KotlinProjectExtension>(configuration)
+fun Project.kotlin(configure: KotlinProjectExtension.() -> Unit = {}) {
+    configureExtension<KotlinProjectExtension>(configure)
 }
 
-fun Project.buildConfig(configuration: BuildConfigExtension.() -> Unit = {}) {
-    withPluginExtension<BuildConfigExtension>("com.github.gmazzo.buildconfig", configuration)
+fun Project.buildConfig(configure: BuildConfigExtension.() -> Unit = {}) {
+    withPluginExtension<BuildConfigExtension>("com.github.gmazzo.buildconfig", configure)
 }
 
-fun Project.publishing(configuration: PublishingExtension.() -> Unit = {}) {
-    withPluginExtension<PublishingExtension>("maven-publish", configuration)
+fun Project.publishing(configure: PublishingExtension.() -> Unit = {}) {
+    withPluginExtension<PublishingExtension>("maven-publish", configure)
 }
 
-fun Project.signing(configuration: SigningExtension.() -> Unit = {}) {
-    withPluginExtension<SigningExtension>("signing", configuration)
+fun Project.signing(configure: SigningExtension.() -> Unit = {}) {
+    withPluginExtension<SigningExtension>("signing", configure)
 }
 
-fun Project.gradlePlugin(configuration: GradlePluginDevelopmentExtension.() -> Unit = {}) {
-    configureExtension<GradlePluginDevelopmentExtension>(configuration)
+fun Project.gradlePlugin(configure: GradlePluginDevelopmentExtension.() -> Unit = {}) {
+    configureExtension<GradlePluginDevelopmentExtension>(configure)
 }
 
-fun Project.modrinth(configuration: ModrinthExtension.() -> Unit = {}) {
-    withPluginExtension<ModrinthExtension>("com.modrinth.minotaur", configuration)
+fun Project.modrinth(configure: ModrinthExtension.() -> Unit = {}) {
+    withPluginExtension<ModrinthExtension>("com.modrinth.minotaur", configure)
 }
 
-fun Project.fabric(configuration: LoomGradleExtensionAPI.() -> Unit = {}) {
-    withPluginExtension<LoomGradleExtensionAPI>("fabric-loom", configuration)
+fun Project.fabric(configure: LoomGradleExtensionAPI.() -> Unit = {}) {
+    withPluginExtension<LoomGradleExtensionAPI>("fabric-loom", configure)
 }
 
-fun Project.legacyFabric(configuration: LegacyUtilsExtension.() -> Unit = {}) {
-    withPluginExtension<LegacyUtilsExtension>("legacy-looming", configuration)
+fun Project.legacyFabric(configure: LegacyUtilsExtension.() -> Unit = {}) {
+    withPluginExtension<LegacyUtilsExtension>("legacy-looming", configure)
 }
 
-fun Project.ornithe(configuration: PloceusGradleExtensionApi.() -> Unit = {}) {
-    withPluginExtension<PloceusGradleExtensionApi>("ploceus", configuration)
+fun Project.ornithe(configure: PloceusGradleExtensionApi.() -> Unit = {}) {
+    withPluginExtension<PloceusGradleExtensionApi>("ploceus", configure)
 }
 
-fun Project.forge(configuration: UserDevExtension.() -> Unit = {}) {
-    withPluginExtension<UserDevExtension>("net.minecraftforge.gradle", configuration)
+fun Project.forge(configure: UserDevExtension.() -> Unit = {}) {
+    withPluginExtension<UserDevExtension>("net.minecraftforge.gradle", configure)
 }
 
-fun Project.neoforge(configuration: NeoForgeExtension.() -> Unit = {}) {
-    withPluginExtension<NeoForgeExtension>("net.neoforged.moddev", configuration)
+fun Project.neoforge(configure: NeoForgeExtension.() -> Unit = {}) {
+    withPluginExtension<NeoForgeExtension>("net.neoforged.moddev", configure)
 }

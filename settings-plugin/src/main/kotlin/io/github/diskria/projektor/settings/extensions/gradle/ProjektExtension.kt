@@ -46,28 +46,28 @@ open class ProjektExtension @Inject constructor(
             tags = about.tags,
         )
 
-    fun gradlePlugin(configuration: GradlePluginConfiguration.() -> Unit = {}) {
+    fun gradlePlugin(configure: GradlePluginConfiguration.() -> Unit = {}) {
         projektType = ProjektType.GRADLE_PLUGIN
-        setConfigurator(GradlePluginConfigurator(GradlePluginConfiguration().apply(configuration)))
+        setConfigurator(GradlePluginConfigurator(GradlePluginConfiguration().apply(configure)))
     }
 
-    fun kotlinLibrary(configuration: KotlinLibraryConfiguration.() -> Unit = {}) {
+    fun kotlinLibrary(configure: KotlinLibraryConfiguration.() -> Unit = {}) {
         projektType = ProjektType.KOTLIN_LIBRARY
-        setConfigurator(KotlinLibraryConfigurator(KotlinLibraryConfiguration().apply(configuration)))
+        setConfigurator(KotlinLibraryConfigurator(KotlinLibraryConfiguration().apply(configure)))
     }
 
-    fun androidLibrary(configuration: AndroidLibraryConfiguration.() -> Unit = {}) {
+    fun androidLibrary(configure: AndroidLibraryConfiguration.() -> Unit = {}) {
         projektType = ProjektType.ANDROID_LIBRARY
-        setConfigurator(AndroidLibraryConfigurator(AndroidLibraryConfiguration().apply(configuration)))
+        setConfigurator(AndroidLibraryConfigurator(AndroidLibraryConfiguration().apply(configure)))
     }
 
-    fun androidApplication(configuration: AndroidApplicationConfiguration.() -> Unit = {}) {
+    fun androidApplication(configure: AndroidApplicationConfiguration.() -> Unit = {}) {
         projektType = ProjektType.ANDROID_APPLICATION
-        setConfigurator(AndroidApplicationConfigurator(AndroidApplicationConfiguration().apply(configuration)))
+        setConfigurator(AndroidApplicationConfigurator(AndroidApplicationConfiguration().apply(configure)))
     }
 
-    fun minecraftMod(configuration: MinecraftModConfiguration.() -> Unit = {}) {
+    fun minecraftMod(configure: MinecraftModConfiguration.() -> Unit = {}) {
         projektType = ProjektType.MINECRAFT_MOD
-        setConfigurator(MinecraftModConfigurator(MinecraftModConfiguration().apply(configuration)))
+        setConfigurator(MinecraftModConfigurator(MinecraftModConfiguration().apply(configure)))
     }
 }

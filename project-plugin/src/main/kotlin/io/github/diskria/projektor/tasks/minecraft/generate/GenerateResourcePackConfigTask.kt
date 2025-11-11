@@ -3,7 +3,6 @@ package io.github.diskria.projektor.tasks.minecraft.generate
 import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.extensions.serialization.serializeJsonToFile
 import io.github.diskria.projektor.ProjektorGradlePlugin
-import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.minecraft.configs.packs.resources.ResourcePackConfig
 import io.github.diskria.projektor.projekt.MinecraftMod
 import org.gradle.api.DefaultTask
@@ -33,7 +32,12 @@ abstract class GenerateResourcePackConfigTask : DefaultTask() {
 
     @TaskAction
     fun generate() {
-        val config = ResourcePackConfig.of(minecraftMod.get(), minFormat.get(), maxFormat.get())
-        config.serializeJsonToFile(outputFile.get().asFile.ensureFileExists())
+        val minecraftMod = minecraftMod.get()
+        val minFormat = minFormat.get()
+        val maxFormat = maxFormat.get()
+        val outputFile = outputFile.get().asFile
+
+        val config = ResourcePackConfig.of(minecraftMod, minFormat, maxFormat)
+        config.serializeJsonToFile(outputFile.ensureFileExists())
     }
 }

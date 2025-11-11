@@ -23,7 +23,6 @@ data class ForgeModConfig(
     val isClientSideOnly: Boolean,
 
     val mods: List<ForgeModConfigEntry>,
-//    val accessTransformers: List<ForgeModAccessTransformerConfigEntry>,
     val dependencies: Map<String, List<ForgeModDependencyConfigEntry>>,
 ) {
     companion object {
@@ -37,9 +36,6 @@ data class ForgeModConfig(
                 mods = listOf(
                     ForgeModConfigEntry.of(mod),
                 ),
-//                accessTransformers = listOf(
-//                    ForgeModAccessTransformerConfigEntry.of(mod),
-//                ),
                 dependencies = mapOf(
                     mod.id to listOf(
                         ForgeModDependencyConfigEntry.createMinecraftDependency(mod),

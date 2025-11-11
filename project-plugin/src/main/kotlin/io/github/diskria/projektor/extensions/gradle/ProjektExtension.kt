@@ -11,23 +11,23 @@ import io.github.diskria.projektor.configurators.common.ProjectConfigurator
 
 open class ProjektExtension : AbstractProjektExtension<ProjectConfigurator<*>>() {
 
-    fun gradlePlugin(configuration: GradlePluginConfiguration.() -> Unit = {}) {
-        setConfigurator(GradlePluginConfigurator(GradlePluginConfiguration().apply(configuration)))
+    fun gradlePlugin(configure: GradlePluginConfiguration.() -> Unit = {}) {
+        setConfigurator(GradlePluginConfigurator(GradlePluginConfiguration().apply(configure)))
     }
 
-    fun kotlinLibrary(configuration: KotlinLibraryConfiguration.() -> Unit = {}) {
-        setConfigurator(KotlinLibraryConfigurator(KotlinLibraryConfiguration().apply(configuration)))
+    fun kotlinLibrary(configure: KotlinLibraryConfiguration.() -> Unit = {}) {
+        setConfigurator(KotlinLibraryConfigurator(KotlinLibraryConfiguration().apply(configure)))
     }
 
-    fun androidLibrary(configuration: AndroidLibraryConfiguration.() -> Unit = {}) {
-        setConfigurator(AndroidLibraryConfigurator(AndroidLibraryConfiguration().apply(configuration)))
+    fun androidLibrary(configure: AndroidLibraryConfiguration.() -> Unit = {}) {
+        setConfigurator(AndroidLibraryConfigurator(AndroidLibraryConfiguration().apply(configure)))
     }
 
-    fun androidApplication(configuration: AndroidApplicationConfiguration.() -> Unit = {}) {
-        setConfigurator(AndroidApplicationConfigurator(AndroidApplicationConfiguration().apply(configuration)))
+    fun androidApplication(configure: AndroidApplicationConfiguration.() -> Unit = {}) {
+        setConfigurator(AndroidApplicationConfigurator(AndroidApplicationConfiguration().apply(configure)))
     }
 
-    fun minecraftMod(configuration: MinecraftModConfiguration.() -> Unit = {}) {
-        setConfigurator(MinecraftModConfigurator(MinecraftModConfiguration().apply(configuration)))
+    fun minecraftMod(configure: MinecraftModConfiguration.() -> Unit = {}) {
+        setConfigurator(MinecraftModConfigurator(MinecraftModConfiguration().apply(configure)))
     }
 }

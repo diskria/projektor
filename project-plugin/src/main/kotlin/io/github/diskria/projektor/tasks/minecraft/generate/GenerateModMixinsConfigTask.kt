@@ -49,13 +49,11 @@ abstract class GenerateModMixinsConfigTask : DefaultTask() {
                 .filter { file -> file.isDirectory && !file.isHidden }
                 .flatMap { directory ->
                     val relativePath = directory.relativeTo(mixinsRoot).path
-                    directory
-                        .listFilesWithExtension(Constants.File.Extension.JAVA)
-                        .map { javaFile -> javaFile.nameWithoutExtension }
-                        .map { className ->
-                            if (relativePath.isEmpty()) className
-                            else relativePath.setCase(`path∕case`, `dot․case`).appendPackageName(className)
-                        }
+                    directory.listFilesWithExtension(Constants.File.Extension.JAVA).map { javaFile ->
+                        val className = javaFile.nameWithoutExtension
+                        if (relativePath.isEmpty()) className
+                        else relativePath.setCase(`path∕case`, `dot․case`).appendPackageName(className)
+                    }
                 }
                 .toList()
                 .sorted()

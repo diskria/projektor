@@ -16,6 +16,7 @@ import io.github.diskria.projektor.common.minecraft.MinecraftConstants
 import io.github.diskria.projektor.common.minecraft.era.Release
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderFamily
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
+import io.github.diskria.projektor.common.minecraft.sides.ModEnvironment
 import io.github.diskria.projektor.common.minecraft.sides.ModSide
 import io.github.diskria.projektor.common.minecraft.versions.*
 import io.github.diskria.projektor.common.publishing.PublishingTargetType
@@ -23,7 +24,6 @@ import io.github.diskria.projektor.configurations.minecraft.MinecraftModConfigur
 import io.github.diskria.projektor.extensions.mappers.mapToEnum
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.extensions.mappers.toJvmTarget
-import io.github.diskria.projektor.common.minecraft.sides.ModEnvironment
 import io.github.diskria.projektor.minecraft.loaders.ModLoader
 import io.github.diskria.projektor.projekt.common.AbstractProjekt
 import io.github.diskria.projektor.projekt.common.Projekt
@@ -57,8 +57,12 @@ class MinecraftMod(
             ModLoaderFamily.FORGE -> fileName("accesstransformer", "cfg")
         }
 
+    val accessorConfigParentPath: String =
+        if (loader.mapToEnum() == ModLoaderType.FORGE) "META-INF"
+        else assetsPath
+
     val accessorConfigPath: String =
-        assetsPath.appendPath(accessorConfigFileName)
+        accessorConfigParentPath.appendPath(accessorConfigFileName)
 
     val mixinsConfigFileName: String =
         fileName(id, "mixins", Constants.File.Extension.JSON)
@@ -70,17 +74,14 @@ class MinecraftMod(
         fileName("pack", "mcmeta")
 
     val configFileName: String =
-        when (val type = loader.mapToEnum()) {
-            ModLoaderType.FABRIC, ModLoaderType.LEGACY_FABRIC, ModLoaderType.ORNITHE -> {
-                fileName(ModLoaderType.FABRIC.getName(), "mod", Constants.File.Extension.JSON)
-            }
-
-            else -> {
-                if (type == ModLoaderType.NEOFORGE && minecraftVersion >= Release.V_1_20_5) {
-                    fileName(type.getName(), "mods", Constants.File.Extension.TOML)
-                } else {
-                    fileName("mods", Constants.File.Extension.TOML)
+        when (loader.family) {
+            ModLoaderFamily.FABRIC -> fileName(ModLoaderFamily.FABRIC.getName(), "mod", Constants.File.Extension.JSON)
+            ModLoaderFamily.FORGE -> when {
+                loader.mapToEnum() == ModLoaderType.NEOFORGE && minecraftVersion >= Release.V_1_20_5 -> {
+                    fileName(ModLoaderType.NEOFORGE.getName(), "mods", Constants.File.Extension.TOML)
                 }
+
+                else -> fileName("mods", Constants.File.Extension.TOML)
             }
         }
 
@@ -99,8 +100,8 @@ class MinecraftMod(
             }
         }
 
-    val developerPlayerName: String =
-        repo.owner.developer + MinecraftConstants.PLAYER_NAME_DEVELOPER_SUFFIX
+    val developerUsername: String =
+        repo.owner.developer + MinecraftConstants.DEVELOPER_USERNAME_SUFFIX
 
     override val isJavadocEnabled: Boolean = false
 

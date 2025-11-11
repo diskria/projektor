@@ -3,6 +3,7 @@ package io.github.diskria.projektor.minecraft.loaders.forge
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar.Companion.shadowJar
 import io.github.diskria.gradle.utils.extensions.*
 import io.github.diskria.gradle.utils.helpers.jvm.JvmArguments
+import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.kotlin.utils.words.PascalCase
@@ -59,9 +60,12 @@ object Forge : ModLoader() {
             minFormat = mod.minSupportedVersion.getResourcePackFormat(project)
             maxFormat = mod.maxSupportedVersion.getResourcePackFormat(project)
         }
+        val accessorConfigFiles = sourceSetBySides.map {
+            it.value.main.resourcesDirectory.resolve(mod.accessorConfigFileName)
+        }
         val generateMergedAccessorConfigTask = registerTask<GenerateMergedAccessorConfigTask> {
             minecraftMod = mod
-            sideResourcesDirectories = sourceSetBySides.values.map { it.main.resourcesDirectory }
+            sideAccessorConfigFiles = accessorConfigFiles
             outputFile = getTempFile(mod.accessorConfigFileName)
         }
         val generateModConfigTask = registerTask<GenerateModConfigTask> {
@@ -71,7 +75,8 @@ object Forge : ModLoader() {
         forge {
             reobf = mod.minecraftVersion < Release.V_1_20_6
             mappings("official", mod.minecraftVersion.asString())
-            setAccessTransformer(generateMergedAccessorConfigTask.map { it.outputFile })
+            copyIdeResources = true
+            setAccessTransformers(accessorConfigFiles)
             runs {
                 sides.forEach { side ->
                     create(side.getName()) {
@@ -84,7 +89,7 @@ object Forge : ModLoader() {
                         )
                         when (side) {
                             ModSide.CLIENT -> args(
-                                *JvmArguments.program("username", mod.developerPlayerName),
+                                *JvmArguments.program("username", mod.developerUsername),
                             )
 
                             ModSide.SERVER -> args(
@@ -117,21 +122,23 @@ object Forge : ModLoader() {
                 copyTaskOutput(generateResourcePackConfigTask)
                 copyTaskOutput(generateMixinsConfigTask, mod.assetsPath)
                 copyTaskOutput(generateModConfigTask, mod.configFileParentPath)
-                copyTaskOutput(generateMergedAccessorConfigTask, mod.assetsPath)
+                copyTaskOutput(generateMergedAccessorConfigTask, mod.accessorConfigParentPath)
 
                 copyFile(rootProject.getFile(mod.iconFileName).asFile, mod.assetsPath)
             }
             shadowJar {
                 exclude(mod.accessorConfigFileName)
             }
-            withType<JavaExec> {
-                val shadowJarTask = modProject.tasks.shadowJar.get()
-                dependsOn(shadowJarTask)
-                addToClasspath(shadowJarTask.archiveFile)
+            sides.forEach { side ->
+                lazyConfigure<JavaExec>("run" + side.getName(PascalCase)) {
+                    val shadowJarTask = modProject.tasks.shadowJar.get()
+                    dependsOn(shadowJarTask)
+                    addToClasspath(shadowJarTask.archiveFile)
 
-                javaLauncher = modProject.getExtension<JavaToolchainService>().launcherFor {
-                    val javaVersion = mod.minecraftVersion.minJavaVersion
-                    configureJavaVendor(javaVersion, JvmVendorSpec.ADOPTIUM, JvmVendorSpec.AZUL)
+                    javaLauncher = modProject.getExtension<JavaToolchainService>().launcherFor {
+                        val javaVersion = mod.minecraftVersion.minJavaVersion
+                        configureJavaVendor(javaVersion, JvmVendorSpec.ADOPTIUM, JvmVendorSpec.AZUL)
+                    }
                 }
             }
         }
@@ -139,9 +146,6 @@ object Forge : ModLoader() {
             project.tasks {
                 jar {
                     from(project.sourceSets.mixins.output)
-                }
-                processResources {
-                    exclude(mod.accessorConfigFileName)
                 }
             }
         }
@@ -158,7 +162,6 @@ object Forge : ModLoader() {
                 )
             }
         }
-
         modMain.apply {
             val sourceSetDirectory = getBuildDirectory("sourcesSets")
             val sideSourceSets = sideProjects.flatMap { it.value.sourceSets }

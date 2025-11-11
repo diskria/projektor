@@ -3,7 +3,9 @@ package io.github.diskria.projektor.publishing.common
 import io.github.diskria.gradle.utils.extensions.getLeafProjects
 import io.github.diskria.gradle.utils.extensions.getTaskPath
 import io.github.diskria.gradle.utils.extensions.isCommonProject
+import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
+import io.github.diskria.projektor.common.minecraft.sides.ModSide
 import io.github.diskria.projektor.projekt.MinecraftMod
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.readme.shields.common.ReadmeShield
@@ -34,7 +36,7 @@ abstract class PublishingTarget {
                     .getLeafProjects { subproject ->
                         when {
                             subproject.isCommonProject() -> false
-                            projekt is MinecraftMod -> subproject.name != "client" && subproject.name != "server"
+                            projekt is MinecraftMod -> ModSide.values().map { it.getName() }.contains(subproject.name)
                             else -> true
                         }
                     }
