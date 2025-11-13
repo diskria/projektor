@@ -14,6 +14,7 @@ import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.projektor.common.minecraft.MinecraftConstants
 import io.github.diskria.projektor.common.minecraft.era.Release
+import io.github.diskria.projektor.common.minecraft.era.common.MappingsType
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderFamily
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
 import io.github.diskria.projektor.common.minecraft.sides.ModEnvironment
@@ -24,16 +25,17 @@ import io.github.diskria.projektor.configurations.minecraft.MinecraftModConfigur
 import io.github.diskria.projektor.extensions.mappers.mapToEnum
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.extensions.mappers.toJvmTarget
-import io.github.diskria.projektor.minecraft.loaders.ModLoader
+import io.github.diskria.projektor.minecraft.loaders.AbstractModLoader
 import io.github.diskria.projektor.projekt.common.AbstractProjekt
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.ktor.http.*
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.*
 
 class MinecraftMod(
     projekt: Projekt,
     val config: MinecraftModConfiguration,
-    val loader: ModLoader,
+    val loader: AbstractModLoader,
     val supportedVersionRange: MinecraftVersionRange,
 ) : AbstractProjekt(projekt) {
 
@@ -57,12 +59,11 @@ class MinecraftMod(
             ModLoaderFamily.FORGE -> fileName("accesstransformer", "cfg")
         }
 
-    val accessorConfigParentPath: String =
-        if (loader.mapToEnum() == ModLoaderType.FORGE) "META-INF"
-        else assetsPath
-
-    val accessorConfigPath: String =
-        accessorConfigParentPath.appendPath(accessorConfigFileName)
+    val accessorConfigPath: String
+        get() {
+            val parentDirectory = if (ModLoaderType.FORGE == loader.mapToEnum()) "META-INF" else assetsPath
+            return parentDirectory.appendPath(accessorConfigFileName)
+        }
 
     val mixinsConfigFileName: String =
         fileName(id, "mixins", Constants.File.Extension.JSON)
@@ -106,6 +107,9 @@ class MinecraftMod(
     val developerUsername: String =
         repo.owner.developer + MinecraftConstants.DEVELOPER_USERNAME_SUFFIX
 
+    val developerOfflineUUID: UUID =
+        UUID.nameUUIDFromBytes("OfflinePlayer:$developerUsername".toByteArray(Charsets.UTF_8))
+
     override val isJavadocEnabled: Boolean = false
 
     override val isSourcesEnabled: Boolean = false
@@ -128,7 +132,7 @@ class MinecraftMod(
 
     override val archiveVersion: String
         get() = buildString {
-            append(loader.getLoaderName())
+            append(loader.mapToEnum().getName())
             append(Constants.Char.HYPHEN)
             append(version)
             append(Constants.Char.PLUS)
@@ -143,7 +147,10 @@ class MinecraftMod(
     fun getEntryPointName(side: ModSide): String =
         buildString {
             append(MinecraftConstants.FULL_GAME_NAME)
-            if (side == ModSide.CLIENT || config.environment == ModEnvironment.DEDICATED_SERVER) {
+            if (minecraftVersion.mappingsType != MappingsType.MERGED ||
+                side == ModSide.CLIENT ||
+                config.environment == ModEnvironment.DEDICATED_SERVER
+            ) {
                 append(side.getName(PascalCase))
             }
             append("Mod")

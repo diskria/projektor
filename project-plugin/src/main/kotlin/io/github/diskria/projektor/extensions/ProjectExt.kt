@@ -32,6 +32,12 @@ val Project.ornithe: PloceusGradleExtensionApi
         return getExtension<PloceusGradleExtensionApi>()
     }
 
+val Project.craftedSourcesDirectory
+    get() = getGeneratedSourcesDirectory().resolve("crafter")
+
+val Project.craftedResourcesDirectory
+    get() = getGeneratedResourcesDirectory().resolve("crafter")
+
 fun Project.configureShadowJar(
     projects: List<Project>,
     classifier: String? = null,
@@ -46,7 +52,7 @@ fun Project.configureShadowJar(
         shadowJar {
             configurations = emptyList()
             destination?.let { destinationDirectory = it }
-            copyArchiveNameParts(jar, classifier.orEmpty())
+            copyArchiveName(jar, classifier.orEmpty())
             projects.forEach {
                 val jarTask = it.tasks.jar
                 dependsOn(jarTask)

@@ -1,28 +1,31 @@
 package io.github.diskria.projektor.configurators
 
 import io.github.diskria.gradle.utils.extensions.*
+import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.kotlin.utils.extensions.ensureDirectoryExists
 import io.github.diskria.kotlin.utils.extensions.ensureFileExists
 import io.github.diskria.kotlin.utils.extensions.generics.addIfNotNull
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
-import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.projektor.common.ProjectDirectories
 import io.github.diskria.projektor.common.minecraft.era.common.MappingsType
+import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderFamily
 import io.github.diskria.projektor.common.minecraft.sides.ModEnvironment
 import io.github.diskria.projektor.common.minecraft.sides.ModSide
 import io.github.diskria.projektor.common.minecraft.versions.mappingsType
 import io.github.diskria.projektor.configurations.minecraft.MinecraftModConfiguration
 import io.github.diskria.projektor.configurators.common.ProjectConfigurator
-import io.github.diskria.projektor.extensions.ensureKotlinPluginsApplied
-import io.github.diskria.projektor.extensions.kotlinApply
-import io.github.diskria.projektor.extensions.toProjekt
-import io.github.diskria.projektor.helpers.AccessorConfigHelper
+import io.github.diskria.projektor.extensions.*
+import io.github.diskria.projektor.minecraft.helpers.AccessorConfigHelper
+import io.github.diskria.projektor.minecraft.helpers.server.EulaHelper
+import io.github.diskria.projektor.minecraft.helpers.server.ServerOperatorsHelper
+import io.github.diskria.projektor.minecraft.helpers.server.ServerPropertiesHelper
 import io.github.diskria.projektor.projekt.MinecraftMod
-import io.github.diskria.projektor.tasks.minecraft.generate.GenerateModEntryPointsTask
+import io.github.diskria.projektor.tasks.minecraft.ZipMultiSideMinecraftModTask
 import io.github.diskria.projektor.tasks.minecraft.test.TestClientModTask
 import io.github.diskria.projektor.tasks.minecraft.test.TestServerModTask
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.assign
-import org.gradle.kotlin.dsl.dependencies
+import org.gradle.api.tasks.TaskProvider
+import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.invoke
 
 open class MinecraftModConfigurator(
@@ -45,44 +48,33 @@ open class MinecraftModConfigurator(
             }
         }
         val modProject = project.rootProject
-        if (environment == ModEnvironment.CLIENT_SERVER) {
-            val clientProject = sideProjects.getValue(ModSide.CLIENT)
-            val serverProject = sideProjects.getValue(ModSide.SERVER)
-            with(clientProject) {
-                dependencies {
-                    compileOnly(serverProject)
-                }
-            }
-        }
-        val craftedResources = versionProject.getGeneratedResourcesDirectory().resolve("crafter")
-        val craftedSources = versionProject.getGeneratedSourcesDirectory().resolve("crafter")
-        val sideAccessorConfigs = sideProjects.mapValues { (_, sideProject) ->
+        val sideAccessorConfigFiles = sideProjects.mapValues { (_, sideProject) ->
             sideProject.sourceSets.main.resources.srcDirs.first().resolve(mod.accessorConfigFileName).ensureFileExists {
-                writeText(loader.getAccessorConfigTemplate())
-            }
-        }
-        if (isMergedMappings) {
-            val mergedAccessorConfigFile = craftedResources.resolve(mod.accessorConfigPath).ensureFileExists().apply {
-                writeText(AccessorConfigHelper.mergeConfigs(sideAccessorConfigs.values))
-            }
-            loader.configure(mod, modProject, versionProject, sideProjects, mergedAccessorConfigFile)
-        } else {
-            sideProjects.forEach { (side, sideProject) ->
-                loader.configure(
-                    mod,
-                    modProject,
-                    sideProject,
-                    mapOf(side to sideProject),
-                    sideAccessorConfigs.getValue(side)
-                )
+                writeText(loader.getAccessorConfigPreset())
             }
         }
         sideProjects.forEach { (side, sideProject) ->
-            val pluginProject = if (isMergedMappings) versionProject else sideProjects.getValue(side)
-            val pluginClasspath = pluginProject.sourceSets.main
-            sideProject.sourceSets.main.addToClasspath(pluginClasspath)
+            val runDirectory = sideProject.projectDirectory.resolve(mod.config.runDirectoryName).ensureDirectoryExists()
+            if (side == ModSide.SERVER) {
+                runDirectory.resolve(EulaHelper.FILE_NAME).ensureFileExists {
+                    writeText(EulaHelper.buildPreset(mod))
+                }
+                runDirectory.resolve(ServerPropertiesHelper.FILE_NAME).ensureFileExists {
+                    writeText(ServerPropertiesHelper.buildPreset(mod))
+                }
+                runDirectory.resolve(ServerOperatorsHelper.FILE_NAME).ensureFileExists {
+                    writeText(ServerOperatorsHelper.buildPreset(mod))
+                }
+            }
+        }
+        sideProjects.values.forEach { sideProject ->
+            val pluginProject = if (isMergedMappings) versionProject else sideProject
+            val pluginMainSourceSet = pluginProject.sourceSets.main
+            if (isMergedMappings) {
+                sideProject.sourceSets.main.addToClasspath(pluginMainSourceSet, withOutput = true)
+            }
             val mixins = sideProject.sourceSets.create(ProjectDirectories.MINECRAFT_MIXINS).apply {
-                addToClasspath(pluginClasspath)
+                addToClasspath(pluginMainSourceSet, withOutput = true)
             }
             with(sideProject) {
                 tasks {
@@ -91,6 +83,89 @@ open class MinecraftModConfigurator(
                     }
                 }
             }
+        }
+        if (isMergedMappings) {
+            val mergedAccessorConfigFile = versionProject.craftedResourcesDirectory.resolve(mod.accessorConfigPath)
+                .ensureFileExists().apply {
+                    writeText(AccessorConfigHelper.mergeConfigurations(sideAccessorConfigFiles.values))
+                }
+            loader.configure(mod, modProject, versionProject, sideProjects, mergedAccessorConfigFile)
+        } else {
+            val multiSideJarTasks = mutableListOf<TaskProvider<out Jar>>()
+            val libsDirectory = versionProject.getBuildDirectory("libs")
+            val isFabricFamily = mod.loader.family == ModLoaderFamily.FABRIC
+            sideProjects.forEach { (side, sideProject) ->
+                with(versionProject) {
+                    tasks {
+                        build {
+                            dependsOn(sideProject.tasks.build)
+                        }
+                    }
+                }
+                loader.configure(
+                    mod,
+                    modProject,
+                    sideProject,
+                    mapOf(side to sideProject),
+                    sideAccessorConfigFiles.getValue(side)
+                )
+                val sideJarTask = when {
+                    isFabricFamily -> sideProject.tasks.fabricRemapJar
+                    else -> sideProject.tasks.jar
+                }
+                with(sideProject) {
+                    tasks {
+                        val versionJarTask = versionProject.tasks.jar.get()
+                        jar {
+                            destinationDirectory.set(
+                                if (isFabricFamily) versionProject.getBuildDirectory("devlibs")
+                                else libsDirectory
+                            )
+                            val jarClassifier = buildString {
+                                append(side.getName())
+                                archiveClassifier.orNull?.let { append(Constants.Char.HYPHEN + it) }
+                            }
+                            copyArchiveName(versionJarTask, classifier = jarClassifier)
+                        }
+                        if (isFabricFamily) {
+                            sideJarTask {
+                                destinationDirectory.set(libsDirectory)
+                                copyArchiveName(versionJarTask, classifier = side.getName())
+                            }
+                        }
+                    }
+                }
+                if (environment == ModEnvironment.CLIENT_SERVER) {
+                    multiSideJarTasks.add(sideJarTask)
+                } else {
+                    with(versionProject) {
+                        val singleSideJar = sideJarTask.get()
+                        tasks {
+                            jar {
+                                copyArchiveName(singleSideJar)
+                                disable()
+                            }
+                        }
+                        artifacts {
+                            add("archives", singleSideJar.archiveFile) {
+                                builtBy(singleSideJar)
+                            }
+                        }
+                    }
+                }
+            }
+            if (multiSideJarTasks.isNotEmpty()) {
+                versionProject.registerTask<ZipMultiSideMinecraftModTask> {
+                    dependsOn(multiSideJarTasks)
+                    val sideJarTask = multiSideJarTasks.first().get()
+                    from(multiSideJarTasks.map { task -> task.map { jar -> jar.archiveFile.get().asFile } })
+                    destinationDirectory.set(sideJarTask.destinationDirectory)
+                    copyArchiveName(sideJarTask, classifier = null, extension = Constants.File.Extension.ZIP)
+                }
+            }
+        }
+        sideProjects.forEach { (side, sideProject) ->
+            val pluginProject = if (isMergedMappings) versionProject else sideProject
             when (side) {
                 ModSide.CLIENT -> versionProject.registerTask<TestClientModTask>()
                 ModSide.SERVER -> versionProject.registerTask<TestServerModTask>()
@@ -99,34 +174,10 @@ open class MinecraftModConfigurator(
                     buildList {
                         add(versionProject.tasks.build.get())
                         addAll(loader.getPrepareRunTasks(pluginProject, side))
-                        addIfNotNull(pluginProject.tasks.findByName("run" + side.getName(PascalCase)))
+                        addIfNotNull(pluginProject.getTaskOrNull(side.getRunTaskName()))
                     }
                 )
             }
-        }
-        val generateModEntryPointsTask = versionProject.registerTask<GenerateModEntryPointsTask> {
-            minecraftMod = mod
-            modSides = sides
-            outputDirectory = craftedSources
-        }
-        versionProject.sourceSets.main.apply {
-            val mergedSourceSetsDirectory = versionProject.getBuildDirectory("sources+resources")
-            val sideSourceSets = sideProjects.flatMap { it.value.sourceSets }
-            java {
-                srcDirs(
-                    generateModEntryPointsTask.map { it.outputDirectory },
-                    sideSourceSets.flatMap { it.java.srcDirs },
-                )
-                destinationDirectory = mergedSourceSetsDirectory
-            }
-            resources {
-                exclude(mod.accessorConfigFileName)
-                srcDirs(
-                    craftedResources,
-                    sideSourceSets.flatMap { it.resources.srcDirs },
-                )
-            }
-            output.setResourcesDir(mergedSourceSetsDirectory)
         }
     }
 }

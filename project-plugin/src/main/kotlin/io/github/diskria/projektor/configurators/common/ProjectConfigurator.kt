@@ -21,6 +21,7 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.*
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
 
@@ -75,6 +76,12 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
         }
         tasks {
             configureJvmTarget(projekt.jvmTarget)
+            withType<KotlinCompile>().configureEach {
+                @Suppress("MISSING_DEPENDENCY_SUPERCLASS_IN_TYPE_ARGUMENT")
+                compilerOptions {
+                    freeCompilerArgs.addAll("-module-name", project.name)
+                }
+            }
             withType<JavaCompile>().configureEach {
                 options.encoding = Charsets.UTF_8.toString()
             }

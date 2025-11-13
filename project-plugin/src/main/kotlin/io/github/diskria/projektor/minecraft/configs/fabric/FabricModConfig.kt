@@ -2,6 +2,7 @@ package io.github.diskria.projektor.minecraft.configs.fabric
 
 import io.github.diskria.kotlin.utils.serialization.annotations.EncodeDefaults
 import io.github.diskria.kotlin.utils.serialization.annotations.PrettyPrint
+import io.github.diskria.projektor.common.minecraft.sides.ModSide
 import io.github.diskria.projektor.projekt.MinecraftMod
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -32,7 +33,7 @@ class FabricModConfig private constructor(
     val mixinsConfigPath: List<String>,
 
     @SerialName("accessWidener")
-    val accessWidenerPath: String,
+    val accessorConfigPath: String,
 
     @SerialName("contact")
     val links: FabricModLinksConfig,
@@ -44,7 +45,7 @@ class FabricModConfig private constructor(
     val dependencies: FabricModDependenciesConfig,
 ) {
     companion object {
-        fun of(mod: MinecraftMod): FabricModConfig =
+        fun of(mod: MinecraftMod, singleSide: ModSide?): FabricModConfig =
             FabricModConfig(
                 schemaVersion = 1,
                 id = mod.id,
@@ -55,10 +56,10 @@ class FabricModConfig private constructor(
                 licenseId = mod.license.id,
                 iconPath = mod.iconPath,
                 environment = mod.configEnvironment,
-                accessWidenerPath = mod.accessorConfigPath,
+                accessorConfigPath = mod.accessorConfigPath,
                 mixinsConfigPath = listOf(mod.mixinsConfigPath),
                 links = FabricModLinksConfig.of(mod),
-                entryPoints = FabricModEntryPointsConfig.of(mod),
+                entryPoints = FabricModEntryPointsConfig.of(mod, singleSide),
                 dependencies = FabricModDependenciesConfig.of(mod),
             )
     }

@@ -25,7 +25,7 @@ abstract class GenerateModMixinsConfigTask : DefaultTask() {
     abstract val minecraftMod: Property<MinecraftMod>
 
     @get:Internal
-    abstract val sideMixinSourceSetDirectories: MapProperty<ModSide, File>
+    abstract val sideSourceSetDirectories: MapProperty<ModSide, File>
 
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
@@ -37,9 +37,9 @@ abstract class GenerateModMixinsConfigTask : DefaultTask() {
     @TaskAction
     fun generate() {
         val minecraftMod = minecraftMod.get()
-        val sideMixinSourceSetDirectories = sideMixinSourceSetDirectories.get()
+        val sideSourceSetDirectories = sideSourceSetDirectories.get()
 
-        val sideMixins = sideMixinSourceSetDirectories.mapValues {
+        val sideMixins = sideSourceSetDirectories.mapValues {
             val mixinsRoot = it.value.resolve(minecraftMod.packagePath).resolve(ProjectDirectories.MINECRAFT_MIXINS)
             mixinsRoot
                 .walkDirectories()

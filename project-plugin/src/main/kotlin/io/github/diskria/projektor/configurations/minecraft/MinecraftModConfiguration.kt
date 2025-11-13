@@ -10,14 +10,14 @@ import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricLo
 import io.github.diskria.projektor.common.minecraft.sync.loaders.fabric.FabricYarnMappingsSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.loaders.forge.ForgeLoaderSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.loaders.legacy_fabric.LegacyFabricYarnMappingsSynchronizer
-import io.github.diskria.projektor.common.minecraft.sync.loaders.neoforge.NeoforgeLoaderSynchronizer
+import io.github.diskria.projektor.common.minecraft.sync.loaders.neoforge.NeoForgeLoaderSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.loaders.ornithe.OrnitheFeatherMappingsSynchronizer
 import io.github.diskria.projektor.common.minecraft.sync.parchment.ParchmentSynchronizer
 import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
 import io.github.diskria.projektor.common.minecraft.versions.asString
 import io.github.diskria.projektor.common.minecraft.versions.mappingsType
 import io.github.diskria.projektor.extensions.mappers.mapToEnum
-import io.github.diskria.projektor.minecraft.loaders.ModLoader
+import io.github.diskria.projektor.minecraft.loaders.AbstractModLoader
 import org.gradle.api.Project
 
 open class MinecraftModConfiguration {
@@ -35,12 +35,12 @@ open class MinecraftModConfiguration {
         get() = forgeConfig ?: gradleError("Forge loader not configured")
 
     internal val neoforge: MinecraftVersionsConfig
-        get() = neoforgeConfig ?: gradleError("Neoforge loader not configured")
+        get() = neoforgeConfig ?: gradleError("NeoForge loader not configured")
 
     var environment: ModEnvironment = ModEnvironment.CLIENT_SERVER
     var maxSupportedVersion: MinecraftVersion? = null
     var javaVersion: Int? = null
-    var runDirectory: String = ProjectDirectories.MINECRAFT_RUN
+    var runDirectoryName: String = ProjectDirectories.MINECRAFT_RUN
 
     private var fabricConfig: MinecraftVersionsConfig? = null
     private var legacyFabricConfig: MinecraftVersionsConfig? = null
@@ -77,7 +77,7 @@ open class MinecraftModConfiguration {
             NEOFORGE -> neoforge
         }
 
-    internal fun resolveConfig(modLoader: ModLoader, project: Project, minSupportedVersion: MinecraftVersion) {
+    internal fun resolveConfig(modLoader: AbstractModLoader, project: Project, minSupportedVersion: MinecraftVersion) {
         when (modLoader.mapToEnum()) {
             FABRIC -> {
                 val userConfig = fabricConfig ?: MinecraftVersionsConfig()
@@ -148,7 +148,7 @@ open class MinecraftModConfiguration {
                 val userConfig = neoforgeConfig ?: MinecraftVersionsConfig()
                 neoforgeConfig = MinecraftVersionsConfig().apply {
                     loader = userConfig.loader.ifEmpty {
-                        NeoforgeLoaderSynchronizer.getLatestVersion(project, minSupportedVersion)
+                        NeoForgeLoaderSynchronizer.getLatestVersion(project, minSupportedVersion)
                     }
                     mappings = userConfig.mappings.ifEmpty {
                         ParchmentSynchronizer.getLatestVersion(project, minSupportedVersion)
@@ -156,7 +156,7 @@ open class MinecraftModConfiguration {
                     minecraft = userConfig.minecraft
                         ?: ParchmentSynchronizer.getLatestComponent(project, minSupportedVersion)
                             .minecraftVersion.asString()
-                    project.log("[Crafter] Neoforge Loader: $loader")
+                    project.log("[Crafter] NeoForge Loader: $loader")
                     project.log("[Crafter] Parchment Mappings: $mappings")
                 }
             }

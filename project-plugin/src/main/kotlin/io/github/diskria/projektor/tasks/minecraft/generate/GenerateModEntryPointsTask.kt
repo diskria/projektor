@@ -8,6 +8,7 @@ import io.github.diskria.kotlin.utils.extensions.common.failWithUnsupportedType
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.projektor.ProjektorGradlePlugin
+import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderFamily
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
 import io.github.diskria.projektor.common.minecraft.sides.ModEnvironment
 import io.github.diskria.projektor.common.minecraft.sides.ModSide
@@ -27,7 +28,7 @@ abstract class GenerateModEntryPointsTask : DefaultTask() {
     abstract val minecraftMod: Property<MinecraftMod>
 
     @get:Internal
-    abstract val modSides: SetProperty<ModSide>
+    abstract val sides: SetProperty<ModSide>
 
     @get:Internal
     abstract val outputDirectory: DirectoryProperty
@@ -38,13 +39,13 @@ abstract class GenerateModEntryPointsTask : DefaultTask() {
 
     @TaskAction
     fun generate() {
-        val mod = minecraftMod.get()
-        val modSides = modSides.get()
+        val minecraftMod = minecraftMod.get()
+        val sides = sides.get()
         val outputDirectory = outputDirectory.get().asFile
 
-        modSides.forEach { side ->
-            val entryPointClass = buildSideEntryPointClass(mod, side)
-            val packageName = mod.packageName.appendPackageName(side.getName())
+        sides.forEach { side ->
+            val entryPointClass = buildSideEntryPointClass(minecraftMod, side)
+            val packageName = minecraftMod.packageName.appendPackageName(side.getName())
             val javaFile = JavaFile.builder(packageName, entryPointClass).build()
             javaFile.writeTo(outputDirectory)
         }
@@ -54,7 +55,7 @@ abstract class GenerateModEntryPointsTask : DefaultTask() {
     private fun buildSideEntryPointClass(mod: MinecraftMod, side: ModSide): TypeSpec {
         val environment = mod.config.environment
         val environmentSide = when {
-            side == ModSide.CLIENT -> side
+            side == ModSide.CLIENT -> ModSide.CLIENT
             environment == ModEnvironment.DEDICATED_SERVER -> ModSide.SERVER
             else -> null
         }
@@ -62,8 +63,9 @@ abstract class GenerateModEntryPointsTask : DefaultTask() {
         val builder = TypeSpec.classBuilder(className).apply {
             addModifiers(Modifier.PUBLIC)
         }
-        return when (val loader = mod.loader.mapToEnum()) {
-            ModLoaderType.FABRIC, ModLoaderType.LEGACY_FABRIC -> {
+        val type = mod.loader.mapToEnum()
+        return when (mod.loader.family) {
+            ModLoaderFamily.FABRIC -> {
                 val initializerPrefix = when (environmentSide) {
                     ModSide.CLIENT -> environmentSide.getName(PascalCase)
                     ModSide.SERVER -> environment.getName(PascalCase)
@@ -84,20 +86,16 @@ abstract class GenerateModEntryPointsTask : DefaultTask() {
                     .build()
             }
 
-            ModLoaderType.ORNITHE -> {
-                builder.build()
-            }
-
-            else -> {
-                val modAnnotationPackageName = when (loader) {
+            ModLoaderFamily.FORGE -> {
+                val modAnnotationPackageName = when (type) {
                     ModLoaderType.FORGE -> "net.minecraftforge.fml.common"
                     ModLoaderType.NEOFORGE -> "net.neoforged.fml.common"
-                    else -> failWithUnsupportedType(loader::class)
+                    else -> failWithUnsupportedType(type::class)
                 }
                 val modAnnotation = AnnotationSpec.builder(ClassName.get(modAnnotationPackageName, "Mod")).run {
                     addMember("value", "\$S", mod.id)
 
-                    if (loader == ModLoaderType.NEOFORGE) {
+                    if (type == ModLoaderType.NEOFORGE) {
                         val distEnumName = when (environmentSide) {
                             ModSide.CLIENT -> environmentSide.getName(SCREAMING_SNAKE_CASE)
                             ModSide.SERVER -> environment.getName(SCREAMING_SNAKE_CASE)

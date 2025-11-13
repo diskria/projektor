@@ -21,8 +21,8 @@ kotlin-serialization-xml = "0.90.1"
 ktor = "3.0.0"
 kotlin-html = "0.12.0"
 
-kotlin-utils = "0.8.3"
-gradle-utils = "0.8.6"
+kotlin-utils = "0.8.4"
+gradle-utils = "0.8.9"
 kotlin-shell-dsl = "0.8.2"
 
 java-poet = "0.7.0"

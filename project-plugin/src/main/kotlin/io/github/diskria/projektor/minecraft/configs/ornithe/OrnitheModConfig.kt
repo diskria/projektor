@@ -2,6 +2,7 @@ package io.github.diskria.projektor.minecraft.configs.ornithe
 
 import io.github.diskria.kotlin.utils.serialization.annotations.EncodeDefaults
 import io.github.diskria.kotlin.utils.serialization.annotations.PrettyPrint
+import io.github.diskria.projektor.common.minecraft.sides.ModSide
 import io.github.diskria.projektor.projekt.MinecraftMod
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -32,7 +33,7 @@ class OrnitheModConfig private constructor(
     val mixinsConfigPath: List<String>,
 
     @SerialName("accessWidener")
-    val accessWidenerPath: String,
+    val accessorConfigPath: String,
 
     @SerialName("contact")
     val links: OrnitheModLinksConfig,
@@ -44,7 +45,7 @@ class OrnitheModConfig private constructor(
     val dependencies: OrnitheModDependenciesConfig,
 ) {
     companion object {
-        fun of(mod: MinecraftMod): OrnitheModConfig =
+        fun of(mod: MinecraftMod, singleSide: ModSide?): OrnitheModConfig =
             OrnitheModConfig(
                 schemaVersion = 1,
                 id = mod.id,
@@ -55,10 +56,10 @@ class OrnitheModConfig private constructor(
                 licenseId = mod.license.id,
                 iconPath = mod.iconPath,
                 environment = mod.configEnvironment,
-                accessWidenerPath = mod.accessorConfigPath,
+                accessorConfigPath = mod.accessorConfigPath,
                 mixinsConfigPath = listOf(mod.mixinsConfigPath),
                 links = OrnitheModLinksConfig.of(mod),
-                entryPoints = OrnitheModEntryPointsConfig.of(mod),
+                entryPoints = OrnitheModEntryPointsConfig.of(mod, singleSide),
                 dependencies = OrnitheModDependenciesConfig.of(mod),
             )
     }

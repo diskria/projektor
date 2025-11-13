@@ -1,13 +1,19 @@
 package io.github.diskria.projektor.extensions
 
 import io.github.diskria.projektor.extensions.mappers.toInt
+import net.fabricmc.loom.task.RemapJarTask
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskContainer
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.kotlin.dsl.assign
+import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+val TaskContainer.fabricRemapJar: TaskProvider<RemapJarTask>
+    get() = named<RemapJarTask>("remapJar")
 
 fun TaskContainer.configureJvmTarget(target: JvmTarget) {
     withType<JavaCompile>().configureEach {

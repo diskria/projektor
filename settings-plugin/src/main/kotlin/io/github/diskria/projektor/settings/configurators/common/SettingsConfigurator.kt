@@ -43,6 +43,7 @@ abstract class SettingsConfigurator : IProjektConfigurator {
 
         if (rootDirectory.resolve(GradleProjects.Common.NAME).exists()) {
             include(GradleProjects.Common.PATH)
+            project(GradleProjects.Common.PATH).name = GradleProjects.Common.NAME
         }
     }
 }

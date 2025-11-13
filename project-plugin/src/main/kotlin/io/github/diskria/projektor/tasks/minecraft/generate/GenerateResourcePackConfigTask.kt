@@ -8,6 +8,7 @@ import io.github.diskria.projektor.projekt.MinecraftMod
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
@@ -17,14 +18,11 @@ abstract class GenerateResourcePackConfigTask : DefaultTask() {
     @get:Internal
     abstract val minecraftMod: Property<MinecraftMod>
 
+    @get:Input
+    abstract val format: Property<String>
+
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
-
-    @get:Internal
-    abstract val minFormat: Property<String>
-
-    @get:Internal
-    abstract val maxFormat: Property<String>
 
     init {
         group = ProjektorGradlePlugin.TASK_GROUP
@@ -33,11 +31,10 @@ abstract class GenerateResourcePackConfigTask : DefaultTask() {
     @TaskAction
     fun generate() {
         val minecraftMod = minecraftMod.get()
-        val minFormat = minFormat.get()
-        val maxFormat = maxFormat.get()
+        val format = format.get()
         val outputFile = outputFile.get().asFile
 
-        val config = ResourcePackConfig.of(minecraftMod, minFormat, maxFormat)
+        val config = ResourcePackConfig.of(minecraftMod, format)
         config.serializeJsonToFile(outputFile.ensureFileExists())
     }
 }

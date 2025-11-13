@@ -3,28 +3,28 @@ package io.github.diskria.projektor.extensions.mappers
 import io.github.diskria.kotlin.utils.extensions.common.failWithUnsupportedType
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType.*
-import io.github.diskria.projektor.minecraft.loaders.ModLoader
-import io.github.diskria.projektor.minecraft.loaders.fabric.Fabric
-import io.github.diskria.projektor.minecraft.loaders.fabric.LegacyFabric
-import io.github.diskria.projektor.minecraft.loaders.fabric.Ornithe
-import io.github.diskria.projektor.minecraft.loaders.forge.Forge
-import io.github.diskria.projektor.minecraft.loaders.forge.Neoforge
+import io.github.diskria.projektor.minecraft.loaders.AbstractModLoader
+import io.github.diskria.projektor.minecraft.loaders.fabric.FabricModLoader
+import io.github.diskria.projektor.minecraft.loaders.fabric.LegacyFabricModLoader
+import io.github.diskria.projektor.minecraft.loaders.fabric.OrnitheModLoader
+import io.github.diskria.projektor.minecraft.loaders.forge.ForgeModLoader
+import io.github.diskria.projektor.minecraft.loaders.forge.NeoForgeModLoader
 
-fun ModLoaderType.mapToModel(): ModLoader =
+fun ModLoaderType.mapToModel(): AbstractModLoader =
     when (this) {
-        FABRIC -> Fabric
-        LEGACY_FABRIC -> LegacyFabric
-        ORNITHE -> Ornithe
-        FORGE -> Forge
-        NEOFORGE -> Neoforge
+        FABRIC -> FabricModLoader
+        LEGACY_FABRIC -> LegacyFabricModLoader
+        ORNITHE -> OrnitheModLoader
+        FORGE -> ForgeModLoader
+        NEOFORGE -> NeoForgeModLoader
     }
 
-fun ModLoader.mapToEnum(): ModLoaderType =
+fun AbstractModLoader.mapToEnum(): ModLoaderType =
     when (this) {
-        Fabric -> FABRIC
-        LegacyFabric -> LEGACY_FABRIC
-        Ornithe -> ORNITHE
-        Forge -> FORGE
-        Neoforge -> NEOFORGE
+        FabricModLoader -> FABRIC
+        LegacyFabricModLoader -> LEGACY_FABRIC
+        OrnitheModLoader -> ORNITHE
+        ForgeModLoader -> FORGE
+        NeoForgeModLoader -> NEOFORGE
         else -> failWithUnsupportedType(this::class)
     }

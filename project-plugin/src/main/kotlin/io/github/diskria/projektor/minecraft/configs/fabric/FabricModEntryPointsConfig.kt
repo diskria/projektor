@@ -21,25 +21,31 @@ class FabricModEntryPointsConfig private constructor(
     val serverEntryPoints: List<String>? = null,
 ) {
     companion object {
-        fun of(mod: MinecraftMod): FabricModEntryPointsConfig {
-            val clientPackageName = mod.packageName.appendPackageName(ModSide.CLIENT.getName())
-            val serverPackageName = mod.packageName.appendPackageName(ModSide.SERVER.getName())
-            val clientEntryPoint = clientPackageName.appendPackageName(mod.getEntryPointName(ModSide.CLIENT))
-            val serverEntryPoint = serverPackageName.appendPackageName(mod.getEntryPointName(ModSide.SERVER))
-            return when (mod.config.environment) {
-                ModEnvironment.CLIENT_SERVER -> FabricModEntryPointsConfig(
-                    mainEntryPoints = listOf(serverEntryPoint),
-                    clientEntryPoints = listOf(clientEntryPoint),
-                )
+        fun of(mod: MinecraftMod, side: ModSide?): FabricModEntryPointsConfig {
+            val clientEntryPoints = FabricModEntryPointsConfig(
+                clientEntryPoints = listOf(buildPackageName(mod, ModSide.CLIENT))
+            )
+            val serverEntryPoints = FabricModEntryPointsConfig(
+                serverEntryPoints = listOf(buildPackageName(mod, ModSide.SERVER))
+            )
+            return when (side) {
+                ModSide.CLIENT -> clientEntryPoints
+                ModSide.SERVER -> serverEntryPoints
+                null -> when (mod.config.environment) {
+                    ModEnvironment.CLIENT_SERVER -> FabricModEntryPointsConfig(
+                        mainEntryPoints = listOf(buildPackageName(mod, ModSide.SERVER)),
+                        clientEntryPoints = listOf(buildPackageName(mod, ModSide.CLIENT)),
+                    )
 
-                ModEnvironment.CLIENT -> FabricModEntryPointsConfig(
-                    clientEntryPoints = listOf(clientEntryPoint),
-                )
-
-                ModEnvironment.DEDICATED_SERVER -> FabricModEntryPointsConfig(
-                    serverEntryPoints = listOf(serverEntryPoint),
-                )
+                    ModEnvironment.CLIENT -> clientEntryPoints
+                    ModEnvironment.DEDICATED_SERVER -> serverEntryPoints
+                }
             }
         }
+
+        private fun buildPackageName(mod: MinecraftMod, side: ModSide): String =
+            mod.packageName
+                .appendPackageName(side.getName())
+                .appendPackageName(mod.getEntryPointName(side))
     }
 }

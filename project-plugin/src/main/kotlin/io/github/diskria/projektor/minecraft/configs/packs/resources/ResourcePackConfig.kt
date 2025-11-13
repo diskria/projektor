@@ -11,9 +11,9 @@ data class ResourcePackConfig(
     val pack: PackConfig,
 ) {
     companion object {
-        fun of(mod: MinecraftMod, minFormat: String, maxFormat: String): ResourcePackConfig =
+        fun of(mod: MinecraftMod, format: String): ResourcePackConfig =
             ResourcePackConfig(
-                pack = PackConfig.of(mod, minFormat, maxFormat)
+                pack = PackConfig.of(mod, format)
             )
     }
 }

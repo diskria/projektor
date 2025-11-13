@@ -17,3 +17,7 @@ fun AbstractCopyTask.copyFile(file: File, destinationPath: String? = null) {
         destinationPath?.let { into(it) }
     }
 }
+
+fun AbstractCopyTask.moveFile(source: String, target: String) {
+    rename(source, target)
+}

@@ -87,31 +87,31 @@ open class MinecraftModConfigurator(
                     url = buildUrl("maven.parchmentmc.org")
                 )
                 configureMaven(
-                    name = ModLoaderType.FABRIC.getName(PascalCase),
+                    name = ModLoaderType.FABRIC.displayName,
                     url = buildUrl("maven.fabricmc.net")
                 )
                 configureMaven(
-                    name = ModLoaderType.LEGACY_FABRIC.getName(PascalCase),
+                    name = ModLoaderType.LEGACY_FABRIC.displayName,
                     url = buildUrl("maven.legacyfabric.net")
                 )
                 configureMaven(
-                    name = ModLoaderType.ORNITHE.getName(PascalCase) + "Releases",
+                    name = ModLoaderType.ORNITHE.displayName + "Releases",
                     url = buildUrl("maven.ornithemc.net") {
                         path("releases")
                     }
                 )
                 configureMaven(
-                    name = ModLoaderType.ORNITHE.getName(PascalCase) + "Snapshots",
+                    name = ModLoaderType.ORNITHE.displayName + "Snapshots",
                     url = buildUrl("maven.ornithemc.net") {
                         path("snapshots")
                     }
                 )
                 configureMaven(
-                    name = ModLoaderType.FORGE.getName(PascalCase),
+                    name = ModLoaderType.FORGE.displayName,
                     url = buildUrl("maven.minecraftforge.net")
                 )
                 configureMaven(
-                    name = ModLoaderType.NEOFORGE.getName(PascalCase),
+                    name = ModLoaderType.NEOFORGE.displayName,
                     url = buildUrl("maven.neoforged.net") {
                         path("releases")
                     }
