@@ -1,0 +1,183 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.github.diskria",
+    "module": "projektor-settings-plugin",
+    "version": "4.7.2",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.14.3"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 21,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "projektor-settings-plugin-4.7.2.jar",
+          "url": "projektor-settings-plugin-4.7.2.jar",
+          "size": 363425,
+          "sha512": "37e1ee4a77cc9f9c35963d9628fd051443a32e315bde5c1ed655c52b252a2075ab2b40d378a9221690387c683a7f6ed206321b1d041058ca7fe0c9f223129931",
+          "sha256": "335796dbfb097eca78384f563cef49904d84a676fa7bf2e3f325f926d822602c",
+          "sha1": "13525c2b62ff9e14044f5475ab803cbfd65cc8a8",
+          "md5": "6f7f606660584d106a6255945a1b3349"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 21,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "io.github.diskria",
+          "module": "kotlin-utils",
+          "version": {
+            "requires": "0.8.4"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "gradle-utils",
+          "version": {
+            "requires": "0.8.11"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "kotlin-shell-dsl",
+          "version": {
+            "requires": "0.8.2"
+          }
+        },
+        {
+          "group": "io.ktor",
+          "module": "ktor-client-core",
+          "version": {
+            "requires": "3.0.0"
+          }
+        },
+        {
+          "group": "io.ktor",
+          "module": "ktor-client-cio",
+          "version": {
+            "requires": "3.0.0"
+          }
+        },
+        {
+          "group": "org.gradle.toolchains.foojay-resolver-convention",
+          "module": "org.gradle.toolchains.foojay-resolver-convention.gradle.plugin",
+          "version": {
+            "requires": "1.0.0"
+          }
+        },
+        {
+          "group": "com.gradle.develocity",
+          "module": "com.gradle.develocity.gradle.plugin",
+          "version": {
+            "requires": "4.2.2"
+          }
+        },
+        {
+          "group": "org.jsoup",
+          "module": "jsoup",
+          "version": {
+            "requires": "1.21.2"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "projektor-settings-plugin-4.7.2.jar",
+          "url": "projektor-settings-plugin-4.7.2.jar",
+          "size": 363425,
+          "sha512": "37e1ee4a77cc9f9c35963d9628fd051443a32e315bde5c1ed655c52b252a2075ab2b40d378a9221690387c683a7f6ed206321b1d041058ca7fe0c9f223129931",
+          "sha256": "335796dbfb097eca78384f563cef49904d84a676fa7bf2e3f325f926d822602c",
+          "sha1": "13525c2b62ff9e14044f5475ab803cbfd65cc8a8",
+          "md5": "6f7f606660584d106a6255945a1b3349"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "projektor-settings-plugin-4.7.2-sources.jar",
+          "url": "projektor-settings-plugin-4.7.2-sources.jar",
+          "size": 12851,
+          "sha512": "be6b66a2bd2f9e1f9c18aa92d4f6cc92b794962c796147c21b7823f416eae2190602a1d9231664e94e7fba71ab76e3c1c92e0c882d807558b7656c193415ac52",
+          "sha256": "037a7bd54dae9af502fdf876ae64b524668a58024c1a1f5c8c1a83cec24fead3",
+          "sha1": "e52fc89cf49de4e04f1501aa2a908429488f82cc",
+          "md5": "da92de5ab98e35e401297346065385e3"
+        }
+      ]
+    },
+    {
+      "name": "javadocElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "javadoc",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "projektor-settings-plugin-4.7.2-javadoc.jar",
+          "url": "projektor-settings-plugin-4.7.2-javadoc.jar",
+          "size": 261,
+          "sha512": "6ca8522108f826930e477c468f717a1638f2b7d05a98f0846793c5197b1493a2775b4d289b91cdbb8462c60efe63a72ced1d2603769ba30db5cc0c88563a3fe7",
+          "sha256": "7b0a2482ecca35581b57b98f3f8b980b0d51110bb6a7956f1c7cc82f7d274e1c",
+          "sha1": "36189fd13fbdca6d72f887482f6988d54ffc0f18",
+          "md5": "4439723f9e6495ff3f116980cbf0e3d7"
+        }
+      ]
+    },
+    {
+      "name": "shadowRuntimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "shadowed",
+        "org.gradle.jvm.version": 21,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "projektor-settings-plugin-4.7.2.jar",
+          "url": "projektor-settings-plugin-4.7.2.jar",
+          "size": 363425,
+          "sha512": "37e1ee4a77cc9f9c35963d9628fd051443a32e315bde5c1ed655c52b252a2075ab2b40d378a9221690387c683a7f6ed206321b1d041058ca7fe0c9f223129931",
+          "sha256": "335796dbfb097eca78384f563cef49904d84a676fa7bf2e3f325f926d822602c",
+          "sha1": "13525c2b62ff9e14044f5475ab803cbfd65cc8a8",
+          "md5": "6f7f606660584d106a6255945a1b3349"
+        }
+      ]
+    }
+  ]
+}
