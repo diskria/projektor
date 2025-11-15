@@ -36,7 +36,7 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                 if (projekt is GradlePlugin || projekt is KotlinLibrary) {
                     with(project) {
                         dependencies {
-                            compileOnly(commonProject)
+                            add("compileOnly", commonProject)
                         }
                         configureShadowJar(listOf(commonProject))
                     }

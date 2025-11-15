@@ -43,7 +43,7 @@ abstract class AbstractModLoader {
         val isMergedMappings = mod.minecraftVersion.mappingsType == MappingsType.MERGED
         modProject.findCommonProject()?.let { commonProject ->
             dependencies {
-                compileOnly(commonProject)
+                add("compileOnly", commonProject)
             }
             tasks {
                 jar {
