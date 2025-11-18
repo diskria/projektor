@@ -26,6 +26,7 @@ import io.github.diskria.projektor.tasks.minecraft.test.TestServerModTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.jvm.tasks.Jar
+import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.invoke
 
 open class MinecraftModConfigurator(
@@ -117,10 +118,10 @@ open class MinecraftModConfigurator(
                     tasks {
                         val versionJarTask = versionProject.tasks.jar.get()
                         jar {
-                            destinationDirectory.set(
-                                if (isFabricFamily) versionProject.getBuildDirectory("devlibs")
-                                else libsDirectory
-                            )
+                            destinationDirectory = when {
+                                isFabricFamily -> versionProject.getBuildDirectory("devlibs")
+                                else -> libsDirectory
+                            }
                             val jarClassifier = buildString {
                                 append(side.getName())
                                 archiveClassifier.orNull?.let { append(Constants.Char.HYPHEN + it) }
@@ -129,7 +130,7 @@ open class MinecraftModConfigurator(
                         }
                         if (isFabricFamily) {
                             sideJarTask {
-                                destinationDirectory.set(libsDirectory)
+                                destinationDirectory = libsDirectory
                                 copyArchiveName(versionJarTask, classifier = side.getName())
                             }
                         }
@@ -159,7 +160,7 @@ open class MinecraftModConfigurator(
                     dependsOn(multiSideJarTasks)
                     val sideJarTask = multiSideJarTasks.first().get()
                     from(multiSideJarTasks.map { task -> task.map { jar -> jar.archiveFile.get().asFile } })
-                    destinationDirectory.set(sideJarTask.destinationDirectory)
+                    destinationDirectory = sideJarTask.destinationDirectory
                     copyArchiveName(sideJarTask, classifier = null, extension = Constants.File.Extension.ZIP)
                 }
             }

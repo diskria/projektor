@@ -15,6 +15,7 @@ import io.ktor.http.*
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.get
 
 object MavenCentral : MavenPublishingTarget() {
@@ -30,30 +31,30 @@ object MavenCentral : MavenPublishingTarget() {
         with(publication) {
             from(components[componentName])
             pom {
-                name.set(projekt.name)
-                description.set(projekt.description)
-                url.set(projekt.repo.getUrl())
+                name = projekt.name
+                description = projekt.description
+                url = projekt.repo.getUrl()
                 licenses {
                     license {
                         projekt.license.let { license ->
-                            name.set(license.id)
-                            url.set(license.url.toString())
+                            name = license.id
+                            url = license.url.toString()
                         }
                     }
                 }
                 developers {
                     developer {
                         projekt.repo.owner.developer.let { developer ->
-                            id.set(developer)
-                            name.set(developer)
+                            id = developer
+                            name = developer
                         }
-                        email.set(projekt.repo.owner.email)
+                        email = projekt.repo.owner.email
                     }
                 }
                 scm {
-                    url.set(projekt.repo.getUrl())
-                    connection.set(projekt.repo.getScmConnectionUrl())
-                    developerConnection.set(projekt.repo.getScmDeveloperConnectionUrl())
+                    url = projekt.repo.getUrl()
+                    connection = projekt.repo.getScmConnectionUrl()
+                    developerConnection = projekt.repo.getScmDeveloperConnectionUrl()
                 }
             }
         }

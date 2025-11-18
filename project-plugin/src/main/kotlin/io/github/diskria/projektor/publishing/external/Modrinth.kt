@@ -18,6 +18,7 @@ import io.github.diskria.projektor.readme.shields.live.ModrinthShield
 import io.github.diskria.projektor.tasks.minecraft.ZipMultiSideMinecraftModTask
 import io.ktor.http.*
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.assign
 
 object Modrinth : ExternalPublishingTarget() {
 
@@ -32,29 +33,28 @@ object Modrinth : ExternalPublishingTarget() {
         val maxSupportedVersion = mod.maxSupportedVersion.asString()
         modrinth {
             val isDebugModeEnabled = !EnvironmentHelper.isCI()
-            token.set(
-                if (isDebugModeEnabled) Constants.Char.EMPTY
-                else SecretsHelper.modrinthToken
-            )
-            debugMode.set(isDebugModeEnabled)
-            uploadFile.set(getTaskOrNull<ZipMultiSideMinecraftModTask>() ?: tasks.jar)
+            token = when {
+                isDebugModeEnabled -> Constants.Char.EMPTY
+                else -> SecretsHelper.modrinthToken
+            }
 
-            projectId.set(mod.repo.name)
-            versionName.set(
-                buildString {
-                    append("${mod.name} ${mod.version} for $loaderName ")
-                    if (minSupportedVersion != maxSupportedVersion) {
-                        append("$minSupportedVersion ${Constants.Char.EN_DASH} ")
-                    }
-                    append(maxSupportedVersion)
+            debugMode = isDebugModeEnabled
+            uploadFile = getTaskOrNull<ZipMultiSideMinecraftModTask>() ?: tasks.jar
+
+            projectId = mod.repo.name
+            versionName = buildString {
+                append("${mod.name} ${mod.version} for $loaderName ")
+                if (minSupportedVersion != maxSupportedVersion) {
+                    append("$minSupportedVersion ${Constants.Char.EN_DASH} ")
                 }
-            )
-            versionNumber.set(mod.archiveVersion)
-            gameVersions.set(mod.supportedVersionRange.expand().map { it.asString() })
-            loaders.set(listOf(loaderName))
+                append(maxSupportedVersion)
+            }
+            versionNumber = mod.archiveVersion
+            gameVersions = mod.supportedVersionRange.expand().map { it.asString() }
+            loaders = listOf(loaderName)
 
-            detectLoaders.set(false)
-            changelog.set(Constants.Char.EMPTY)
+            detectLoaders = false
+            changelog = Constants.Char.EMPTY
         }
         return true
     }

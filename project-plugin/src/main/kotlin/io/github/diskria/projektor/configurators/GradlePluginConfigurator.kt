@@ -7,6 +7,7 @@ import io.github.diskria.projektor.extensions.gradlePlugin
 import io.github.diskria.projektor.extensions.toProjekt
 import io.github.diskria.projektor.projekt.GradlePlugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.assign
 
 open class GradlePluginConfigurator(
     val config: GradlePluginConfiguration = GradlePluginConfiguration()
@@ -18,8 +19,8 @@ open class GradlePluginConfigurator(
     override fun configureProject(project: Project, projekt: GradlePlugin) = with(project) {
         val plugin = projekt
         gradlePlugin {
-            website.set(plugin.repo.getUrl())
-            vcsUrl.set(plugin.repo.getUrl(isVcs = true))
+            website = plugin.repo.getUrl()
+            vcsUrl = plugin.repo.getUrl(isVcs = true)
             plugins {
                 create(plugin.id) {
                     id = plugin.id
@@ -28,7 +29,7 @@ open class GradlePluginConfigurator(
                     )
                     displayName = plugin.name
                     description = plugin.description
-                    tags.set(plugin.tags)
+                    tags = plugin.tags
                 }
             }
         }

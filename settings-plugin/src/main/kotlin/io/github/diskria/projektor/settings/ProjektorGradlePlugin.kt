@@ -22,6 +22,8 @@ import io.github.diskria.projektor.settings.helpers.BuildscriptPatches
 import io.ktor.http.*
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
+import org.gradle.kotlin.dsl.assign
+import org.gradle.kotlin.dsl.provideDelegate
 
 @Suppress("unused")
 class ProjektorGradlePlugin : Plugin<Settings> {
@@ -33,14 +35,12 @@ class ProjektorGradlePlugin : Plugin<Settings> {
 
         develocity {
             buildScan {
-                termsOfUseUrl.set(
-                    buildUrl("gradle.com") {
-                        path("help", "legal-terms-of-use")
-                    }.toString()
-                )
-                termsOfUseAgree.set("yes")
+                termsOfUseUrl = buildUrl("gradle.com") {
+                    path("help", "legal-terms-of-use")
+                }.toString()
+                termsOfUseAgree = "yes"
+                uploadInBackground = false
                 publishing.onlyIf { false }
-                uploadInBackground.set(false)
             }
         }
 

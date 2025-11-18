@@ -22,6 +22,7 @@ import io.ktor.util.*
 import io.ktor.util.cio.*
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.tasks.bundling.Zip
+import org.gradle.kotlin.dsl.assign
 
 abstract class UploadBundleToMavenCentralTask : Zip() {
 
@@ -29,11 +30,11 @@ abstract class UploadBundleToMavenCentralTask : Zip() {
         group = ProjektorGradlePlugin.TASK_GROUP
 
         val projektMetadata = project.getProjektMetadata()
-        archiveBaseName.set(projektMetadata.repo.name)
-        archiveVersion.set(projektMetadata.version)
+        archiveBaseName = projektMetadata.repo.name
+        archiveVersion = projektMetadata.version
 
         from(MavenCentral.getLocalMavenDirectory(project))
-        destinationDirectory.set(project.getBuildDirectory(MavenCentral.mapToEnum().getName(`kebab-case`)))
+        destinationDirectory = project.getBuildDirectory(MavenCentral.mapToEnum().getName(`kebab-case`))
 
         doLast {
             if (EnvironmentHelper.isCI()) {

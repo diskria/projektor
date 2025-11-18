@@ -7,7 +7,6 @@ import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.listDirectories
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
-import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.projektor.common.minecraft.MinecraftConstants
 import io.github.diskria.projektor.common.minecraft.loaders.ModLoaderType
 import io.github.diskria.projektor.common.minecraft.versions.MinecraftVersion
@@ -82,6 +81,18 @@ open class MinecraftModConfigurator(
 
         fun applyExternalRepositories(settings: Settings) = with(settings) {
             repositories {
+                configureMaven(
+                    name = "Quilt",
+                    url = buildUrl("maven.quiltmc.org") {
+                        path("repository", "release")
+                    }
+                )
+                configureMaven(
+                    name = "Babric",
+                    url = buildUrl("maven.glass-launcher.net") {
+                        path("babric")
+                    }
+                )
                 configureMaven(
                     name = "Parchment",
                     url = buildUrl("maven.parchmentmc.org")
