@@ -27,7 +27,7 @@ tasks {
 }
 
 group = "io.github.diskria"
-version = "5.0.1"
+version = "5.0.2"
 
 gradlePlugin {
     plugins {

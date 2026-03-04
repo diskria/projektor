@@ -1,11 +1,11 @@
 package io.github.diskria.projektor.projekt.common
 
+import io.github.diskria.kotlin.utils.Property
 import io.github.diskria.kotlin.utils.extensions.appendPackageName
 import io.github.diskria.kotlin.utils.extensions.common.`dot․case`
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
 import io.github.diskria.kotlin.utils.extensions.common.`path∕case`
 import io.github.diskria.kotlin.utils.extensions.setCase
-import io.github.diskria.kotlin.utils.poet.Property
 import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.projekt.ProjektType

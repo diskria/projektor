@@ -1,8 +1,8 @@
 package io.github.diskria.projektor.readme.shields.live
 
 import io.github.diskria.kotlin.utils.Constants
+import io.github.diskria.kotlin.utils.Property
 import io.github.diskria.kotlin.utils.extensions.common.fileName
-import io.github.diskria.kotlin.utils.poet.Property
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.publishing.PublishingTargetType

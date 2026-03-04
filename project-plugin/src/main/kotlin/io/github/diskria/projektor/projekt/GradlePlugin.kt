@@ -1,7 +1,7 @@
 package io.github.diskria.projektor.projekt
 
+import io.github.diskria.kotlin.utils.Property
 import io.github.diskria.kotlin.utils.extensions.common.SCREAMING_SNAKE_CASE
-import io.github.diskria.kotlin.utils.poet.Property
 import io.github.diskria.kotlin.utils.properties.autoNamedProperty
 import io.github.diskria.projektor.configurations.GradlePluginConfiguration
 import io.github.diskria.projektor.projekt.common.AbstractProjekt
