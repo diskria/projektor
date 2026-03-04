@@ -1,42 +1,15 @@
-import io.github.diskria.gradle.utils.helpers.GradleConstants
-import io.github.diskria.kotlin.utils.extensions.asDirectoryOrNull
-import io.github.diskria.kotlin.utils.extensions.listDirectories
-import io.github.diskria.projektor.common.licenses.LicenseType.MIT
-import io.github.diskria.projektor.common.publishing.PublishingTargetType.GITHUB_PACKAGES
-import io.github.diskria.projektor.common.publishing.PublishingTargetType.GITHUB_PAGES
-
 pluginManagement {
     repositories {
-        maven("https://diskria.github.io/projektor") {
-            name = "Projektor"
-        }
         gradlePluginPortal()
     }
 }
 
-plugins {
-    id("io.github.diskria.projektor.settings") version "4.+"
-}
-
-projekt {
-    version = "4.8.0"
-    license = MIT
-    publish = setOf(
-        GITHUB_PAGES,
-    )
-
-    gradlePlugin()
-}
-
-include(":settings-plugin", ":project-plugin")
-
-if (rootDir.resolve("build/maven").listDirectories().isNotEmpty()) {
-    val taskName = gradle.startParameter.taskNames.singleOrNull()
-    val testProjectsRoot = rootDir.resolve("test")
-    if (taskName?.startsWith(GradleConstants.PATH_SEPARATOR) == true) {
-        val testProjectName = taskName.split(GradleConstants.PATH_SEPARATOR).first { it.isNotBlank() }
-        testProjectsRoot.resolve(testProjectName).asDirectoryOrNull()?.let { includeBuild(it) }
-    } else if (taskName != "releaseProjekt") {
-        testProjectsRoot.listDirectories().forEach { includeBuild(it) }
+dependencyResolutionManagement {
+    @Suppress("UnstableApiUsage")
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
     }
 }
+
+include(":common", ":settings-plugin", ":project-plugin")

@@ -13,8 +13,12 @@ import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.common.publishing.PublishingTargetType
 import io.github.diskria.projektor.common.repo.github.GithubRepo
-import io.github.diskria.projektor.settings.configurations.*
-import io.github.diskria.projektor.settings.configurators.*
+import io.github.diskria.projektor.settings.configurations.GradlePluginConfiguration
+import io.github.diskria.projektor.settings.configurations.KotlinLibraryConfiguration
+import io.github.diskria.projektor.settings.configurations.MinecraftModConfiguration
+import io.github.diskria.projektor.settings.configurators.GradlePluginConfigurator
+import io.github.diskria.projektor.settings.configurators.KotlinLibraryConfigurator
+import io.github.diskria.projektor.settings.configurators.MinecraftModConfigurator
 import io.github.diskria.projektor.settings.configurators.common.SettingsConfigurator
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
@@ -54,16 +58,6 @@ open class ProjektExtension @Inject constructor(
     fun kotlinLibrary(configure: KotlinLibraryConfiguration.() -> Unit = {}) {
         projektType = ProjektType.KOTLIN_LIBRARY
         setConfigurator(KotlinLibraryConfigurator(KotlinLibraryConfiguration().apply(configure)))
-    }
-
-    fun androidLibrary(configure: AndroidLibraryConfiguration.() -> Unit = {}) {
-        projektType = ProjektType.ANDROID_LIBRARY
-        setConfigurator(AndroidLibraryConfigurator(AndroidLibraryConfiguration().apply(configure)))
-    }
-
-    fun androidApplication(configure: AndroidApplicationConfiguration.() -> Unit = {}) {
-        projektType = ProjektType.ANDROID_APPLICATION
-        setConfigurator(AndroidApplicationConfigurator(AndroidApplicationConfiguration().apply(configure)))
     }
 
     fun minecraftMod(configure: MinecraftModConfiguration.() -> Unit = {}) {

@@ -5,5 +5,4 @@ enum class PublishingTargetType {
     GITHUB_PACKAGES,
     MAVEN_CENTRAL,
     GRADLE_PLUGIN_PORTAL,
-    GOOGLE_PLAY,
 }

@@ -1,29 +1,44 @@
-import io.github.diskria.projektor.extensions.publishing
-import org.gradle.internal.impldep.it.unimi.dsi.fastutil.longs.LongLists
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     `kotlin-dsl`
-    alias(libs.plugins.projektor)
+    `maven-publish`
     alias(libs.plugins.kotlin.serialization)
 }
 
+val commonProject = project(":common")
+
 dependencies {
+    compileOnly(kotlin("gradle-plugin"))
+
     implementation(libs.bundles.diskria.utils)
     implementation(libs.bundles.ktor.client)
     implementation(libs.bundles.implementation.settings.plugins)
-    implementation(libs.jsoup)
+
+    compileOnly(commonProject)
 }
 
-projekt {
-    gradlePlugin {
-        isSettingsPlugin = true
-        packageNameSuffix = "settings"
-        jvmTarget = JvmTarget.JVM_21
+tasks {
+    jar {
+        dependsOn(commonProject.tasks.jar)
+        from(commonProject.sourceSets.map { it.output })
     }
 }
 
-tasks.matching { it.name == "publishPluginMavenPublicationToGithubPagesRepository" }
-    .configureEach {
-        enabled = false
+group = "io.github.diskria"
+version = "5.0.0"
+
+gradlePlugin {
+    plugins {
+        create("io.github.diskria.projektor.settings") {
+            id = "io.github.diskria.projektor.settings"
+            implementationClass = "io.github.diskria.projektor.settings.ProjektorGradlePlugin"
+        }
     }
+}
+
+publishing {
+    repositories {
+        maven(layout.buildDirectory.dir("maven")) {
+            name = "GithubPages"
+        }
+    }
+}

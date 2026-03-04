@@ -4,14 +4,10 @@ import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.projekt.ProjektType
 import io.github.diskria.projektor.common.repo.github.GithubRepo
-import io.github.diskria.projektor.configurations.AndroidApplicationConfiguration
-import io.github.diskria.projektor.configurations.AndroidLibraryConfiguration
 import io.github.diskria.projektor.configurations.GradlePluginConfiguration
 import io.github.diskria.projektor.configurations.KotlinLibraryConfiguration
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.licenses.License
-import io.github.diskria.projektor.projekt.AndroidApplication
-import io.github.diskria.projektor.projekt.AndroidLibrary
 import io.github.diskria.projektor.projekt.GradlePlugin
 import io.github.diskria.projektor.projekt.KotlinLibrary
 import io.github.diskria.projektor.publishing.common.PublishingTarget
@@ -35,12 +31,6 @@ data class BaseProjekt(
 
     fun toKotlinLibrary(config: KotlinLibraryConfiguration): KotlinLibrary =
         KotlinLibrary(this, config)
-
-    fun toAndroidLibrary(config: AndroidLibraryConfiguration): AndroidLibrary =
-        AndroidLibrary(this, config)
-
-    fun toAndroidApplication(config: AndroidApplicationConfiguration): AndroidApplication =
-        AndroidApplication(this, config)
 
     companion object {
         fun of(project: Project): BaseProjekt {

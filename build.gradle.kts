@@ -1,16 +1,16 @@
-import io.github.diskria.gradle.utils.extensions.getCatalogVersion
-
 plugins {
     alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
 }
 
-val kotlinVersion = getCatalogVersion("kotlin")
-configurations.all {
-    resolutionStrategy {
-        eachDependency {
-            when (requested.group) {
-                "org.jetbrains.kotlin" -> useVersion(kotlinVersion)
-            }
-        }
+val pluginProjects = listOf(
+    project("settings-plugin"),
+    project("project-plugin")
+)
+tasks.register<Sync>("releaseProjekt") {
+    pluginProjects.forEach { project ->
+        dependsOn(":${project.name}:publishAllPublicationsToGithubPagesRepository")
+        from(project.layout.buildDirectory.dir("maven"))
     }
+    into(layout.projectDirectory.dir("docs"))
 }

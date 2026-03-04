@@ -9,7 +9,6 @@ import io.github.diskria.kotlin.utils.extensions.generics.addIfNotNull
 import io.github.diskria.kotlin.utils.extensions.mappers.getName
 import io.github.diskria.kotlin.utils.extensions.serialization.deserializeFromJson
 import io.github.diskria.kotlin.utils.extensions.wrapWithBrackets
-import io.github.diskria.projektor.ProjektBuildConfig
 import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.common.extensions.getProjektMetadata
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
@@ -94,9 +93,9 @@ abstract class UpdateProjektRepoMetadataTask : DefaultTask() {
                 header(
                     HttpHeaders.UserAgent,
                     buildString {
-                        append(ProjektBuildConfig.PLUGIN_NAME)
+                        append("Projektor")
                         append(Constants.Char.SLASH)
-                        append(ProjektBuildConfig.PLUGIN_VERSION)
+                        append("5.0.0")
                         append(Constants.Char.SPACE)
                         append(
                             buildString {

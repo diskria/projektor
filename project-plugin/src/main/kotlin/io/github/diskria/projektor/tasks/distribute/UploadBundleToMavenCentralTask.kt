@@ -23,6 +23,7 @@ import io.ktor.util.cio.*
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.assign
+import kotlin.io.encoding.Base64
 
 abstract class UploadBundleToMavenCentralTask : Zip() {
 
@@ -71,7 +72,7 @@ abstract class UploadBundleToMavenCentralTask : Zip() {
             }
             val token = SecretsHelper.sonatypeUsername + Constants.Char.COLON + SecretsHelper.sonatypePassword
             client.post(url) {
-                bearerAuth(token.toByteArray().encodeBase64())
+                bearerAuth(Base64.encode(token.toByteArray()))
                 setBody(MultiPartFormDataContent(listOf(part)))
             }
         }

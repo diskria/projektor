@@ -1,33 +1,47 @@
-import io.github.diskria.projektor.extensions.publishing
-import org.gradle.internal.impldep.it.unimi.dsi.fastutil.longs.LongLists.emptyList
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import kotlin.collections.emptyList
-
 plugins {
     `kotlin-dsl`
-    alias(libs.plugins.projektor)
+    `maven-publish`
     alias(libs.plugins.kotlin.serialization)
 }
 
+val commonProject = project(":common")
+
 dependencies {
+    compileOnly(kotlin("gradle-plugin"))
+
     implementation(libs.kotlin.html)
-    implementation(libs.kotlin.serialization.xml)
-    implementation(libs.jsoup)
-    implementation(libs.java.poet)
 
     implementation(libs.bundles.diskria.utils)
     implementation(libs.bundles.ktor.client)
     implementation(libs.bundles.implementation.project.plugins)
 
-    constraints {
-        // Override vulnerable transitive dependency (Okio < 3.4.0, CVE-2023-3635)
-        // com.modrinth.minotaur → Modrinth4J → Okio
-        implementation(libs.okio)
+    compileOnly(commonProject)
+}
+
+
+tasks {
+    jar {
+        dependsOn(commonProject.tasks.jar)
+        from(commonProject.sourceSets.map { it.output })
     }
 }
 
-projekt {
-    gradlePlugin {
-        jvmTarget = JvmTarget.JVM_21
+group = "io.github.diskria"
+version = "5.0.0"
+
+gradlePlugin {
+    plugins {
+        create("io.github.diskria.projektor") {
+            id = "io.github.diskria.projektor"
+            implementationClass = "io.github.diskria.projektor.ProjektorGradlePlugin"
+        }
+    }
+}
+
+publishing {
+    repositories {
+        maven(layout.buildDirectory.dir("maven")) {
+            name = "GithubPages"
+        }
     }
 }

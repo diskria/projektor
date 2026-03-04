@@ -74,7 +74,7 @@ class ProjektorGradlePlugin : Plugin<Settings> {
             val repo = rootDirectory.name
             owner to repo
         }
-        val email = EmailType.PROTON.buildAddress(ProjektBuildConfig.PLUGIN_DEVELOPER)
+        val email = EmailType.PROTON.buildAddress("diskria")
         val githubOwner = GithubOwner(owner, email)
         return GithubRepo(githubOwner, repo)
     }
