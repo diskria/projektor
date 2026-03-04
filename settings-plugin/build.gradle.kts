@@ -1,3 +1,5 @@
+import io.github.diskria.projektor.extensions.publishing
+import org.gradle.internal.impldep.it.unimi.dsi.fastutil.longs.LongLists
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -20,3 +22,8 @@ projekt {
         jvmTarget = JvmTarget.JVM_21
     }
 }
+
+tasks.matching { it.name == "publishPluginMavenPublicationToGithubPagesRepository" }
+    .configureEach {
+        enabled = false
+    }

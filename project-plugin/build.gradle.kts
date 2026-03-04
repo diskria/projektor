@@ -1,4 +1,7 @@
+import io.github.diskria.projektor.extensions.publishing
+import org.gradle.internal.impldep.it.unimi.dsi.fastutil.longs.LongLists.emptyList
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import kotlin.collections.emptyList
 
 plugins {
     `kotlin-dsl`

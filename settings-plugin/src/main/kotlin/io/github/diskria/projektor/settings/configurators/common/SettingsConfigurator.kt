@@ -4,7 +4,10 @@ import io.github.diskria.gradle.utils.extensions.rootDirectory
 import io.github.diskria.gradle.utils.helpers.GradleProjects
 import io.github.diskria.kotlin.utils.extensions.common.buildUrl
 import io.github.diskria.projektor.common.configurators.IProjektConfigurator
-import io.github.diskria.projektor.settings.configurators.*
+import io.github.diskria.projektor.settings.configurators.AndroidApplicationConfigurator
+import io.github.diskria.projektor.settings.configurators.AndroidLibraryConfigurator
+import io.github.diskria.projektor.settings.configurators.GradlePluginConfigurator
+import io.github.diskria.projektor.settings.configurators.KotlinLibraryConfigurator
 import io.github.diskria.projektor.settings.extensions.configureMaven
 import io.ktor.http.*
 import org.gradle.api.initialization.Settings
@@ -39,7 +42,6 @@ abstract class SettingsConfigurator : IProjektConfigurator {
         AndroidLibraryConfigurator.applyExternalRepositories(settings)
         GradlePluginConfigurator.applyExternalRepositories(settings)
         KotlinLibraryConfigurator.applyExternalRepositories(settings)
-        MinecraftModConfigurator.applyExternalRepositories(settings)
 
         if (rootDirectory.resolve(GradleProjects.Common.NAME).exists()) {
             include(GradleProjects.Common.PATH)

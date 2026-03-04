@@ -38,7 +38,7 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
                         dependencies {
                             add("compileOnly", commonProject)
                         }
-                        configureShadowJar(listOf(commonProject))
+                        configureShadowJar(listOf(commonProject), shouldDisableJar = true)
                     }
                 }
             }
@@ -139,7 +139,7 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
             .map { target ->
                 val publishTask = tasks.named(target.publishTaskName).get()
                 val rootPublishTask = rootProject.getTaskOrNull(target.publishTaskName)
-                    ?: target.configureRootPublishTask(rootProject, publishTask, projekt)
+                    ?: target.configureRootPublishTask(rootProject, publishTask)
                 val distributeTask = when {
                     EnvironmentHelper.isCI() -> target.configureDistributeTask(rootProject)
                     else -> null

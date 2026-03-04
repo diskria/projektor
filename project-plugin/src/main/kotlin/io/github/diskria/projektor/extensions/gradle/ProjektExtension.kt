@@ -5,8 +5,10 @@ import io.github.diskria.projektor.configurations.AndroidApplicationConfiguratio
 import io.github.diskria.projektor.configurations.AndroidLibraryConfiguration
 import io.github.diskria.projektor.configurations.GradlePluginConfiguration
 import io.github.diskria.projektor.configurations.KotlinLibraryConfiguration
-import io.github.diskria.projektor.configurations.minecraft.MinecraftModConfiguration
-import io.github.diskria.projektor.configurators.*
+import io.github.diskria.projektor.configurators.AndroidApplicationConfigurator
+import io.github.diskria.projektor.configurators.AndroidLibraryConfigurator
+import io.github.diskria.projektor.configurators.GradlePluginConfigurator
+import io.github.diskria.projektor.configurators.KotlinLibraryConfigurator
 import io.github.diskria.projektor.configurators.common.ProjectConfigurator
 
 open class ProjektExtension : AbstractProjektExtension<ProjectConfigurator<*>>() {
@@ -25,9 +27,5 @@ open class ProjektExtension : AbstractProjektExtension<ProjectConfigurator<*>>()
 
     fun androidApplication(configure: AndroidApplicationConfiguration.() -> Unit = {}) {
         setConfigurator(AndroidApplicationConfigurator(AndroidApplicationConfiguration().apply(configure)))
-    }
-
-    fun minecraftMod(configure: MinecraftModConfiguration.() -> Unit = {}) {
-        setConfigurator(MinecraftModConfigurator(MinecraftModConfiguration().apply(configure)))
     }
 }

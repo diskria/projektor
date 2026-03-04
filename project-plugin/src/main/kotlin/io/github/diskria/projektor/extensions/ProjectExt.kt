@@ -3,14 +3,8 @@ package io.github.diskria.projektor.extensions
 import com.github.gmazzo.buildconfig.BuildConfigExtension
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar.Companion.shadowJar
-import com.modrinth.minotaur.ModrinthExtension
 import io.github.diskria.gradle.utils.extensions.*
 import io.github.diskria.projektor.projekt.common.BaseProjekt
-import net.fabricmc.loom.api.LoomGradleExtensionAPI
-import net.legacyfabric.legacylooming.LegacyUtilsExtension
-import net.minecraftforge.gradle.userdev.UserDevExtension
-import net.neoforged.moddevgradle.dsl.NeoForgeExtension
-import net.ornithemc.ploceus.api.PloceusGradleExtensionApi
 import org.gradle.api.Project
 import org.gradle.api.file.Directory
 import org.gradle.api.publish.PublishingExtension
@@ -19,24 +13,6 @@ import org.gradle.kotlin.dsl.invoke
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
-
-val Project.legacyFabric: LegacyUtilsExtension
-    get() {
-        ensurePluginApplied("legacy-looming")
-        return getExtension<LegacyUtilsExtension>()
-    }
-
-val Project.ornithe: PloceusGradleExtensionApi
-    get() {
-        ensurePluginApplied("ploceus")
-        return getExtension<PloceusGradleExtensionApi>()
-    }
-
-val Project.craftedSourcesDirectory
-    get() = getGeneratedSourcesDirectory().resolve("crafter")
-
-val Project.craftedResourcesDirectory
-    get() = getGeneratedResourcesDirectory().resolve("crafter")
 
 fun Project.configureShadowJar(
     projects: List<Project>,
@@ -66,11 +42,6 @@ fun Project.configureShadowJar(
     }
 }
 
-fun Project.kotlinApply(block: Project.() -> Unit): Project {
-    block(this)
-    return this
-}
-
 fun Project.ensureKotlinPluginsApplied() {
     ensurePluginApplied("org.jetbrains.kotlin.jvm")
     ensurePluginApplied("org.jetbrains.kotlin.plugin.serialization")
@@ -97,28 +68,4 @@ fun Project.signing(configure: SigningExtension.() -> Unit = {}) {
 
 fun Project.gradlePlugin(configure: GradlePluginDevelopmentExtension.() -> Unit = {}) {
     configureExtension<GradlePluginDevelopmentExtension>(configure)
-}
-
-fun Project.modrinth(configure: ModrinthExtension.() -> Unit = {}) {
-    withPluginExtension<ModrinthExtension>("com.modrinth.minotaur", configure)
-}
-
-fun Project.fabric(configure: LoomGradleExtensionAPI.() -> Unit = {}) {
-    withPluginExtension<LoomGradleExtensionAPI>("fabric-loom", configure)
-}
-
-fun Project.legacyFabric(configure: LegacyUtilsExtension.() -> Unit = {}) {
-    legacyFabric.apply(configure)
-}
-
-fun Project.ornithe(configure: PloceusGradleExtensionApi.() -> Unit = {}) {
-    ornithe.apply(configure)
-}
-
-fun Project.forge(configure: UserDevExtension.() -> Unit = {}) {
-    withPluginExtension<UserDevExtension>("net.minecraftforge.gradle", configure)
-}
-
-fun Project.neoforge(configure: NeoForgeExtension.() -> Unit = {}) {
-    withPluginExtension<NeoForgeExtension>("net.neoforged.moddev", configure)
 }

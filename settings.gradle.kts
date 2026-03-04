@@ -19,11 +19,10 @@ plugins {
 }
 
 projekt {
-    version = "4.7.3"
+    version = "4.8.0"
     license = MIT
     publish = setOf(
         GITHUB_PAGES,
-        GITHUB_PACKAGES,
     )
 
     gradlePlugin()

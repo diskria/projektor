@@ -18,19 +18,15 @@ import io.github.diskria.projektor.common.repo.github.GithubOwner
 import io.github.diskria.projektor.common.repo.github.GithubRepo
 import io.github.diskria.projektor.settings.extensions.develocity
 import io.github.diskria.projektor.settings.extensions.gradle.ProjektExtension
-import io.github.diskria.projektor.settings.helpers.BuildscriptPatches
 import io.ktor.http.*
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
 import org.gradle.kotlin.dsl.assign
-import org.gradle.kotlin.dsl.provideDelegate
 
 @Suppress("unused")
 class ProjektorGradlePlugin : Plugin<Settings> {
 
     override fun apply(settings: Settings) = with(settings) {
-        BuildscriptPatches.patchLoomGsonCompatibility(settings)
-
         ensurePluginApplied("org.gradle.toolchains.foojay-resolver-convention")
 
         develocity {

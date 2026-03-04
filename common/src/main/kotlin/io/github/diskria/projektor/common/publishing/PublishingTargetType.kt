@@ -5,6 +5,5 @@ enum class PublishingTargetType {
     GITHUB_PACKAGES,
     MAVEN_CENTRAL,
     GRADLE_PLUGIN_PORTAL,
-    MODRINTH,
     GOOGLE_PLAY,
 }
