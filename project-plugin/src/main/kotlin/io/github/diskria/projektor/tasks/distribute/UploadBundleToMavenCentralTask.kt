@@ -1,5 +1,6 @@
 package io.github.diskria.projektor.tasks.distribute
 
+import io.github.diskria.gradle.utils.extensions.common.gradleError
 import io.github.diskria.gradle.utils.extensions.getBuildDirectory
 import io.github.diskria.gradle.utils.helpers.EnvironmentHelper
 import io.github.diskria.kotlin.utils.Constants
@@ -14,15 +15,17 @@ import io.github.diskria.projektor.helpers.SecretsHelper
 import io.github.diskria.projektor.publishing.maven.MavenCentral
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import io.ktor.http.content.*
-import io.ktor.util.*
 import io.ktor.util.cio.*
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.assign
+import java.util.concurrent.TimeUnit
 import kotlin.io.encoding.Base64
 
 abstract class UploadBundleToMavenCentralTask : Zip() {
@@ -65,15 +68,35 @@ abstract class UploadBundleToMavenCentralTask : Zip() {
                 )
             }
         )
-        HttpClient(CIO).use { client ->
+        HttpClient(CIO) {
+            install(HttpTimeout) {
+                connectTimeoutMillis = TimeUnit.MINUTES.toMillis(1)
+                socketTimeoutMillis = TimeUnit.MINUTES.toMillis(2)
+                requestTimeoutMillis = TimeUnit.MINUTES.toMillis(5)
+            }
+        }.use { client ->
             val url = buildUrl("central.sonatype.com") {
                 path("api", "v1", "publisher", "upload")
                 parameters("publishingType" to "AUTOMATIC")
             }
             val token = SecretsHelper.sonatypeUsername + Constants.Char.COLON + SecretsHelper.sonatypePassword
-            client.post(url) {
+            val response = client.post(url) {
                 bearerAuth(Base64.encode(token.toByteArray()))
                 setBody(MultiPartFormDataContent(listOf(part)))
+
+                onUpload { bytesSent, totalBytes ->
+                    if (totalBytes != null && totalBytes > 0) {
+                        val percent = (bytesSent * 100) / totalBytes
+                        if (percent % 25 == 0L) {
+                            println("Upload progress: $percent%")
+                        }
+                    }
+                }
+            }
+            if (!response.status.isSuccess()) {
+                gradleError("Failed to upload bundle: ${response.status}. Body: ${response.bodyAsText()}")
+            } else {
+                println("Bundle successfully uploaded to Maven Central!")
             }
         }
     }
