@@ -38,8 +38,6 @@ abstract class ProjectConfigurator<T : Projekt> : IProjektConfigurator {
     abstract fun configureProject(project: Project, projekt: T): Any
 
     private fun applyCommonConfiguration(project: Project, projekt: T) = with(project) {
-        ensureKotlinPluginsApplied()
-
         group = projekt.repo.owner.namespace
         version = projekt.archiveVersion
 

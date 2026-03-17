@@ -3,6 +3,7 @@ package io.github.diskria.projektor
 import io.github.diskria.gradle.utils.extensions.ensureTaskRegistered
 import io.github.diskria.gradle.utils.extensions.isCommonProject
 import io.github.diskria.gradle.utils.extensions.registerExtension
+import io.github.diskria.projektor.extensions.ensureKotlinPluginsApplied
 import io.github.diskria.projektor.extensions.gradle.ProjektExtension
 import io.github.diskria.projektor.tasks.UpdateProjektRepoMetadataTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektGitAttributesTask
@@ -15,18 +16,17 @@ import org.gradle.api.Project
 class ProjektorGradlePlugin : Plugin<Project> {
 
     override fun apply(project: Project) = with(project) {
-        if (!isCommonProject()) {
-            with(rootProject) {
-                ensureTaskRegistered<GenerateProjektGitAttributesTask>()
-                ensureTaskRegistered<GenerateProjektGitIgnoreTask>()
-                ensureTaskRegistered<GenerateProjektLicenseTask>()
-                ensureTaskRegistered<GenerateProjektReadmeTask>()
-                ensureTaskRegistered<UpdateProjektRepoMetadataTask>()
-            }
+        with(rootProject) {
+            ensureTaskRegistered<GenerateProjektGitAttributesTask>()
+            ensureTaskRegistered<GenerateProjektGitIgnoreTask>()
+            ensureTaskRegistered<GenerateProjektLicenseTask>()
+            ensureTaskRegistered<GenerateProjektReadmeTask>()
+            ensureTaskRegistered<UpdateProjektRepoMetadataTask>()
         }
+        ensureKotlinPluginsApplied()
 
         val extension = registerExtension<ProjektExtension>()
-        extension.onConfiguratorReady { configurator -> configurator.configure(this) }
+        extension.onConfiguratorReady { it.configure(this) }
 
         afterEvaluate {
             extension.ensureConfigured()

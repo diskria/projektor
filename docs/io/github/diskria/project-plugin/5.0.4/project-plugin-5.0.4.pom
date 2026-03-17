@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <!-- This module was also published with a richer model, Gradle metadata,  -->
+  <!-- which should be used instead. Do not delete the following line which  -->
+  <!-- is to indicate to Gradle or any Gradle module metadata file consumer  -->
+  <!-- that they should prefer consuming it instead. -->
+  <!-- do_not_remove: published-with-gradle-metadata -->
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>io.github.diskria</groupId>
+  <artifactId>project-plugin</artifactId>
+  <version>5.0.4</version>
+  <dependencies>
+    <dependency>
+      <groupId>org.jetbrains.kotlinx</groupId>
+      <artifactId>kotlinx-html-jvm</artifactId>
+      <version>0.12.0</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.github.diskria</groupId>
+      <artifactId>kotlin-utils</artifactId>
+      <version>0.10.1</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.github.diskria</groupId>
+      <artifactId>gradle-utils</artifactId>
+      <version>0.10.1</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.github.diskria</groupId>
+      <artifactId>kotlin-shell-dsl</artifactId>
+      <version>0.10.1</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.ktor</groupId>
+      <artifactId>ktor-client-core-jvm</artifactId>
+      <version>3.4.0</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.ktor</groupId>
+      <artifactId>ktor-client-cio-jvm</artifactId>
+      <version>3.4.0</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains.kotlin.jvm</groupId>
+      <artifactId>org.jetbrains.kotlin.jvm.gradle.plugin</artifactId>
+      <version>2.2.21</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains.kotlin.plugin.serialization</groupId>
+      <artifactId>org.jetbrains.kotlin.plugin.serialization.gradle.plugin</artifactId>
+      <version>2.2.21</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.gmazzo.buildconfig</groupId>
+      <artifactId>com.github.gmazzo.buildconfig.gradle.plugin</artifactId>
+      <version>6.0.7</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.gradle.publish</groupId>
+      <artifactId>plugin-publish-plugin</artifactId>
+      <version>2.1.0</version>
+      <scope>runtime</scope>
+    </dependency>
+  </dependencies>
+</project>
