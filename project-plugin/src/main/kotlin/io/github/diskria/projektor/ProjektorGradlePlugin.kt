@@ -1,7 +1,6 @@
 package io.github.diskria.projektor
 
 import io.github.diskria.gradle.utils.extensions.ensureTaskRegistered
-import io.github.diskria.gradle.utils.extensions.isCommonProject
 import io.github.diskria.gradle.utils.extensions.registerExtension
 import io.github.diskria.projektor.extensions.ensureKotlinPluginsApplied
 import io.github.diskria.projektor.extensions.gradle.ProjektExtension
@@ -24,6 +23,15 @@ class ProjektorGradlePlugin : Plugin<Project> {
             ensureTaskRegistered<UpdateProjektRepoMetadataTask>()
         }
         ensureKotlinPluginsApplied()
+        configurations.all {
+            resolutionStrategy {
+                eachDependency {
+                    when (requested.group) {
+                        "org.jetbrains.kotlin" -> useVersion("2.2.21")
+                    }
+                }
+            }
+        }
 
         val extension = registerExtension<ProjektExtension>()
         extension.onConfiguratorReady { it.configure(this) }
