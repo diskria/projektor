@@ -1,5 +1,6 @@
 package io.github.diskria.projektor.configurators
 
+import io.github.diskria.gradle.utils.extensions.ensurePluginApplied
 import io.github.diskria.kotlin.utils.extensions.appendPackageName
 import io.github.diskria.projektor.configurations.GradlePluginConfiguration
 import io.github.diskria.projektor.configurators.common.ProjectConfigurator
@@ -18,6 +19,7 @@ open class GradlePluginConfigurator(
         project.toProjekt().toGradlePlugin(config)
 
     override fun configureProject(project: Project, projekt: GradlePlugin) = with(project) {
+        ensurePluginApplied("org.gradle.plugin-compatibility")
         gradlePlugin {
             website = projekt.repo.getUrl()
             vcsUrl = projekt.repo.getUrl(isVcs = true)
