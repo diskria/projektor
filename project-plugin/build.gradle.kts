@@ -18,7 +18,6 @@ dependencies {
     compileOnly(commonProject)
 }
 
-
 tasks {
     jar {
         dependsOn(commonProject.tasks.jar)
@@ -27,7 +26,7 @@ tasks {
 }
 
 group = "io.github.diskria"
-version = "5.0.5"
+version = "5.0.6"
 
 gradlePlugin {
     plugins {

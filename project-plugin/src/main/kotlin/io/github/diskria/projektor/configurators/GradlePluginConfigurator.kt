@@ -8,6 +8,7 @@ import io.github.diskria.projektor.extensions.toProjekt
 import io.github.diskria.projektor.projekt.GradlePlugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.assign
+import org.gradle.plugin.compatibility.compatibility
 
 open class GradlePluginConfigurator(
     val config: GradlePluginConfiguration = GradlePluginConfiguration()
@@ -29,6 +30,12 @@ open class GradlePluginConfigurator(
                     displayName = projekt.name
                     description = projekt.description
                     tags = projekt.tags
+
+                    compatibility {
+                        features {
+                            configurationCache = config.supportsConfigurationCache
+                        }
+                    }
                 }
             }
         }
