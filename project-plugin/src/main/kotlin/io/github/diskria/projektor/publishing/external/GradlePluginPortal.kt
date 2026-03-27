@@ -8,6 +8,8 @@ import io.github.diskria.projektor.helpers.SecretsHelper
 import io.github.diskria.projektor.projekt.GradlePlugin
 import io.github.diskria.projektor.projekt.common.Projekt
 import io.github.diskria.projektor.publishing.external.common.ExternalPublishingTarget
+import io.github.diskria.projektor.readme.shields.common.ReadmeShield
+import io.github.diskria.projektor.readme.shields.live.GradlePluginPortalShield
 import io.ktor.http.*
 import org.gradle.api.Project
 
@@ -28,4 +30,7 @@ object GradlePluginPortal : ExternalPublishingTarget() {
         buildUrl("plugins.gradle.org") {
             path("plugin", metadata.packageNameBase)
         }
+
+    override fun getReadmeShield(metadata: ProjektMetadata): ReadmeShield =
+        GradlePluginPortalShield(metadata)
 }
