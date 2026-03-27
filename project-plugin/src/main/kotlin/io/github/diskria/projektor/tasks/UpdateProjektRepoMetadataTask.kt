@@ -70,7 +70,6 @@ abstract class UpdateProjektRepoMetadataTask : DefaultTask() {
             addIfNotNull(getTopLanguage())
             add(metadata.type.getName(`kebab-case`))
             addAll(metadata.tags)
-            addAll(metadata.publishingTargets.sorted().map { it.getName(`kebab-case`) })
         }
         sendRequest(UpdateTopicsRequest(topics.toList()))
     }
