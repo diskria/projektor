@@ -29,7 +29,9 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 
+@DisableCachingByDefault(because = "Updates external GitHub repository metadata via API; must always reflect current project state")
 abstract class UpdateProjektRepoMetadataTask : DefaultTask() {
 
     @get:Internal
@@ -94,7 +96,7 @@ abstract class UpdateProjektRepoMetadataTask : DefaultTask() {
                     buildString {
                         append("Projektor")
                         append(Constants.Char.SLASH)
-                        append("6.0.6")
+                        append("6.0.7")
                         append(Constants.Char.SPACE)
                         append(
                             buildString {

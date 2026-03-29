@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(kotlin("gradle-plugin"))
+    compileOnly(libs.kotlin.gradle.plugin)
 
     compileOnly(libs.bundles.diskria.utils)
     compileOnly(libs.bundles.ktor.client)

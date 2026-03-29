@@ -10,8 +10,10 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
 
+@DisableCachingByDefault(because = "Generates files and performs Git push side effects")
 abstract class GenerateProjektLicenseTask : AbstractGenerateFileTask() {
 
     override fun getFileText(metadata: ProjektMetadata, repoDirectory: File, file: File): String? {

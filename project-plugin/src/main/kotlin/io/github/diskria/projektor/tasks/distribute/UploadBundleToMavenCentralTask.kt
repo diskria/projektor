@@ -25,9 +25,11 @@ import io.ktor.util.cio.*
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.assign
+import org.gradle.work.DisableCachingByDefault
 import java.util.concurrent.TimeUnit
 import kotlin.io.encoding.Base64
 
+@DisableCachingByDefault(because = "Uploads a ZIP bundle to Maven Central via API; must not be cached to ensure successful re-runs")
 abstract class UploadBundleToMavenCentralTask : Zip() {
 
     init {

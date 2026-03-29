@@ -17,15 +17,20 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.Sync
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
 
+@DisableCachingByDefault(because = "Deploys Maven artifacts to GitHub Pages and performs Git pushes")
 abstract class DeployMavenToGithubPagesTask : Sync() {
 
     @get:Internal
     abstract val metadata: Property<ProjektMetadata>
 
     @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val repoDirectory: DirectoryProperty
 
     init {

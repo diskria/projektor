@@ -8,8 +8,10 @@ import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.mappers.mapToModel
 import io.github.diskria.projektor.readme.shields.static.LicenseShield
 import io.github.diskria.projektor.tasks.generate.common.AbstractGenerateFileTask
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
 
+@DisableCachingByDefault(because = "Generates files and performs Git push side effects")
 abstract class GenerateProjektReadmeTask : AbstractGenerateFileTask() {
 
     override fun getFileText(metadata: ProjektMetadata, repoDirectory: File, file: File): String =

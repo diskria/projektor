@@ -10,7 +10,7 @@ dependencies {
     implementation(platform(libs.kotlin.bom))
     implementation(libs.kotlin.stdlib)
 
-    compileOnly(kotlin("gradle-plugin"))
+    compileOnly(libs.kotlin.gradle.plugin)
 
     implementation(libs.bundles.diskria.utils)
     implementation(libs.bundles.ktor.client)
@@ -27,7 +27,7 @@ tasks {
 }
 
 group = "io.github.diskria"
-version = "6.0.6"
+version = "6.0.7"
 
 gradlePlugin {
     plugins {

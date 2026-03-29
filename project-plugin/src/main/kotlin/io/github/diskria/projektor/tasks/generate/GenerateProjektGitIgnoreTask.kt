@@ -9,8 +9,10 @@ import io.github.diskria.projektor.common.ProjectDirectories
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
 import io.github.diskria.projektor.common.projekt.ProjektType.MINECRAFT_MOD
 import io.github.diskria.projektor.tasks.generate.common.AbstractGenerateFileTask
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
 
+@DisableCachingByDefault(because = "Generates files and performs Git push side effects")
 abstract class GenerateProjektGitIgnoreTask : AbstractGenerateFileTask() {
 
     override fun getFileText(metadata: ProjektMetadata, repoDirectory: File, file: File): String {
