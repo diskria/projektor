@@ -23,15 +23,6 @@ class ProjektorGradlePlugin : Plugin<Project> {
             ensureTaskRegistered<UpdateProjektRepoMetadataTask>()
         }
         ensureKotlinPluginsApplied()
-        configurations.all {
-            resolutionStrategy {
-                eachDependency {
-                    when (requested.group) {
-                        "org.jetbrains.kotlin" -> useVersion("2.3.0")
-                    }
-                }
-            }
-        }
 
         val extension = registerExtension<ProjektExtension>()
         extension.onConfiguratorReady { it.configure(this) }
