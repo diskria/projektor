@@ -1,0 +1,136 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.github.diskria",
+    "module": "project-plugin",
+    "version": "6.0.2",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.4.1"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 25,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "project-plugin-6.0.2.jar",
+          "url": "project-plugin-6.0.2.jar",
+          "size": 300857,
+          "sha512": "3c41eec3fc8c59bd1625e363251a6275cdc74c3f8a49024f34b0edd27009dee49111f22aeedcf5854728b99edc83ff079efc58fded6af2f9e5692c36bc9ea3c9",
+          "sha256": "7d73b764b5bdb59a09231d7b989946935ced187dec8f319979af8e0cc9b7faa5",
+          "sha1": "60c8a0e22154a5a4bbeb7f9188dd5eece02fa9ef",
+          "md5": "208694831fcd0001c0053fe6df68255d"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 25,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-html-jvm",
+          "version": {
+            "requires": "0.12.0"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "kotlin-utils",
+          "version": {
+            "requires": "0.10.1"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "gradle-utils",
+          "version": {
+            "requires": "0.10.1"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "kotlin-shell-dsl",
+          "version": {
+            "requires": "0.10.1"
+          }
+        },
+        {
+          "group": "io.ktor",
+          "module": "ktor-client-core",
+          "version": {
+            "requires": "3.4.1"
+          }
+        },
+        {
+          "group": "io.ktor",
+          "module": "ktor-client-cio",
+          "version": {
+            "requires": "3.4.1"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin.jvm",
+          "module": "org.jetbrains.kotlin.jvm.gradle.plugin",
+          "version": {
+            "requires": "2.3.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin.plugin.serialization",
+          "module": "org.jetbrains.kotlin.plugin.serialization.gradle.plugin",
+          "version": {
+            "requires": "2.3.0"
+          }
+        },
+        {
+          "group": "com.github.gmazzo.buildconfig",
+          "module": "com.github.gmazzo.buildconfig.gradle.plugin",
+          "version": {
+            "requires": "6.0.9"
+          }
+        },
+        {
+          "group": "com.gradle.publish",
+          "module": "plugin-publish-plugin",
+          "version": {
+            "requires": "2.1.1"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "project-plugin-6.0.2.jar",
+          "url": "project-plugin-6.0.2.jar",
+          "size": 300857,
+          "sha512": "3c41eec3fc8c59bd1625e363251a6275cdc74c3f8a49024f34b0edd27009dee49111f22aeedcf5854728b99edc83ff079efc58fded6af2f9e5692c36bc9ea3c9",
+          "sha256": "7d73b764b5bdb59a09231d7b989946935ced187dec8f319979af8e0cc9b7faa5",
+          "sha1": "60c8a0e22154a5a4bbeb7f9188dd5eece02fa9ef",
+          "md5": "208694831fcd0001c0053fe6df68255d"
+        }
+      ]
+    }
+  ]
+}
