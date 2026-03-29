@@ -9,9 +9,9 @@ kotlin = "2.3.0"
 ktor = "3.4.1"
 kotlin-html = "0.12.0"
 
-kotlin-utils = "0.10.1"
-gradle-utils = "0.10.1"
-kotlin-shell-dsl = "0.10.1"
+kotlin-utils = "0.11.0"
+gradle-utils = "0.11.0"
+kotlin-shell-dsl = "0.11.0"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
