@@ -2,9 +2,7 @@ package io.github.diskria.projektor.projekt.common
 
 import io.github.diskria.kotlin.utils.Property
 import io.github.diskria.kotlin.utils.extensions.appendPackageName
-import io.github.diskria.kotlin.utils.extensions.common.`dot․case`
 import io.github.diskria.kotlin.utils.extensions.common.`kebab-case`
-import io.github.diskria.kotlin.utils.extensions.common.`path∕case`
 import io.github.diskria.kotlin.utils.extensions.setCase
 import io.github.diskria.kotlin.utils.words.PascalCase
 import io.github.diskria.projektor.common.metadata.ProjektMetadata
@@ -33,12 +31,11 @@ interface Projekt {
     val isJavadocEnabled: Boolean get() = true
     val publicationComponentName: String? get() = null
     val packageNameSuffix: String? get() = null
-    val javaVersion: Int get() = JavaVersion.VERSION_21.majorVersion.toInt()
+    val javaVersion: Int get() = JavaVersion.VERSION_25.majorVersion.toInt()
     val jvmTarget: JvmTarget get() = javaVersion.toJvmTarget()
     val archiveName: String get() = repo.name
     val archiveVersion: String get() = version
     val packageName: String get() = packageNameSuffix?.let { packageNameBase.appendPackageName(it) } ?: packageNameBase
-    val packagePath: String get() = packageName.setCase(`dot․case`, `path∕case`)
     val classNamePrefix: String get() = repo.name.setCase(`kebab-case`, PascalCase)
 
     fun getBuildConfigFields(): List<Property<String>> = emptyList()
