@@ -27,7 +27,7 @@ class ProjektorGradlePlugin : Plugin<Project> {
             resolutionStrategy {
                 eachDependency {
                     when (requested.group) {
-                        "org.jetbrains.kotlin" -> useVersion("2.2.21")
+                        "org.jetbrains.kotlin" -> useVersion("2.3.0")
                     }
                 }
             }
