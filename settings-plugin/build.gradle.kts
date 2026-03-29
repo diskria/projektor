@@ -7,6 +7,9 @@ plugins {
 val commonProject = project(":common")
 
 dependencies {
+    implementation(platform(libs.kotlin.bom))
+    implementation(libs.kotlin.stdlib)
+
     compileOnly(kotlin("gradle-plugin"))
 
     implementation(libs.bundles.diskria.utils)
@@ -24,7 +27,7 @@ tasks {
 }
 
 group = "io.github.diskria"
-version = "6.0.5"
+version = "6.0.6"
 
 gradlePlugin {
     plugins {
