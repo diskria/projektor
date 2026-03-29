@@ -1,0 +1,153 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.github.diskria",
+    "module": "project-plugin",
+    "version": "6.0.8",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.4.1"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 25,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "project-plugin-6.0.8.jar",
+          "url": "project-plugin-6.0.8.jar",
+          "size": 302005,
+          "sha512": "4f6eb752f57d9b4e06abc1cbcd05459e88df91a831578968a14d70463a4d27be84eff2d10dcf517d175a49ddd8ed9409db8f4c22f398222cc0da5e4fcd7cf654",
+          "sha256": "f1cebc295ad7c23d8628f3d9b8f5f0ee565073f5c7e45f957cb3c6fe3fcdc19a",
+          "sha1": "dbfe8e61e42ff62d949b538e430ad68c6dc5a824",
+          "md5": "afcd2a5b56c0fc6209925ee114f47bc5"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 25,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-bom",
+          "version": {
+            "requires": "2.3.0"
+          },
+          "attributes": {
+            "org.gradle.category": "platform"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.3.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-html-jvm",
+          "version": {
+            "requires": "0.12.0"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "kotlin-utils",
+          "version": {
+            "requires": "0.11.1"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "gradle-utils",
+          "version": {
+            "requires": "0.11.2"
+          }
+        },
+        {
+          "group": "io.github.diskria",
+          "module": "kotlin-shell-dsl",
+          "version": {
+            "requires": "0.11.1"
+          }
+        },
+        {
+          "group": "io.ktor",
+          "module": "ktor-client-core",
+          "version": {
+            "requires": "3.4.1"
+          }
+        },
+        {
+          "group": "io.ktor",
+          "module": "ktor-client-cio",
+          "version": {
+            "requires": "3.4.1"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin.jvm",
+          "module": "org.jetbrains.kotlin.jvm.gradle.plugin",
+          "version": {
+            "requires": "2.3.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin.plugin.serialization",
+          "module": "org.jetbrains.kotlin.plugin.serialization.gradle.plugin",
+          "version": {
+            "requires": "2.3.0"
+          }
+        },
+        {
+          "group": "com.github.gmazzo.buildconfig",
+          "module": "com.github.gmazzo.buildconfig.gradle.plugin",
+          "version": {
+            "requires": "6.0.9"
+          }
+        },
+        {
+          "group": "com.gradle.publish",
+          "module": "plugin-publish-plugin",
+          "version": {
+            "requires": "2.1.1"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "project-plugin-6.0.8.jar",
+          "url": "project-plugin-6.0.8.jar",
+          "size": 302005,
+          "sha512": "4f6eb752f57d9b4e06abc1cbcd05459e88df91a831578968a14d70463a4d27be84eff2d10dcf517d175a49ddd8ed9409db8f4c22f398222cc0da5e4fcd7cf654",
+          "sha256": "f1cebc295ad7c23d8628f3d9b8f5f0ee565073f5c7e45f957cb3c6fe3fcdc19a",
+          "sha1": "dbfe8e61e42ff62d949b538e430ad68c6dc5a824",
+          "md5": "afcd2a5b56c0fc6209925ee114f47bc5"
+        }
+      ]
+    }
+  ]
+}

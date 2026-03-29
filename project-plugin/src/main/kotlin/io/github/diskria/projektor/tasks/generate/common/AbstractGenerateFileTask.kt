@@ -28,8 +28,7 @@ abstract class AbstractGenerateFileTask : DefaultTask() {
     @get:Internal
     abstract val metadata: Property<ProjektMetadata>
 
-    @get:InputDirectory
-    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:Internal
     abstract val repoDirectory: DirectoryProperty
 
     @get:OutputFile
