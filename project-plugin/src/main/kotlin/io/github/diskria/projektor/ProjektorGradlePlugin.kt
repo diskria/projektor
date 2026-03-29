@@ -27,6 +27,7 @@ class ProjektorGradlePlugin : Plugin<Project> {
         ensureKotlinPluginsApplied()
         dependencies {
             implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.3.0"))
+            implementation("org.jetbrains.kotlin:kotlin-stdlib:2.3.0")
         }
 
         val extension = registerExtension<ProjektExtension>()

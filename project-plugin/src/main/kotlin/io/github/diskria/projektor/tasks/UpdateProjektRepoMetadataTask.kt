@@ -94,7 +94,7 @@ abstract class UpdateProjektRepoMetadataTask : DefaultTask() {
                     buildString {
                         append("Projektor")
                         append(Constants.Char.SLASH)
-                        append("6.0.4")
+                        append("6.0.5")
                         append(Constants.Char.SPACE)
                         append(
                             buildString {
