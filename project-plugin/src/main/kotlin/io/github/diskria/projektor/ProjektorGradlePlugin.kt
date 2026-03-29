@@ -1,6 +1,7 @@
 package io.github.diskria.projektor
 
 import io.github.diskria.gradle.utils.extensions.ensureTaskRegistered
+import io.github.diskria.gradle.utils.extensions.implementation
 import io.github.diskria.gradle.utils.extensions.registerExtension
 import io.github.diskria.projektor.extensions.ensureKotlinPluginsApplied
 import io.github.diskria.projektor.extensions.gradle.ProjektExtension
@@ -11,6 +12,7 @@ import io.github.diskria.projektor.tasks.generate.GenerateProjektLicenseTask
 import io.github.diskria.projektor.tasks.generate.GenerateProjektReadmeTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.dependencies
 
 class ProjektorGradlePlugin : Plugin<Project> {
 
@@ -23,6 +25,9 @@ class ProjektorGradlePlugin : Plugin<Project> {
             ensureTaskRegistered<UpdateProjektRepoMetadataTask>()
         }
         ensureKotlinPluginsApplied()
+        dependencies {
+            implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.3.0"))
+        }
 
         val extension = registerExtension<ProjektExtension>()
         extension.onConfiguratorReady { it.configure(this) }
