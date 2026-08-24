@@ -1,0 +1,17 @@
+package io.github.diskria.projektor.core.model
+
+import io.github.diskria.projektor.core.model.github.GithubRepo
+import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
+
+internal abstract class AbstractProjekt(private val base: Projekt) : Projekt {
+    override val metadata: ProjektMetadata get() = base.metadata
+    override val license get() = base.license
+    override val publishingTargets get() = base.publishingTargets
+    override val softwareComponent get() = base.softwareComponent
+    override val repo: GithubRepo get() = metadata.repo
+    override val packageName: String get() = metadata.packageName
+    override val name: String get() = metadata.name
+    override val version: String get() = metadata.version
+    override val description: String get() = metadata.description
+    override val tags: Set<String> get() = metadata.tags
+}
