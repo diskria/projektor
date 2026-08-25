@@ -28,10 +28,10 @@ internal abstract class ProjectConfigurator<T : Projekt> {
     abstract fun configureProject(project: Project, projekt: T): Any
 
     private fun applyCommonConfiguration(project: Project, projekt: T) {
-        project.group = projekt.repo.owner.namespace
+        project.group = projekt.metadata.repo.owner.namespace
         project.version = projekt.version
         project.base {
-            archivesName.set(projekt.repo.name)
+            archivesName.set(projekt.metadata.repo.name)
         }
         project.kotlin {
             jvmToolchain(projekt.javaVersion)
@@ -62,12 +62,12 @@ internal abstract class ProjectConfigurator<T : Projekt> {
                 val generateLicenseTask = project.rootProject.tasks.getTask<GenerateLicenseTask>()
                 dependsOn(generateLicenseTask)
                 from(generateLicenseTask) {
-                    rename { "${it}_${projekt.repo.name}" }
+                    rename { "${it}_${projekt.metadata.repo.name}" }
                 }
-                val developer = projekt.repo.owner.developer
+                val developer = projekt.metadata.repo.owner.developer
                 manifest.attributes(
                     "Specification-Version" to 1,
-                    "Specification-Title" to projekt.repo.name,
+                    "Specification-Title" to projekt.metadata.repo.name,
                     "Specification-Vendor" to developer,
 
                     "Implementation-Version" to projekt.version,

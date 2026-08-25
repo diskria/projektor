@@ -37,9 +37,10 @@ internal inline fun <reified T : Task> TaskContainer.registerTask(
 
 internal inline fun <reified T : Task> TaskContainer.getTask(name: String = defaultTaskName<T>()): TaskProvider<T> {
     val existing = findByName(name)
+    val jClass = T::class.java
     Errors.internal.check(existing != null) { "Task '$name' is not registered in project" }
     Errors.internal.check(existing is T) {
-        "Task '$name' has type ${existing::class.java.name}, expected ${T::class.java.name}"
+        "Task '$name' has type ${existing::class.java.name}, expected ${jClass.name}"
     }
-    return named(name, T::class.java)
+    return named(name, jClass)
 }

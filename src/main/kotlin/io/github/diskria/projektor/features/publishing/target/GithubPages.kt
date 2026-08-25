@@ -15,6 +15,6 @@ internal object GithubPages : MavenPublishingTarget("github-pages") {
     override fun configureDistributeTask(project: Project, projekt: Projekt): TaskProvider<out Task> =
         project.tasks.registerTask<DeployMavenToGithubPagesTask>(SecretsHelper(project.providers))
 
-    override fun getHomepage(projekt: Projekt): String = projekt.repo.getPagesUrl()
+    override fun getHomepage(projekt: Projekt): String = projekt.metadata.repo.pagesUrl
     override fun getReadmeShield(projekt: Projekt): ReadmeShield = GithubPagesShield(projekt)
 }

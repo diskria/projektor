@@ -8,7 +8,7 @@ internal class MavenCentralShield(projekt: Projekt) : PublishingTargetShield(MAV
     override fun getPathSegments(): List<String> = listOf(
         target.id,
         LATEST_VERSION_PATH_SEGMENT,
-        projekt.repo.owner.namespace,
-        "${projekt.repo.name}.svg",
+        projekt.metadata.repo.owner.namespace,
+        "${projekt.metadata.repo.name}.svg",
     )
 }

@@ -18,8 +18,8 @@ internal open class GradlePluginConfigurator(val configuration: GradlePluginDsl)
     override fun configureProject(project: Project, projekt: GradlePlugin) {
         project.ensurePluginApplied("java-gradle-plugin")
         project.gradlePlugin {
-            website.set(projekt.repo.getUrl())
-            vcsUrl.set(projekt.repo.getUrl(isVcs = true))
+            website.set(projekt.metadata.repo.url)
+            vcsUrl.set(projekt.metadata.repo.vcsUrl)
             plugins.create(projekt.id).apply {
                 id = projekt.id
                 implementationClass = "${projekt.packageName}.${projekt.classNamePrefix}GradlePlugin"

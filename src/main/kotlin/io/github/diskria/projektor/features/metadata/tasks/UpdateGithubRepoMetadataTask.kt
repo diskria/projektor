@@ -49,7 +49,7 @@ internal abstract class UpdateGithubRepoMetadataTask @Inject constructor(
         val primaryProjekt = primaryProjekt.get()
         sendRequest(
             UpdateInfoRequest(
-                name = primaryProjekt.repo.name,
+                name = primaryProjekt.metadata.repo.name,
                 description = primaryProjekt.metadata.description,
                 homepageUrl = primaryProjekt.publishingTargets.firstOrNull()?.getHomepage(primaryProjekt),
             )
@@ -72,7 +72,7 @@ internal abstract class UpdateGithubRepoMetadataTask @Inject constructor(
     }
 
     private suspend fun sendRequest(request: GithubRepoRequest): HttpResponse {
-        val repo = primaryProjekt.get().repo
+        val repo = primaryProjekt.get().metadata.repo
         val url = buildString {
             append("https://api.github.com/repos/${repo.owner.name}/${repo.name}")
             request.getPathSegment()?.let { append("/$it") }

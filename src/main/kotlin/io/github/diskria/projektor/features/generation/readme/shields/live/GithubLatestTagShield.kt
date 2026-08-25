@@ -13,8 +13,8 @@ internal abstract class GithubLatestTagShield(
             "github",
             LATEST_VERSION_PATH_SEGMENT,
             "tag",
-            projekt.repo.owner.name,
-            "${projekt.repo.name}.svg",
+            projekt.metadata.repo.owner.name,
+            "${projekt.metadata.repo.name}.svg",
         )
 
     override fun getParameters(): List<Pair<String, String>> =

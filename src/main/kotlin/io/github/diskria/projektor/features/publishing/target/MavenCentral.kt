@@ -28,12 +28,12 @@ internal object MavenCentral : MavenPublishingTarget("maven-central") {
 
     override fun configureDistributeTask(project: Project, projekt: Projekt): TaskProvider<out Task> =
         project.tasks.registerTask<UploadBundleToMavenCentralTask>(SecretsHelper(project.providers)) {
-            archiveBaseName.set(projekt.repo.name)
+            archiveBaseName.set(projekt.metadata.repo.name)
             archiveVersion.set(projekt.version)
         }
 
     override fun getHomepage(projekt: Projekt): String =
-        "https://central.sonatype.com/artifact/${projekt.repo.owner.namespace}/${projekt.repo.name}"
+        "https://central.sonatype.com/artifact/${projekt.metadata.repo.owner.namespace}/${projekt.metadata.repo.name}"
 
     override fun getReadmeShield(projekt: Projekt): ReadmeShield = MavenCentralShield(projekt)
 }

@@ -3,7 +3,6 @@ package io.github.diskria.projektor.core.model
 import io.github.diskria.projektor.api.GradlePluginDsl
 import io.github.diskria.projektor.api.KotlinLibraryDsl
 import io.github.diskria.projektor.api.ProjektExtension
-import io.github.diskria.projektor.core.model.github.GithubRepo
 import io.github.diskria.projektor.core.model.license.License
 import io.github.diskria.projektor.core.model.license.mapToModel
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
@@ -15,7 +14,6 @@ import org.gradle.kotlin.dsl.getByType
 
 internal data class BaseProjekt(
     override val metadata: ProjektMetadata,
-    override val repo: GithubRepo,
     override val packageName: String,
     override val displayName: String,
     override val version: String,
@@ -37,7 +35,6 @@ internal data class BaseProjekt(
             val extension = project.extensions.getByType<ProjektExtension>()
             return BaseProjekt(
                 metadata = metadata,
-                repo = metadata.repo,
                 packageName = metadata.packageName,
                 displayName = metadata.displayName,
                 version = metadata.version,

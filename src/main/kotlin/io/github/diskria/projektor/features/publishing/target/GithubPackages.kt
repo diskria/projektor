@@ -18,17 +18,15 @@ internal object GithubPackages : MavenPublishingTarget("github-packages") {
         configure: MavenArtifactRepository.() -> Unit,
     ): MavenArtifactRepository =
         if (!project.providers.isCI) super.configureRepository(project, projekt, repositories, configure)
-        else repositories.maven(projekt.repo.getPackagesMavenUrl()) {
+        else repositories.maven(projekt.metadata.repo.packagesMavenUrl) {
             configure()
             val secrets = SecretsHelper(project.providers)
             credentials {
-                it.username = projekt.repo.owner.developer
+                it.username = projekt.metadata.repo.owner.developer
                 it.password = secrets.githubPackagesToken
             }
         }
 
-    override fun getHomepage(projekt: Projekt): String =
-        "https://github.com/${projekt.repo.owner.name}/${projekt.repo.name}/packages"
-
+    override fun getHomepage(projekt: Projekt): String = projekt.metadata.repo.packagesUrl
     override fun getReadmeShield(projekt: Projekt) = GithubPackagesShield(projekt)
 }

@@ -38,7 +38,7 @@ internal sealed class MavenPublishingTarget(val id: String) : PublishingTarget {
         val componentName = Errors.frontend.checkNotNull(projekt.softwareComponent) {
             "This kind of project doesn't support publishing to Maven"
         }
-        val publicationName = projekt.repo.name.split("-").withIndex().joinToString("") { (index, part) ->
+        val publicationName = projekt.metadata.repo.name.split("-").withIndex().joinToString("") { (index, part) ->
             if (index == 0) part else part.capitalized()
         }
         project.ensurePluginApplied("maven-publish")
@@ -50,28 +50,36 @@ internal sealed class MavenPublishingTarget(val id: String) : PublishingTarget {
                 from(Errors.internal.checkNotNull(project.components.findByName(componentName)) {
                     "SoftwareComponent '$componentName' not found in project '$name'"
                 })
-                val repoUrl = projekt.repo.getUrl()
+                val repo = projekt.metadata.repo
                 with(pom) {
                     name.set(projekt.displayName)
                     description.set(projekt.description)
-                    url.set(repoUrl)
+                    url.set(repo.url)
+                    scm {
+                        it.url.set(repo.url)
+                        it.connection.set(repo.scmUrl)
+                        it.developerConnection.set(repo.scmDeveloperUrl)
+                    }
+                    issueManagement {
+                        it.system.set("GitHub Issues")
+                        it.url.set(repo.issuesUrl)
+                    }
+                    ciManagement {
+                        it.system.set("GitHub Actions")
+                        it.url.set(repo.actionsUrl)
+                    }
+                    developers { spec ->
+                        spec.developer {
+                            it.id.set(repo.owner.developer)
+                            it.name.set(repo.owner.developer)
+                            it.email.set(repo.owner.email)
+                        }
+                    }
                     licenses { spec ->
                         spec.license {
                             it.name.set(projekt.license.id)
                             it.url.set(projekt.license.url)
                         }
-                    }
-                    developers { spec ->
-                        spec.developer {
-                            it.id.set(projekt.repo.owner.developer)
-                            it.name.set(projekt.repo.owner.developer)
-                            it.email.set(projekt.repo.owner.email)
-                        }
-                    }
-                    scm {
-                        it.url.set(repoUrl)
-                        it.connection.set(projekt.repo.getScmConnectionUrl())
-                        it.developerConnection.set(projekt.repo.getScmDeveloperConnectionUrl())
                     }
                 }
             }
