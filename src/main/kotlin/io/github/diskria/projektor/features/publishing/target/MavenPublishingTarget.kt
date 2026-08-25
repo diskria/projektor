@@ -51,10 +51,17 @@ internal sealed class MavenPublishingTarget(val id: String) : PublishingTarget {
                     "SoftwareComponent '$componentName' not found in project '$name'"
                 })
                 val repo = projekt.metadata.repo
+                val organizationUrl = repo.owner.organizationUrl
                 with(pom) {
                     name.set(projekt.displayName)
                     description.set(projekt.description)
                     url.set(repo.url)
+                    organizationUrl?.let { organizationUrl ->
+                        organization {
+                            it.name.set(repo.owner.name)
+                            it.url.set(organizationUrl)
+                        }
+                    }
                     scm {
                         it.url.set(repo.url)
                         it.connection.set(repo.scmUrl)
@@ -74,7 +81,7 @@ internal sealed class MavenPublishingTarget(val id: String) : PublishingTarget {
                             it.name.set(repo.owner.developer)
                             it.email.set(repo.owner.email)
                             it.url.set(repo.owner.profileUrl)
-                            repo.owner.organizationUrl?.let { organizationUrl ->
+                            organizationUrl?.let { organizationUrl ->
                                 it.organization.set(repo.owner.name)
                                 it.organizationUrl.set(organizationUrl)
                             }
