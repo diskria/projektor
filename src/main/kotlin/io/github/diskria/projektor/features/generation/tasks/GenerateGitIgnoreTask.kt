@@ -9,19 +9,21 @@ import java.io.File
 import javax.inject.Inject
 
 @DisableCachingByDefault(because = "Generates files and performs Git push side effects")
-internal abstract class GenerateProjektGitAttributesTask @Inject constructor(
+internal abstract class GenerateGitIgnoreTask @Inject internal constructor(
     providers: ProviderFactory,
     secrets: SecretsHelper,
 ) : AbstractGenerateFileTask(
-    outputFileName = ".gitattributes",
+    outputFileName = ".gitignore",
     commitType = CommitType.CHORE,
     providers = providers,
     secrets = secrets,
 ) {
     override fun getFileText(metadata: ProjektMetadata, repoDirectory: File, file: File): String =
         """
-        * text=auto eol=lf
-        *.sh text eol=lf
-        *.bat text eol=crlf
+        .idea/*
+        !.idea/dictionaries/
+        .gradle/
+        .kotlin/
+        build/
         """.trimIndent()
 }

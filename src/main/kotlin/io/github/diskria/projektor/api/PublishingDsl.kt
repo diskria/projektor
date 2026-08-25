@@ -19,6 +19,10 @@ class PublishingDsl internal constructor(
         publishingTargets.add(PublishingTargetType.MAVEN_CENTRAL)
     }
 
+    fun mavenLocal() {
+        publishingTargets.add(PublishingTargetType.MAVEN_LOCAL)
+    }
+
     fun gradlePluginPortal() {
         publishingTargets.add(PublishingTargetType.GRADLE_PLUGIN_PORTAL)
     }

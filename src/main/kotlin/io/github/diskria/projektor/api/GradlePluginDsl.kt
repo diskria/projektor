@@ -5,6 +5,7 @@ import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
 open class GradlePluginDsl @Inject internal constructor(objects: ObjectFactory) : ProjektorScope {
+    val version = objects.property<String>()
     val jvmTarget = objects.property<Int>()
     val javaVersion = objects.property<Int>()
     val supportsConfigurationCache = objects.property<Boolean>()

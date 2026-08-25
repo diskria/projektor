@@ -10,7 +10,7 @@ internal interface Projekt {
     val metadata: ProjektMetadata
     val repo: GithubRepo
     val packageName: String
-    val name: String
+    val displayName: String
     val version: String
     val description: String
     val tags: Set<String>
@@ -21,6 +21,5 @@ internal interface Projekt {
     val isJavadocEnabled: Boolean get() = true
     val javaVersion: Int get() = 25
     val jvmTarget: Int get() = 17
-    val archiveName: String get() = repo.name
     val classNamePrefix: String get() = repo.name.split("-").joinToString("") { it.capitalized() }
 }

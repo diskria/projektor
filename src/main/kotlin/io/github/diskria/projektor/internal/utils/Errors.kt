@@ -6,6 +6,7 @@ import org.gradle.api.GradleException
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
+@PublishedApi
 internal object Errors {
 
     val frontend = object : ErrorScope {
@@ -20,6 +21,7 @@ internal object Errors {
     }
 }
 
+@PublishedApi
 internal interface ErrorScope {
     fun error(message: String): Nothing
 }
@@ -46,6 +48,7 @@ internal inline fun <T : Any> ErrorScope.checkNotNull(value: T?, lazyMessage: ()
     return value
 }
 
+@PublishedApi
 internal inline fun <T : Any> ErrorScope.requireNotNull(value: T?, lazyMessage: () -> Any): T {
     contract { returns() implies (value != null) }
     if (value == null) {

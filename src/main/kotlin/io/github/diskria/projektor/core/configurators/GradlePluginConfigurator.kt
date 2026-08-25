@@ -15,28 +15,26 @@ internal open class GradlePluginConfigurator(val configuration: GradlePluginDsl)
     override fun buildProjekt(project: Project): GradlePlugin =
         BaseProjekt.of(project).toGradlePlugin(configuration)
 
-    override fun configureProject(project: Project, projekt: GradlePlugin) = with(project) {
-        ensurePluginApplied("java-gradle-plugin")
-        gradlePlugin {
+    override fun configureProject(project: Project, projekt: GradlePlugin) {
+        project.ensurePluginApplied("java-gradle-plugin")
+        project.gradlePlugin {
             website.set(projekt.repo.getUrl())
             vcsUrl.set(projekt.repo.getUrl(isVcs = true))
-            with(plugins.create(projekt.id)) {
+            plugins.create(projekt.id).apply {
                 id = projekt.id
                 implementationClass = "${projekt.packageName}.${projekt.classNamePrefix}GradlePlugin"
-                displayName = projekt.name
+                displayName = projekt.displayName
                 description = projekt.description
                 tags.set(projekt.tags)
 
-                ensurePluginApplied("org.gradle.plugin-compatibility")
+                project.ensurePluginApplied("org.gradle.plugin-compatibility")
                 compatibility {
-                    with(it.features) {
-                        configurationCache.set(configuration.supportsConfigurationCache)
-                    }
+                    it.features.configurationCache.set(configuration.supportsConfigurationCache)
                 }
             }
         }
-        dependencies {
-            "implementation"(gradleKotlinDsl())
+        project.dependencies {
+            "implementation"(project.gradleKotlinDsl())
         }
     }
 }

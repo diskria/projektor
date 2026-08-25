@@ -1,11 +1,8 @@
 package io.github.diskria.projektor.features.metadata.tasks
 
-import io.github.diskria.projektor.core.model.PublishingTargetType
-import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
+import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.extensions.applyProjektorGroup
 import io.github.diskria.projektor.extensions.isCI
-import io.github.diskria.projektor.extensions.projektMetadata
-import io.github.diskria.projektor.features.publishing.target.mapToModel
 import io.github.diskria.projektor.internal.network.github.GetLanguagesRequest
 import io.github.diskria.projektor.internal.network.github.UpdateInfoRequest
 import io.github.diskria.projektor.internal.network.github.UpdateTopicsRequest
@@ -19,10 +16,8 @@ import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.gradle.api.DefaultTask
-import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.ProviderFactory
-import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
@@ -35,15 +30,10 @@ internal abstract class UpdateGithubRepoMetadataTask @Inject constructor(
 ) : DefaultTask() {
 
     @get:Internal
-    abstract val metadata: Property<ProjektMetadata>
-
-    @get:Input
-    abstract val publishingTargets: ListProperty<PublishingTargetType>
+    abstract val primaryProjekt: Property<Projekt>
 
     init {
         applyProjektorGroup()
-
-        metadata.convention(project.projektMetadata)
     }
 
     @TaskAction
@@ -56,20 +46,18 @@ internal abstract class UpdateGithubRepoMetadataTask @Inject constructor(
     }
 
     private suspend fun updateInfo() {
-        with(metadata.get()) {
-            sendRequest(
-                UpdateInfoRequest(
-                    repo.name,
-                    description,
-                    publishingTargets.get().firstOrNull()?.mapToModel()?.getHomepage(this)
-                )
+        val primaryProjekt = primaryProjekt.get()
+        sendRequest(
+            UpdateInfoRequest(
+                name = primaryProjekt.repo.name,
+                description = primaryProjekt.metadata.description,
+                homepageUrl = primaryProjekt.publishingTargets.firstOrNull()?.getHomepage(primaryProjekt),
             )
-        }
+        )
     }
 
     private suspend fun updateTopics() {
-        val metadata = metadata.get()
-
+        val metadata = primaryProjekt.get().metadata
         val topics = buildSet {
             getTopLanguage()?.let { add(it) }
             addAll(metadata.projektTypes.map { it.topicName })
@@ -79,26 +67,23 @@ internal abstract class UpdateGithubRepoMetadataTask @Inject constructor(
     }
 
     private suspend fun getTopLanguage(): String? {
-        val languages = Json.decodeFromString<Map<String, Int>>(sendRequest(GetLanguagesRequest()).bodyAsText())
+        val languages: Map<String, Int> = Json.decodeFromString(sendRequest(GetLanguagesRequest()).bodyAsText())
         return languages.maxByOrNull { it.value }?.key
     }
 
     private suspend fun sendRequest(request: GithubRepoRequest): HttpResponse {
-        ProjektorHttpClient.client.use { client ->
-            val repo = metadata.get().repo
-            val url = buildString {
-                append("https://api.github.com/repos/${repo.owner.name}/${repo.name}")
-                request.getPathSegment()?.let { append("/$it") }
-            }
-            return client.request(url) {
-                method = request.getHttpMethod()
-                bearerAuth(secrets.githubToken)
-                header(HttpHeaders.UserAgent, "Projektor/8.0.0 (${metadata.get().repo.getUrl()})")
-                header(HttpHeaders.Accept, "application/vnd.github+json")
-                if (request is GithubJsonRequest) {
-                    contentType(ContentType.Application.Json)
-                    setBody(request.toJson())
-                }
+        val repo = primaryProjekt.get().repo
+        val url = buildString {
+            append("https://api.github.com/repos/${repo.owner.name}/${repo.name}")
+            request.getPathSegment()?.let { append("/$it") }
+        }
+        return ProjektorHttpClient.client.request(url) {
+            method = request.getHttpMethod()
+            bearerAuth(secrets.githubToken)
+            header(HttpHeaders.Accept, "application/vnd.github+json")
+            if (request is GithubJsonRequest) {
+                contentType(ContentType.Application.Json)
+                setBody(request.toJson())
             }
         }
     }

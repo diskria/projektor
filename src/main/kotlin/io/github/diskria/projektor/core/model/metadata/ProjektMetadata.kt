@@ -10,7 +10,7 @@ internal data class ProjektMetadata(
     val projektTypes: Set<ProjektType>,
     val repo: GithubRepo,
     val packageName: String,
-    val name: String,
+    val displayName: String,
     val version: String,
     val license: LicenseType,
     val description: String,

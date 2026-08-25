@@ -7,7 +7,7 @@ internal abstract class ReadmeShield {
 
     abstract fun getLabel(): String
 
-    abstract fun getUrl(): String
+    abstract fun getUrl(): String?
 
     abstract fun getAlt(): String
 
@@ -17,7 +17,8 @@ internal abstract class ReadmeShield {
 
     open fun getParameters(): List<Pair<String, String>> = emptyList()
 
-    fun buildMarkdown(): String {
+    fun buildMarkdown(): String? {
+        val url = getUrl() ?: return null
         val shieldUrl = URLBuilder("https://img.shields.io").apply {
             getPathSegments().forEach { segment ->
                 pathSegments = pathSegments + segment
@@ -28,8 +29,7 @@ internal abstract class ReadmeShield {
                 parameters.append(key, value)
             }
         }.build()
-
-        return MarkdownHelper.link(getUrl(), MarkdownHelper.image(shieldUrl, getAlt()))
+        return MarkdownHelper.link(url, MarkdownHelper.image(shieldUrl, getAlt()))
     }
 
     private fun getCommonParameters(): List<Pair<String, String>> = listOf(

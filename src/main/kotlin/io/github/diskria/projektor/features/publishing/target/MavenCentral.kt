@@ -1,7 +1,6 @@
 package io.github.diskria.projektor.features.publishing.target
 
 import io.github.diskria.projektor.core.model.Projekt
-import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.ensurePluginApplied
 import io.github.diskria.projektor.extensions.isCI
 import io.github.diskria.projektor.extensions.registerTask
@@ -18,50 +17,23 @@ import org.gradle.api.tasks.TaskProvider
 internal object MavenCentral : MavenPublishingTarget("maven-central") {
 
     override fun configurePublication(project: Project, projekt: Projekt, publication: MavenPublication) {
-        with(publication) {
-            val repoUrl = projekt.repo.getUrl()
-            pom.name.set(projekt.name)
-            pom.description.set(projekt.description)
-            pom.url.set(repoUrl)
-            pom.licenses { spec ->
-                spec.license { license ->
-                    license.name.set(projekt.license.id)
-                    license.url.set(projekt.license.url)
-                }
-            }
-            pom.developers { spec ->
-                spec.developer {
-                    with(it) {
-                        id.set(projekt.repo.owner.developer)
-                        name.set(projekt.repo.owner.developer)
-                        email.set(projekt.repo.owner.email)
-                    }
-                }
-            }
-            pom.scm {
-                it.url.set(repoUrl)
-                it.connection.set(projekt.repo.getScmConnectionUrl())
-                it.developerConnection.set(projekt.repo.getScmDeveloperConnectionUrl())
-            }
-        }
-        with(project) {
-            if (project.providers.isCI) {
-                ensurePluginApplied("signing")
-                signing {
-                    val secrets = SecretsHelper(project.providers)
-                    useInMemoryPgpKeys(secrets.gpgKey, secrets.gpgPassphrase)
-                    sign(publication)
-                }
-            }
+        if (!project.providers.isCI) return
+        project.ensurePluginApplied("signing")
+        project.signing {
+            val secrets = SecretsHelper(project.providers)
+            useInMemoryPgpKeys(secrets.gpgKey, secrets.gpgPassphrase)
+            sign(publication)
         }
     }
 
-    override fun configureDistributeTask(project: Project): TaskProvider<out Task> =
-        project.tasks.registerTask<UploadBundleToMavenCentralTask>(SecretsHelper(project.providers))
+    override fun configureDistributeTask(project: Project, projekt: Projekt): TaskProvider<out Task> =
+        project.tasks.registerTask<UploadBundleToMavenCentralTask>(SecretsHelper(project.providers)) {
+            archiveBaseName.set(projekt.repo.name)
+            archiveVersion.set(projekt.version)
+        }
 
-    override fun getHomepage(metadata: ProjektMetadata): String =
-        "https://central.sonatype.com/artifact/${metadata.repo.owner.namespace}/${metadata.repo.name}"
+    override fun getHomepage(projekt: Projekt): String =
+        "https://central.sonatype.com/artifact/${projekt.repo.owner.namespace}/${projekt.repo.name}"
 
-    override fun getReadmeShield(metadata: ProjektMetadata): ReadmeShield =
-        MavenCentralShield(metadata)
+    override fun getReadmeShield(projekt: Projekt): ReadmeShield = MavenCentralShield(projekt)
 }

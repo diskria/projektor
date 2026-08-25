@@ -3,29 +3,30 @@ package io.github.diskria.projektor.api
 import io.github.diskria.projektor.core.configurators.GradlePluginConfigurator
 import io.github.diskria.projektor.core.configurators.KotlinLibraryConfigurator
 import io.github.diskria.projektor.core.configurators.ProjectConfigurator
+import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.core.model.PublishingTargetType
-import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.internal.utils.Errors
 import io.github.diskria.projektor.internal.utils.check
 import io.github.diskria.projektor.internal.utils.checkNotNull
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.newInstance
+import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
 open class ProjektExtension @Inject internal constructor(
-    private val metadata: ProjektMetadata,
     private val objects: ObjectFactory,
 ) : ProjektorScope {
 
     internal val publishingTargets = objects.listProperty<PublishingTargetType>()
+    internal val configuredProjekt: Property<Projekt> = objects.property()
 
     private var configurator: ProjectConfigurator<*>? = null
 
-    fun gradlePlugin(configure: GradlePluginDsl.() -> Unit = {}): GradlePluginRef {
+    fun gradlePlugin(configure: GradlePluginDsl.() -> Unit = {}) {
         setConfigurator(GradlePluginConfigurator(objects.newInstance<GradlePluginDsl>().apply(configure)))
-        return GradlePluginRef(id = metadata.packageName)
     }
 
     fun kotlinLibrary(configure: KotlinLibraryDsl.() -> Unit = {}) {
@@ -36,8 +37,10 @@ open class ProjektExtension @Inject internal constructor(
         PublishingDsl(publishingTargets).configure()
     }
 
-    internal fun ensureConfigured(project: Project) {
-        Errors.frontend.checkNotNull(configurator) { "Projekt not configured" }.configure(project)
+    internal fun ensureConfigured(project: Project): Projekt {
+        val projekt = Errors.frontend.checkNotNull(configurator) { "Projekt not configured" }.configure(project)
+        configuredProjekt.set(projekt)
+        return projekt
     }
 
     private fun setConfigurator(configurator: ProjectConfigurator<*>) {

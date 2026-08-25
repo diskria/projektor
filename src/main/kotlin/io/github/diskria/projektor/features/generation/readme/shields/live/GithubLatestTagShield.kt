@@ -1,20 +1,20 @@
 package io.github.diskria.projektor.features.generation.readme.shields.live
 
+import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.core.model.PublishingTargetType
-import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 
 internal abstract class GithubLatestTagShield(
     target: PublishingTargetType,
-    metadata: ProjektMetadata
-) : PublishingTargetShield(target, metadata) {
+    projekt: Projekt,
+) : PublishingTargetShield(target, projekt) {
 
     override fun getPathSegments(): List<String> =
         listOf(
             "github",
             LATEST_VERSION_PATH_SEGMENT,
             "tag",
-            metadata.repo.owner.name,
-            "${metadata.repo.name}.svg"
+            projekt.repo.owner.name,
+            "${projekt.repo.name}.svg",
         )
 
     override fun getParameters(): List<Pair<String, String>> =

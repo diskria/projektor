@@ -15,7 +15,7 @@ import java.io.File
 import javax.inject.Inject
 
 @DisableCachingByDefault(because = "Generates files and performs Git push side effects")
-internal abstract class GenerateProjektLicenseTask @Inject constructor(
+internal abstract class GenerateLicenseTask @Inject constructor(
     providers: ProviderFactory,
     secrets: SecretsHelper,
 ) : AbstractGenerateFileTask(
@@ -38,9 +38,8 @@ internal abstract class GenerateProjektLicenseTask @Inject constructor(
         }
     }
 
-    private suspend fun getLicenseText(metadata: ProjektMetadata, license: License): String =
-        ProjektorHttpClient.client.use { client ->
-            val template = client.get(license.templateUrl).bodyAsText()
-            license.fillTemplate(template, metadata)
-        }
+    private suspend fun getLicenseText(metadata: ProjektMetadata, license: License): String {
+        val template = ProjektorHttpClient.client.get(license.templateUrl).bodyAsText()
+        return license.fillTemplate(template, metadata)
+    }
 }

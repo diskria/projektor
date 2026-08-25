@@ -1,6 +1,7 @@
 package io.github.diskria.projektor.api
 
 import io.github.diskria.projektor.core.model.ProjektType
+import io.github.diskria.projektor.core.model.github.GithubOwner
 import io.github.diskria.projektor.core.model.github.GithubRepo
 import io.github.diskria.projektor.core.model.license.LicenseType
 import io.github.diskria.projektor.core.model.metadata.ProjektAbout
@@ -22,6 +23,7 @@ open class ProjektMetadataExtension @Inject internal constructor(
 ) : ProjektorScope {
 
     val version = objects.property<String>().convention("0.1.0")
+    val email = objects.property<String>().convention("diskria@proton.me")
 
     internal val projektTypes = mutableSetOf<ProjektType>()
 
@@ -66,11 +68,22 @@ open class ProjektMetadataExtension @Inject internal constructor(
         }
     }
 
-    internal fun ensureConfigured() {
+    internal fun ensureConfigured(ownerName: String, repoName: String, about: ProjektAbout): ProjektMetadata {
         Errors.frontend.check(projektTypes.isNotEmpty()) {
             "Projekt type is not configured in settings.gradle.kts! " +
                 "Call kotlinLibrary(), gradlePlugin() or monorepo { ... }"
         }
+        val repo = GithubRepo(GithubOwner(ownerName, email.get()), repoName)
+        return ProjektMetadata(
+            projektTypes = projektTypes,
+            repo = repo,
+            packageName = "${repo.owner.namespace}.${repo.name.lowercase().replace("-", "_")}",
+            displayName = repo.name.split("-").joinToString(" ") { about.fixCase(it).capitalized() },
+            version = version.get(),
+            license = license,
+            description = about.description,
+            tags = about.tags,
+        )
     }
 
     internal fun registerProjektModule(path: String, type: ProjektType) {
@@ -103,17 +116,6 @@ open class ProjektMetadataExtension @Inject internal constructor(
             mavenCentrals()
         }
     }
-
-    internal fun buildMetadata(repo: GithubRepo, about: ProjektAbout) = ProjektMetadata(
-        projektTypes = projektTypes,
-        repo = repo,
-        packageName = "${repo.owner.namespace}.${repo.name.lowercase().replace("-", "_")}",
-        name = repo.name.split("-").joinToString(" ") { about.fixCase(it).capitalized() },
-        version = version.get(),
-        license = license,
-        description = about.description,
-        tags = about.tags,
-    )
 }
 
 private fun RepositoryHandler.mavenCentrals() {

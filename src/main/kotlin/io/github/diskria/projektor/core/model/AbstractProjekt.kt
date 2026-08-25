@@ -10,7 +10,7 @@ internal abstract class AbstractProjekt(private val base: Projekt) : Projekt {
     override val softwareComponent get() = base.softwareComponent
     override val repo: GithubRepo get() = metadata.repo
     override val packageName: String get() = metadata.packageName
-    override val name: String get() = metadata.name
+    override val displayName: String get() = metadata.displayName
     override val version: String get() = metadata.version
     override val description: String get() = metadata.description
     override val tags: Set<String> get() = metadata.tags

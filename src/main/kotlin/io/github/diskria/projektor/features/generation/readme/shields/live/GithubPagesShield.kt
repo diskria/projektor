@@ -1,6 +1,6 @@
 package io.github.diskria.projektor.features.generation.readme.shields.live
 
+import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.core.model.PublishingTargetType.GITHUB_PAGES
-import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 
-internal class GithubPagesShield(metadata: ProjektMetadata) : GithubLatestTagShield(GITHUB_PAGES, metadata)
+internal class GithubPagesShield(projekt: Projekt) : GithubLatestTagShield(GITHUB_PAGES, projekt)

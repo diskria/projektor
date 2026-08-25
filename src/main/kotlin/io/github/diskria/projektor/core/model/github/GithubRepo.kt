@@ -10,7 +10,7 @@ import java.io.File
 internal data class GithubRepo(val owner: GithubOwner, val name: String) {
 
     private val ownerName: String get() = owner.name
-    private val host: String = "github.com"
+    private val host: String get() = "github.com"
 
     fun getUrl(isVcs: Boolean = false, token: String? = null): String {
         val repoPath = if (isVcs) "$name.git" else name

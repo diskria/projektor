@@ -30,11 +30,11 @@ internal abstract class DeployMavenToGithubPagesTask @Inject constructor(private
     init {
         applyProjektorGroup()
 
-        metadata.convention(project.projektMetadata)
+        metadata.convention(project.rootProject.projektMetadata)
         repoDir.convention(project.layout.projectDirectory)
 
         from(GithubPages.getLocalMavenDirectory(project))
-        into(project.layout.projectDirectory.dir(GITHUB_PAGES_MAVEN_DIRECTORY_NAME))
+        into(project.layout.projectDirectory.dir("docs"))
 
         val isCI = project.providers.isCI
         doLast {
@@ -93,8 +93,4 @@ internal abstract class DeployMavenToGithubPagesTask @Inject constructor(private
                 text(href)
             }
         }
-
-    companion object {
-        private const val GITHUB_PAGES_MAVEN_DIRECTORY_NAME: String = "docs"
-    }
 }

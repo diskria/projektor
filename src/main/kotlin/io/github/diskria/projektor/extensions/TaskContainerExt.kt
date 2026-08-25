@@ -4,6 +4,7 @@ import io.github.diskria.projektor.core.configurators.toVersion
 import io.github.diskria.projektor.internal.utils.Errors
 import io.github.diskria.projektor.internal.utils.check
 import io.github.diskria.projektor.internal.utils.decapitalized
+import io.github.diskria.projektor.internal.utils.requireNotNull
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
@@ -15,7 +16,10 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 @PublishedApi
-internal val Class<*>.taskName: String get() = simpleName.removeSuffix("Task").decapitalized()
+internal inline fun <reified T : Task> defaultTaskName(): String =
+    Errors.internal.requireNotNull(T::class.simpleName) {
+        "Cannot derive task name: class '${T::class}' does not have a simple name"
+    }.removeSuffix("Task").decapitalized()
 
 internal fun TaskContainer.jar(configure: Jar.() -> Unit): TaskProvider<Jar> =
     named<Jar>("jar", configure)
@@ -27,29 +31,15 @@ internal fun TaskContainer.configureJvmTarget(target: JvmTarget) {
 
 internal inline fun <reified T : Task> TaskContainer.registerTask(
     vararg constructorArguments: Any,
+    name: String = defaultTaskName<T>(),
     noinline configure: T.() -> Unit = {}
-): TaskProvider<T> {
-    val jClass = T::class.java
-    val name = jClass.taskName
-    return register(name, jClass, *constructorArguments).apply { configure(configure) }
-}
+): TaskProvider<T> = register(name, T::class.java, *constructorArguments).apply { configure(configure) }
 
-internal inline fun <reified T : Task> TaskContainer.ensureTaskRegistered(
-    vararg constructorArguments: Any,
-    noinline configure: T.() -> Unit = {}
-): TaskProvider<T> {
-    val jClass = T::class.java
-    val name = jClass.taskName
-    return runCatching { named(name, jClass) }.getOrElse {
-        registerTask(constructorArguments = constructorArguments, configure)
-    }
-}
-
-internal inline fun <reified T : Task> TaskContainer.getTask(): TaskProvider<T> {
-    val jClass = T::class.java
-    val name = jClass.taskName
+internal inline fun <reified T : Task> TaskContainer.getTask(name: String = defaultTaskName<T>()): TaskProvider<T> {
     val existing = findByName(name)
     Errors.internal.check(existing != null) { "Task '$name' is not registered in project" }
-    Errors.internal.check(existing is T) { "Task '$name' has type ${jClass.name}, expected ${jClass.name}" }
-    return named(name, jClass)
+    Errors.internal.check(existing is T) {
+        "Task '$name' has type ${existing::class.java.name}, expected ${T::class.java.name}"
+    }
+    return named(name, T::class.java)
 }

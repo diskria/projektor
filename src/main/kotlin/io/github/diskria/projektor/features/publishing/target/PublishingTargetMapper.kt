@@ -8,5 +8,6 @@ internal fun PublishingTargetType.mapToModel(): PublishingTarget =
         GITHUB_PACKAGES -> GithubPackages
         GITHUB_PAGES -> GithubPages
         MAVEN_CENTRAL -> MavenCentral
+        MAVEN_LOCAL -> MavenLocal
         GRADLE_PLUGIN_PORTAL -> GradlePluginPortal
     }

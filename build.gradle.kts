@@ -17,7 +17,7 @@ dependencies {
 }
 
 group = "io.github.diskria"
-version = "8.0.1"
+version = "8.0.2"
 
 gradlePlugin {
     plugins {
@@ -33,7 +33,6 @@ val githubPagesMavenDir = layout.projectDirectory.dir("docs")
 
 publishing {
     repositories {
-        mavenLocal()
         maven(githubPagesMavenDir) { name = mavenName }
     }
 }
@@ -51,7 +50,6 @@ tasks {
         dependsOn(
             cleanGithubPagesMaven,
             "publishAllPublicationsTo${mavenName}Repository",
-            "publishAllPublicationsToMavenLocalRepository",
         )
     }
 }
