@@ -73,6 +73,11 @@ internal sealed class MavenPublishingTarget(val id: String) : PublishingTarget {
                             it.id.set(repo.owner.developer)
                             it.name.set(repo.owner.developer)
                             it.email.set(repo.owner.email)
+                            it.url.set(repo.owner.profileUrl)
+                            repo.owner.organizationUrl?.let { organizationUrl ->
+                                it.organization.set(repo.owner.name)
+                                it.organizationUrl.set(organizationUrl)
+                            }
                         }
                     }
                     licenses { spec ->
