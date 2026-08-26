@@ -3,13 +3,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.diskria.projektor</groupId>
   <artifactId>io.github.diskria.projektor.gradle.plugin</artifactId>
-  <version>8.0.3</version>
+  <version>8.0.4</version>
   <packaging>pom</packaging>
   <dependencies>
     <dependency>
       <groupId>io.github.diskria</groupId>
       <artifactId>projektor</artifactId>
-      <version>8.0.3</version>
+      <version>8.0.4</version>
     </dependency>
   </dependencies>
 </project>
