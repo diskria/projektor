@@ -63,7 +63,7 @@ internal abstract class ProjectConfigurator<T : Projekt> {
                 val generateLicenseTask = project.rootProject.tasks.getTask<GenerateLicenseTask>()
                 dependsOn(generateLicenseTask)
                 from(generateLicenseTask) {
-                    rename { "${it}_${projekt.metadata.repo.name}" }
+                    it.rename { fileName -> "${fileName}_${projekt.metadata.repo.name}" }
                 }
                 manifest.attributes(
                     "Specification-Version" to 1,
