@@ -8,5 +8,5 @@ open class GradlePluginDsl @Inject internal constructor(objects: ObjectFactory) 
     val version = objects.property<String>()
     val jvmTarget = objects.property<Int>()
     val javaVersion = objects.property<Int>()
-    val supportsConfigurationCache = objects.property<Boolean>()
+    val supportsConfigurationCache = objects.property<Boolean>().convention(false)
 }
