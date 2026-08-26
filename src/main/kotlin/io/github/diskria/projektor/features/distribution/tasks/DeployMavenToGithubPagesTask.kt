@@ -1,5 +1,6 @@
 package io.github.diskria.projektor.features.distribution.tasks
 
+import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.applyProjektorGroup
 import io.github.diskria.projektor.extensions.isCI
@@ -12,6 +13,7 @@ import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Sync
 import org.gradle.work.DisableCachingByDefault
@@ -19,46 +21,42 @@ import java.io.File
 import javax.inject.Inject
 
 @DisableCachingByDefault(because = "Deploys Maven artifacts to GitHub Pages and performs Git pushes")
-internal abstract class DeployMavenToGithubPagesTask @Inject constructor(private val secrets: SecretsHelper) : Sync() {
+internal abstract class DeployMavenToGithubPagesTask @Inject constructor(
+    private val providers: ProviderFactory,
+    private val secrets: SecretsHelper,
+) : Sync() {
 
     @get:Internal
     abstract val metadata: Property<ProjektMetadata>
 
     @get:Internal
-    abstract val repoDir: DirectoryProperty
+    abstract val repoDirectory: DirectoryProperty
 
     init {
         applyProjektorGroup()
-
         metadata.convention(project.rootProject.projektMetadata)
-        repoDir.convention(project.layout.projectDirectory)
-
+        repoDirectory.convention(project.layout.projectDirectory)
         from(GithubPagesDistributionTarget.getLocalMavenDirectory(project))
         into(project.layout.projectDirectory.dir("docs"))
+        doLast { deploy() }
+    }
 
-        val isCI = project.providers.isCI
-        doLast {
-            generateIndexTree(destinationDir)
-            if (isCI) {
-                metadata.get().repo.pushFile(
-                    repoDir.get().asFile,
-                    CommitMessage(CommitType.CHORE, "deploy maven to GitHub Pages"),
-                    destinationDir,
-                    secrets.githubToken,
-                )
-            }
-        }
+    private fun deploy() {
+        generateIndexTree(destinationDir)
+        if (!providers.isCI) return
+        metadata.get().repo.pushFile(
+            repoDirectory.get().asFile,
+            CommitMessage(CommitType.CHORE, "deploy maven to ${DistributionTargetType.GITHUB_PAGES.displayName}"),
+            destinationDir,
+            secrets.githubToken,
+        )
     }
 
     private fun generateIndexTree(directory: File, parentDirectory: File = directory) {
         val contents = directory.listFiles()?.sortedBy { it.name.lowercase() }?.ifEmpty { null } ?: return
-
-        val isRootDirectory = directory == parentDirectory
         val directories = contents.filter { it.isDirectory }
-        val files = contents.filter { it.isFile }
-
         val title = "Index of /${directory.relativeTo(parentDirectory).path}"
-        val indexHtml = createHTML().html {
+        directory.resolve("index.html").writeText(createHTML().html {
             lang = "en"
             head {
                 meta(charset = Charsets.UTF_8.name())
@@ -68,29 +66,14 @@ internal abstract class DeployMavenToGithubPagesTask @Inject constructor(private
                 h2 { text(title) }
                 hr {}
                 ul {
-                    if (!isRootDirectory) {
-                        addLinkItem("../")
-                    }
-                    directories.forEach { directory ->
-                        addLinkItem("${directory.name}/")
-                    }
-                    files.forEach { file ->
-                        addLinkItem(file.name)
-                    }
+                    if (directory != parentDirectory) addLinkItem("../")
+                    directories.forEach { addLinkItem("${it.name}/") }
+                    contents.filter { it.isFile }.forEach { addLinkItem(it.name) }
                 }
             }
-        }
-
-        val indexFile = directory.resolve("index.html")
-        indexFile.writeText(indexHtml)
-
+        })
         directories.forEach { generateIndexTree(it, parentDirectory) }
     }
-
-    private fun UL.addLinkItem(href: String) =
-        li {
-            a(href = href) {
-                text(href)
-            }
-        }
 }
+
+private fun UL.addLinkItem(href: String) = li { a(href) { text(href) } }

@@ -13,7 +13,7 @@ internal object MarkdownHelper {
         return "${"#".repeat(level)} $text\n\n"
     }
 
-    fun link(url: String, text: String): String = "[$text]($url)"
+    fun link(url: String, content: String): String = "[$content]($url)"
 
     fun image(url: Url, alt: String): String = "![$alt]($url)"
 }

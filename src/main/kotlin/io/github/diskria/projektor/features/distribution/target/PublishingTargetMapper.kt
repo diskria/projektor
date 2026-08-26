@@ -5,9 +5,9 @@ import io.github.diskria.projektor.core.model.DistributionTargetType.*
 
 internal fun DistributionTargetType.mapToModel(): DistributionTarget =
     when (this) {
-        GITHUB_PACKAGES -> GithubPackagesDistributionTarget
-        GITHUB_PAGES -> GithubPagesDistributionTarget
-        MAVEN_CENTRAL -> MavenCentralDistributionTarget
         MAVEN_LOCAL -> MavenLocalDistributionTarget
-        GRADLE_PLUGIN_PORTAL -> GradlePluginPortal
+        MAVEN_CENTRAL -> MavenCentralDistributionTarget
+        GITHUB_PAGES -> GithubPagesDistributionTarget
+        GITHUB_PACKAGES -> GithubPackagesDistributionTarget
+        GRADLE_PLUGIN_PORTAL -> GradlePluginPortalDistributionTarget
     }

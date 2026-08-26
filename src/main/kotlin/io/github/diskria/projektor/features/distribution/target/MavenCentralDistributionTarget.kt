@@ -29,10 +29,8 @@ internal object MavenCentralDistributionTarget : MavenDistributionTarget("maven-
     override fun configureDistributeTask(project: Project, projekt: Projekt): TaskProvider<out Task> {
         val publishTask = configurePublishTask(project, projekt)
         return project.tasks.registerTask<UploadBundleToMavenCentralTask>(SecretsHelper(project.providers)) {
-            archiveBaseName.set(projekt.metadata.repo.name)
-            archiveVersion.set(projekt.version)
+            this.projekt.set(projekt)
             dependsOn(publishTask)
-            mustRunAfter(publishTask)
         }
     }
 

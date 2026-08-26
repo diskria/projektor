@@ -35,6 +35,9 @@ internal inline fun <reified T : Task> TaskContainer.registerTask(
     noinline configure: T.() -> Unit = {}
 ): TaskProvider<T> = register(name, T::class.java, *constructorArguments).apply { configure(configure) }
 
+internal inline fun <reified T : Task> TaskContainer.hasTask(name: String = defaultTaskName<T>()): Boolean =
+    findByName(name) is T
+
 internal inline fun <reified T : Task> TaskContainer.getTask(name: String = defaultTaskName<T>()): TaskProvider<T> {
     val existing = findByName(name)
     val jClass = T::class.java

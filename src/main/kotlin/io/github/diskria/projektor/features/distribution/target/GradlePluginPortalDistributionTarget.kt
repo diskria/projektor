@@ -13,7 +13,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
 
-internal object GradlePluginPortal : DistributionTarget {
+internal object GradlePluginPortalDistributionTarget : DistributionTarget {
 
     override fun configureDistributeTask(project: Project, projekt: Projekt): TaskProvider<out Task> {
         Errors.frontend.check(projekt is GradlePlugin) {
@@ -22,13 +22,16 @@ internal object GradlePluginPortal : DistributionTarget {
         }
         project.pluginManager.apply("com.gradle.plugin-publish")
         if (project.providers.isCI) {
-            val secrets = SecretsHelper(project.providers)
-            secrets.gradlePublishKey
-            secrets.gradlePublishSecret
+            SecretsHelper(project.providers).requireGradlePublishCredentials()
         }
         return project.tasks.named("publishPlugins")
     }
 
     override fun getHomepage(projekt: Projekt): String = "https://plugins.gradle.org/plugin/${projekt.packageName}"
     override fun getReadmeShield(projekt: Projekt): ReadmeShield = GradlePluginPortalShield(projekt)
+}
+
+private fun SecretsHelper.requireGradlePublishCredentials() {
+    gradlePublishKey
+    gradlePublishSecret
 }

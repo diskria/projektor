@@ -12,9 +12,7 @@ internal data class ProjektAbout(
             .findAll("$description\n$details")
             .map { it.value }
             .groupBy { it.lowercase() }
-            .mapValues { (_, variants) ->
-                variants.maxBy { rateCase(it) }
-            }
+            .mapValues { (_, variants) -> variants.maxBy { rateCase(it) } }
     }
 
     fun fixCase(word: String): String = wordCaseDictionary[word.lowercase()] ?: word
@@ -28,18 +26,16 @@ internal data class ProjektAbout(
 
     companion object {
         fun of(repoDirectory: File): ProjektAbout {
-            val aboutDir = repoDirectory.resolve("about").apply { mkdirs() }
-
-            val descriptionFile = aboutDir.resolve("DESCRIPTION.md").getOrCreate(
+            val aboutDirectory = repoDirectory.resolve("about").apply { mkdirs() }
+            val descriptionFile = aboutDirectory.resolve("DESCRIPTION.md").getOrCreate(
                 defaultContent = "TODO: Project description."
             )
-            val detailsFile = aboutDir.resolve("DETAILS.md").getOrCreate(
+            val detailsFile = aboutDirectory.resolve("DETAILS.md").getOrCreate(
                 defaultContent = "TODO: Detailed project documentation."
             )
-            val tagsFile = aboutDir.resolve("TAGS.md").getOrCreate(
+            val tagsFile = aboutDirectory.resolve("TAGS.md").getOrCreate(
                 defaultContent = "kotlin"
             )
-
             return ProjektAbout(
                 description = descriptionFile.readText().trim(),
                 details = detailsFile.readText().trim(),

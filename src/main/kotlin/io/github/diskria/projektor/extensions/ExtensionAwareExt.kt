@@ -5,9 +5,7 @@ import io.github.diskria.projektor.internal.utils.Errors
 import io.github.diskria.projektor.internal.utils.decapitalized
 import io.github.diskria.projektor.internal.utils.requireNotNull
 import org.gradle.api.Project
-import org.gradle.api.invocation.Gradle
 import org.gradle.api.plugins.ExtensionAware
-import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.extra
 import kotlin.reflect.KProperty0
@@ -19,30 +17,21 @@ internal fun <T> ExtensionAware.setExtra(property: KProperty0<*>, value: T) {
     extra.set(property.name, value)
 }
 
-internal var Gradle.isProjektorSettingsApplied: Boolean
-    get() = getExtra<Boolean>(::isProjektorSettingsApplied) == true
-    set(value) {
-        setExtra(::isProjektorSettingsApplied, value)
-    }
-
 internal var Project.projektMetadata: ProjektMetadata
-    get() = Errors.internal.requireNotNull(getExtra<ProjektMetadata>(::projektMetadata)) {
+    get() = Errors.internal.requireNotNull(findProjektMetadata()) {
         "Projekt metadata has not been set yet"
     }
     set(value) {
-        setExtra(::projektMetadata, value)
+        ensureRootProject().setExtra(::projektMetadata, value)
     }
 
-internal var Project.isProjektorReleaseConfigured: Boolean
-    get() = getExtra<Boolean>(::isProjektorReleaseConfigured) == true
-    set(value) {
-        setExtra(::isProjektorReleaseConfigured, value)
-    }
+internal fun Project.findProjektMetadata(): ProjektMetadata? =
+    ensureRootProject().getExtra<ProjektMetadata>(::projektMetadata)
 
-internal var Project.projektDistributionTaskNames: List<String>
-    get() = getExtra<List<String>>(::projektDistributionTaskNames).orEmpty()
+internal var Project.projektDistributeTaskNames: List<String>
+    get() = getExtra<List<String>>(::projektDistributeTaskNames).orEmpty()
     set(value) {
-        setExtra(::projektDistributionTaskNames, value)
+        setExtra(::projektDistributeTaskNames, value)
     }
 
 @PublishedApi
@@ -56,6 +45,5 @@ internal inline fun <reified E : Any> ExtensionAware.registerExtension(
     name: String = defaultExtensionName<E>(),
 ): E = extensions.create<E>(name, *constructionArguments)
 
-internal inline fun <reified E : Any> ExtensionAware.configureExtension(noinline configure: E.() -> Unit) {
-    extensions.configure<E>(configure)
-}
+internal inline fun <reified E : Any> ExtensionAware.hasExtension(name: String = defaultExtensionName<E>()): Boolean =
+    extensions.findByName(name) is E

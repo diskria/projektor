@@ -3,10 +3,8 @@ package io.github.diskria.projektor.core.model.github
 import io.github.diskria.projektor.internal.git.CommitMessage
 import io.github.diskria.projektor.internal.git.CommitType
 import io.github.diskria.projektor.internal.git.GitClient
-import kotlinx.serialization.Serializable
 import java.io.File
 
-@Serializable
 internal data class GithubRepo(val owner: GithubOwner, val name: String) {
 
     val url: String get() = getUrl()

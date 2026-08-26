@@ -11,9 +11,7 @@ import io.github.diskria.projektor.features.generation.tasks.GenerateLicenseTask
 import io.github.diskria.projektor.features.metadata.tasks.UpdateGithubRepoMetadataTask
 import io.github.diskria.projektor.features.release.ReleaseProjektTask
 import io.github.diskria.projektor.internal.gradle.VersionCatalogsHelper
-import io.github.diskria.projektor.internal.utils.Errors
-import io.github.diskria.projektor.internal.utils.SecretsHelper
-import io.github.diskria.projektor.internal.utils.require
+import io.github.diskria.projektor.internal.utils.*
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
@@ -51,38 +49,38 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     }
 
     private fun applyToSettings(settings: Settings) {
-        settings.gradle.isProjektorSettingsApplied = true
         settings.pluginManager.apply("org.gradle.toolchains.foojay-resolver-convention")
-        @Suppress("UnstableApiUsage")
         settings.dependencyResolutionManagement.repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
         val extension = settings.registerExtension<ProjektMetadataExtension>(settings, name = "projekt")
+        val rootDirectory = settings.layout.rootDirectory.asFile
         settings.gradle.settingsEvaluated {
             val (ownerName, repoName) = if (settings.providers.isCI) {
                 with(settings.providers) { requireEnv("GITHUB_OWNER") to requireEnv("GITHUB_REPO") }
             } else {
-                with(settings.rootDir) { parentFile.name to name }
+                with(rootDirectory) { parentFile.name to name }
             }
             val metadata = extension.ensureConfigured(ownerName, repoName, ProjektAbout.of(settings.rootDir))
-            settings.gradle.rootProject { rootProject ->
-                rootProject.projektMetadata = metadata
+            if (extension.isMonorepo) {
+                val srcDirectory = rootDirectory.resolve("src")
+                Errors.frontend.check(!srcDirectory.exists()) {
+                    """
+                    Source directory '${srcDirectory.absolutePath}' is not allowed in the root project for a monorepo!
+                    Move your source code into a subproject.
+                    """.trimIndent()
+                }
             }
+            settings.gradle.rootProject { it.projektMetadata = metadata }
         }
-        configureVersionCatalogs(settings)
-        settings.gradle.rootProject { rootProject ->
-            setupEnvironment(rootProject)
+        val defaultCatalog = rootDirectory.resolve("gradle/libs.versions.toml")
+        if (!defaultCatalog.exists()) {
+            defaultCatalog.parentFile.mkdirs()
+            defaultCatalog.writeText(VersionCatalogsHelper.TEMPLATE)
         }
-    }
-
-    private fun configureVersionCatalogs(settings: Settings) {
         settings.dependencyResolutionManagement.versionCatalogs.maybeCreate("convention").apply {
             plugin("projektor", "io.github.diskria.projektor").version("")
         }
-        val gradleDir = settings.rootDir.resolve("gradle")
-        val defaultCatalog = gradleDir.resolve("libs.versions.toml")
-        if (!defaultCatalog.exists()) {
-            defaultCatalog.parentFile.mkdirs()
-            defaultCatalog.createNewFile()
-            defaultCatalog.writeText(VersionCatalogsHelper.TEMPLATE)
+        settings.gradle.rootProject { rootProject ->
+            setupEnvironment(rootProject)
         }
     }
 
@@ -94,8 +92,8 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
             distributionType = Wrapper.DistributionType.ALL
         }
         rootProject.gradle.taskGraph.whenReady { graph ->
-            val isOnlyWrapper = graph.allTasks.all { it.name == "wrapper" }
-            if (!isOnlyWrapper) {
+            val isWrapperOnly = graph.allTasks.all { it.name == "wrapper" }
+            if (!isWrapperOnly) {
                 Errors.frontend.require(current == required) {
                     """
                     Gradle version mismatch detected!
@@ -111,7 +109,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     }
 
     private fun applyToProject(project: Project) {
-        Errors.frontend.require(project.gradle.isProjektorSettingsApplied) {
+        Errors.frontend.requireNotNull(project.rootProject.findProjektMetadata()) {
             """
             Projektor plugin was applied in 'build.gradle.kts', but is missing from 'settings.gradle.kts'!
             
@@ -136,7 +134,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     }
 
     private fun configureReleaseTask(rootProject: Project) {
-        if (rootProject.isProjektorReleaseConfigured) {
+        if (rootProject.tasks.hasTask<ReleaseProjektTask>()) {
             return
         }
         val secrets = SecretsHelper(rootProject.providers)
@@ -152,12 +150,11 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
         }
         rootProject.allprojects { subproject ->
             subproject.afterEvaluate {
-                val projektDistributionTaskNames = subproject.projektDistributionTaskNames
-                if (projektDistributionTaskNames.isNotEmpty()) {
-                    val distributeTasks = subproject.tasks.matching { it.name in projektDistributionTaskNames }
-                    distributeTasks.configureEach { it.mustRunAfter(readme) }
-                    githubMetadata.configure { it.mustRunAfter(distributeTasks) }
-                    release.configure { it.dependsOn(distributeTasks) }
+                subproject.projektDistributeTaskNames.forEach { taskName ->
+                    val distributeTask = subproject.tasks.named(taskName)
+                    distributeTask.configure { it.mustRunAfter(readme) }
+                    githubMetadata.configure { it.mustRunAfter(distributeTask) }
+                    release.configure { it.dependsOn(distributeTask) }
                 }
             }
         }
@@ -168,6 +165,5 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
             readme.configure { it.projekts.set(allProjekts) }
             githubMetadata.configure { it.primaryProjekt.set(allProjekts.first()) }
         }
-        rootProject.isProjektorReleaseConfigured = true
     }
 }

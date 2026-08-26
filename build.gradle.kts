@@ -29,27 +29,23 @@ gradlePlugin {
 }
 
 val mavenName = "GithubPages"
-val githubPagesMavenDir = layout.projectDirectory.dir("docs")
+val docsDirectory = layout.projectDirectory.dir("docs")
 
 publishing {
     repositories {
-        maven(githubPagesMavenDir) { name = mavenName }
+        maven(docsDirectory) { name = mavenName }
     }
 }
 
 tasks {
     val cleanGithubPagesMaven = register<Delete>("clean${mavenName}Maven") {
-        delete(githubPagesMavenDir)
+        delete(docsDirectory)
     }
-
-    named("publishAllPublicationsTo${mavenName}Repository") {
+    val publish = "publishAllPublicationsTo${mavenName}Repository"
+    named(publish) {
         mustRunAfter(cleanGithubPagesMaven)
     }
-
     register("releaseProjekt") {
-        dependsOn(
-            cleanGithubPagesMaven,
-            "publishAllPublicationsTo${mavenName}Repository",
-        )
+        dependsOn(cleanGithubPagesMaven, publish)
     }
 }

@@ -16,7 +16,6 @@ internal object GithubPagesDistributionTarget : MavenDistributionTarget("github-
         val publishTask = configurePublishTask(project, projekt)
         return project.tasks.registerTask<DeployMavenToGithubPagesTask>(SecretsHelper(project.providers)) {
             dependsOn(publishTask)
-            mustRunAfter(publishTask)
         }
     }
 

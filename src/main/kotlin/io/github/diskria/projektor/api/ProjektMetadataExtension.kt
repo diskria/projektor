@@ -36,14 +36,14 @@ open class ProjektMetadataExtension @Inject internal constructor(
 
     fun gradlePlugin() {
         ensureSingleRepoMode()
-        registerProjektModule(":", ProjektType.GRADLE_PLUGIN)
         configureGradlePluginRepositories()
+        registerProjekt(":", ProjektType.GRADLE_PLUGIN)
     }
 
     fun kotlinLibrary() {
         ensureSingleRepoMode()
-        registerProjektModule(":", ProjektType.KOTLIN_LIBRARY)
         configureKotlinLibraryRepositories()
+        registerProjekt(":", ProjektType.KOTLIN_LIBRARY)
     }
 
     fun licensing(configure: LicensingDsl.() -> Unit) {
@@ -85,17 +85,16 @@ open class ProjektMetadataExtension @Inject internal constructor(
         )
     }
 
-    internal fun registerProjektModule(path: String, type: ProjektType) {
+    internal fun registerProjekt(projectPath: String, type: ProjektType) {
         if (primaryProjectPath == null) {
-            primaryProjectPath = path
+            primaryProjectPath = projectPath
         }
         projektTypes.add(type)
-
         settings.gradle.rootProject { rootProject ->
-            rootProject.project(path) { project ->
-                project.afterEvaluate { evaluatedProject ->
-                    Errors.frontend.check(evaluatedProject.plugins.hasPlugin("io.github.diskria.projektor")) {
-                        "Project '$path' was declared in settings.gradle.kts, " +
+            rootProject.project(projectPath) { project ->
+                project.afterEvaluate {
+                    Errors.frontend.check(project.plugins.hasPlugin("io.github.diskria.projektor")) {
+                        "Project '$projectPath' was declared in settings.gradle.kts, " +
                             "but 'alias(convention.plugins.projektor)' plugin was not applied in its build.gradle.kts!"
                     }
                 }
@@ -104,7 +103,6 @@ open class ProjektMetadataExtension @Inject internal constructor(
     }
 
     internal fun configureGradlePluginRepositories() {
-        @Suppress("UnstableApiUsage")
         settings.dependencyResolutionManagement.repositories.apply {
             gradlePluginPortal()
             mavenCentrals()
@@ -112,7 +110,6 @@ open class ProjektMetadataExtension @Inject internal constructor(
     }
 
     internal fun configureKotlinLibraryRepositories() {
-        @Suppress("UnstableApiUsage")
         settings.dependencyResolutionManagement.repositories.apply {
             mavenCentrals()
         }
