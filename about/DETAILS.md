@@ -1,11 +1,3 @@
-# Projektor
-
-An opinionated Gradle convention plugin for Diskria projects. Automates setup and multi-target publishing for Kotlin libraries and Gradle plugins, with built-in mono-repo support.
-
-[![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/io.github.diskria.projektor.svg?label=Gradle+Plugin+Portal&style=for-the-badge)](https://plugins.gradle.org/plugin/io.github.diskria.projektor) [![License: MIT](https://img.shields.io/static/v1?label=License&style=for-the-badge&message=MIT&color=yellow)](https://spdx.org/licenses/MIT)
-
----
-
 ### Key Capabilities
 
 - Settings-Driven Declaration: Define project types (kotlinLibrary, gradlePlugin, or monorepo) and common metadata (version, license) directly in settings.gradle.kts.
@@ -47,9 +39,3 @@ projekt {
     }
 }
 ```
-
----
-
-## License
-
-This project is licensed under the [MIT License](https://spdx.org/licenses/MIT).
