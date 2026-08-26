@@ -3,7 +3,7 @@
   "component": {
     "group": "io.github.diskria",
     "module": "projektor",
-    "version": "8.0.4",
+    "version": "8.0.5",
     "attributes": {
       "org.gradle.status": "release"
     }
@@ -36,13 +36,13 @@
       ],
       "files": [
         {
-          "name": "projektor-8.0.4.jar",
-          "url": "projektor-8.0.4.jar",
-          "size": 304030,
-          "sha512": "0e69168ffab2085a7e97c3b98f5e236c0a19f3ec5f0a83e0dd12830549214a21ed7eddeb30fdee9ed62b8bf488620e1e8e3bdff8c16312e33ca3c3b5312daa2e",
-          "sha256": "9d2d13518d2d142b86adf3274d64e1dea307d98d37ae0c9e5db133a6fa70eec8",
-          "sha1": "d0a68d79b82382cf601987a981912725ef231893",
-          "md5": "b0238e831a08124c65d0a60c27ab0174"
+          "name": "projektor-8.0.5.jar",
+          "url": "projektor-8.0.5.jar",
+          "size": 306274,
+          "sha512": "400d5be1d436b60fbacef75682608a5a94f70de0cfa7de5b10dd4f813adec5b7c4e0dad14197cd716b3558b8b964044f0cb5bcbe711d8c40986c201000f6d6be",
+          "sha256": "02d44ee9b541e6d34feeb8ebcb992467e6c5f3e38e9ebab4a4f40d2cdc9abf6d",
+          "sha1": "20f04241f2b47b5f92d9a366f52cf00716370181",
+          "md5": "c44ee9211b320a1814af8eed10e5ee00"
         }
       ]
     },
@@ -124,13 +124,13 @@
       ],
       "files": [
         {
-          "name": "projektor-8.0.4.jar",
-          "url": "projektor-8.0.4.jar",
-          "size": 304030,
-          "sha512": "0e69168ffab2085a7e97c3b98f5e236c0a19f3ec5f0a83e0dd12830549214a21ed7eddeb30fdee9ed62b8bf488620e1e8e3bdff8c16312e33ca3c3b5312daa2e",
-          "sha256": "9d2d13518d2d142b86adf3274d64e1dea307d98d37ae0c9e5db133a6fa70eec8",
-          "sha1": "d0a68d79b82382cf601987a981912725ef231893",
-          "md5": "b0238e831a08124c65d0a60c27ab0174"
+          "name": "projektor-8.0.5.jar",
+          "url": "projektor-8.0.5.jar",
+          "size": 306274,
+          "sha512": "400d5be1d436b60fbacef75682608a5a94f70de0cfa7de5b10dd4f813adec5b7c4e0dad14197cd716b3558b8b964044f0cb5bcbe711d8c40986c201000f6d6be",
+          "sha256": "02d44ee9b541e6d34feeb8ebcb992467e6c5f3e38e9ebab4a4f40d2cdc9abf6d",
+          "sha1": "20f04241f2b47b5f92d9a366f52cf00716370181",
+          "md5": "c44ee9211b320a1814af8eed10e5ee00"
         }
       ]
     }
