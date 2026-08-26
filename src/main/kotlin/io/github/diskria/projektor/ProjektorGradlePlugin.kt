@@ -36,7 +36,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
                 This plugin must be applied in two steps:
                   1. In 'settings.gradle.kts':
                      plugins {
-                         id("io.github.diskria.projektor") version "8.0.5"
+                         id("io.github.diskria.projektor") version "8.0.6"
                      }
                 
                   2. Then in 'build.gradle.kts':
@@ -115,7 +115,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
             
             Please add it to 'settings.gradle.kts' with a version first:
               plugins {
-                  id("io.github.diskria.projektor") version "8.0.5"
+                  id("io.github.diskria.projektor") version "8.0.6"
               }
             
             And in 'build.gradle.kts', apply it WITHOUT a version:
