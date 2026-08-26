@@ -21,10 +21,12 @@ internal object GradlePluginPortalDistributionTarget : DistributionTarget {
                 DistributionTargetType.GRADLE_PLUGIN_PORTAL.displayName
         }
         project.pluginManager.apply("com.gradle.plugin-publish")
-        if (project.providers.isCI) {
+        return if (project.providers.isCI) {
             SecretsHelper(project.providers).requireGradlePublishCredentials()
+            project.tasks.named("publishPlugins")
+        } else {
+            project.tasks.named("validatePlugins")
         }
-        return project.tasks.named("publishPlugins")
     }
 
     override fun getHomepage(projekt: Projekt): String = "https://plugins.gradle.org/plugin/${projekt.packageName}"
