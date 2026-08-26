@@ -1,7 +1,7 @@
 package io.github.diskria.projektor.features.distribution.target
 
+import io.github.diskria.projektor.core.model.GradlePlugin
 import io.github.diskria.projektor.core.model.Projekt
-import io.github.diskria.projektor.extensions.maybeCreate
 import io.github.diskria.projektor.internal.utils.Errors
 import io.github.diskria.projektor.internal.utils.capitalized
 import io.github.diskria.projektor.internal.utils.checkNotNull
@@ -16,6 +16,7 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.maven
+import org.gradle.kotlin.dsl.withType
 
 internal sealed class MavenDistributionTarget(val id: String) : DistributionTarget {
 
@@ -41,21 +42,29 @@ internal sealed class MavenDistributionTarget(val id: String) : DistributionTarg
         val componentName = Errors.frontend.checkNotNull(projekt.softwareComponent) {
             "This kind of project doesn't support publishing to Maven"
         }
-        val publicationName = projekt.metadata.repo.name.split("-").withIndex().joinToString("") { (index, part) ->
-            if (index == 0) part else part.capitalized()
-        }
         project.pluginManager.apply("maven-publish")
         project.extensions.configure<PublishingExtension> {
             configureRepository(project, projekt, repositories) {
                 name = repositoryName
             }
-            val publication = publications.maybeCreate<MavenPublication>(publicationName) {
-                from(Errors.internal.checkNotNull(project.components.findByName(componentName)) {
-                    "SoftwareComponent '$componentName' not found in project '$name'"
+            val isGradlePlugin = projekt is GradlePlugin
+            val publicationName = if (isGradlePlugin) {
+                "pluginMaven"
+            } else {
+                projekt.metadata.repo.name.split("-").withIndex().joinToString("") { (index, part) ->
+                    if (index == 0) part else part.capitalized()
+                }
+            }
+            if (!isGradlePlugin) {
+                val publication = publications.maybeCreate(publicationName, MavenPublication::class.java)
+                publication.from(Errors.internal.checkNotNull(project.components.findByName(componentName)) {
+                    "SoftwareComponent '$componentName' not found in project '${project.path}'"
                 })
+            }
+            publications.matching { it.name == publicationName }.withType<MavenPublication>().all { publication ->
                 val repo = projekt.metadata.repo
                 val organizationUrl = repo.owner.organizationUrl
-                with(pom) {
+                with(publication.pom) {
                     name.set(projekt.displayName)
                     description.set(projekt.description)
                     url.set(repo.url)
@@ -97,8 +106,8 @@ internal sealed class MavenDistributionTarget(val id: String) : DistributionTarg
                         }
                     }
                 }
+                configurePublication(project, projekt, publication)
             }
-            configurePublication(project, projekt, publication)
         }
         return project.tasks.named("publishAllPublicationsTo${repositoryName}Repository")
     }
