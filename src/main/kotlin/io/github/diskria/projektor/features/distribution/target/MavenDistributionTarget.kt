@@ -2,6 +2,7 @@ package io.github.diskria.projektor.features.distribution.target
 
 import io.github.diskria.projektor.core.model.GradlePlugin
 import io.github.diskria.projektor.core.model.Projekt
+import io.github.diskria.projektor.extensions.isProjektMavenPublicationConfigured
 import io.github.diskria.projektor.internal.utils.Errors
 import io.github.diskria.projektor.internal.utils.capitalized
 import io.github.diskria.projektor.internal.utils.checkNotNull
@@ -12,6 +13,7 @@ import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.file.Directory
 import org.gradle.api.provider.Provider
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.configure
@@ -61,54 +63,65 @@ internal sealed class MavenDistributionTarget(val id: String) : DistributionTarg
                     "SoftwareComponent '$componentName' not found in project '${project.path}'"
                 })
             }
-            publications.matching { it.name == publicationName }.withType<MavenPublication>().all { publication ->
-                val repo = projekt.metadata.repo
-                val organizationUrl = repo.owner.organizationUrl
-                with(publication.pom) {
-                    name.set(projekt.displayName)
-                    description.set(projekt.description)
-                    url.set(repo.url)
-                    organizationUrl?.let { organizationUrl ->
-                        organization {
-                            it.name.set(repo.owner.name)
-                            it.url.set(organizationUrl)
-                        }
+            if (!project.isProjektMavenPublicationConfigured) {
+                publications
+                    .matching { it.name == publicationName }
+                    .withType<MavenPublication>()
+                    .configureEach { publication ->
+                        if (project.isProjektMavenPublicationConfigured) return@configureEach
+                        configurePom(publication.pom, projekt)
+                        configurePublication(project, projekt, publication)
+                        project.isProjektMavenPublicationConfigured = true
                     }
-                    scm {
-                        it.url.set(repo.url)
-                        it.connection.set(repo.scmUrl)
-                        it.developerConnection.set(repo.scmDeveloperUrl)
-                    }
-                    issueManagement {
-                        it.system.set("GitHub Issues")
-                        it.url.set(repo.issuesUrl)
-                    }
-                    ciManagement {
-                        it.system.set("GitHub Actions")
-                        it.url.set(repo.actionsUrl)
-                    }
-                    developers { spec ->
-                        spec.developer {
-                            it.id.set(repo.owner.developer)
-                            it.name.set(repo.owner.developer)
-                            it.email.set(repo.owner.email)
-                            it.url.set(repo.owner.profileUrl)
-                            organizationUrl?.let { organizationUrl ->
-                                it.organization.set(repo.owner.name)
-                                it.organizationUrl.set(organizationUrl)
-                            }
-                        }
-                    }
-                    licenses { spec ->
-                        spec.license {
-                            it.name.set(projekt.license.id)
-                            it.url.set(projekt.license.url)
-                        }
-                    }
-                }
-                configurePublication(project, projekt, publication)
             }
         }
         return project.tasks.named("publishAllPublicationsTo${repositoryName}Repository")
+    }
+
+    private fun configurePom(pom: MavenPom, projekt: Projekt) {
+        val repo = projekt.metadata.repo
+        val organizationUrl = repo.owner.organizationUrl
+        with(pom) {
+            name.set(projekt.displayName)
+            description.set(projekt.description)
+            url.set(repo.url)
+            organizationUrl?.let { organizationUrl ->
+                organization {
+                    it.name.set(repo.owner.name)
+                    it.url.set(organizationUrl)
+                }
+            }
+            scm {
+                it.url.set(repo.url)
+                it.connection.set(repo.scmUrl)
+                it.developerConnection.set(repo.scmDeveloperUrl)
+            }
+            issueManagement {
+                it.system.set("GitHub Issues")
+                it.url.set(repo.issuesUrl)
+            }
+            ciManagement {
+                it.system.set("GitHub Actions")
+                it.url.set(repo.actionsUrl)
+            }
+            developers { spec ->
+                spec.developer {
+                    it.id.set(repo.owner.developer)
+                    it.name.set(repo.owner.developer)
+                    it.email.set(repo.owner.email)
+                    it.url.set(repo.owner.profileUrl)
+                    organizationUrl?.let { organizationUrl ->
+                        it.organization.set(repo.owner.name)
+                        it.organizationUrl.set(organizationUrl)
+                    }
+                }
+            }
+            licenses { spec ->
+                spec.license {
+                    it.name.set(projekt.license.id)
+                    it.url.set(projekt.license.url)
+                }
+            }
+        }
     }
 }

@@ -34,6 +34,12 @@ internal var Project.projektDistributeTaskNames: List<String>
         setExtra(::projektDistributeTaskNames, value)
     }
 
+internal var Project.isProjektMavenPublicationConfigured: Boolean
+    get() = getExtra<Boolean>(::isProjektMavenPublicationConfigured) == true
+    set(value) {
+        setExtra(::isProjektMavenPublicationConfigured, value)
+    }
+
 @PublishedApi
 internal inline fun <reified E : Any> defaultExtensionName(): String =
     Errors.internal.requireNotNull(E::class.simpleName) {
