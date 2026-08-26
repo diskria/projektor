@@ -30,7 +30,7 @@ internal abstract class AbstractGenerateFileTask @Inject constructor(
     abstract val metadata: Property<ProjektMetadata>
 
     @get:Internal
-    abstract val repoDirectory: DirectoryProperty
+    abstract val repoDir: DirectoryProperty
 
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
@@ -39,14 +39,14 @@ internal abstract class AbstractGenerateFileTask @Inject constructor(
         applyProjektorGroup()
 
         metadata.convention(project.projektMetadata)
-        repoDirectory.convention(project.layout.projectDirectory)
+        repoDir.convention(project.layout.projectDirectory)
         outputFile.convention(project.layout.projectDirectory.file(outputFileName))
     }
 
     @TaskAction
     fun generate() {
         val metadata = metadata.get()
-        val repoDirectory = repoDirectory.get().asFile
+        val repoDirectory = repoDir.get().asFile
         val outputFile = outputFile.get().asFile
 
         val wasFileExists = outputFile.exists()

@@ -7,8 +7,8 @@ import io.github.diskria.projektor.core.model.license.License
 import io.github.diskria.projektor.core.model.license.mapToModel
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.projektMetadata
-import io.github.diskria.projektor.features.publishing.target.PublishingTarget
-import io.github.diskria.projektor.features.publishing.target.mapToModel
+import io.github.diskria.projektor.features.distribution.target.DistributionTarget
+import io.github.diskria.projektor.features.distribution.target.mapToModel
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.getByType
 
@@ -20,7 +20,7 @@ internal data class BaseProjekt(
     override val description: String,
     override val tags: Set<String>,
     override val license: License,
-    override val publishingTargets: List<PublishingTarget>,
+    override val distributionTargets: List<DistributionTarget>,
 ) : Projekt {
 
     fun toGradlePlugin(config: GradlePluginDsl): GradlePlugin =
@@ -41,7 +41,7 @@ internal data class BaseProjekt(
                 description = metadata.description,
                 tags = metadata.tags,
                 license = metadata.license.mapToModel(),
-                publishingTargets = extension.publishingTargets.getOrElse(emptyList()).map { it.mapToModel() },
+                distributionTargets = extension.distributionTargets.getOrElse(emptyList()).map { it.mapToModel() },
             )
         }
     }

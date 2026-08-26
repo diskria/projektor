@@ -1,4 +1,4 @@
-package io.github.diskria.projektor.features.publishing.target
+package io.github.diskria.projektor.features.distribution.target
 
 import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.extensions.isCI
@@ -9,7 +9,7 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.kotlin.dsl.maven
 
-internal object GithubPackages : MavenPublishingTarget("github-packages") {
+internal object GithubPackagesDistributionTarget : MavenDistributionTarget("github-packages") {
 
     override fun configureRepository(
         project: Project,

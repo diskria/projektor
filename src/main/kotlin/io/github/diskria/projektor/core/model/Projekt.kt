@@ -2,7 +2,7 @@ package io.github.diskria.projektor.core.model
 
 import io.github.diskria.projektor.core.model.license.License
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
-import io.github.diskria.projektor.features.publishing.target.PublishingTarget
+import io.github.diskria.projektor.features.distribution.target.DistributionTarget
 import io.github.diskria.projektor.internal.utils.capitalized
 
 internal interface Projekt {
@@ -14,7 +14,7 @@ internal interface Projekt {
     val tags: Set<String>
     val license: License
     val softwareComponent: String? get() = null
-    val publishingTargets: List<PublishingTarget>
+    val distributionTargets: List<DistributionTarget>
     val isSourcesEnabled: Boolean get() = true
     val isJavadocEnabled: Boolean get() = true
     val javaVersion: Int get() = 25

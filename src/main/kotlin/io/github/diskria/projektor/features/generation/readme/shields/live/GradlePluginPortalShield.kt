@@ -1,9 +1,9 @@
 package io.github.diskria.projektor.features.generation.readme.shields.live
 
+import io.github.diskria.projektor.core.model.DistributionTargetType.GRADLE_PLUGIN_PORTAL
 import io.github.diskria.projektor.core.model.Projekt
-import io.github.diskria.projektor.core.model.PublishingTargetType.GRADLE_PLUGIN_PORTAL
 
-internal class GradlePluginPortalShield(projekt: Projekt) : PublishingTargetShield(GRADLE_PLUGIN_PORTAL, projekt) {
+internal class GradlePluginPortalShield(projekt: Projekt) : DistributionTargetShield(GRADLE_PLUGIN_PORTAL, projekt) {
 
     override fun getPathSegments(): List<String> = listOf(
         target.id,

@@ -1,9 +1,7 @@
-package io.github.diskria.projektor.features.publishing.target
+package io.github.diskria.projektor.features.distribution.target
 
 import io.github.diskria.projektor.core.model.Projekt
-import io.github.diskria.projektor.extensions.ensurePluginApplied
 import io.github.diskria.projektor.extensions.maybeCreate
-import io.github.diskria.projektor.extensions.publishing
 import io.github.diskria.projektor.internal.utils.Errors
 import io.github.diskria.projektor.internal.utils.capitalized
 import io.github.diskria.projektor.internal.utils.checkNotNull
@@ -13,11 +11,13 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.file.Directory
 import org.gradle.api.provider.Provider
+import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.maven
 
-internal sealed class MavenPublishingTarget(val id: String) : PublishingTarget {
+internal sealed class MavenDistributionTarget(val id: String) : DistributionTarget {
 
     val repositoryName: String = id.split("-").joinToString("") { it.capitalized() }
 
@@ -34,15 +34,18 @@ internal sealed class MavenPublishingTarget(val id: String) : PublishingTarget {
 
     open fun configurePublication(project: Project, projekt: Projekt, publication: MavenPublication) {}
 
-    override fun configurePublishTask(project: Project, projekt: Projekt): TaskProvider<out Task> {
+    override fun configureDistributeTask(project: Project, projekt: Projekt): TaskProvider<out Task> =
+        configurePublishTask(project, projekt)
+
+    protected fun configurePublishTask(project: Project, projekt: Projekt): TaskProvider<out Task> {
         val componentName = Errors.frontend.checkNotNull(projekt.softwareComponent) {
             "This kind of project doesn't support publishing to Maven"
         }
         val publicationName = projekt.metadata.repo.name.split("-").withIndex().joinToString("") { (index, part) ->
             if (index == 0) part else part.capitalized()
         }
-        project.ensurePluginApplied("maven-publish")
-        project.publishing {
+        project.pluginManager.apply("maven-publish")
+        project.extensions.configure<PublishingExtension> {
             configureRepository(project, projekt, repositories) {
                 name = repositoryName
             }

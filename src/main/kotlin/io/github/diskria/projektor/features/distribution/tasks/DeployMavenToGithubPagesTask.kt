@@ -1,10 +1,10 @@
-package io.github.diskria.projektor.features.publishing.tasks
+package io.github.diskria.projektor.features.distribution.tasks
 
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.applyProjektorGroup
 import io.github.diskria.projektor.extensions.isCI
 import io.github.diskria.projektor.extensions.projektMetadata
-import io.github.diskria.projektor.features.publishing.target.GithubPages
+import io.github.diskria.projektor.features.distribution.target.GithubPagesDistributionTarget
 import io.github.diskria.projektor.internal.git.CommitMessage
 import io.github.diskria.projektor.internal.git.CommitType
 import io.github.diskria.projektor.internal.utils.SecretsHelper
@@ -12,7 +12,8 @@ import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Sync
 import org.gradle.work.DisableCachingByDefault
 import java.io.File
 import javax.inject.Inject
@@ -23,8 +24,7 @@ internal abstract class DeployMavenToGithubPagesTask @Inject constructor(private
     @get:Internal
     abstract val metadata: Property<ProjektMetadata>
 
-    @get:InputDirectory
-    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:Internal
     abstract val repoDir: DirectoryProperty
 
     init {
@@ -33,7 +33,7 @@ internal abstract class DeployMavenToGithubPagesTask @Inject constructor(private
         metadata.convention(project.rootProject.projektMetadata)
         repoDir.convention(project.layout.projectDirectory)
 
-        from(GithubPages.getLocalMavenDirectory(project))
+        from(GithubPagesDistributionTarget.getLocalMavenDirectory(project))
         into(project.layout.projectDirectory.dir("docs"))
 
         val isCI = project.providers.isCI

@@ -51,7 +51,7 @@ internal abstract class UpdateGithubRepoMetadataTask @Inject constructor(
             UpdateInfoRequest(
                 name = primaryProjekt.metadata.repo.name,
                 description = primaryProjekt.metadata.description,
-                homepageUrl = primaryProjekt.publishingTargets.firstOrNull()?.getHomepage(primaryProjekt),
+                homepageUrl = primaryProjekt.distributionTargets.firstOrNull()?.getHomepage(primaryProjekt),
             )
         )
     }

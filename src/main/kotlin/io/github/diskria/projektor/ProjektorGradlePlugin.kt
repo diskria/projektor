@@ -52,7 +52,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
 
     private fun applyToSettings(settings: Settings) {
         settings.gradle.isProjektorSettingsApplied = true
-        settings.ensurePluginApplied("org.gradle.toolchains.foojay-resolver-convention")
+        settings.pluginManager.apply("org.gradle.toolchains.foojay-resolver-convention")
         @Suppress("UnstableApiUsage")
         settings.dependencyResolutionManagement.repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
         val extension = settings.registerExtension<ProjektMetadataExtension>(settings, name = "projekt")
@@ -126,8 +126,8 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
               }
             """.trimIndent()
         }
-        project.ensurePluginApplied("org.jetbrains.kotlin.jvm")
-        project.ensurePluginApplied("org.jetbrains.kotlin.plugin.serialization")
+        project.pluginManager.apply("org.jetbrains.kotlin.jvm")
+        project.pluginManager.apply("org.jetbrains.kotlin.plugin.serialization")
         val extension = project.registerExtension<ProjektExtension>()
         project.afterEvaluate {
             extension.ensureConfigured(project)
@@ -152,12 +152,12 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
         }
         rootProject.allprojects { subproject ->
             subproject.afterEvaluate {
-                val publishingTaskNames = subproject.projektPublishingTaskNames
-                if (publishingTaskNames.isNotEmpty()) {
-                    val publishingTasks = subproject.tasks.matching { it.name in publishingTaskNames }
-                    publishingTasks.configureEach { it.mustRunAfter(readme) }
-                    githubMetadata.configure { it.mustRunAfter(publishingTasks) }
-                    release.configure { it.dependsOn(publishingTasks) }
+                val projektDistributionTaskNames = subproject.projektDistributionTaskNames
+                if (projektDistributionTaskNames.isNotEmpty()) {
+                    val distributeTasks = subproject.tasks.matching { it.name in projektDistributionTaskNames }
+                    distributeTasks.configureEach { it.mustRunAfter(readme) }
+                    githubMetadata.configure { it.mustRunAfter(distributeTasks) }
+                    release.configure { it.dependsOn(distributeTasks) }
                 }
             }
         }

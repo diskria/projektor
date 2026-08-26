@@ -1,8 +1,8 @@
-package io.github.diskria.projektor.features.publishing.tasks
+package io.github.diskria.projektor.features.distribution.tasks
 
 import io.github.diskria.projektor.extensions.applyProjektorGroup
 import io.github.diskria.projektor.extensions.isCI
-import io.github.diskria.projektor.features.publishing.target.MavenCentral
+import io.github.diskria.projektor.features.distribution.target.MavenCentralDistributionTarget
 import io.github.diskria.projektor.internal.utils.Errors
 import io.github.diskria.projektor.internal.utils.ProjektorHttpClient
 import io.github.diskria.projektor.internal.utils.SecretsHelper
@@ -25,7 +25,7 @@ internal abstract class UploadBundleToMavenCentralTask @Inject constructor(priva
     init {
         applyProjektorGroup()
 
-        from(MavenCentral.getLocalMavenDirectory(project))
+        from(MavenCentralDistributionTarget.getLocalMavenDirectory(project))
         destinationDirectory.set(project.layout.buildDirectory.dir("maven-central"))
 
         if (project.providers.isCI) {
@@ -62,9 +62,9 @@ internal abstract class UploadBundleToMavenCentralTask @Inject constructor(priva
         val response = ProjektorHttpClient.client.post(url) {
             bearerAuth(Base64.encode(token.toByteArray()))
             setBody(MultiPartFormDataContent(listOf(part)))
-            onUpload { bytesSent, totalBytes ->
-                if (totalBytes != null && totalBytes > 0) {
-                    val percent = (bytesSent * 100) / totalBytes
+            onUpload { sent, total ->
+                if (total != null && total > 0) {
+                    val percent = (sent * 100) / total
                     if (percent % 25 == 0L) {
                         println("Upload progress: $percent%")
                     }

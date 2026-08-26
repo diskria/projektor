@@ -1,12 +1,12 @@
 package io.github.diskria.projektor.features.generation.readme.shields.live
 
+import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.Projekt
-import io.github.diskria.projektor.core.model.PublishingTargetType
 
 internal abstract class GithubLatestTagShield(
-    target: PublishingTargetType,
+    target: DistributionTargetType,
     projekt: Projekt,
-) : PublishingTargetShield(target, projekt) {
+) : DistributionTargetShield(target, projekt) {
 
     override fun getPathSegments(): List<String> =
         listOf(

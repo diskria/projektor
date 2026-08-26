@@ -1,11 +1,11 @@
-package io.github.diskria.projektor.features.publishing.target
+package io.github.diskria.projektor.features.distribution.target
 
 import io.github.diskria.projektor.core.model.Projekt
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 
-internal object MavenLocal : MavenPublishingTarget("maven-local") {
+internal object MavenLocalDistributionTarget : MavenDistributionTarget("maven-local") {
 
     override fun configureRepository(
         project: Project,

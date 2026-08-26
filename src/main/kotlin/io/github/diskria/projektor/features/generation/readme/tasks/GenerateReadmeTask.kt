@@ -33,7 +33,7 @@ internal abstract class GenerateReadmeTask @Inject constructor(
         val about = ProjektAbout.of(repoDirectory)
         val shields = buildList {
             addAll(projekts.get().flatMap { projekt ->
-                projekt.publishingTargets.mapNotNull { target ->
+                projekt.distributionTargets.mapNotNull { target ->
                     target.getReadmeShield(projekt)
                 }
             })

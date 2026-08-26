@@ -6,7 +6,6 @@ import io.github.diskria.projektor.core.model.github.GithubRepo
 import io.github.diskria.projektor.core.model.license.LicenseType
 import io.github.diskria.projektor.core.model.metadata.ProjektAbout
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
-import io.github.diskria.projektor.extensions.dependencyRepositories
 import io.github.diskria.projektor.internal.utils.Errors
 import io.github.diskria.projektor.internal.utils.capitalized
 import io.github.diskria.projektor.internal.utils.check
@@ -105,14 +104,16 @@ open class ProjektMetadataExtension @Inject internal constructor(
     }
 
     internal fun configureGradlePluginRepositories() {
-        settings.dependencyRepositories {
+        @Suppress("UnstableApiUsage")
+        settings.dependencyResolutionManagement.repositories.apply {
             gradlePluginPortal()
             mavenCentrals()
         }
     }
 
     internal fun configureKotlinLibraryRepositories() {
-        settings.dependencyRepositories {
+        @Suppress("UnstableApiUsage")
+        settings.dependencyResolutionManagement.repositories.apply {
             mavenCentrals()
         }
     }

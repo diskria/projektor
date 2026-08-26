@@ -1,9 +1,9 @@
 package io.github.diskria.projektor.features.generation.readme.shields.live
 
+import io.github.diskria.projektor.core.model.DistributionTargetType.MAVEN_CENTRAL
 import io.github.diskria.projektor.core.model.Projekt
-import io.github.diskria.projektor.core.model.PublishingTargetType.MAVEN_CENTRAL
 
-internal class MavenCentralShield(projekt: Projekt) : PublishingTargetShield(MAVEN_CENTRAL, projekt) {
+internal class MavenCentralShield(projekt: Projekt) : DistributionTargetShield(MAVEN_CENTRAL, projekt) {
 
     override fun getPathSegments(): List<String> = listOf(
         target.id,

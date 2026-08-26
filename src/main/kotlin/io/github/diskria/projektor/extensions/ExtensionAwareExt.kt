@@ -7,6 +7,8 @@ import io.github.diskria.projektor.internal.utils.requireNotNull
 import org.gradle.api.Project
 import org.gradle.api.invocation.Gradle
 import org.gradle.api.plugins.ExtensionAware
+import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.extra
 import kotlin.reflect.KProperty0
 
@@ -37,10 +39,10 @@ internal var Project.isProjektorReleaseConfigured: Boolean
         setExtra(::isProjektorReleaseConfigured, value)
     }
 
-internal var Project.projektPublishingTaskNames: List<String>
-    get() = getExtra<List<String>>(::projektPublishingTaskNames).orEmpty()
+internal var Project.projektDistributionTaskNames: List<String>
+    get() = getExtra<List<String>>(::projektDistributionTaskNames).orEmpty()
     set(value) {
-        setExtra(::projektPublishingTaskNames, value)
+        setExtra(::projektDistributionTaskNames, value)
     }
 
 @PublishedApi
@@ -52,8 +54,8 @@ internal inline fun <reified E : Any> defaultExtensionName(): String =
 internal inline fun <reified E : Any> ExtensionAware.registerExtension(
     vararg constructionArguments: Any,
     name: String = defaultExtensionName<E>(),
-): E = extensions.create(name, E::class.java, *constructionArguments)
+): E = extensions.create<E>(name, *constructionArguments)
 
 internal inline fun <reified E : Any> ExtensionAware.configureExtension(noinline configure: E.() -> Unit) {
-    extensions.configure(E::class.java, configure)
+    extensions.configure<E>(configure)
 }

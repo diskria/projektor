@@ -1,16 +1,23 @@
 package io.github.diskria.projektor.core.configurators
 
 import io.github.diskria.projektor.core.model.Projekt
-import io.github.diskria.projektor.extensions.*
+import io.github.diskria.projektor.extensions.configureJvmTarget
+import io.github.diskria.projektor.extensions.getTask
+import io.github.diskria.projektor.extensions.jar
+import io.github.diskria.projektor.extensions.projektDistributionTaskNames
 import io.github.diskria.projektor.features.generation.tasks.GenerateLicenseTask
 import org.gradle.api.Project
+import org.gradle.api.plugins.BasePluginExtension
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JvmImplementation
 import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.attributes
+import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.invoke
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 internal abstract class ProjectConfigurator<T : Projekt> {
@@ -19,7 +26,7 @@ internal abstract class ProjectConfigurator<T : Projekt> {
         val projekt = buildProjekt(project)
         applyCommonConfiguration(project, projekt)
         configureProject(project, projekt)
-        configurePublishing(project, projekt)
+        configureDistribution(project, projekt)
         return projekt
     }
 
@@ -30,13 +37,13 @@ internal abstract class ProjectConfigurator<T : Projekt> {
     private fun applyCommonConfiguration(project: Project, projekt: T) {
         project.group = projekt.metadata.repo.owner.namespace
         project.version = projekt.version
-        project.base {
+        project.extensions.configure<BasePluginExtension> {
             archivesName.set(projekt.metadata.repo.name)
         }
-        project.kotlin {
+        project.extensions.configure<KotlinProjectExtension> {
             jvmToolchain(projekt.javaVersion)
         }
-        project.java {
+        project.extensions.configure<JavaPluginExtension> {
             toolchain.apply {
                 languageVersion.set(JavaLanguageVersion.of(projekt.javaVersion))
                 vendor.set(JvmVendorSpec.ADOPTIUM)
@@ -78,16 +85,10 @@ internal abstract class ProjectConfigurator<T : Projekt> {
         }
     }
 
-    private fun configurePublishing(project: Project, projekt: T) {
-        project.projektPublishingTaskNames = buildList {
-            projekt.publishingTargets.forEach { target ->
-                val publishTask = target.configurePublishTask(project, projekt)
-                add(publishTask.name)
-                target.configureDistributeTask(project, projekt)?.let { distributeTask ->
-                    distributeTask.configure { it.mustRunAfter(publishTask) }
-                    add(distributeTask.name)
-                }
-            }
+    private fun configureDistribution(project: Project, projekt: T) {
+        project.projektDistributionTaskNames = projekt.distributionTargets.map { target ->
+            val distributeTask = target.configureDistributeTask(project, projekt)
+            distributeTask.name
         }
     }
 }

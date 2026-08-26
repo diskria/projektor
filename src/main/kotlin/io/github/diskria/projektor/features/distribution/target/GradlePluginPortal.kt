@@ -1,8 +1,8 @@
-package io.github.diskria.projektor.features.publishing.target
+package io.github.diskria.projektor.features.distribution.target
 
+import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.GradlePlugin
 import io.github.diskria.projektor.core.model.Projekt
-import io.github.diskria.projektor.extensions.ensurePluginApplied
 import io.github.diskria.projektor.extensions.isCI
 import io.github.diskria.projektor.features.generation.readme.shields.common.ReadmeShield
 import io.github.diskria.projektor.features.generation.readme.shields.live.GradlePluginPortalShield
@@ -13,13 +13,14 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
 
-internal object GradlePluginPortal : ExternalPublishingTarget() {
+internal object GradlePluginPortal : DistributionTarget {
 
-    override fun configurePublishTask(project: Project, projekt: Projekt): TaskProvider<out Task> {
+    override fun configureDistributeTask(project: Project, projekt: Projekt): TaskProvider<out Task> {
         Errors.frontend.check(projekt is GradlePlugin) {
-            "This kind of project doesn't support publishing to Gradle Plugin Portal"
+            "This kind of project doesn't support distribution to " +
+                DistributionTargetType.GRADLE_PLUGIN_PORTAL.displayName
         }
-        project.ensurePluginApplied("com.gradle.plugin-publish")
+        project.pluginManager.apply("com.gradle.plugin-publish")
         if (project.providers.isCI) {
             val secrets = SecretsHelper(project.providers)
             secrets.gradlePublishKey
@@ -28,9 +29,6 @@ internal object GradlePluginPortal : ExternalPublishingTarget() {
         return project.tasks.named("publishPlugins")
     }
 
-    override fun getHomepage(projekt: Projekt): String =
-        "https://plugins.gradle.org/plugin/${projekt.packageName}"
-
-    override fun getReadmeShield(projekt: Projekt): ReadmeShield =
-        GradlePluginPortalShield(projekt)
+    override fun getHomepage(projekt: Projekt): String = "https://plugins.gradle.org/plugin/${projekt.packageName}"
+    override fun getReadmeShield(projekt: Projekt): ReadmeShield = GradlePluginPortalShield(projekt)
 }
