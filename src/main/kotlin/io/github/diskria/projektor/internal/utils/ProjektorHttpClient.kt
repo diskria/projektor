@@ -16,7 +16,7 @@ internal object ProjektorHttpClient {
                 requestTimeoutMillis = 5.minutes.inWholeMilliseconds
             }
             defaultRequest {
-                header(HttpHeaders.UserAgent, "Projektor/8.0.2")
+                header(HttpHeaders.UserAgent, "Projektor/8.0.3")
             }
         }
     }
