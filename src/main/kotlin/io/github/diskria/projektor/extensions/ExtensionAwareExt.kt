@@ -1,8 +1,6 @@
 package io.github.diskria.projektor.extensions
 
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
-import io.github.diskria.projektor.internal.utils.Errors
-import io.github.diskria.projektor.internal.utils.requireNotNull
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.kotlin.dsl.extra
@@ -15,14 +13,11 @@ internal fun <T> ExtensionAware.setExtra(property: KProperty0<*>, value: T) {
     extra.set(property.name, value)
 }
 
-internal var Project.projektMetadata: ProjektMetadata
-    get() = Errors.internal.requireNotNull(findProjektMetadata()) { "Projekt metadata has not been set yet" }
+internal var Project.projektMetadata: ProjektMetadata?
+    get() = ensureRootProject().getExtra<ProjektMetadata>(::projektMetadata)
     set(value) {
         ensureRootProject().setExtra(::projektMetadata, value)
     }
-
-internal fun Project.findProjektMetadata(): ProjektMetadata? =
-    ensureRootProject().getExtra<ProjektMetadata>(::projektMetadata)
 
 internal var Project.projektDistributeTaskNames: List<String>
     get() = getExtra<List<String>>(::projektDistributeTaskNames).orEmpty()

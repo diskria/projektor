@@ -127,8 +127,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     }
 
     private fun applyToProject(project: Project) {
-        val projektMetadata = project.rootProject.findProjektMetadata()
-        Errors.frontend.requireNotNull(projektMetadata) {
+        val projektMetadata = Errors.frontend.requireNotNull(project.rootProject.projektMetadata) {
             """
             Projektor plugin was applied in 'build.gradle.kts', but is missing from 'settings.gradle.kts'!
             
@@ -147,14 +146,14 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
         project.pluginManager.apply("org.jetbrains.kotlin.plugin.serialization")
         val extension = project.extensions.registerExtension<ProjektExtension>()
         project.afterEvaluate {
-            extension.ensureConfigured(project)
+            extension.ensureConfigured(project, projektMetadata)
         }
-        if (projektMetadata is ProjektMetadata.Regular) {
+        if (projektMetadata is ProjektMetadata.Distributable) {
             configureReleaseTask(project.rootProject, projektMetadata)
         }
     }
 
-    private fun configureReleaseTask(rootProject: Project, projektMetadata: ProjektMetadata.Regular) {
+    private fun configureReleaseTask(rootProject: Project, projektMetadata: ProjektMetadata.Distributable) {
         if (rootProject.tasks.hasTask<ReleaseProjektTask>()) return
         val secrets = SecretsHelper(rootProject.providers)
         val generateGitAttributes = rootProject.tasks.registerTask<GenerateGitAttributesTask>(secrets) {
@@ -208,7 +207,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
         rootProject.gradle.projectsEvaluated {
             val projekts = rootProject.allprojects
                 .mapNotNull { it.extensions.findByType<ProjektExtension>()?.configuredProjekt?.orNull }
-                .filterIsInstance<Projekt.Regular>()
+                .filterIsInstance<Projekt.Distributable>()
             generateReadme.configure {
                 it.projekts.set(projekts)
                 it.distributionTargetTypes.set(projekts.flatMap { projekt -> projekt.distributionTargetTypes })

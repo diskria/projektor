@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 open class ProjektMetadataExtension @Inject internal constructor(
     private val settings: Settings,
-    objects: ObjectFactory
+    objects: ObjectFactory,
 ) : ProjektorScope {
 
     val version = objects.property<String>()
@@ -90,7 +90,7 @@ open class ProjektMetadataExtension @Inject internal constructor(
             )
         } else {
             val about = ProjektAbout.from(rootDirectory)
-            ProjektMetadata.Regular(
+            ProjektMetadata.Distributable(
                 isMonorepo = isMonorepo,
                 projektTypes = projektTypes,
                 repo = repo,

@@ -2,6 +2,7 @@ package io.github.diskria.projektor.features.distribution.target
 
 import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.Projekt
+import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.isCI
 import io.github.diskria.projektor.extensions.registerTask
 import io.github.diskria.projektor.features.distribution.tasks.UploadBundleToMavenCentralTask
@@ -27,19 +28,23 @@ internal object MavenCentralDistributionTarget : MavenDistributionTarget(Distrib
         }
     }
 
-    override fun configureDistributeTask(project: Project, projekt: Projekt.Regular): TaskProvider<out Task> {
+    override fun configureDistributeTask(
+        project: Project,
+        projekt: Projekt.Distributable,
+        projektMetadata: ProjektMetadata,
+    ): TaskProvider<out Task> {
         val publishTask = configurePublishTask(project, projekt)
         return project.tasks.registerTask<UploadBundleToMavenCentralTask>(SecretsHelper(project.providers)) {
             bundleName.set(projekt.name)
-            artifactVersion.set(projekt.version)
+            bundleVersion.set(projekt.version)
             from(getLocalMavenDirectory(project))
-            destinationDirectory.set(project.layout.buildDirectory.dir("maven-central"))
+            destinationDirectory.set(project.layout.buildDirectory.dir(DistributionTargetType.MAVEN_CENTRAL.id))
             dependsOn(publishTask)
         }
     }
 
-    override fun getHomepage(projekt: Projekt): String =
+    override fun getHomepage(projekt: Projekt.Distributable): String =
         "https://central.sonatype.com/artifact/${projekt.metadata.repo.owner.namespace}/${projekt.name}"
 
-    override fun getReadmeShield(projekt: Projekt): ReadmeShield = MavenCentralShield(projekt)
+    override fun getReadmeShield(projekt: Projekt.Distributable): ReadmeShield = MavenCentralShield(projekt)
 }

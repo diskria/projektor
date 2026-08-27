@@ -32,7 +32,7 @@ internal abstract class GenerateReadmeTask @Inject constructor(
     secrets = secrets,
 ) {
     @get:Internal
-    abstract val projekts: ListProperty<Projekt.Regular>
+    abstract val projekts: ListProperty<Projekt.Distributable>
 
     @get:Input
     abstract val displayName: Property<String>

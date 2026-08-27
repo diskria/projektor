@@ -1,4 +1,4 @@
-package io.github.diskria.projektor.core.configurators
+package io.github.diskria.projektor.extensions
 
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 

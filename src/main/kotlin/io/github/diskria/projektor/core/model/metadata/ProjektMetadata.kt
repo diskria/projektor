@@ -13,7 +13,7 @@ internal sealed interface ProjektMetadata {
     val repo: GithubRepo
     val namespace: String
 
-    class Regular(
+    class Distributable(
         override val isMonorepo: Boolean,
         override val projektTypes: Set<ProjektType>,
         override val repo: GithubRepo,

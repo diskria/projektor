@@ -28,6 +28,6 @@ internal object GithubPackagesDistributionTarget : MavenDistributionTarget(Distr
             }
         }
 
-    override fun getHomepage(projekt: Projekt): String = projekt.metadata.repo.packagesUrl
-    override fun getReadmeShield(projekt: Projekt) = GithubPackagesShield(projekt)
+    override fun getHomepage(projekt: Projekt.Distributable): String = projekt.metadata.repo.packagesUrl
+    override fun getReadmeShield(projekt: Projekt.Distributable) = GithubPackagesShield(projekt)
 }

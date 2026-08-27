@@ -2,9 +2,10 @@ package io.github.diskria.projektor.api
 
 import io.github.diskria.projektor.core.configurators.GradlePluginConfigurator
 import io.github.diskria.projektor.core.configurators.KotlinLibraryConfigurator
-import io.github.diskria.projektor.core.configurators.ProjectConfigurator
+import io.github.diskria.projektor.core.configurators.ProjektConfigurator
 import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.Projekt
+import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.internal.utils.Errors
 import io.github.diskria.projektor.internal.utils.check
 import io.github.diskria.projektor.internal.utils.checkNotNull
@@ -16,14 +17,12 @@ import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
-open class ProjektExtension @Inject internal constructor(
-    private val objects: ObjectFactory,
-) : ProjektorScope {
+open class ProjektExtension @Inject internal constructor(private val objects: ObjectFactory) : ProjektorScope {
 
     internal val distributionTargets = objects.listProperty<DistributionTargetType>().convention(emptyList())
     internal val configuredProjekt: Property<Projekt> = objects.property()
 
-    private var configurator: ProjectConfigurator<*>? = null
+    private var configurator: ProjektConfigurator<*>? = null
 
     fun gradlePlugin(configure: GradlePluginDsl.() -> Unit = {}) {
         setConfigurator(GradlePluginConfigurator(objects.newInstance<GradlePluginDsl>().apply(configure)))
@@ -37,13 +36,15 @@ open class ProjektExtension @Inject internal constructor(
         DistributionDsl(distributionTargets).configure()
     }
 
-    internal fun ensureConfigured(project: Project): Projekt {
-        val projekt = Errors.frontend.checkNotNull(configurator) { "Projekt not configured" }.configure(project)
+    internal fun ensureConfigured(project: Project, projektMetadata: ProjektMetadata): Projekt {
+        val projekt = Errors.frontend.checkNotNull(configurator) {
+            "Projekt not configured"
+        }.configure(project, projektMetadata)
         configuredProjekt.set(projekt)
         return projekt
     }
 
-    private fun setConfigurator(configurator: ProjectConfigurator<*>) {
+    private fun setConfigurator(configurator: ProjektConfigurator<*>) {
         Errors.frontend.check(this.configurator == null) { "Projekt already configured" }
         this.configurator = configurator
     }

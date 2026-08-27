@@ -2,6 +2,7 @@ package io.github.diskria.projektor.features.generation.readme
 
 import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.DistributionTargetType.*
+import io.github.diskria.projektor.core.model.GradlePlugin
 import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.core.model.license.License
 import io.github.diskria.projektor.features.distribution.target.mapToModel
@@ -28,7 +29,7 @@ internal abstract class ReadmeShield {
 
 internal abstract class DistributionTargetShield(
     target: DistributionTargetType,
-    protected val projekt: Projekt,
+    protected val projekt: Projekt.Distributable,
 ) : ReadmeShield() {
     override val label: String = target.displayName
     override val targetUrl: String? = target.mapToModel().getHomepage(projekt)
@@ -36,7 +37,7 @@ internal abstract class DistributionTargetShield(
 
 internal abstract class GithubLatestTagShield(
     target: DistributionTargetType,
-    projekt: Projekt,
+    projekt: Projekt.Distributable,
 ) : DistributionTargetShield(target, projekt) {
     override val imageUrl: String
         get() = buildShieldUrl(
@@ -47,20 +48,22 @@ internal abstract class GithubLatestTagShield(
         )
 }
 
-internal class GithubPackagesShield(projekt: Projekt) : GithubLatestTagShield(GITHUB_PACKAGES, projekt)
+internal class GithubPackagesShield(projekt: Projekt.Distributable) : GithubLatestTagShield(GITHUB_PACKAGES, projekt)
 
-internal class GithubPagesShield(projekt: Projekt) : GithubLatestTagShield(GITHUB_PAGES, projekt)
+internal class GithubPagesShield(projekt: Projekt.Distributable) : GithubLatestTagShield(GITHUB_PAGES, projekt)
 
-internal class GradlePluginPortalShield(projekt: Projekt) : DistributionTargetShield(GRADLE_PLUGIN_PORTAL, projekt) {
+internal class GradlePluginPortalShield(
+    private val gradlePlugin: GradlePlugin.Distributable
+) : DistributionTargetShield(GRADLE_PLUGIN_PORTAL, gradlePlugin) {
     override val imageUrl: String
         get() = buildShieldUrl(
-            "gradle-plugin-portal/v/${projekt.packageName}.svg",
+            "gradle-plugin-portal/v/${gradlePlugin.id}.svg",
             "label" to label,
             "style" to "for-the-badge",
         )
 }
 
-internal class MavenCentralShield(projekt: Projekt) : DistributionTargetShield(MAVEN_CENTRAL, projekt) {
+internal class MavenCentralShield(projekt: Projekt.Distributable) : DistributionTargetShield(MAVEN_CENTRAL, projekt) {
     override val imageUrl: String
         get() = buildShieldUrl(
             "maven-central/v/${projekt.metadata.repo.owner.namespace}/${projekt.name}.svg",

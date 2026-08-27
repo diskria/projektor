@@ -1,6 +1,5 @@
 package io.github.diskria.projektor.extensions
 
-import io.github.diskria.projektor.core.configurators.toVersion
 import io.github.diskria.projektor.internal.utils.Errors
 import io.github.diskria.projektor.internal.utils.decapitalized
 import io.github.diskria.projektor.internal.utils.requireNotNull

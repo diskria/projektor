@@ -3,7 +3,9 @@ package io.github.diskria.projektor.features.distribution.target
 import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.GradlePlugin
 import io.github.diskria.projektor.core.model.Projekt
+import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.isProjektMavenPublicationConfigured
+import io.github.diskria.projektor.extensions.maybeCreate
 import io.github.diskria.projektor.internal.utils.Errors
 import io.github.diskria.projektor.internal.utils.capitalized
 import io.github.diskria.projektor.internal.utils.checkNotNull
@@ -39,10 +41,13 @@ internal sealed class MavenDistributionTarget(
 
     open fun configurePublication(project: Project, projekt: Projekt, publication: MavenPublication) {}
 
-    override fun configureDistributeTask(project: Project, projekt: Projekt.Regular): TaskProvider<out Task> =
-        configurePublishTask(project, projekt)
+    override fun configureDistributeTask(
+        project: Project,
+        projekt: Projekt.Distributable,
+        projektMetadata: ProjektMetadata,
+    ): TaskProvider<out Task> = configurePublishTask(project, projekt)
 
-    protected fun configurePublishTask(project: Project, projekt: Projekt.Regular): TaskProvider<out Task> {
+    protected fun configurePublishTask(project: Project, projekt: Projekt.Distributable): TaskProvider<out Task> {
         val componentName = Errors.frontend.checkNotNull(projekt.softwareComponent) {
             "This kind of project doesn't support publishing to Maven"
         }
@@ -60,10 +65,11 @@ internal sealed class MavenDistributionTarget(
                 }
             }
             if (!isGradlePlugin) {
-                val publication = publications.maybeCreate(publicationName, MavenPublication::class.java)
-                publication.from(Errors.internal.checkNotNull(project.components.findByName(componentName)) {
-                    "SoftwareComponent '$componentName' not found in project '${project.path}'"
-                })
+                publications.maybeCreate<MavenPublication>(publicationName) {
+                    from(Errors.internal.checkNotNull(project.components.findByName(componentName)) {
+                        "SoftwareComponent '$componentName' not found in project '${project.path}'"
+                    })
+                }
             }
             if (!project.isProjektMavenPublicationConfigured) {
                 publications
@@ -80,7 +86,7 @@ internal sealed class MavenDistributionTarget(
         return project.tasks.named("publishAllPublicationsTo${repositoryName}Repository")
     }
 
-    private fun configurePom(pom: MavenPom, projekt: Projekt.Regular) {
+    private fun configurePom(pom: MavenPom, projekt: Projekt.Distributable) {
         val repo = projekt.metadata.repo
         val organizationUrl = repo.owner.organizationUrl
         with(pom) {

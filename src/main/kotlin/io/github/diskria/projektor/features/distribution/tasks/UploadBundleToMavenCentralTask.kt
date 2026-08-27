@@ -29,12 +29,12 @@ internal abstract class UploadBundleToMavenCentralTask @Inject constructor(
     abstract val bundleName: Property<String>
 
     @get:Input
-    abstract val artifactVersion: Property<String>
+    abstract val bundleVersion: Property<String>
 
     init {
         applyProjektorGroup()
         archiveBaseName.set(bundleName)
-        archiveVersion.set(artifactVersion)
+        archiveVersion.set(bundleVersion)
         doLast { upload() }
     }
 
