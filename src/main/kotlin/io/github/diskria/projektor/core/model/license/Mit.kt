@@ -2,7 +2,7 @@ package io.github.diskria.projektor.core.model.license
 
 import java.time.Year
 
-internal object Mit : License("MIT") {
+internal object Mit : License(LicenseType.MIT) {
 
     override fun getPlaceholders(developer: String): Map<String, String> =
         mapOf(

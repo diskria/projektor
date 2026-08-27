@@ -1,14 +1,9 @@
 package io.github.diskria.projektor.features.generation.tasks
 
-import io.github.diskria.projektor.core.model.license.License
 import io.github.diskria.projektor.core.model.license.LicenseType
 import io.github.diskria.projektor.core.model.license.mapToModel
 import io.github.diskria.projektor.internal.git.CommitType
-import io.github.diskria.projektor.internal.utils.ProjektorHttpClient
 import io.github.diskria.projektor.internal.utils.SecretsHelper
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import kotlinx.coroutines.runBlocking
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
@@ -32,9 +27,6 @@ internal abstract class GenerateLicenseTask @Inject constructor(
     @get:Input
     abstract val developer: Property<String>
 
-    override fun getFileText(repoDirectory: File, file: File): String? =
-        runBlocking { getLicenseText(developer.get(), licenseType.get().mapToModel()) }
-
-    private suspend fun getLicenseText(developer: String, license: License): String =
-        license.fillTemplate(ProjektorHttpClient.client.get(license.templateUrl).bodyAsText(), developer)
+    override fun getFileText(repoDirectory: File, file: File): String =
+        licenseType.get().mapToModel().getLicenseText(developer.get())
 }

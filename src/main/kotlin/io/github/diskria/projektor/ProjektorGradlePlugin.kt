@@ -209,4 +209,10 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
             }
         }
     }
+
+    internal companion object {
+        fun readResourceText(path: String): String =
+            ProjektorGradlePlugin::class.java.getResourceAsStream("/$path")?.bufferedReader()?.use { it.readText() }
+                ?: Errors.internal.error("Resource not found in plugin package: $path")
+    }
 }

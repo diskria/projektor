@@ -1,12 +1,15 @@
 package io.github.diskria.projektor.core.model.license
 
-internal sealed class License(val id: String) {
+import io.github.diskria.projektor.ProjektorGradlePlugin
 
-    val templateUrl = "https://raw.githubusercontent.com/spdx/license-list-data/main/text/$id.txt"
-    val url = "https://spdx.org/licenses/$id"
+internal sealed class License(val type: LicenseType) {
+
+    val url = "https://spdx.org/licenses/${type.id}"
 
     open fun getPlaceholders(developer: String): Map<String, String> = emptyMap()
 
-    fun fillTemplate(template: String, developer: String): String =
-        getPlaceholders(developer).entries.fold(template) { acc, (name, value) -> acc.replace("<$name>", value) }
+    fun getLicenseText(developer: String): String {
+        val template = ProjektorGradlePlugin.readResourceText("licenses/${type.id}.txt")
+        return getPlaceholders(developer).entries.fold(template) { acc, (name, value) -> acc.replace("<$name>", value) }
+    }
 }

@@ -20,11 +20,10 @@ internal sealed interface DistributionTarget {
     fun getReadmeShield(projekt: Projekt.Distributable): ReadmeShield? = null
 }
 
-internal fun DistributionTargetType.mapToModel(): DistributionTarget =
-    when (this) {
-        MAVEN_LOCAL -> MavenLocalDistributionTarget
-        MAVEN_CENTRAL -> MavenCentralDistributionTarget
-        GITHUB_PAGES -> GithubPagesDistributionTarget
-        GITHUB_PACKAGES -> GithubPackagesDistributionTarget
-        GRADLE_PLUGIN_PORTAL -> GradlePluginPortalDistributionTarget
-    }
+internal fun DistributionTargetType.mapToModel(): DistributionTarget = when (this) {
+    MAVEN_LOCAL -> MavenLocalDistributionTarget
+    MAVEN_CENTRAL -> MavenCentralDistributionTarget
+    GITHUB_PAGES -> GithubPagesDistributionTarget
+    GITHUB_PACKAGES -> GithubPackagesDistributionTarget
+    GRADLE_PLUGIN_PORTAL -> GradlePluginPortalDistributionTarget
+}

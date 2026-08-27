@@ -89,4 +89,4 @@ internal open class StaticShield(
         )
 }
 
-internal class LicenseShield(license: License) : StaticShield("License", license.id, "yellow", license.url)
+internal class LicenseShield(license: License) : StaticShield("License", license.type.id, "yellow", license.url)

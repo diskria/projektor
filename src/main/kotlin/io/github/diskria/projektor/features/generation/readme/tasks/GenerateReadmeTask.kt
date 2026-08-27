@@ -71,7 +71,7 @@ internal abstract class GenerateReadmeTask @Inject constructor(
             licenseModel?.let {
                 append(MarkdownHelper.SEPARATOR)
                 append(MarkdownHelper.header("License", 2))
-                append("This project is licensed under the ${MarkdownHelper.link(it.url, "${it.id} License")}.")
+                append("This project is licensed under the ${MarkdownHelper.link(it.url, "${it.type.id} License")}.")
             }
         }
     }

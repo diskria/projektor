@@ -56,12 +56,11 @@ internal sealed class MavenDistributionTarget(
                 name = repositoryName
             }
             if (projekt is GradlePlugin) {
-                publications.matching { it.name == "pluginMaven" }.withType<MavenPublication>()
-                    .configureEach { publication ->
-                        if (publication.pom.url.isPresent) return@configureEach
-                        configurePom(publication.pom, projekt)
-                        configurePublication(project, projekt, publication)
-                    }
+                publications.matching { it.name == "pluginMaven" }.withType<MavenPublication>().configureEach {
+                    if (it.pom.url.isPresent) return@configureEach
+                    configurePom(it.pom, projekt)
+                    configurePublication(project, projekt, it)
+                }
             } else {
                 val publicationName = projekt.name.split("-").withIndex().joinToString("") { (index, part) ->
                     if (index == 0) part else part.capitalized()
@@ -119,7 +118,7 @@ internal sealed class MavenDistributionTarget(
             projekt.license?.let { projektLicense ->
                 licenses { spec ->
                     spec.license {
-                        it.name.set(projektLicense.id)
+                        it.name.set(projektLicense.type.id)
                         it.url.set(projektLicense.url)
                     }
                 }
