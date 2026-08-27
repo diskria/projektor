@@ -4,10 +4,9 @@ import io.github.diskria.projektor.internal.git.CommitMessage
 import io.github.diskria.projektor.internal.git.CommitType
 import io.github.diskria.projektor.internal.git.GitClient
 import java.io.File
-import kotlinx.serialization.Serializable as KotlinxSerializable
+import java.io.Serializable
 
-@KotlinxSerializable
-internal class GithubRepo(val owner: GithubOwner, val name: String) : java.io.Serializable {
+internal class GithubRepo(val owner: GithubOwner, val name: String) : Serializable {
 
     val url: String get() = getUrl()
     val packagesUrl: String get() = "$url/packages"

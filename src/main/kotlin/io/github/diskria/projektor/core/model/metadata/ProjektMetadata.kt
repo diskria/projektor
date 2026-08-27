@@ -7,28 +7,27 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal sealed interface ProjektMetadata {
+
     val isMonorepo: Boolean
     val projektTypes: Set<ProjektType>
     val repo: GithubRepo
-    val packageName: String
-    val displayName: String
+    val namespace: String
 
-    data class Regular(
+    class Regular(
         override val isMonorepo: Boolean,
         override val projektTypes: Set<ProjektType>,
         override val repo: GithubRepo,
-        override val packageName: String,
-        override val displayName: String,
+        override val namespace: String,
+        val displayName: String,
         val version: String,
         val license: LicenseType?,
         val about: ProjektAbout,
     ) : ProjektMetadata
 
-    data class BuildLogic(
+    class BuildLogic(
         override val isMonorepo: Boolean,
         override val projektTypes: Set<ProjektType>,
         override val repo: GithubRepo,
-        override val packageName: String,
-        override val displayName: String,
+        override val namespace: String,
     ) : ProjektMetadata
 }

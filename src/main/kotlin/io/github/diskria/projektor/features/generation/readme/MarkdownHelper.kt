@@ -1,7 +1,5 @@
 package io.github.diskria.projektor.features.generation.readme
 
-import io.ktor.http.*
-
 internal object MarkdownHelper {
 
     const val SEPARATOR: String = "\n\n---\n\n"
@@ -15,5 +13,5 @@ internal object MarkdownHelper {
 
     fun link(url: String, content: String): String = "[$content]($url)"
 
-    fun image(url: Url, alt: String): String = "![$alt]($url)"
+    fun image(url: String, alt: String): String = "![$alt]($url)"
 }

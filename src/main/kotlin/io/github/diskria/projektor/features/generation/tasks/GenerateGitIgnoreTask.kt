@@ -1,6 +1,5 @@
 package io.github.diskria.projektor.features.generation.tasks
 
-import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.internal.git.CommitType
 import io.github.diskria.projektor.internal.utils.SecretsHelper
 import org.gradle.api.provider.ProviderFactory
@@ -18,7 +17,7 @@ internal abstract class GenerateGitIgnoreTask @Inject internal constructor(
     providers = providers,
     secrets = secrets,
 ) {
-    override fun getFileText(metadata: ProjektMetadata, repoDirectory: File, file: File): String =
+    override fun getFileText(repoDirectory: File, file: File): String =
         """
         .idea/*
         !.idea/dictionaries/

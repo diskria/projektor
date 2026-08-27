@@ -14,7 +14,6 @@ import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JvmImplementation
 import org.gradle.jvm.toolchain.JvmVendorSpec
-import org.gradle.kotlin.dsl.attributes
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.invoke
 import org.gradle.kotlin.dsl.withType
@@ -43,7 +42,7 @@ internal abstract class ProjectConfigurator<T : Projekt> {
             project.version = projekt.version
         }
         project.extensions.configure<BasePluginExtension> {
-            archivesName.set(projekt.metadata.repo.name)
+            archivesName.set(projekt.name)
         }
         project.extensions.configure<KotlinProjectExtension> {
             jvmToolchain(projekt.javaVersion)
@@ -72,15 +71,6 @@ internal abstract class ProjectConfigurator<T : Projekt> {
                 }
                 if (projekt is Projekt.Regular) {
                     archiveVersion.set(projekt.version)
-                    manifest.attributes(
-                        "Specification-Version" to 1,
-                        "Specification-Vendor" to projekt.metadata.repo.owner.name,
-                        "Specification-Title" to projekt.metadata.repo.name,
-
-                        "Implementation-Version" to projekt.version,
-                        "Implementation-Vendor" to projekt.metadata.repo.owner.developer,
-                        "Implementation-Title" to projekt.displayName,
-                    )
                 }
             }
         }

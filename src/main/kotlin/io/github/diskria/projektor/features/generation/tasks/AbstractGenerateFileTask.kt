@@ -1,9 +1,8 @@
 package io.github.diskria.projektor.features.generation.tasks
 
-import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
+import io.github.diskria.projektor.core.model.github.GithubRepo
 import io.github.diskria.projektor.extensions.applyProjektorGroup
 import io.github.diskria.projektor.extensions.isCI
-import io.github.diskria.projektor.extensions.projektMetadata
 import io.github.diskria.projektor.internal.git.CommitType
 import io.github.diskria.projektor.internal.utils.SecretsHelper
 import org.gradle.api.DefaultTask
@@ -11,6 +10,7 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.ProviderFactory
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
@@ -26,8 +26,8 @@ internal abstract class AbstractGenerateFileTask @Inject constructor(
     private val secrets: SecretsHelper,
 ) : DefaultTask() {
 
-    @get:Internal
-    abstract val metadata: Property<ProjektMetadata>
+    @get:Input
+    abstract val repo: Property<GithubRepo>
 
     @get:Internal
     abstract val repoDirectory: DirectoryProperty
@@ -37,27 +37,25 @@ internal abstract class AbstractGenerateFileTask @Inject constructor(
 
     init {
         applyProjektorGroup()
-        metadata.convention(project.projektMetadata)
         repoDirectory.convention(project.layout.projectDirectory)
         outputFile.convention(project.layout.projectDirectory.file(outputFileName))
     }
 
     @TaskAction
     fun generate() {
-        val metadata = metadata.get()
         val repoDirectory = repoDirectory.get().asFile
         val outputFile = outputFile.get().asFile
         val wasFileExists = outputFile.exists()
         if (!wasFileExists) outputFile.createNewFile()
-        val fileText = getFileText(metadata, repoDirectory, outputFile) ?: return
+        val fileText = getFileText(repoDirectory, outputFile) ?: return
         val oldText = outputFile.readText()
         val newText = fileText.trim() + "\n"
         if (newText == oldText) return
         outputFile.writeText(newText)
         if (providers.isCI) {
-            metadata.repo.pushFile(repoDirectory, commitType, outputFile, wasFileExists, secrets.githubToken)
+            repo.get().pushFile(repoDirectory, commitType, outputFile, wasFileExists, secrets.githubToken)
         }
     }
 
-    abstract fun getFileText(metadata: ProjektMetadata, repoDirectory: File, file: File): String?
+    abstract fun getFileText(repoDirectory: File, file: File): String?
 }

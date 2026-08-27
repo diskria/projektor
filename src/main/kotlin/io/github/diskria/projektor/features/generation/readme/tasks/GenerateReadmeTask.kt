@@ -5,10 +5,9 @@ import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.core.model.license.LicenseType
 import io.github.diskria.projektor.core.model.license.mapToModel
 import io.github.diskria.projektor.core.model.metadata.ProjektAbout
-import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.features.distribution.target.mapToModel
+import io.github.diskria.projektor.features.generation.readme.LicenseShield
 import io.github.diskria.projektor.features.generation.readme.MarkdownHelper
-import io.github.diskria.projektor.features.generation.readme.shields.static.LicenseShield
 import io.github.diskria.projektor.features.generation.tasks.AbstractGenerateFileTask
 import io.github.diskria.projektor.internal.git.CommitType
 import io.github.diskria.projektor.internal.utils.SecretsHelper
@@ -36,7 +35,7 @@ internal abstract class GenerateReadmeTask @Inject constructor(
     abstract val projekts: ListProperty<Projekt.Regular>
 
     @get:Input
-    abstract val distributionTargetTypes: ListProperty<DistributionTargetType>
+    abstract val displayName: Property<String>
 
     @get:Input
     abstract val about: Property<ProjektAbout>
@@ -45,7 +44,10 @@ internal abstract class GenerateReadmeTask @Inject constructor(
     @get:Input
     abstract val license: Property<LicenseType>
 
-    override fun getFileText(metadata: ProjektMetadata, repoDirectory: File, file: File): String {
+    @get:Input
+    abstract val distributionTargetTypes: ListProperty<DistributionTargetType>
+
+    override fun getFileText(repoDirectory: File, file: File): String {
         val licenseModel = license.orNull?.mapToModel()
         val shields = buildList {
             projekts.get().forEach { projekt ->
@@ -56,11 +58,11 @@ internal abstract class GenerateReadmeTask @Inject constructor(
             licenseModel?.let { add(LicenseShield(licenseModel)) }
         }
         val header = buildString {
-            append(MarkdownHelper.header(metadata.displayName, 1))
+            append(MarkdownHelper.header(displayName.get(), 1))
             append(about.get().description)
             appendLine()
             appendLine()
-            append(shields.mapNotNull { it.buildMarkdown() }.joinToString(" "))
+            append(shields.mapNotNull { it.markdown }.joinToString(" "))
         }
         return buildString {
             append(header)
@@ -68,9 +70,8 @@ internal abstract class GenerateReadmeTask @Inject constructor(
             append(about.get().details)
             licenseModel?.let {
                 append(MarkdownHelper.SEPARATOR)
-                val licenseLink = MarkdownHelper.link(it.url, "${it.id} License")
                 append(MarkdownHelper.header("License", 2))
-                append("This project is licensed under the $licenseLink.")
+                append("This project is licensed under the ${MarkdownHelper.link(it.url, "${it.id} License")}.")
             }
         }
     }

@@ -4,8 +4,8 @@ import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.GradlePlugin
 import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.extensions.isCI
-import io.github.diskria.projektor.features.generation.readme.shields.common.ReadmeShield
-import io.github.diskria.projektor.features.generation.readme.shields.live.GradlePluginPortalShield
+import io.github.diskria.projektor.features.generation.readme.GradlePluginPortalShield
+import io.github.diskria.projektor.features.generation.readme.ReadmeShield
 import io.github.diskria.projektor.internal.utils.Errors
 import io.github.diskria.projektor.internal.utils.SecretsHelper
 import io.github.diskria.projektor.internal.utils.check

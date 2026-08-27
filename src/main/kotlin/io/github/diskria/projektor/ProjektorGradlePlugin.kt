@@ -19,7 +19,6 @@ import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
 import org.gradle.api.initialization.resolve.RepositoriesMode
 import org.gradle.api.plugins.PluginAware
-import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.wrapper.Wrapper
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.withType
@@ -158,21 +157,27 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     private fun configureReleaseTask(rootProject: Project, projektMetadata: ProjektMetadata.Regular) {
         if (rootProject.tasks.hasTask<ReleaseProjektTask>()) return
         val secrets = SecretsHelper(rootProject.providers)
-        val generateGitAttributes = rootProject.tasks.registerTask<GenerateGitAttributesTask>(secrets)
+        val generateGitAttributes = rootProject.tasks.registerTask<GenerateGitAttributesTask>(secrets) {
+            repo.set(projektMetadata.repo)
+        }
         val generateGitIgnore = rootProject.tasks.registerTask<GenerateGitIgnoreTask>(secrets) {
+            repo.set(projektMetadata.repo)
             mustRunAfter(generateGitAttributes)
         }
-        var previousTask: TaskProvider<*> = generateGitIgnore
         val generateLicense = projektMetadata.license?.let { license ->
             rootProject.tasks.registerTask<GenerateLicenseTask>(secrets) {
-                this.license.set(license)
+                licenseType.set(license)
+                developer.set(projektMetadata.repo.owner.developer)
+                repo.set(projektMetadata.repo)
                 mustRunAfter(generateGitIgnore)
-            }.also { previousTask = it }
+            }
         }
         val generateReadme = rootProject.tasks.registerTask<GenerateReadmeTask>(secrets) {
+            displayName.set(projektMetadata.displayName)
             about.set(projektMetadata.about)
             license.set(projektMetadata.license)
-            mustRunAfter(previousTask)
+            repo.set(projektMetadata.repo)
+            mustRunAfter(generateLicense ?: generateGitIgnore)
         }
         val updateGithubRepoMetadata = rootProject.tasks.registerTask<UpdateGithubRepoMetadataTask>(secrets) {
             projektTypes.set(projektMetadata.projektTypes)
@@ -191,12 +196,10 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
                 )
             )
         }
-        rootProject.allprojects { subproject ->
-            subproject.afterEvaluate {
-                subproject.projektDistributeTaskNames.forEach { taskName ->
-                    val distributeTask = subproject.tasks.named(taskName) {
-                        it.mustRunAfter(generateReadme)
-                    }
+        rootProject.allprojects { project ->
+            project.afterEvaluate {
+                project.projektDistributeTaskNames.forEach { taskName ->
+                    val distributeTask = project.tasks.named(taskName) { it.mustRunAfter(generateReadme) }
                     updateGithubRepoMetadata.configure { it.mustRunAfter(distributeTask) }
                     releaseProjekt.configure { it.dependsOn(distributeTask) }
                 }
@@ -206,13 +209,12 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
             val projekts = rootProject.allprojects
                 .mapNotNull { it.extensions.findByType<ProjektExtension>()?.configuredProjekt?.orNull }
                 .filterIsInstance<Projekt.Regular>()
-            val primaryProjekt = projekts.first()
-            val distributionTargetTypes = projekts.flatMap { it.distributionTargetTypes }
             generateReadme.configure {
                 it.projekts.set(projekts)
-                it.distributionTargetTypes.set(distributionTargetTypes)
+                it.distributionTargetTypes.set(projekts.flatMap { projekt -> projekt.distributionTargetTypes })
             }
             updateGithubRepoMetadata.configure {
+                val primaryProjekt = projekts.first()
                 val primaryDistributionTarget = primaryProjekt.distributionTargetTypes.firstOrNull()?.mapToModel()
                 it.homepageUrl.set(primaryDistributionTarget?.getHomepage(primaryProjekt))
             }

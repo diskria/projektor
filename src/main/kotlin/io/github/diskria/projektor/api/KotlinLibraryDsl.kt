@@ -5,6 +5,8 @@ import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
 open class KotlinLibraryDsl @Inject internal constructor(objects: ObjectFactory) : ProjektorScope {
+    val name = objects.property<String>()
+    val description = objects.property<String>()
     val version = objects.property<String>()
     val jvmTarget = objects.property<Int>()
     val javaVersion = objects.property<Int>()

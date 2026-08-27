@@ -79,29 +79,26 @@ open class ProjektMetadataExtension @Inject internal constructor(
                 "Call kotlinLibrary(), gradlePlugin() or monorepo { ... }"
         }
         val repo = GithubRepo(GithubOwner(ownerName, email.get()), repoName)
-        val packageName = "${repo.owner.namespace}.${repo.name.lowercase().replace("-", "_")}"
-        val about = if (isBuildLogic) null else ProjektAbout.from(rootDirectory)
-        val displayName = repo.name.split("-").joinToString(" ") { (about?.fixCase(it) ?: it).capitalized() }
-        return if (about != null) {
-            ProjektMetadata.Regular(
-                isMonorepo = isMonorepo,
-                projektTypes = projektTypes,
-                repo = repo,
-                packageName = packageName,
-                displayName = displayName,
-                version = version.getOrElse("0.1.0"),
-                license = license,
-                about = about,
-            )
-        } else {
+        return if (isBuildLogic) {
             Errors.frontend.check(license == null) { "Build logic shouldn't have a license" }
             Errors.frontend.check(!version.isPresent) { "Build logic shouldn't have a version" }
             ProjektMetadata.BuildLogic(
                 isMonorepo = isMonorepo,
                 projektTypes = projektTypes,
                 repo = repo,
-                packageName = packageName,
-                displayName = displayName,
+                namespace = "builder",
+            )
+        } else {
+            val about = ProjektAbout.from(rootDirectory)
+            ProjektMetadata.Regular(
+                isMonorepo = isMonorepo,
+                projektTypes = projektTypes,
+                repo = repo,
+                namespace = repo.owner.namespace,
+                displayName = repo.name.split("-").joinToString(" ") { about.fixCase(it).capitalized() },
+                version = version.orNull ?: "0.1.0",
+                license = license,
+                about = about,
             )
         }
     }

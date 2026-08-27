@@ -1,11 +1,12 @@
 package io.github.diskria.projektor.features.distribution.target
 
+import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.extensions.isCI
 import io.github.diskria.projektor.extensions.registerTask
 import io.github.diskria.projektor.features.distribution.tasks.UploadBundleToMavenCentralTask
-import io.github.diskria.projektor.features.generation.readme.shields.common.ReadmeShield
-import io.github.diskria.projektor.features.generation.readme.shields.live.MavenCentralShield
+import io.github.diskria.projektor.features.generation.readme.MavenCentralShield
+import io.github.diskria.projektor.features.generation.readme.ReadmeShield
 import io.github.diskria.projektor.internal.utils.SecretsHelper
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -14,7 +15,7 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.configure
 import org.gradle.plugins.signing.SigningExtension
 
-internal object MavenCentralDistributionTarget : MavenDistributionTarget("maven-central") {
+internal object MavenCentralDistributionTarget : MavenDistributionTarget(DistributionTargetType.MAVEN_CENTRAL) {
 
     override fun configurePublication(project: Project, projekt: Projekt, publication: MavenPublication) {
         if (!project.providers.isCI) return
@@ -29,7 +30,7 @@ internal object MavenCentralDistributionTarget : MavenDistributionTarget("maven-
     override fun configureDistributeTask(project: Project, projekt: Projekt.Regular): TaskProvider<out Task> {
         val publishTask = configurePublishTask(project, projekt)
         return project.tasks.registerTask<UploadBundleToMavenCentralTask>(SecretsHelper(project.providers)) {
-            repoName.set(projekt.metadata.repo.name)
+            bundleName.set(projekt.name)
             artifactVersion.set(projekt.version)
             from(getLocalMavenDirectory(project))
             destinationDirectory.set(project.layout.buildDirectory.dir("maven-central"))
@@ -38,7 +39,7 @@ internal object MavenCentralDistributionTarget : MavenDistributionTarget("maven-
     }
 
     override fun getHomepage(projekt: Projekt): String =
-        "https://central.sonatype.com/artifact/${projekt.metadata.repo.owner.namespace}/${projekt.metadata.repo.name}"
+        "https://central.sonatype.com/artifact/${projekt.metadata.repo.owner.namespace}/${projekt.name}"
 
     override fun getReadmeShield(projekt: Projekt): ReadmeShield = MavenCentralShield(projekt)
 }

@@ -3,7 +3,6 @@ package io.github.diskria.projektor.features.generation.tasks
 import io.github.diskria.projektor.core.model.license.License
 import io.github.diskria.projektor.core.model.license.LicenseType
 import io.github.diskria.projektor.core.model.license.mapToModel
-import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.internal.git.CommitType
 import io.github.diskria.projektor.internal.utils.ProjektorHttpClient
 import io.github.diskria.projektor.internal.utils.SecretsHelper
@@ -28,22 +27,14 @@ internal abstract class GenerateLicenseTask @Inject constructor(
     secrets = secrets,
 ) {
     @get:Input
-    abstract val license: Property<LicenseType>
+    abstract val licenseType: Property<LicenseType>
 
-    override fun getFileText(metadata: ProjektMetadata, repoDirectory: File, file: File): String? {
-        val licenseModel = license.get().mapToModel()
-        val spdxTag = "SPDX ID: ${licenseModel.id}"
-        val currentLicenseTag = file.readLines().lastOrNull { it.isNotBlank() }?.trim()
-        if (currentLicenseTag == spdxTag) return null
-        return buildString {
-            append(runBlocking { getLicenseText(metadata, licenseModel) })
-            appendLine()
-            append(spdxTag)
-        }
-    }
+    @get:Input
+    abstract val developer: Property<String>
 
-    private suspend fun getLicenseText(metadata: ProjektMetadata, license: License): String {
-        val template = ProjektorHttpClient.client.get(license.templateUrl).bodyAsText()
-        return license.fillTemplate(template, metadata)
-    }
+    override fun getFileText(repoDirectory: File, file: File): String? =
+        runBlocking { getLicenseText(developer.get(), licenseType.get().mapToModel()) }
+
+    private suspend fun getLicenseText(developer: String, license: License): String =
+        license.fillTemplate(ProjektorHttpClient.client.get(license.templateUrl).bodyAsText(), developer)
 }

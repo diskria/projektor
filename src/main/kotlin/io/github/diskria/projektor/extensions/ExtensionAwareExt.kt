@@ -16,9 +16,7 @@ internal fun <T> ExtensionAware.setExtra(property: KProperty0<*>, value: T) {
 }
 
 internal var Project.projektMetadata: ProjektMetadata
-    get() = Errors.internal.requireNotNull(findProjektMetadata()) {
-        "Projekt metadata has not been set yet"
-    }
+    get() = Errors.internal.requireNotNull(findProjektMetadata()) { "Projekt metadata has not been set yet" }
     set(value) {
         ensureRootProject().setExtra(::projektMetadata, value)
     }

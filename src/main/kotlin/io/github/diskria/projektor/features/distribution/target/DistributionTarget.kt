@@ -1,7 +1,7 @@
 package io.github.diskria.projektor.features.distribution.target
 
 import io.github.diskria.projektor.core.model.Projekt
-import io.github.diskria.projektor.features.generation.readme.shields.common.ReadmeShield
+import io.github.diskria.projektor.features.generation.readme.ReadmeShield
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider

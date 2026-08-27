@@ -12,23 +12,25 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.getByType
 
 internal sealed interface Projekt {
+
     val metadata: ProjektMetadata
-    val packageName: String get() = metadata.packageName
-    val displayName: String get() = metadata.displayName
+    val name: String
+    val packageName: String get() = "${metadata.namespace}.${name.lowercase().replace("-", "_")}"
     val javaVersion: Int get() = 25
     val jvmTarget: Int get() = 17
-    val classNamePrefix: String get() = metadata.repo.name.split("-").joinToString("") { it.capitalized() }
+    val classNamePrefix: String get() = name.split("-").joinToString("") { it.capitalized() }
 
     interface Regular : Projekt {
-        override val metadata: ProjektMetadata.Regular
         val version: String
-        val description: String?
-        val tags: Set<String>?
+        val description: String
         val license: License?
         val softwareComponent: String? get() = null
         val distributionTargetTypes: List<DistributionTargetType>
         val isSourcesEnabled: Boolean get() = true
         val isJavadocEnabled: Boolean get() = true
+        val displayName: String get() = metadata.displayName
+
+        override val metadata: ProjektMetadata.Regular
     }
 
     interface BuildLogic : Projekt {
@@ -37,28 +39,28 @@ internal sealed interface Projekt {
 }
 
 internal sealed interface KotlinLibrary : Projekt {
-    val configuration: KotlinLibraryDsl
 
     class Regular(
         override val metadata: ProjektMetadata.Regular,
         override val distributionTargetTypes: List<DistributionTargetType>,
-        override val configuration: KotlinLibraryDsl,
+        private val configuration: KotlinLibraryDsl,
     ) : KotlinLibrary, Projekt.Regular {
         override val softwareComponent: String get() = "java"
         override val license: License? = metadata.license?.mapToModel()
+        override val name: String get() = configuration.name.orNull ?: metadata.repo.name
+        override val description: String get() = configuration.description.orNull ?: metadata.about.description
         override val version: String get() = configuration.version.orNull ?: metadata.version
-        override val description: String get() = metadata.about.description
-        override val tags: Set<String> get() = metadata.about.tags
-        override val javaVersion: Int get() = configuration.javaVersion.getOrElse(super<Projekt.Regular>.javaVersion)
-        override val jvmTarget: Int get() = configuration.jvmTarget.getOrElse(super<Projekt.Regular>.jvmTarget)
+        override val javaVersion: Int get() = configuration.javaVersion.orNull ?: super<Projekt.Regular>.javaVersion
+        override val jvmTarget: Int get() = configuration.jvmTarget.orNull ?: super<Projekt.Regular>.jvmTarget
     }
 
     class BuildLogic(
         override val metadata: ProjektMetadata.BuildLogic,
-        override val configuration: KotlinLibraryDsl,
+        private val configuration: KotlinLibraryDsl,
     ) : KotlinLibrary, Projekt.BuildLogic {
-        override val javaVersion: Int get() = configuration.javaVersion.getOrElse(super<Projekt.BuildLogic>.javaVersion)
-        override val jvmTarget: Int get() = configuration.jvmTarget.getOrElse(super<Projekt.BuildLogic>.jvmTarget)
+        override val name: String get() = configuration.name.orNull ?: metadata.repo.name
+        override val javaVersion: Int get() = configuration.javaVersion.orNull ?: super<Projekt.BuildLogic>.javaVersion
+        override val jvmTarget: Int get() = configuration.jvmTarget.orNull ?: super<Projekt.BuildLogic>.jvmTarget
     }
 
     companion object {
@@ -75,29 +77,32 @@ internal sealed interface KotlinLibrary : Projekt {
 }
 
 internal sealed interface GradlePlugin : Projekt {
+
     val id: String get() = packageName
-    val configuration: GradlePluginDsl
 
     class Regular(
         override val metadata: ProjektMetadata.Regular,
         override val distributionTargetTypes: List<DistributionTargetType>,
-        override val configuration: GradlePluginDsl,
+        private val configuration: GradlePluginDsl,
     ) : GradlePlugin, Projekt.Regular {
+        val tags: Set<String> get() = configuration.tags.orNull ?: metadata.about.tags
+
         override val softwareComponent: String get() = "java"
         override val license: License? = metadata.license?.mapToModel()
+        override val name: String get() = configuration.name.orNull ?: metadata.repo.name
+        override val description: String get() = configuration.description.orNull ?: metadata.about.description
         override val version: String get() = configuration.version.orNull ?: metadata.version
-        override val description: String get() = metadata.about.description
-        override val tags: Set<String> get() = metadata.about.tags
-        override val javaVersion: Int get() = configuration.javaVersion.getOrElse(super<Projekt.Regular>.javaVersion)
-        override val jvmTarget: Int get() = configuration.jvmTarget.getOrElse(super<Projekt.Regular>.jvmTarget)
+        override val javaVersion: Int get() = configuration.javaVersion.orNull ?: super<Projekt.Regular>.javaVersion
+        override val jvmTarget: Int get() = configuration.jvmTarget.orNull ?: super<Projekt.Regular>.jvmTarget
     }
 
     class BuildLogic(
         override val metadata: ProjektMetadata.BuildLogic,
-        override val configuration: GradlePluginDsl,
+        private val configuration: GradlePluginDsl,
     ) : GradlePlugin, Projekt.BuildLogic {
-        override val javaVersion: Int get() = configuration.javaVersion.getOrElse(super<Projekt.BuildLogic>.javaVersion)
-        override val jvmTarget: Int get() = configuration.jvmTarget.getOrElse(super<Projekt.BuildLogic>.jvmTarget)
+        override val name: String get() = configuration.name.orNull ?: metadata.repo.name
+        override val javaVersion: Int get() = configuration.javaVersion.orNull ?: super<Projekt.BuildLogic>.javaVersion
+        override val jvmTarget: Int get() = configuration.jvmTarget.orNull ?: super<Projekt.BuildLogic>.jvmTarget
     }
 
     companion object {

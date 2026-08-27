@@ -1,5 +1,6 @@
 package io.github.diskria.projektor.features.distribution.target
 
+import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.GradlePlugin
 import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.extensions.isProjektMavenPublicationConfigured
@@ -20,20 +21,21 @@ import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.maven
 import org.gradle.kotlin.dsl.withType
 
-internal sealed class MavenDistributionTarget(val id: String) : DistributionTarget {
+internal sealed class MavenDistributionTarget(
+    private val distributionTargetType: DistributionTargetType
+) : DistributionTarget {
 
-    val repositoryName: String = id.split("-").joinToString("") { it.capitalized() }
+    private val repositoryName: String = distributionTargetType.id.split("-").joinToString("") { it.capitalized() }
 
     fun getLocalMavenDirectory(project: Project): Provider<Directory> =
-        project.layout.buildDirectory.dir("maven/$id")
+        project.layout.buildDirectory.dir("maven/${distributionTargetType.id}")
 
     open fun configureRepository(
         project: Project,
         projekt: Projekt,
         repositories: RepositoryHandler,
-        configure: MavenArtifactRepository.() -> Unit,
-    ): MavenArtifactRepository =
-        repositories.maven(getLocalMavenDirectory(project), configure)
+        configure: MavenArtifactRepository.() -> Unit
+    ): MavenArtifactRepository = repositories.maven(getLocalMavenDirectory(project), configure)
 
     open fun configurePublication(project: Project, projekt: Projekt, publication: MavenPublication) {}
 
@@ -53,7 +55,7 @@ internal sealed class MavenDistributionTarget(val id: String) : DistributionTarg
             val publicationName = if (isGradlePlugin) {
                 "pluginMaven"
             } else {
-                projekt.metadata.repo.name.split("-").withIndex().joinToString("") { (index, part) ->
+                projekt.name.split("-").withIndex().joinToString("") { (index, part) ->
                     if (index == 0) part else part.capitalized()
                 }
             }

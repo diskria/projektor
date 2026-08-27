@@ -1,9 +1,7 @@
 package io.github.diskria.projektor.core.model.github
 
 import java.io.Serializable
-import kotlinx.serialization.Serializable as KotlinxSerializable
 
-@KotlinxSerializable
 internal class GithubOwner(val name: String, val email: String = "") : Serializable {
     val developer: String get() = name.substringBefore('-')
     val profileUrl: String get() = "https://github.com/$developer"
