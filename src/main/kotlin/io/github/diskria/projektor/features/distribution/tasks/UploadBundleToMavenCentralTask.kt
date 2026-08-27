@@ -1,9 +1,7 @@
 package io.github.diskria.projektor.features.distribution.tasks
 
-import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.extensions.applyProjektorGroup
 import io.github.diskria.projektor.extensions.isCI
-import io.github.diskria.projektor.features.distribution.target.MavenCentralDistributionTarget
 import io.github.diskria.projektor.internal.utils.ProjektorHttpClient
 import io.github.diskria.projektor.internal.utils.SecretsHelper
 import io.ktor.client.request.*
@@ -14,7 +12,7 @@ import io.ktor.util.cio.*
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.ProviderFactory
-import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.work.DisableCachingByDefault
 import java.io.File
@@ -27,15 +25,16 @@ internal abstract class UploadBundleToMavenCentralTask @Inject constructor(
     private val secrets: SecretsHelper,
 ) : Zip() {
 
-    @get:Internal
-    abstract val projekt: Property<Projekt>
+    @get:Input
+    abstract val repoName: Property<String>
+
+    @get:Input
+    abstract val artifactVersion: Property<String>
 
     init {
         applyProjektorGroup()
-        archiveBaseName.set(projekt.map { it.metadata.repo.name })
-        archiveVersion.set(projekt.map { it.version })
-        from(MavenCentralDistributionTarget.getLocalMavenDirectory(project))
-        destinationDirectory.set(project.layout.buildDirectory.dir("maven-central"))
+        archiveBaseName.set(repoName)
+        archiveVersion.set(artifactVersion)
         doLast { upload() }
     }
 

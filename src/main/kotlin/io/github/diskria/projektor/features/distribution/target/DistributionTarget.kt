@@ -7,7 +7,7 @@ import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
 
 internal sealed interface DistributionTarget {
-    fun configureDistributeTask(project: Project, projekt: Projekt): TaskProvider<out Task>
+    fun configureDistributeTask(project: Project, projekt: Projekt.Regular): TaskProvider<out Task>
     fun getHomepage(projekt: Projekt): String? = null
     fun getReadmeShield(projekt: Projekt): ReadmeShield? = null
 }

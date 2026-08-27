@@ -15,7 +15,7 @@ import org.gradle.api.tasks.TaskProvider
 
 internal object GradlePluginPortalDistributionTarget : DistributionTarget {
 
-    override fun configureDistributeTask(project: Project, projekt: Projekt): TaskProvider<out Task> {
+    override fun configureDistributeTask(project: Project, projekt: Projekt.Regular): TaskProvider<out Task> {
         Errors.frontend.check(projekt is GradlePlugin) {
             "This kind of project doesn't support distribution to " +
                 DistributionTargetType.GRADLE_PLUGIN_PORTAL.displayName

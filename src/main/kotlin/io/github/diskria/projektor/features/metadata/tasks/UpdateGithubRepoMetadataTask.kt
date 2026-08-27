@@ -1,6 +1,8 @@
 package io.github.diskria.projektor.features.metadata.tasks
 
-import io.github.diskria.projektor.core.model.Projekt
+import io.github.diskria.projektor.core.model.ProjektType
+import io.github.diskria.projektor.core.model.github.GithubRepo
+import io.github.diskria.projektor.core.model.metadata.ProjektAbout
 import io.github.diskria.projektor.extensions.applyProjektorGroup
 import io.github.diskria.projektor.extensions.isCI
 import io.github.diskria.projektor.internal.network.github.GetLanguagesRequest
@@ -16,9 +18,11 @@ import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.gradle.api.DefaultTask
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.ProviderFactory
-import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 import javax.inject.Inject
@@ -29,8 +33,18 @@ internal abstract class UpdateGithubRepoMetadataTask @Inject constructor(
     private val secrets: SecretsHelper,
 ) : DefaultTask() {
 
-    @get:Internal
-    abstract val primaryProjekt: Property<Projekt>
+    @get:Optional
+    @get:Input
+    abstract val homepageUrl: Property<String>
+
+    @get:Input
+    abstract val projektTypes: ListProperty<ProjektType>
+
+    @get:Input
+    abstract val about: Property<ProjektAbout>
+
+    @get:Input
+    abstract val repo: Property<GithubRepo>
 
     init {
         applyProjektorGroup()
@@ -46,22 +60,20 @@ internal abstract class UpdateGithubRepoMetadataTask @Inject constructor(
     }
 
     private suspend fun updateInfo() {
-        val primaryProjekt = primaryProjekt.get()
         sendRequest(
             UpdateInfoRequest(
-                name = primaryProjekt.metadata.repo.name,
-                description = primaryProjekt.metadata.description,
-                homepageUrl = primaryProjekt.distributionTargets.firstOrNull()?.getHomepage(primaryProjekt),
+                name = repo.get().name,
+                description = about.get().description,
+                homepageUrl = homepageUrl.orNull,
             )
         )
     }
 
     private suspend fun updateTopics() {
-        val metadata = primaryProjekt.get().metadata
         val topics = buildSet {
             getTopLanguage()?.let { add(it) }
-            addAll(metadata.projektTypes.map { it.topicName })
-            addAll(metadata.tags)
+            addAll(projektTypes.get().map { it.topicName })
+            addAll(about.get().tags)
         }
         sendRequest(UpdateTopicsRequest(topics.toList()))
     }
@@ -72,9 +84,8 @@ internal abstract class UpdateGithubRepoMetadataTask @Inject constructor(
     }
 
     private suspend fun sendRequest(request: GithubRepoRequest): HttpResponse {
-        val repo = primaryProjekt.get().metadata.repo
         val url = buildString {
-            append("https://api.github.com/repos/${repo.owner.name}/${repo.name}")
+            append("https://api.github.com/repos/${repo.get().owner.name}/${repo.get().name}")
             request.getPathSegment()?.let { append("/$it") }
         }
         return ProjektorHttpClient.client.request(url) {

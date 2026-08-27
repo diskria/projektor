@@ -1,6 +1,7 @@
 package io.github.diskria.projektor.features.distribution.target
 
 import io.github.diskria.projektor.core.model.Projekt
+import io.github.diskria.projektor.extensions.projektMetadata
 import io.github.diskria.projektor.extensions.registerTask
 import io.github.diskria.projektor.features.distribution.tasks.DeployMavenToGithubPagesTask
 import io.github.diskria.projektor.features.generation.readme.shields.common.ReadmeShield
@@ -12,9 +13,13 @@ import org.gradle.api.tasks.TaskProvider
 
 internal object GithubPagesDistributionTarget : MavenDistributionTarget("github-pages") {
 
-    override fun configureDistributeTask(project: Project, projekt: Projekt): TaskProvider<out Task> {
+    override fun configureDistributeTask(project: Project, projekt: Projekt.Regular): TaskProvider<out Task> {
         val publishTask = configurePublishTask(project, projekt)
         return project.tasks.registerTask<DeployMavenToGithubPagesTask>(SecretsHelper(project.providers)) {
+            repo.set(project.rootProject.projektMetadata.repo)
+            repoDirectory.convention(project.layout.projectDirectory)
+            from(getLocalMavenDirectory(project))
+            into(project.layout.projectDirectory.dir("docs"))
             dependsOn(publishTask)
         }
     }

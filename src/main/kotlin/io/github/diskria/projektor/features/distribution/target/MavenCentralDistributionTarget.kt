@@ -26,10 +26,13 @@ internal object MavenCentralDistributionTarget : MavenDistributionTarget("maven-
         }
     }
 
-    override fun configureDistributeTask(project: Project, projekt: Projekt): TaskProvider<out Task> {
+    override fun configureDistributeTask(project: Project, projekt: Projekt.Regular): TaskProvider<out Task> {
         val publishTask = configurePublishTask(project, projekt)
         return project.tasks.registerTask<UploadBundleToMavenCentralTask>(SecretsHelper(project.providers)) {
-            this.projekt.set(projekt)
+            repoName.set(projekt.metadata.repo.name)
+            artifactVersion.set(projekt.version)
+            from(getLocalMavenDirectory(project))
+            destinationDirectory.set(project.layout.buildDirectory.dir("maven-central"))
             dependsOn(publishTask)
         }
     }

@@ -2,9 +2,10 @@ package io.github.diskria.projektor.core.configurators
 
 import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.extensions.configureJvmTarget
-import io.github.diskria.projektor.extensions.getTask
+import io.github.diskria.projektor.extensions.findTask
 import io.github.diskria.projektor.extensions.jar
 import io.github.diskria.projektor.extensions.projektDistributeTaskNames
+import io.github.diskria.projektor.features.distribution.target.mapToModel
 import io.github.diskria.projektor.features.generation.tasks.GenerateLicenseTask
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePluginExtension
@@ -26,7 +27,9 @@ internal abstract class ProjectConfigurator<T : Projekt> {
         val projekt = buildProjekt(project)
         applyCommonConfiguration(project, projekt)
         configureProject(project, projekt)
-        configureDistribution(project, projekt)
+        if (projekt is Projekt.Regular) {
+            configureDistribution(project, projekt)
+        }
         return projekt
     }
 
@@ -35,8 +38,10 @@ internal abstract class ProjectConfigurator<T : Projekt> {
     abstract fun configureProject(project: Project, projekt: T): Any
 
     private fun applyCommonConfiguration(project: Project, projekt: T) {
-        project.group = projekt.metadata.repo.owner.namespace
-        project.version = projekt.version
+        if (projekt is Projekt.Regular) {
+            project.group = projekt.metadata.repo.owner.namespace
+            project.version = projekt.version
+        }
         project.extensions.configure<BasePluginExtension> {
             archivesName.set(projekt.metadata.repo.name)
         }
@@ -59,33 +64,36 @@ internal abstract class ProjectConfigurator<T : Projekt> {
                 javaCompile.options.encoding = Charsets.UTF_8.toString()
             }
             jar {
-                archiveVersion.set(projekt.version)
-                val generateLicenseTask = project.rootProject.tasks.getTask<GenerateLicenseTask>()
-                dependsOn(generateLicenseTask)
-                from(generateLicenseTask) {
-                    it.rename { fileName -> "${fileName}_${projekt.metadata.repo.name}" }
+                project.rootProject.tasks.findTask<GenerateLicenseTask>()?.let { generateLicenseTask ->
+                    dependsOn(generateLicenseTask)
+                    from(generateLicenseTask) {
+                        it.rename { fileName -> "${fileName}_${projekt.metadata.repo.name}" }
+                    }
                 }
-                manifest.attributes(
-                    "Specification-Version" to 1,
-                    "Specification-Vendor" to projekt.metadata.repo.owner.name,
-                    "Specification-Title" to projekt.metadata.repo.name,
+                if (projekt is Projekt.Regular) {
+                    archiveVersion.set(projekt.version)
+                    manifest.attributes(
+                        "Specification-Version" to 1,
+                        "Specification-Vendor" to projekt.metadata.repo.owner.name,
+                        "Specification-Title" to projekt.metadata.repo.name,
 
-                    "Implementation-Version" to projekt.version,
-                    "Implementation-Vendor" to projekt.metadata.repo.owner.developer,
-                    "Implementation-Title" to projekt.displayName,
-                )
+                        "Implementation-Version" to projekt.version,
+                        "Implementation-Vendor" to projekt.metadata.repo.owner.developer,
+                        "Implementation-Title" to projekt.displayName,
+                    )
+                }
             }
         }
     }
 
-    private fun configureDistribution(project: Project, projekt: T) {
-        if (projekt.distributionTargets.isEmpty()) return
+    private fun configureDistribution(project: Project, projekt: Projekt.Regular) {
+        if (projekt.distributionTargetTypes.isEmpty()) return
         project.extensions.configure<JavaPluginExtension> {
             if (projekt.isSourcesEnabled) withSourcesJar()
             if (projekt.isJavadocEnabled) withJavadocJar()
         }
-        project.projektDistributeTaskNames = projekt.distributionTargets.map {
-            it.configureDistributeTask(project, projekt).name
+        project.projektDistributeTaskNames = projekt.distributionTargetTypes.map {
+            it.mapToModel().configureDistributeTask(project, projekt).name
         }
     }
 }

@@ -1,7 +1,6 @@
 package io.github.diskria.projektor.core.configurators
 
 import io.github.diskria.projektor.api.GradlePluginDsl
-import io.github.diskria.projektor.core.model.BaseProjekt
 import io.github.diskria.projektor.core.model.GradlePlugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -12,8 +11,7 @@ import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 
 internal open class GradlePluginConfigurator(val configuration: GradlePluginDsl) : ProjectConfigurator<GradlePlugin>() {
 
-    override fun buildProjekt(project: Project): GradlePlugin =
-        BaseProjekt.of(project).toGradlePlugin(configuration)
+    override fun buildProjekt(project: Project): GradlePlugin = GradlePlugin.of(project, configuration)
 
     override fun configureProject(project: Project, projekt: GradlePlugin) {
         project.pluginManager.apply("java-gradle-plugin")
@@ -23,10 +21,11 @@ internal open class GradlePluginConfigurator(val configuration: GradlePluginDsl)
             plugins.create(projekt.id).apply {
                 id = projekt.id
                 implementationClass = "${projekt.packageName}.${projekt.classNamePrefix}GradlePlugin"
-                displayName = projekt.displayName
-                description = projekt.description
-                tags.set(projekt.tags)
-
+                if (projekt is GradlePlugin.Regular) {
+                    displayName = projekt.displayName
+                    description = projekt.description
+                    tags.set(projekt.tags)
+                }
                 project.pluginManager.apply("org.gradle.plugin-compatibility")
                 compatibility {
                     it.features.configurationCache.set(configuration.supportsConfigurationCache)

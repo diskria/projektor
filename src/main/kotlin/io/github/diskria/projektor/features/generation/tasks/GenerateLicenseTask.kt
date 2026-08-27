@@ -1,6 +1,7 @@
 package io.github.diskria.projektor.features.generation.tasks
 
 import io.github.diskria.projektor.core.model.license.License
+import io.github.diskria.projektor.core.model.license.LicenseType
 import io.github.diskria.projektor.core.model.license.mapToModel
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.internal.git.CommitType
@@ -9,7 +10,9 @@ import io.github.diskria.projektor.internal.utils.SecretsHelper
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.ProviderFactory
+import org.gradle.api.tasks.Input
 import org.gradle.work.DisableCachingByDefault
 import java.io.File
 import javax.inject.Inject
@@ -24,15 +27,16 @@ internal abstract class GenerateLicenseTask @Inject constructor(
     providers = providers,
     secrets = secrets,
 ) {
+    @get:Input
+    abstract val license: Property<LicenseType>
+
     override fun getFileText(metadata: ProjektMetadata, repoDirectory: File, file: File): String? {
-        val license = metadata.license.mapToModel()
-        val spdxTag = "SPDX ID: ${license.id}"
+        val licenseModel = license.get().mapToModel()
+        val spdxTag = "SPDX ID: ${licenseModel.id}"
         val currentLicenseTag = file.readLines().lastOrNull { it.isNotBlank() }?.trim()
-        if (currentLicenseTag == spdxTag) {
-            return null
-        }
+        if (currentLicenseTag == spdxTag) return null
         return buildString {
-            append(runBlocking { getLicenseText(metadata, license) })
+            append(runBlocking { getLicenseText(metadata, licenseModel) })
             appendLine()
             append(spdxTag)
         }

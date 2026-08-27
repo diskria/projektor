@@ -17,6 +17,7 @@ projekt {
         supportsConfigurationCache = true
     }
     distribute {
+        mavenLocal()
         gradlePluginPortal()
     }
 }

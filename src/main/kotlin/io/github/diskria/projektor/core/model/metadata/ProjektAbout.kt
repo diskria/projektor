@@ -1,21 +1,22 @@
 package io.github.diskria.projektor.core.model.metadata
 
 import java.io.File
+import java.io.Serializable
 
 internal data class ProjektAbout(
     val description: String,
     val details: String,
-    val tags: Set<String>
-) {
-    private val wordCaseDictionary: Map<String, String> by lazy {
-        Regex("[A-Za-z0-9]+")
+    val tags: Set<String>,
+) : Serializable {
+
+    fun fixCase(word: String): String {
+        val target = word.lowercase()
+        return Regex("[A-Za-z0-9]+")
             .findAll("$description\n$details")
             .map { it.value }
-            .groupBy { it.lowercase() }
-            .mapValues { (_, variants) -> variants.maxBy { rateCase(it) } }
+            .filter { it.lowercase() == target }
+            .maxByOrNull { rateCase(it) } ?: word
     }
-
-    fun fixCase(word: String): String = wordCaseDictionary[word.lowercase()] ?: word
 
     private fun rateCase(word: String): Int {
         var score = 0
@@ -25,25 +26,19 @@ internal data class ProjektAbout(
     }
 
     companion object {
-        fun of(repoDirectory: File): ProjektAbout {
+        fun from(repoDirectory: File): ProjektAbout {
             val aboutDirectory = repoDirectory.resolve("about").apply { mkdirs() }
-            val descriptionFile = aboutDirectory.resolve("DESCRIPTION.md").getOrCreate(
-                defaultContent = "TODO: Project description."
-            )
-            val detailsFile = aboutDirectory.resolve("DETAILS.md").getOrCreate(
-                defaultContent = "TODO: Detailed project documentation."
-            )
-            val tagsFile = aboutDirectory.resolve("TAGS.md").getOrCreate(
-                defaultContent = "kotlin"
-            )
-            return ProjektAbout(
-                description = descriptionFile.readText().trim(),
-                details = detailsFile.readText().trim(),
-                tags = tagsFile.readLines().map { it.trim() }.filter { it.isNotEmpty() }.toSet()
-            )
+
+            val description = aboutDirectory.resolve("DESCRIPTION.md").ensureCreated("TODO: Project description.")
+                .readText().trim()
+            val details = aboutDirectory.resolve("DETAILS.md").ensureCreated("TODO: Detailed project documentation.")
+                .readText().trim()
+            val tags = aboutDirectory.resolve("TAGS.md").ensureCreated("kotlin")
+                .readLines().map { it.trim() }.filter { it.isNotEmpty() }.toSet()
+            return ProjektAbout(description, details, tags)
         }
 
-        private fun File.getOrCreate(defaultContent: String): File {
+        private fun File.ensureCreated(defaultContent: String): File {
             if (!exists()) {
                 createNewFile()
                 writeText(defaultContent)

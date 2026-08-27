@@ -37,10 +37,10 @@ internal sealed class MavenDistributionTarget(val id: String) : DistributionTarg
 
     open fun configurePublication(project: Project, projekt: Projekt, publication: MavenPublication) {}
 
-    override fun configureDistributeTask(project: Project, projekt: Projekt): TaskProvider<out Task> =
+    override fun configureDistributeTask(project: Project, projekt: Projekt.Regular): TaskProvider<out Task> =
         configurePublishTask(project, projekt)
 
-    protected fun configurePublishTask(project: Project, projekt: Projekt): TaskProvider<out Task> {
+    protected fun configurePublishTask(project: Project, projekt: Projekt.Regular): TaskProvider<out Task> {
         val componentName = Errors.frontend.checkNotNull(projekt.softwareComponent) {
             "This kind of project doesn't support publishing to Maven"
         }
@@ -78,7 +78,7 @@ internal sealed class MavenDistributionTarget(val id: String) : DistributionTarg
         return project.tasks.named("publishAllPublicationsTo${repositoryName}Repository")
     }
 
-    private fun configurePom(pom: MavenPom, projekt: Projekt) {
+    private fun configurePom(pom: MavenPom, projekt: Projekt.Regular) {
         val repo = projekt.metadata.repo
         val organizationUrl = repo.owner.organizationUrl
         with(pom) {
@@ -116,10 +116,12 @@ internal sealed class MavenDistributionTarget(val id: String) : DistributionTarg
                     }
                 }
             }
-            licenses { spec ->
-                spec.license {
-                    it.name.set(projekt.license.id)
-                    it.url.set(projekt.license.url)
+            projekt.license?.let { projektLicense ->
+                licenses { spec ->
+                    spec.license {
+                        it.name.set(projektLicense.id)
+                        it.url.set(projektLicense.url)
+                    }
                 }
             }
         }

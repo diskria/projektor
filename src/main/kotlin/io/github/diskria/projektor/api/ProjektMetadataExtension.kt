@@ -14,6 +14,7 @@ import org.gradle.api.initialization.Settings
 import org.gradle.api.model.ObjectFactory
 import org.gradle.kotlin.dsl.maven
 import org.gradle.kotlin.dsl.property
+import java.io.File
 import javax.inject.Inject
 
 open class ProjektMetadataExtension @Inject internal constructor(
@@ -21,12 +22,12 @@ open class ProjektMetadataExtension @Inject internal constructor(
     objects: ObjectFactory
 ) : ProjektorScope {
 
-    val version = objects.property<String>().convention("0.1.0")
+    val version = objects.property<String>()
     val email = objects.property<String>().convention("diskria@proton.me")
 
     internal val projektTypes = mutableSetOf<ProjektType>()
 
-    internal var license: LicenseType = LicenseType.MIT
+    internal var license: LicenseType? = null
         private set
 
     internal var isMonorepo: Boolean = false
@@ -46,7 +47,7 @@ open class ProjektMetadataExtension @Inject internal constructor(
         registerProjekt(":", ProjektType.KOTLIN_LIBRARY)
     }
 
-    fun licensing(configure: LicensingDsl.() -> Unit) {
+    fun license(configure: LicensingDsl.() -> Unit) {
         LicensingDsl { license = it }.configure()
     }
 
@@ -67,22 +68,42 @@ open class ProjektMetadataExtension @Inject internal constructor(
         }
     }
 
-    internal fun ensureConfigured(ownerName: String, repoName: String, about: ProjektAbout): ProjektMetadata {
+    internal fun ensureConfigured(
+        ownerName: String,
+        repoName: String,
+        rootDirectory: File,
+        isBuildLogic: Boolean,
+    ): ProjektMetadata {
         Errors.frontend.check(projektTypes.isNotEmpty()) {
             "Projekt type is not configured in settings.gradle.kts! " +
                 "Call kotlinLibrary(), gradlePlugin() or monorepo { ... }"
         }
         val repo = GithubRepo(GithubOwner(ownerName, email.get()), repoName)
-        return ProjektMetadata(
-            projektTypes = projektTypes,
-            repo = repo,
-            packageName = "${repo.owner.namespace}.${repo.name.lowercase().replace("-", "_")}",
-            displayName = repo.name.split("-").joinToString(" ") { about.fixCase(it).capitalized() },
-            version = version.get(),
-            license = license,
-            description = about.description,
-            tags = about.tags,
-        )
+        val packageName = "${repo.owner.namespace}.${repo.name.lowercase().replace("-", "_")}"
+        val about = if (isBuildLogic) null else ProjektAbout.from(rootDirectory)
+        val displayName = repo.name.split("-").joinToString(" ") { (about?.fixCase(it) ?: it).capitalized() }
+        return if (about != null) {
+            ProjektMetadata.Regular(
+                isMonorepo = isMonorepo,
+                projektTypes = projektTypes,
+                repo = repo,
+                packageName = packageName,
+                displayName = displayName,
+                version = version.getOrElse("0.1.0"),
+                license = license,
+                about = about,
+            )
+        } else {
+            Errors.frontend.check(license == null) { "Build logic shouldn't have a license" }
+            Errors.frontend.check(!version.isPresent) { "Build logic shouldn't have a version" }
+            ProjektMetadata.BuildLogic(
+                isMonorepo = isMonorepo,
+                projektTypes = projektTypes,
+                repo = repo,
+                packageName = packageName,
+                displayName = displayName,
+            )
+        }
     }
 
     internal fun registerProjekt(projectPath: String, type: ProjektType) {

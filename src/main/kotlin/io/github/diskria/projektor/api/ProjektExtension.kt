@@ -20,7 +20,7 @@ open class ProjektExtension @Inject internal constructor(
     private val objects: ObjectFactory,
 ) : ProjektorScope {
 
-    internal val distributionTargets = objects.listProperty<DistributionTargetType>()
+    internal val distributionTargets = objects.listProperty<DistributionTargetType>().convention(emptyList())
     internal val configuredProjekt: Property<Projekt> = objects.property()
 
     private var configurator: ProjectConfigurator<*>? = null

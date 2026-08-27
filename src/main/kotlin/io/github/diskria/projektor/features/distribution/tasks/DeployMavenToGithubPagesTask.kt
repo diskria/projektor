@@ -1,11 +1,9 @@
 package io.github.diskria.projektor.features.distribution.tasks
 
 import io.github.diskria.projektor.core.model.DistributionTargetType
-import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
+import io.github.diskria.projektor.core.model.github.GithubRepo
 import io.github.diskria.projektor.extensions.applyProjektorGroup
 import io.github.diskria.projektor.extensions.isCI
-import io.github.diskria.projektor.extensions.projektMetadata
-import io.github.diskria.projektor.features.distribution.target.GithubPagesDistributionTarget
 import io.github.diskria.projektor.internal.git.CommitMessage
 import io.github.diskria.projektor.internal.git.CommitType
 import io.github.diskria.projektor.internal.utils.SecretsHelper
@@ -14,6 +12,7 @@ import kotlinx.html.stream.createHTML
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.ProviderFactory
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Sync
 import org.gradle.work.DisableCachingByDefault
@@ -26,25 +25,21 @@ internal abstract class DeployMavenToGithubPagesTask @Inject constructor(
     private val secrets: SecretsHelper,
 ) : Sync() {
 
-    @get:Internal
-    abstract val metadata: Property<ProjektMetadata>
+    @get:Input
+    abstract val repo: Property<GithubRepo>
 
     @get:Internal
     abstract val repoDirectory: DirectoryProperty
 
     init {
         applyProjektorGroup()
-        metadata.convention(project.rootProject.projektMetadata)
-        repoDirectory.convention(project.layout.projectDirectory)
-        from(GithubPagesDistributionTarget.getLocalMavenDirectory(project))
-        into(project.layout.projectDirectory.dir("docs"))
         doLast { deploy() }
     }
 
     private fun deploy() {
         generateIndexTree(destinationDir)
         if (!providers.isCI) return
-        metadata.get().repo.pushFile(
+        repo.get().pushFile(
             repoDirectory.get().asFile,
             CommitMessage(CommitType.CHORE, "deploy maven to ${DistributionTargetType.GITHUB_PAGES.displayName}"),
             destinationDir,

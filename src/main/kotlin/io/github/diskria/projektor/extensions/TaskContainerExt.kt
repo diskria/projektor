@@ -2,7 +2,6 @@ package io.github.diskria.projektor.extensions
 
 import io.github.diskria.projektor.core.configurators.toVersion
 import io.github.diskria.projektor.internal.utils.Errors
-import io.github.diskria.projektor.internal.utils.check
 import io.github.diskria.projektor.internal.utils.decapitalized
 import io.github.diskria.projektor.internal.utils.requireNotNull
 import org.gradle.api.Task
@@ -38,12 +37,6 @@ internal inline fun <reified T : Task> TaskContainer.registerTask(
 internal inline fun <reified T : Task> TaskContainer.hasTask(name: String = defaultTaskName<T>()): Boolean =
     findByName(name) is T
 
-internal inline fun <reified T : Task> TaskContainer.getTask(name: String = defaultTaskName<T>()): TaskProvider<T> {
-    val existing = findByName(name)
-    val jClass = T::class.java
-    Errors.internal.check(existing != null) { "Task '$name' is not registered in project" }
-    Errors.internal.check(existing is T) {
-        "Task '$name' has type ${existing::class.java.name}, expected ${jClass.name}"
-    }
-    return named(name, jClass)
-}
+internal inline fun <reified T : Task> TaskContainer.findTask(name: String = defaultTaskName<T>()): TaskProvider<T>? =
+    if (!hasTask<T>(name)) null
+    else named<T>(name)
