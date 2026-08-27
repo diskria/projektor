@@ -4,7 +4,7 @@ import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.isCI
-import io.github.diskria.projektor.extensions.registerTask
+import io.github.diskria.projektor.extensions.register
 import io.github.diskria.projektor.features.distribution.tasks.UploadBundleToMavenCentralTask
 import io.github.diskria.projektor.features.generation.readme.MavenCentralShield
 import io.github.diskria.projektor.features.generation.readme.ReadmeShield
@@ -34,7 +34,7 @@ internal object MavenCentralDistributionTarget : MavenDistributionTarget(Distrib
         projektMetadata: ProjektMetadata,
     ): TaskProvider<out Task> {
         val publishTask = configurePublishTask(project, projekt)
-        return project.tasks.registerTask<UploadBundleToMavenCentralTask>(SecretsHelper(project.providers)) {
+        return project.tasks.register<UploadBundleToMavenCentralTask>(SecretsHelper(project.providers)) {
             bundleName.set(projekt.name)
             bundleVersion.set(projekt.version)
             from(getLocalMavenDirectory(project))

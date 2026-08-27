@@ -4,7 +4,6 @@ import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.GradlePlugin
 import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
-import io.github.diskria.projektor.extensions.isProjektMavenPublicationConfigured
 import io.github.diskria.projektor.extensions.maybeCreate
 import io.github.diskria.projektor.internal.utils.Errors
 import io.github.diskria.projektor.internal.utils.capitalized
@@ -56,31 +55,24 @@ internal sealed class MavenDistributionTarget(
             configureRepository(project, projekt, repositories) {
                 name = repositoryName
             }
-            val isGradlePlugin = projekt is GradlePlugin
-            val publicationName = if (isGradlePlugin) {
-                "pluginMaven"
+            if (projekt is GradlePlugin) {
+                publications.matching { it.name == "pluginMaven" }.withType<MavenPublication>()
+                    .configureEach { publication ->
+                        if (publication.pom.url.isPresent) return@configureEach
+                        configurePom(publication.pom, projekt)
+                        configurePublication(project, projekt, publication)
+                    }
             } else {
-                projekt.name.split("-").withIndex().joinToString("") { (index, part) ->
+                val publicationName = projekt.name.split("-").withIndex().joinToString("") { (index, part) ->
                     if (index == 0) part else part.capitalized()
                 }
-            }
-            if (!isGradlePlugin) {
                 publications.maybeCreate<MavenPublication>(publicationName) {
                     from(Errors.internal.checkNotNull(project.components.findByName(componentName)) {
                         "SoftwareComponent '$componentName' not found in project '${project.path}'"
                     })
+                    configurePom(pom, projekt)
+                    configurePublication(project, projekt, this)
                 }
-            }
-            if (!project.isProjektMavenPublicationConfigured) {
-                publications
-                    .matching { it.name == publicationName }
-                    .withType<MavenPublication>()
-                    .configureEach { publication ->
-                        if (project.isProjektMavenPublicationConfigured) return@configureEach
-                        configurePom(publication.pom, projekt)
-                        configurePublication(project, projekt, publication)
-                        project.isProjektMavenPublicationConfigured = true
-                    }
             }
         }
         return project.tasks.named("publishAllPublicationsTo${repositoryName}Repository")

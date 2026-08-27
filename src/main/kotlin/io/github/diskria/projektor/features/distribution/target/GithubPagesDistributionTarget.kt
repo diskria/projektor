@@ -3,7 +3,7 @@ package io.github.diskria.projektor.features.distribution.target
 import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
-import io.github.diskria.projektor.extensions.registerTask
+import io.github.diskria.projektor.extensions.register
 import io.github.diskria.projektor.features.distribution.tasks.DeployMavenToGithubPagesTask
 import io.github.diskria.projektor.features.generation.readme.GithubPagesShield
 import io.github.diskria.projektor.features.generation.readme.ReadmeShield
@@ -20,7 +20,7 @@ internal object GithubPagesDistributionTarget : MavenDistributionTarget(Distribu
         projektMetadata: ProjektMetadata,
     ): TaskProvider<out Task> {
         val publishTask = configurePublishTask(project, projekt)
-        return project.tasks.registerTask<DeployMavenToGithubPagesTask>(SecretsHelper(project.providers)) {
+        return project.tasks.register<DeployMavenToGithubPagesTask>(SecretsHelper(project.providers)) {
             repo.set(projektMetadata.repo)
             repoDirectory.convention(project.layout.projectDirectory)
             from(getLocalMavenDirectory(project))

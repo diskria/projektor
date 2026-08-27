@@ -18,15 +18,3 @@ internal var Project.projektMetadata: ProjektMetadata?
     set(value) {
         ensureRootProject().setExtra(::projektMetadata, value)
     }
-
-internal var Project.projektDistributeTaskNames: List<String>
-    get() = getExtra<List<String>>(::projektDistributeTaskNames).orEmpty()
-    set(value) {
-        setExtra(::projektDistributeTaskNames, value)
-    }
-
-internal var Project.isProjektMavenPublicationConfigured: Boolean
-    get() = getExtra<Boolean>(::isProjektMavenPublicationConfigured) == true
-    set(value) {
-        setExtra(::isProjektMavenPublicationConfigured, value)
-    }

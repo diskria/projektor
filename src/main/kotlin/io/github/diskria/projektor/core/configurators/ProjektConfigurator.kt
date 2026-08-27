@@ -4,7 +4,10 @@ import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.features.distribution.target.mapToModel
+import io.github.diskria.projektor.features.generation.readme.tasks.GenerateReadmeTask
 import io.github.diskria.projektor.features.generation.tasks.GenerateLicenseTask
+import io.github.diskria.projektor.features.metadata.tasks.UpdateGithubRepoMetadataTask
+import io.github.diskria.projektor.features.release.ReleaseProjektTask
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.JavaPluginExtension
@@ -61,7 +64,7 @@ internal abstract class ProjektConfigurator<T : Projekt> {
                 javaCompile.options.encoding = Charsets.UTF_8.toString()
             }
             jar {
-                project.rootProject.tasks.findTask<GenerateLicenseTask>()?.let { generateLicenseTask ->
+                project.rootProject.tasks.find<GenerateLicenseTask>()?.let { generateLicenseTask ->
                     dependsOn(generateLicenseTask)
                     from(generateLicenseTask) {
                         it.rename { fileName -> "${fileName}_${projekt.metadata.repo.name}" }
@@ -84,8 +87,19 @@ internal abstract class ProjektConfigurator<T : Projekt> {
             if (projekt.isSourcesEnabled) withSourcesJar()
             if (projekt.isJavadocEnabled) withJavadocJar()
         }
-        project.projektDistributeTaskNames = projekt.distributionTargetTypes.map {
-            it.mapToModel().configureDistributeTask(project, projekt, projektMetadata).name
+        val rootTaskContainer = project.rootProject.tasks
+        val distributeTasks = projekt.distributionTargetTypes.map {
+            it.mapToModel().configureDistributeTask(project, projekt, projektMetadata)
+        }
+        val generateReadmeTask = rootTaskContainer.get<GenerateReadmeTask>()
+        distributeTasks.forEach { distributeTask ->
+            distributeTask.configure { it.mustRunAfter(generateReadmeTask) }
+        }
+        rootTaskContainer.get<UpdateGithubRepoMetadataTask>().configure {
+            it.mustRunAfter(distributeTasks)
+        }
+        rootTaskContainer.get<ReleaseProjektTask>().configure {
+            it.dependsOn(distributeTasks)
         }
     }
 }

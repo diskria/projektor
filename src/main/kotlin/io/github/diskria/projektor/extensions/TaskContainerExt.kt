@@ -27,15 +27,18 @@ internal fun TaskContainer.configureJvmTarget(target: JvmTarget) {
     withType<JavaCompile>().configureEach { it.options.release.set(target.toVersion()) }
 }
 
-internal inline fun <reified T : Task> TaskContainer.registerTask(
+internal inline fun <reified T : Task> TaskContainer.register(
     vararg constructorArguments: Any,
     name: String = defaultTaskName<T>(),
     noinline configure: T.() -> Unit = {}
 ): TaskProvider<T> = register(name, T::class.java, *constructorArguments).apply { configure(configure) }
 
-internal inline fun <reified T : Task> TaskContainer.hasTask(name: String = defaultTaskName<T>()): Boolean =
+internal inline fun <reified T : Task> TaskContainer.has(name: String = defaultTaskName<T>()): Boolean =
     findByName(name) is T
 
-internal inline fun <reified T : Task> TaskContainer.findTask(name: String = defaultTaskName<T>()): TaskProvider<T>? =
-    if (!hasTask<T>(name)) null
-    else named<T>(name)
+internal inline fun <reified T : Task> TaskContainer.get(name: String = defaultTaskName<T>()): TaskProvider<T> =
+    named<T>(name)
+
+internal inline fun <reified T : Task> TaskContainer.find(name: String = defaultTaskName<T>()): TaskProvider<T>? =
+    if (!has<T>(name)) null
+    else get<T>(name)

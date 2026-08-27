@@ -20,7 +20,6 @@ import org.gradle.api.initialization.Settings
 import org.gradle.api.initialization.resolve.RepositoriesMode
 import org.gradle.api.plugins.PluginAware
 import org.gradle.api.tasks.wrapper.Wrapper
-import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.withType
 import org.gradle.util.GradleVersion
 
@@ -53,7 +52,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     private fun applyToSettings(settings: Settings) {
         settings.pluginManager.apply("org.gradle.toolchains.foojay-resolver-convention")
         settings.dependencyResolutionManagement.repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
-        val extension = settings.extensions.registerExtension<ProjektMetadataExtension>(settings, name = "projekt")
+        val extension = settings.extensions.create<ProjektMetadataExtension>(settings, name = "projekt")
         val rootDirectory = settings.layout.rootDirectory
         val buildLogicDirectoryName = "build-logic"
         val isBuildLogic = rootDirectory.asFile.name == buildLogicDirectoryName
@@ -144,7 +143,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
         }
         project.pluginManager.apply("org.jetbrains.kotlin.jvm")
         project.pluginManager.apply("org.jetbrains.kotlin.plugin.serialization")
-        val extension = project.extensions.registerExtension<ProjektExtension>()
+        val extension = project.extensions.create<ProjektExtension>()
         project.afterEvaluate {
             extension.ensureConfigured(project, projektMetadata)
         }
@@ -154,37 +153,37 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     }
 
     private fun configureReleaseTask(rootProject: Project, projektMetadata: ProjektMetadata.Distributable) {
-        if (rootProject.tasks.hasTask<ReleaseProjektTask>()) return
+        if (rootProject.tasks.has<ReleaseProjektTask>()) return
         val secrets = SecretsHelper(rootProject.providers)
-        val generateGitAttributes = rootProject.tasks.registerTask<GenerateGitAttributesTask>(secrets) {
+        val generateGitAttributes = rootProject.tasks.register<GenerateGitAttributesTask>(secrets) {
             repo.set(projektMetadata.repo)
         }
-        val generateGitIgnore = rootProject.tasks.registerTask<GenerateGitIgnoreTask>(secrets) {
+        val generateGitIgnore = rootProject.tasks.register<GenerateGitIgnoreTask>(secrets) {
             repo.set(projektMetadata.repo)
             mustRunAfter(generateGitAttributes)
         }
         val generateLicense = projektMetadata.license?.let { license ->
-            rootProject.tasks.registerTask<GenerateLicenseTask>(secrets) {
+            rootProject.tasks.register<GenerateLicenseTask>(secrets) {
                 licenseType.set(license)
                 developer.set(projektMetadata.repo.owner.developer)
                 repo.set(projektMetadata.repo)
                 mustRunAfter(generateGitIgnore)
             }
         }
-        val generateReadme = rootProject.tasks.registerTask<GenerateReadmeTask>(secrets) {
+        val generateReadme = rootProject.tasks.register<GenerateReadmeTask>(secrets) {
             displayName.set(projektMetadata.displayName)
             about.set(projektMetadata.about)
             license.set(projektMetadata.license)
             repo.set(projektMetadata.repo)
             mustRunAfter(generateLicense ?: generateGitIgnore)
         }
-        val updateGithubRepoMetadata = rootProject.tasks.registerTask<UpdateGithubRepoMetadataTask>(secrets) {
+        val updateGithubRepoMetadata = rootProject.tasks.register<UpdateGithubRepoMetadataTask>(secrets) {
             projektTypes.set(projektMetadata.projektTypes)
             about.set(projektMetadata.about)
             repo.set(projektMetadata.repo)
             mustRunAfter(generateReadme)
         }
-        val releaseProjekt = rootProject.tasks.registerTask<ReleaseProjektTask> {
+        rootProject.tasks.register<ReleaseProjektTask> {
             dependsOn(
                 listOfNotNull(
                     generateGitAttributes,
@@ -195,18 +194,9 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
                 )
             )
         }
-        rootProject.allprojects { project ->
-            project.afterEvaluate {
-                project.projektDistributeTaskNames.forEach { taskName ->
-                    val distributeTask = project.tasks.named(taskName) { it.mustRunAfter(generateReadme) }
-                    updateGithubRepoMetadata.configure { it.mustRunAfter(distributeTask) }
-                    releaseProjekt.configure { it.dependsOn(distributeTask) }
-                }
-            }
-        }
         rootProject.gradle.projectsEvaluated {
             val projekts = rootProject.allprojects
-                .mapNotNull { it.extensions.findByType<ProjektExtension>()?.configuredProjekt?.orNull }
+                .mapNotNull { it.extensions.find<ProjektExtension>()?.configuredProjekt?.orNull }
                 .filterIsInstance<Projekt.Distributable>()
             generateReadme.configure {
                 it.projekts.set(projekts)

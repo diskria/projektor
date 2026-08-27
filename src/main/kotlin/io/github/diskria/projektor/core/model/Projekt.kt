@@ -6,11 +6,11 @@ import io.github.diskria.projektor.api.ProjektExtension
 import io.github.diskria.projektor.core.model.license.License
 import io.github.diskria.projektor.core.model.license.mapToModel
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
+import io.github.diskria.projektor.extensions.get
 import io.github.diskria.projektor.internal.utils.Errors
 import io.github.diskria.projektor.internal.utils.capitalized
 import io.github.diskria.projektor.internal.utils.require
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.getByType
 
 internal sealed interface Projekt {
 
@@ -74,7 +74,7 @@ internal sealed interface KotlinLibrary : Projekt {
             configuration: KotlinLibraryDsl,
         ): KotlinLibrary = when (projektMetadata) {
             is ProjektMetadata.Distributable -> {
-                val extension = project.extensions.getByType<ProjektExtension>()
+                val extension = project.extensions.get<ProjektExtension>()
                 val targets = extension.distributionTargets.orNull.orEmpty()
                 Errors.frontend.require(targets.isNotEmpty()) {
                     "Distributable projekts must have at least one distribution target! Configure it via 'distribute { ... }'"
@@ -83,7 +83,7 @@ internal sealed interface KotlinLibrary : Projekt {
             }
 
             is ProjektMetadata.BuildLogic -> {
-                val extension = project.extensions.getByType<ProjektExtension>()
+                val extension = project.extensions.get<ProjektExtension>()
                 Errors.frontend.require(extension.distributionTargets.orNull.isNullOrEmpty()) {
                     "Build logic projekts shouldn't have distribution targets"
                 }
@@ -137,7 +137,7 @@ internal sealed interface GradlePlugin : Projekt {
             configuration: GradlePluginDsl,
         ): GradlePlugin = when (projektMetadata) {
             is ProjektMetadata.Distributable -> {
-                val extension = project.extensions.getByType<ProjektExtension>()
+                val extension = project.extensions.get<ProjektExtension>()
                 val targets = extension.distributionTargets.orNull.orEmpty()
                 Errors.frontend.require(targets.isNotEmpty()) {
                     "Distributable projekts must have at least one distribution target! Configure it via 'distribute { ... }'"
@@ -146,7 +146,7 @@ internal sealed interface GradlePlugin : Projekt {
             }
 
             is ProjektMetadata.BuildLogic -> {
-                val extension = project.extensions.getByType<ProjektExtension>()
+                val extension = project.extensions.get<ProjektExtension>()
                 Errors.frontend.require(extension.distributionTargets.orNull.isNullOrEmpty()) {
                     "Build logic projekts shouldn't have distribution targets"
                 }
