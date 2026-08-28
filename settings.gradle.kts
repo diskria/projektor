@@ -9,7 +9,7 @@ plugins {
 }
 
 projekt {
-    version = "8.0.7"
+    version = "8.0.8"
     license { mit() }
     gradlePlugin()
 }
