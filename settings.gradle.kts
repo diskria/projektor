@@ -5,11 +5,11 @@ pluginManagement {
 }
 
 plugins {
-    id("io.github.diskria.projektor") version "8.0.7"
+    id("io.github.diskria.projektor") version "8.0.6"
 }
 
 projekt {
     version = "8.0.8"
-    license { mit() }
+    licensing { mit() }
     gradlePlugin()
 }
