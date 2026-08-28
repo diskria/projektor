@@ -1,12 +1,11 @@
 pluginManagement {
     repositories {
-        maven("https://diskria.github.io/projektor/")
         gradlePluginPortal()
     }
 }
 
 plugins {
-    id("io.github.diskria.projektor") version "8.0.5"
+    id("io.github.diskria.projektor") version "8.0.6"
 }
 
 projekt {
