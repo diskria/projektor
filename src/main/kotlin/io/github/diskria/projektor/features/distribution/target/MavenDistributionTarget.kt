@@ -61,13 +61,13 @@ internal sealed class MavenDistributionTarget(
                 val publicationName = projekt.name.split("-").withIndex().joinToString("") { (index, part) ->
                     if (index == 0) part else part.capitalized()
                 }
-                publications.maybeCreate<MavenPublication>(publicationName) {
+                val publication = publications.maybeCreate<MavenPublication>(publicationName) {
                     from(Errors.internal.checkNotNull(project.components.findByName(componentName)) {
                         "SoftwareComponent '$componentName' not found in project '${project.path}'"
                     })
                     configurePom(pom, projekt)
-                    configurePublication(project, projekt, this)
                 }
+                configurePublication(project, projekt, publication)
             }
         }
         return project.tasks.named("publishAllPublicationsTo${repositoryName}Repository")

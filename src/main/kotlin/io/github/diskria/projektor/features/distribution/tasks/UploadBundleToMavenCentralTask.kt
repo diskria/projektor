@@ -5,6 +5,7 @@ import io.github.diskria.projektor.internal.utils.Envs
 import io.github.diskria.projektor.internal.utils.ProjektorHttpClient
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.util.cio.*
@@ -39,25 +40,32 @@ internal abstract class UploadBundleToMavenCentralTask @Inject constructor(priva
     }
 
     private suspend fun uploadBundle(file: File) {
+        val deploymentName = file.name
+        logger.lifecycle("Uploading bundle '$deploymentName' to Maven Central...")
         val item = PartData.FileItem(
             provider = { file.readChannel() },
             dispose = {},
             partHeaders = Headers.build {
                 append(
                     HttpHeaders.ContentDisposition,
-                    ContentDisposition(ContentType.MultiPart.FormData.contentSubtype).apply {
-                        withParameter(ContentDisposition.Parameters.Name, "bundle")
-                        withParameter(ContentDisposition.Parameters.FileName, file.name)
-                    }
+                    ContentDisposition(ContentType.MultiPart.FormData.contentSubtype)
+                        .withParameter(ContentDisposition.Parameters.Name, "bundle")
+                        .withParameter(ContentDisposition.Parameters.FileName, file.name)
                 )
                 append(HttpHeaders.ContentType, ContentType.Application.OctetStream)
             }
         )
         val url = "https://central.sonatype.com/api/v1/publisher/upload?publishingType=AUTOMATIC"
         val token = envs.sonatypeUsername + ":" + envs.sonatypePassword
-        ProjektorHttpClient.client.post(url) {
+        val response = ProjektorHttpClient.client.post(url) {
             bearerAuth(Base64.encode(token.toByteArray()))
             setBody(MultiPartFormDataContent(listOf(item)))
+        }
+        val responseText = response.bodyAsText()
+        if (response.status.isSuccess()) {
+            logger.lifecycle("Bundle '$deploymentName' uploaded successfully. Response: $responseText")
+        } else {
+            logger.error("Failed to upload bundle '$deploymentName': $responseText")
         }
     }
 }
