@@ -7,7 +7,6 @@ import io.github.diskria.projektor.core.model.license.LicenseType
 import io.github.diskria.projektor.core.model.metadata.ProjektAbout
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.internal.utils.Errors
-import io.github.diskria.projektor.internal.utils.capitalized
 import io.github.diskria.projektor.internal.utils.check
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.initialization.Settings
@@ -78,27 +77,18 @@ open class ProjektMetadataExtension @Inject internal constructor(
             "Projekt type is not configured in settings.gradle.kts! " +
                 "Call kotlinLibrary(), gradlePlugin() or monorepo { ... }"
         }
-        val repo = GithubRepo(GithubOwner(ownerName, email.get()), repoName)
         return if (isBuildLogic) {
             Errors.frontend.check(license == null) { "Build logic shouldn't have a license" }
             Errors.frontend.check(!version.isPresent) { "Build logic shouldn't have a version" }
-            ProjektMetadata.BuildLogic(
-                isMonorepo = isMonorepo,
-                projektTypes = projektTypes,
-                repo = repo,
-                namespace = "builder",
-            )
+            ProjektMetadata.BuildLogic(projektTypes = projektTypes)
         } else {
-            val about = ProjektAbout.from(rootDirectory)
             ProjektMetadata.Distributable(
                 isMonorepo = isMonorepo,
                 projektTypes = projektTypes,
-                repo = repo,
-                namespace = repo.owner.namespace,
-                displayName = repo.name.split("-").joinToString(" ") { about.fixCase(it).capitalized() },
+                repo = GithubRepo(GithubOwner(ownerName, email.get()), repoName),
                 version = version.orNull ?: "0.1.0",
-                license = license,
-                about = about,
+                licenseType = license,
+                about = ProjektAbout.from(rootDirectory),
             )
         }
     }

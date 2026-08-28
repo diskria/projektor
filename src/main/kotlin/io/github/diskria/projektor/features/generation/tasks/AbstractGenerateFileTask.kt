@@ -2,14 +2,12 @@ package io.github.diskria.projektor.features.generation.tasks
 
 import io.github.diskria.projektor.core.model.github.GithubRepo
 import io.github.diskria.projektor.extensions.applyProjektorGroup
-import io.github.diskria.projektor.extensions.isCI
 import io.github.diskria.projektor.internal.git.CommitType
-import io.github.diskria.projektor.internal.utils.SecretsHelper
+import io.github.diskria.projektor.internal.utils.Envs
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
@@ -22,8 +20,7 @@ import javax.inject.Inject
 internal abstract class AbstractGenerateFileTask @Inject constructor(
     outputFileName: String,
     private val commitType: CommitType,
-    private val providers: ProviderFactory,
-    private val secrets: SecretsHelper,
+    private val envs: Envs,
 ) : DefaultTask() {
 
     @get:Input
@@ -52,8 +49,8 @@ internal abstract class AbstractGenerateFileTask @Inject constructor(
         val newText = fileText.trim() + "\n"
         if (newText == oldText) return
         outputFile.writeText(newText)
-        if (providers.isCI) {
-            repo.get().pushFile(repoDirectory, commitType, outputFile, wasFileExists, secrets.githubToken)
+        if (envs.isCI) {
+            repo.get().pushFile(repoDirectory, commitType, outputFile, wasFileExists, envs.githubToken)
         }
     }
 

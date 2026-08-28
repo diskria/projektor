@@ -3,12 +3,10 @@ package io.github.diskria.projektor.features.distribution.target
 import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.GradlePlugin
 import io.github.diskria.projektor.core.model.Projekt
-import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
-import io.github.diskria.projektor.extensions.isCI
 import io.github.diskria.projektor.features.generation.readme.GradlePluginPortalShield
 import io.github.diskria.projektor.features.generation.readme.ReadmeShield
+import io.github.diskria.projektor.internal.utils.Envs
 import io.github.diskria.projektor.internal.utils.Errors
-import io.github.diskria.projektor.internal.utils.SecretsHelper
 import io.github.diskria.projektor.internal.utils.requireNotNull
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -16,15 +14,12 @@ import org.gradle.api.tasks.TaskProvider
 
 internal object GradlePluginPortalDistributionTarget : DistributionTarget {
 
-    override fun configureDistributeTask(
-        project: Project,
-        projekt: Projekt.Distributable,
-        projektMetadata: ProjektMetadata,
-    ): TaskProvider<out Task> {
+    override fun configureDistributeTask(project: Project, projekt: Projekt.Distributable): TaskProvider<out Task> {
         projekt.requireGradlePlugin()
         project.pluginManager.apply("com.gradle.plugin-publish")
-        val taskName = if (project.providers.isCI) {
-            SecretsHelper(project.providers).requireGradlePublishCredentials()
+        val envs = Envs(project.providers)
+        val taskName = if (envs.isCI) {
+            envs.requireGradlePublishCredentials()
             "publishPlugins"
         } else {
             "validatePlugins"
@@ -45,6 +40,6 @@ internal object GradlePluginPortalDistributionTarget : DistributionTarget {
         }
 }
 
-private fun SecretsHelper.requireGradlePublishCredentials() {
+private fun Envs.requireGradlePublishCredentials() {
     gradlePublishKey; gradlePublishSecret
 }

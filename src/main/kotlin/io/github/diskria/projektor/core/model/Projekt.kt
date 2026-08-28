@@ -14,8 +14,8 @@ import org.gradle.api.Project
 
 internal sealed interface Projekt {
 
-    val metadata: ProjektMetadata
     val name: String
+    val metadata: ProjektMetadata
     val javaVersion: Int get() = 25
     val jvmTarget: Int get() = 17
 
@@ -43,13 +43,13 @@ internal sealed interface Projekt {
 internal sealed interface KotlinLibrary : Projekt {
 
     class Distributable(
+        override val name: String,
         override val metadata: ProjektMetadata.Distributable,
         override val distributionTargetTypes: List<DistributionTargetType>,
         private val configuration: KotlinLibraryDsl,
     ) : KotlinLibrary, Projekt.Distributable {
         override val softwareComponent: String get() = "java"
-        override val license: License? = metadata.license?.mapToModel()
-        override val name: String get() = configuration.name.orNull ?: metadata.repo.name
+        override val license: License? = metadata.licenseType?.mapToModel()
         override val description: String get() = configuration.description.orNull ?: metadata.about.description
         override val version: String get() = configuration.version.orNull ?: metadata.version
         override val javaVersion: Int
@@ -59,10 +59,10 @@ internal sealed interface KotlinLibrary : Projekt {
     }
 
     class BuildLogic(
+        override val name: String,
         override val metadata: ProjektMetadata.BuildLogic,
         private val configuration: KotlinLibraryDsl,
     ) : KotlinLibrary, Projekt.BuildLogic {
-        override val name: String get() = configuration.name.orNull ?: metadata.repo.name
         override val javaVersion: Int get() = configuration.javaVersion.orNull ?: super<Projekt.BuildLogic>.javaVersion
         override val jvmTarget: Int get() = configuration.jvmTarget.orNull ?: super<Projekt.BuildLogic>.jvmTarget
     }
@@ -77,9 +77,10 @@ internal sealed interface KotlinLibrary : Projekt {
                 val extension = project.extensions.get<ProjektExtension>()
                 val targets = extension.distributionTargets.orNull.orEmpty()
                 Errors.frontend.require(targets.isNotEmpty()) {
-                    "Distributable projekts must have at least one distribution target! Configure it via 'distribute { ... }'"
+                    "Distributable projekts must have at least one distribution target! " +
+                        "Configure it via 'distribute { ... }'"
                 }
-                Distributable(projektMetadata, targets, configuration)
+                Distributable(project.name, projektMetadata, targets, configuration)
             }
 
             is ProjektMetadata.BuildLogic -> {
@@ -93,7 +94,7 @@ internal sealed interface KotlinLibrary : Projekt {
                 Errors.frontend.require(!configuration.version.isPresent) {
                     "Build logic projekts shouldn't have a version"
                 }
-                BuildLogic(projektMetadata, configuration)
+                BuildLogic(project.name, projektMetadata, configuration)
             }
         }
     }
@@ -104,6 +105,7 @@ internal sealed interface GradlePlugin : Projekt {
     val id: String get() = "${metadata.namespace}.${name.lowercase()}"
 
     class Distributable(
+        override val name: String,
         override val metadata: ProjektMetadata.Distributable,
         override val distributionTargetTypes: List<DistributionTargetType>,
         private val configuration: GradlePluginDsl,
@@ -111,8 +113,7 @@ internal sealed interface GradlePlugin : Projekt {
         val tags: Set<String> get() = configuration.tags.orNull ?: metadata.about.tags
 
         override val softwareComponent: String get() = "java"
-        override val license: License? = metadata.license?.mapToModel()
-        override val name: String get() = configuration.name.orNull ?: metadata.repo.name
+        override val license: License? = metadata.licenseType?.mapToModel()
         override val description: String get() = configuration.description.orNull ?: metadata.about.description
         override val version: String get() = configuration.version.orNull ?: metadata.version
         override val javaVersion: Int
@@ -122,10 +123,10 @@ internal sealed interface GradlePlugin : Projekt {
     }
 
     class BuildLogic(
+        override val name: String,
         override val metadata: ProjektMetadata.BuildLogic,
         private val configuration: GradlePluginDsl,
     ) : GradlePlugin, Projekt.BuildLogic {
-        override val name: String get() = configuration.name.orNull ?: metadata.repo.name
         override val javaVersion: Int get() = configuration.javaVersion.orNull ?: super<Projekt.BuildLogic>.javaVersion
         override val jvmTarget: Int get() = configuration.jvmTarget.orNull ?: super<Projekt.BuildLogic>.jvmTarget
     }
@@ -140,9 +141,10 @@ internal sealed interface GradlePlugin : Projekt {
                 val extension = project.extensions.get<ProjektExtension>()
                 val targets = extension.distributionTargets.orNull.orEmpty()
                 Errors.frontend.require(targets.isNotEmpty()) {
-                    "Distributable projekts must have at least one distribution target! Configure it via 'distribute { ... }'"
+                    "Distributable projekts must have at least one distribution target! " +
+                        "Configure it via 'distribute { ... }'"
                 }
-                Distributable(projektMetadata, targets, configuration)
+                Distributable(project.name, projektMetadata, targets, configuration)
             }
 
             is ProjektMetadata.BuildLogic -> {
@@ -159,7 +161,7 @@ internal sealed interface GradlePlugin : Projekt {
                 Errors.frontend.require(!configuration.version.isPresent) {
                     "Build logic projekts shouldn't have a version"
                 }
-                BuildLogic(projektMetadata, configuration)
+                BuildLogic(project.name, projektMetadata, configuration)
             }
         }
     }

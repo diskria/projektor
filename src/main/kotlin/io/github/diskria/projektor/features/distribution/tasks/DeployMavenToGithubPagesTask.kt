@@ -3,15 +3,13 @@ package io.github.diskria.projektor.features.distribution.tasks
 import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.github.GithubRepo
 import io.github.diskria.projektor.extensions.applyProjektorGroup
-import io.github.diskria.projektor.extensions.isCI
 import io.github.diskria.projektor.internal.git.CommitMessage
 import io.github.diskria.projektor.internal.git.CommitType
-import io.github.diskria.projektor.internal.utils.SecretsHelper
+import io.github.diskria.projektor.internal.utils.Envs
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Sync
@@ -20,10 +18,7 @@ import java.io.File
 import javax.inject.Inject
 
 @DisableCachingByDefault(because = "Deploys Maven artifacts to GitHub Pages and performs Git pushes")
-internal abstract class DeployMavenToGithubPagesTask @Inject constructor(
-    private val providers: ProviderFactory,
-    private val secrets: SecretsHelper,
-) : Sync() {
+internal abstract class DeployMavenToGithubPagesTask @Inject constructor(private val envs: Envs) : Sync() {
 
     @get:Input
     abstract val repo: Property<GithubRepo>
@@ -38,12 +33,12 @@ internal abstract class DeployMavenToGithubPagesTask @Inject constructor(
 
     private fun deploy() {
         generateIndexTree(destinationDir)
-        if (!providers.isCI) return
+        if (!envs.isCI) return
         repo.get().pushFile(
             repoDirectory.get().asFile,
             CommitMessage(CommitType.CHORE, "deploy maven to ${DistributionTargetType.GITHUB_PAGES.displayName}"),
             destinationDir,
-            secrets.githubToken,
+            envs.githubToken,
         )
     }
 

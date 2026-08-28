@@ -6,7 +6,6 @@ import org.gradle.kotlin.dsl.setProperty
 import javax.inject.Inject
 
 open class GradlePluginDsl @Inject internal constructor(objects: ObjectFactory) : ProjektorScope {
-    val name = objects.property<String>()
     val description = objects.property<String>()
     val tags = objects.setProperty<String>()
     val version = objects.property<String>()

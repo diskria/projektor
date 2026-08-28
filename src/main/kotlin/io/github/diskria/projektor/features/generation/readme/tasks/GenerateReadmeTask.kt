@@ -10,10 +10,9 @@ import io.github.diskria.projektor.features.generation.readme.LicenseShield
 import io.github.diskria.projektor.features.generation.readme.MarkdownHelper
 import io.github.diskria.projektor.features.generation.tasks.AbstractGenerateFileTask
 import io.github.diskria.projektor.internal.git.CommitType
-import io.github.diskria.projektor.internal.utils.SecretsHelper
+import io.github.diskria.projektor.internal.utils.Envs
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
@@ -22,14 +21,10 @@ import java.io.File
 import javax.inject.Inject
 
 @DisableCachingByDefault(because = "Generates files and performs Git push side effects")
-internal abstract class GenerateReadmeTask @Inject constructor(
-    providers: ProviderFactory,
-    secrets: SecretsHelper,
-) : AbstractGenerateFileTask(
+internal abstract class GenerateReadmeTask @Inject constructor(envs: Envs) : AbstractGenerateFileTask(
     outputFileName = MarkdownHelper.fileName("readme"),
     commitType = CommitType.DOCS,
-    providers = providers,
-    secrets = secrets,
+    envs = envs,
 ) {
     @get:Internal
     abstract val projekts: ListProperty<Projekt.Distributable>

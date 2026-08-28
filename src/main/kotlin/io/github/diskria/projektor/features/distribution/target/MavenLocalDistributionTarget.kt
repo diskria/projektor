@@ -10,7 +10,7 @@ internal object MavenLocalDistributionTarget : MavenDistributionTarget(Distribut
 
     override fun configureRepository(
         project: Project,
-        projekt: Projekt,
+        projekt: Projekt.Distributable,
         repositories: RepositoryHandler,
         configure: MavenArtifactRepository.() -> Unit
     ): MavenArtifactRepository = repositories.mavenLocal(configure)

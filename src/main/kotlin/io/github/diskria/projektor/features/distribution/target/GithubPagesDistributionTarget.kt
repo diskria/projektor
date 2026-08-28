@@ -2,26 +2,21 @@ package io.github.diskria.projektor.features.distribution.target
 
 import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.Projekt
-import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.register
 import io.github.diskria.projektor.features.distribution.tasks.DeployMavenToGithubPagesTask
 import io.github.diskria.projektor.features.generation.readme.GithubPagesShield
 import io.github.diskria.projektor.features.generation.readme.ReadmeShield
-import io.github.diskria.projektor.internal.utils.SecretsHelper
+import io.github.diskria.projektor.internal.utils.Envs
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
 
 internal object GithubPagesDistributionTarget : MavenDistributionTarget(DistributionTargetType.GITHUB_PAGES) {
 
-    override fun configureDistributeTask(
-        project: Project,
-        projekt: Projekt.Distributable,
-        projektMetadata: ProjektMetadata,
-    ): TaskProvider<out Task> {
+    override fun configureDistributeTask(project: Project, projekt: Projekt.Distributable): TaskProvider<out Task> {
         val publishTask = configurePublishTask(project, projekt)
-        return project.tasks.register<DeployMavenToGithubPagesTask>(SecretsHelper(project.providers)) {
-            repo.set(projektMetadata.repo)
+        return project.tasks.register<DeployMavenToGithubPagesTask>(Envs(project.providers)) {
+            repo.set(projekt.metadata.repo)
             repoDirectory.convention(project.layout.projectDirectory)
             from(getLocalMavenDirectory(project))
             into(project.layout.projectDirectory.dir("docs"))

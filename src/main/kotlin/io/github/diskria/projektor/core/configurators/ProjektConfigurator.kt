@@ -28,7 +28,7 @@ internal abstract class ProjektConfigurator<T : Projekt> {
         applyCommonConfiguration(project, projekt)
         configureProject(project, projekt)
         if (projekt is Projekt.Distributable) {
-            configureDistribution(project, projektMetadata, projekt)
+            configureDistribution(project, projekt)
         }
         return projekt
     }
@@ -64,24 +64,20 @@ internal abstract class ProjektConfigurator<T : Projekt> {
                 javaCompile.options.encoding = Charsets.UTF_8.toString()
             }
             jar {
-                project.rootProject.tasks.find<GenerateLicenseTask>()?.let { generateLicenseTask ->
-                    dependsOn(generateLicenseTask)
-                    from(generateLicenseTask) {
-                        it.rename { fileName -> "${fileName}_${projekt.metadata.repo.name}" }
-                    }
-                }
                 if (projekt is Projekt.Distributable) {
+                    project.rootProject.tasks.find<GenerateLicenseTask>()?.let { generateLicenseTask ->
+                        dependsOn(generateLicenseTask)
+                        from(generateLicenseTask) {
+                            it.rename { fileName -> "${fileName}_${projekt.metadata.repo.name}" }
+                        }
+                    }
                     archiveVersion.set(projekt.version)
                 }
             }
         }
     }
 
-    private fun configureDistribution(
-        project: Project,
-        projektMetadata: ProjektMetadata,
-        projekt: Projekt.Distributable,
-    ) {
+    private fun configureDistribution(project: Project, projekt: Projekt.Distributable) {
         if (projekt.distributionTargetTypes.isEmpty()) return
         project.extensions.configure<JavaPluginExtension> {
             if (projekt.isSourcesEnabled) withSourcesJar()
@@ -89,7 +85,7 @@ internal abstract class ProjektConfigurator<T : Projekt> {
         }
         val rootTaskContainer = project.rootProject.tasks
         val distributeTasks = projekt.distributionTargetTypes.map {
-            it.mapToModel().configureDistributeTask(project, projekt, projektMetadata)
+            it.mapToModel().configureDistributeTask(project, projekt)
         }
         val generateReadmeTask = rootTaskContainer.get<GenerateReadmeTask>()
         distributeTasks.forEach { distributeTask ->

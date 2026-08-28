@@ -4,14 +4,13 @@ import io.github.diskria.projektor.core.model.ProjektType
 import io.github.diskria.projektor.core.model.github.GithubRepo
 import io.github.diskria.projektor.core.model.metadata.ProjektAbout
 import io.github.diskria.projektor.extensions.applyProjektorGroup
-import io.github.diskria.projektor.extensions.isCI
 import io.github.diskria.projektor.internal.network.github.GetLanguagesRequest
 import io.github.diskria.projektor.internal.network.github.UpdateInfoRequest
 import io.github.diskria.projektor.internal.network.github.UpdateTopicsRequest
 import io.github.diskria.projektor.internal.network.github.common.GithubJsonRequest
 import io.github.diskria.projektor.internal.network.github.common.GithubRepoRequest
+import io.github.diskria.projektor.internal.utils.Envs
 import io.github.diskria.projektor.internal.utils.ProjektorHttpClient
-import io.github.diskria.projektor.internal.utils.SecretsHelper
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -20,7 +19,6 @@ import kotlinx.serialization.json.Json
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
@@ -28,10 +26,7 @@ import org.gradle.work.DisableCachingByDefault
 import javax.inject.Inject
 
 @DisableCachingByDefault(because = "Updates external GitHub repository metadata via API; must always reflect current project state")
-internal abstract class UpdateGithubRepoMetadataTask @Inject constructor(
-    private val providers: ProviderFactory,
-    private val secrets: SecretsHelper,
-) : DefaultTask() {
+internal abstract class UpdateGithubRepoMetadataTask @Inject constructor(private val envs: Envs) : DefaultTask() {
 
     @get:Optional
     @get:Input
@@ -52,7 +47,7 @@ internal abstract class UpdateGithubRepoMetadataTask @Inject constructor(
 
     @TaskAction
     fun update() {
-        if (!providers.isCI) return
+        if (!envs.isCI) return
         runBlocking {
             updateInfo()
             updateTopics()
@@ -90,7 +85,7 @@ internal abstract class UpdateGithubRepoMetadataTask @Inject constructor(
         }
         return ProjektorHttpClient.client.request(url) {
             method = request.getHttpMethod()
-            bearerAuth(secrets.githubToken)
+            bearerAuth(envs.githubToken)
             header(HttpHeaders.Accept, "application/vnd.github+json")
             if (request is GithubJsonRequest) {
                 contentType(ContentType.Application.Json)

@@ -2,13 +2,11 @@ package io.github.diskria.projektor.features.distribution.target
 
 import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.Projekt
-import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
-import io.github.diskria.projektor.extensions.isCI
 import io.github.diskria.projektor.extensions.register
 import io.github.diskria.projektor.features.distribution.tasks.UploadBundleToMavenCentralTask
 import io.github.diskria.projektor.features.generation.readme.MavenCentralShield
 import io.github.diskria.projektor.features.generation.readme.ReadmeShield
-import io.github.diskria.projektor.internal.utils.SecretsHelper
+import io.github.diskria.projektor.internal.utils.Envs
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.publish.maven.MavenPublication
@@ -19,22 +17,18 @@ import org.gradle.plugins.signing.SigningExtension
 internal object MavenCentralDistributionTarget : MavenDistributionTarget(DistributionTargetType.MAVEN_CENTRAL) {
 
     override fun configurePublication(project: Project, projekt: Projekt, publication: MavenPublication) {
-        if (!project.providers.isCI) return
+        val envs = Envs(project.providers)
+        if (!envs.isCI) return
         project.pluginManager.apply("signing")
         project.extensions.configure<SigningExtension> {
-            val secrets = SecretsHelper(project.providers)
-            useInMemoryPgpKeys(secrets.gpgKey, secrets.gpgPassphrase)
+            useInMemoryPgpKeys(envs.gpgKey, envs.gpgPassphrase)
             sign(publication)
         }
     }
 
-    override fun configureDistributeTask(
-        project: Project,
-        projekt: Projekt.Distributable,
-        projektMetadata: ProjektMetadata,
-    ): TaskProvider<out Task> {
+    override fun configureDistributeTask(project: Project, projekt: Projekt.Distributable): TaskProvider<out Task> {
         val publishTask = configurePublishTask(project, projekt)
-        return project.tasks.register<UploadBundleToMavenCentralTask>(SecretsHelper(project.providers)) {
+        return project.tasks.register<UploadBundleToMavenCentralTask>(Envs(project.providers)) {
             bundleName.set(projekt.name)
             bundleVersion.set(projekt.version)
             from(getLocalMavenDirectory(project))

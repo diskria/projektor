@@ -3,7 +3,6 @@ package io.github.diskria.projektor.features.distribution.target
 import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.GradlePlugin
 import io.github.diskria.projektor.core.model.Projekt
-import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.maybeCreate
 import io.github.diskria.projektor.internal.utils.Errors
 import io.github.diskria.projektor.internal.utils.capitalized
@@ -33,22 +32,19 @@ internal sealed class MavenDistributionTarget(
 
     open fun configureRepository(
         project: Project,
-        projekt: Projekt,
+        projekt: Projekt.Distributable,
         repositories: RepositoryHandler,
         configure: MavenArtifactRepository.() -> Unit
     ): MavenArtifactRepository = repositories.maven(getLocalMavenDirectory(project), configure)
 
     open fun configurePublication(project: Project, projekt: Projekt, publication: MavenPublication) {}
 
-    override fun configureDistributeTask(
-        project: Project,
-        projekt: Projekt.Distributable,
-        projektMetadata: ProjektMetadata,
-    ): TaskProvider<out Task> = configurePublishTask(project, projekt)
+    override fun configureDistributeTask(project: Project, projekt: Projekt.Distributable): TaskProvider<out Task> =
+        configurePublishTask(project, projekt)
 
     protected fun configurePublishTask(project: Project, projekt: Projekt.Distributable): TaskProvider<out Task> {
         val componentName = Errors.frontend.checkNotNull(projekt.softwareComponent) {
-            "This kind of project doesn't support publishing to Maven"
+            "This kind of project doesn't support publishing to ${distributionTargetType.displayName}"
         }
         project.pluginManager.apply("maven-publish")
         project.extensions.configure<PublishingExtension> {

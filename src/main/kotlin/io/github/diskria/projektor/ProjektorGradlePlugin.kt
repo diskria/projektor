@@ -52,13 +52,14 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     private fun applyToSettings(settings: Settings) {
         settings.pluginManager.apply("org.gradle.toolchains.foojay-resolver-convention")
         settings.dependencyResolutionManagement.repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
-        val extension = settings.extensions.create<ProjektMetadataExtension>(settings, name = "projekt")
+        val buildLogicName = "build-logic"
         val rootDirectory = settings.layout.rootDirectory
-        val buildLogicDirectoryName = "build-logic"
-        val isBuildLogic = rootDirectory.asFile.name == buildLogicDirectoryName
+        val isBuildLogic = rootDirectory.asFile.name == buildLogicName
+        val extension = settings.extensions.create<ProjektMetadataExtension>(settings, name = "projekt")
         settings.gradle.settingsEvaluated {
-            val (ownerName, repoName) = if (settings.providers.isCI) {
-                with(settings.providers) { requireEnv("GITHUB_OWNER") to requireEnv("GITHUB_REPO") }
+            val envs = Envs(settings.providers)
+            val (ownerName, repoName) = if (envs.isCI) {
+                envs.githubOwner to envs.githubRepo
             } else {
                 with(rootDirectory.asFile) { parentFile.name to name }
             }
@@ -75,6 +76,9 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
                 }
                 it.projektMetadata = metadata
             }
+            settings.dependencyResolutionManagement.versionCatalogs.create("convention").apply {
+                plugin("projektor", "io.github.diskria.projektor").version("")
+            }
         }
         val defaultCatalogPath = "gradle/libs.versions.toml"
         if (isBuildLogic) {
@@ -87,14 +91,11 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
                 defaultCatalog.parentFile.mkdirs()
                 defaultCatalog.writeText(VersionCatalogsHelper.TEMPLATE)
             }
-            val buildLogicDirectory = rootDirectory.dir(buildLogicDirectoryName).asFile
+            val buildLogicDirectory = rootDirectory.dir(buildLogicName).asFile
             if (buildLogicDirectory.exists()) {
-                settings.includeBuild(buildLogicDirectoryName)
-                settings.pluginManagement.includeBuild(buildLogicDirectoryName)
+                settings.includeBuild(buildLogicName)
+                settings.pluginManagement.includeBuild(buildLogicName)
             }
-        }
-        settings.dependencyResolutionManagement.versionCatalogs.create("convention").apply {
-            plugin("projektor", "io.github.diskria.projektor").version("")
         }
         settings.gradle.rootProject { rootProject ->
             setupEnvironment(rootProject)
@@ -154,30 +155,30 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
 
     private fun configureReleaseTask(rootProject: Project, projektMetadata: ProjektMetadata.Distributable) {
         if (rootProject.tasks.has<ReleaseProjektTask>()) return
-        val secrets = SecretsHelper(rootProject.providers)
-        val generateGitAttributes = rootProject.tasks.register<GenerateGitAttributesTask>(secrets) {
+        val envs = Envs(rootProject.providers)
+        val generateGitAttributes = rootProject.tasks.register<GenerateGitAttributesTask>(envs) {
             repo.set(projektMetadata.repo)
         }
-        val generateGitIgnore = rootProject.tasks.register<GenerateGitIgnoreTask>(secrets) {
+        val generateGitIgnore = rootProject.tasks.register<GenerateGitIgnoreTask>(envs) {
             repo.set(projektMetadata.repo)
             mustRunAfter(generateGitAttributes)
         }
-        val generateLicense = projektMetadata.license?.let { license ->
-            rootProject.tasks.register<GenerateLicenseTask>(secrets) {
-                licenseType.set(license)
+        val generateLicense = projektMetadata.licenseType?.let { licenseType ->
+            rootProject.tasks.register<GenerateLicenseTask>(envs) {
+                this.licenseType.set(licenseType)
                 developer.set(projektMetadata.repo.owner.developer)
                 repo.set(projektMetadata.repo)
                 mustRunAfter(generateGitIgnore)
             }
         }
-        val generateReadme = rootProject.tasks.register<GenerateReadmeTask>(secrets) {
+        val generateReadme = rootProject.tasks.register<GenerateReadmeTask>(envs) {
             displayName.set(projektMetadata.displayName)
             about.set(projektMetadata.about)
-            license.set(projektMetadata.license)
+            license.set(projektMetadata.licenseType)
             repo.set(projektMetadata.repo)
             mustRunAfter(generateLicense ?: generateGitIgnore)
         }
-        val updateGithubRepoMetadata = rootProject.tasks.register<UpdateGithubRepoMetadataTask>(secrets) {
+        val updateGithubRepoMetadata = rootProject.tasks.register<UpdateGithubRepoMetadataTask>(envs) {
             projektTypes.set(projektMetadata.projektTypes)
             about.set(projektMetadata.about)
             repo.set(projektMetadata.repo)

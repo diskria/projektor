@@ -1,9 +1,8 @@
 package io.github.diskria.projektor.features.distribution.tasks
 
 import io.github.diskria.projektor.extensions.applyProjektorGroup
-import io.github.diskria.projektor.extensions.isCI
+import io.github.diskria.projektor.internal.utils.Envs
 import io.github.diskria.projektor.internal.utils.ProjektorHttpClient
-import io.github.diskria.projektor.internal.utils.SecretsHelper
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
@@ -11,7 +10,6 @@ import io.ktor.http.content.*
 import io.ktor.util.cio.*
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.work.DisableCachingByDefault
@@ -20,10 +18,7 @@ import javax.inject.Inject
 import kotlin.io.encoding.Base64
 
 @DisableCachingByDefault(because = "Uploads a ZIP bundle to Maven Central via API")
-internal abstract class UploadBundleToMavenCentralTask @Inject constructor(
-    private val providers: ProviderFactory,
-    private val secrets: SecretsHelper,
-) : Zip() {
+internal abstract class UploadBundleToMavenCentralTask @Inject constructor(private val envs: Envs) : Zip() {
 
     @get:Input
     abstract val bundleName: Property<String>
@@ -39,7 +34,7 @@ internal abstract class UploadBundleToMavenCentralTask @Inject constructor(
     }
 
     private fun upload() {
-        if (!providers.isCI) return
+        if (!envs.isCI) return
         runBlocking { uploadBundle(archiveFile.get().asFile) }
     }
 
@@ -59,7 +54,7 @@ internal abstract class UploadBundleToMavenCentralTask @Inject constructor(
             }
         )
         val url = "https://central.sonatype.com/api/v1/publisher/upload?publishingType=AUTOMATIC"
-        val token = secrets.sonatypeUsername + ":" + secrets.sonatypePassword
+        val token = envs.sonatypeUsername + ":" + envs.sonatypePassword
         ProjektorHttpClient.client.post(url) {
             bearerAuth(Base64.encode(token.toByteArray()))
             setBody(MultiPartFormDataContent(listOf(item)))

@@ -20,8 +20,10 @@ internal class GradlePluginConfigurator(
     override fun configureProject(project: Project, projekt: GradlePlugin) {
         project.pluginManager.apply("java-gradle-plugin")
         project.extensions.configure<GradlePluginDevelopmentExtension> {
-            website.set(projekt.metadata.repo.url)
-            vcsUrl.set(projekt.metadata.repo.vcsUrl)
+            if (projekt is GradlePlugin.Distributable) {
+                website.set(projekt.metadata.repo.url)
+                vcsUrl.set(projekt.metadata.repo.vcsUrl)
+            }
             plugins.create(projekt.id).apply {
                 id = projekt.id
                 implementationClass = "${projekt.packageName}.${projekt.classNamePrefix}GradlePlugin"
