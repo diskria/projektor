@@ -117,7 +117,7 @@ internal sealed interface GradlePlugin : Projekt {
         override val distributionTargetTypes: List<DistributionTargetType>,
         private val configuration: GradlePluginDsl,
     ) : GradlePlugin, Projekt.Distributable {
-        val tags: Set<String> get() = configuration.tags.orNull ?: metadata.about.tags
+        val tags: Set<String> get() = configuration.tags.orNull?.ifEmpty { null } ?: metadata.about.tags
 
         override val softwareComponent: String get() = "java"
         override val license: License? = metadata.licenseType?.mapToModel()
