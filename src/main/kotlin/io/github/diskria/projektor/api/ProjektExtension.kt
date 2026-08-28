@@ -38,7 +38,7 @@ open class ProjektExtension @Inject internal constructor(private val objects: Ob
 
     internal fun ensureConfigured(project: Project, projektMetadata: ProjektMetadata): Projekt {
         val projekt = Errors.frontend.checkNotNull(configurator) {
-            "Projekt not configured"
+            "Projekt configuration is missing in '${project.path}' build script! Please call 'projekt { ... }'."
         }.configure(project, projektMetadata)
         configuredProjekt.set(projekt)
         return projekt

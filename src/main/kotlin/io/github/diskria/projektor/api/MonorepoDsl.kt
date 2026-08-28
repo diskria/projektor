@@ -12,21 +12,21 @@ class MonorepoDsl internal constructor(
 
     private val includedPaths = mutableSetOf<String>()
 
-    fun gradlePlugin(path: String) {
+    fun gradlePlugin(path: String, name: String? = null) {
         metadataExtension.configureGradlePluginRepositories()
-        registerModule(path, ProjektType.GRADLE_PLUGIN)
+        registerModule(path, ProjektType.GRADLE_PLUGIN, name)
     }
 
-    fun kotlinLibrary(path: String) {
+    fun kotlinLibrary(path: String, name: String? = null) {
         metadataExtension.configureKotlinLibraryRepositories()
-        registerModule(path, ProjektType.KOTLIN_LIBRARY)
+        registerModule(path, ProjektType.KOTLIN_LIBRARY, name)
     }
 
-    private fun registerModule(path: String, type: ProjektType) {
+    private fun registerModule(path: String, type: ProjektType, name: String?) {
         Errors.frontend.check(includedPaths.add(path)) {
             "Project path '$path' is already included in monorepo!"
         }
         settings.include(path)
-        metadataExtension.registerProjekt(path, type)
+        metadataExtension.registerModule(path, type, name ?: path.substringAfterLast(":"))
     }
 }

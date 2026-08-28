@@ -52,10 +52,27 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     private fun applyToSettings(settings: Settings) {
         settings.pluginManager.apply("org.gradle.toolchains.foojay-resolver-convention")
         settings.dependencyResolutionManagement.repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
-        val buildLogicName = "build-logic"
         val rootDirectory = settings.layout.rootDirectory
-        val isBuildLogic = rootDirectory.asFile.name == buildLogicName
         val extension = settings.extensions.create<ProjektMetadataExtension>(settings, name = "projekt")
+        val buildLogicName = "build-logic"
+        val defaultCatalogPath = "gradle/libs.versions.toml"
+        val isBuildLogic = rootDirectory.asFile.name == buildLogicName
+        if (isBuildLogic) {
+            settings.dependencyResolutionManagement.versionCatalogs.create("libs").from(
+                rootDirectory.files(rootDirectory.asFile.parentFile.resolve(defaultCatalogPath))
+            )
+        } else {
+            val defaultCatalogFile = rootDirectory.file(defaultCatalogPath).asFile
+            if (!defaultCatalogFile.exists()) {
+                defaultCatalogFile.parentFile.mkdirs()
+                defaultCatalogFile.writeText(VersionCatalogsHelper.TEMPLATE)
+            }
+            val buildLogicDirectory = rootDirectory.dir(buildLogicName).asFile
+            if (buildLogicDirectory.exists()) {
+                settings.includeBuild(buildLogicName)
+                settings.pluginManagement.includeBuild(buildLogicName)
+            }
+        }
         settings.gradle.settingsEvaluated {
             val envs = Envs(settings.providers)
             val (ownerName, repoName) = if (envs.isCI) {
@@ -78,23 +95,6 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
             }
             settings.dependencyResolutionManagement.versionCatalogs.create("convention").apply {
                 plugin("projektor", "io.github.diskria.projektor").version("")
-            }
-        }
-        val defaultCatalogPath = "gradle/libs.versions.toml"
-        if (isBuildLogic) {
-            settings.dependencyResolutionManagement.versionCatalogs.create("libs").from(
-                rootDirectory.files(rootDirectory.asFile.parentFile.resolve(defaultCatalogPath))
-            )
-        } else {
-            val defaultCatalog = rootDirectory.file(defaultCatalogPath).asFile
-            if (!defaultCatalog.exists()) {
-                defaultCatalog.parentFile.mkdirs()
-                defaultCatalog.writeText(VersionCatalogsHelper.TEMPLATE)
-            }
-            val buildLogicDirectory = rootDirectory.dir(buildLogicName).asFile
-            if (buildLogicDirectory.exists()) {
-                settings.includeBuild(buildLogicName)
-                settings.pluginManagement.includeBuild(buildLogicName)
             }
         }
         settings.gradle.rootProject { rootProject ->
@@ -179,7 +179,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
             mustRunAfter(generateLicense ?: generateGitIgnore)
         }
         val updateGithubRepoMetadata = rootProject.tasks.register<UpdateGithubRepoMetadataTask>(envs) {
-            projektTypes.set(projektMetadata.projektTypes)
+            projektTypes.set(projektMetadata.modules.map { it.type })
             about.set(projektMetadata.about)
             repo.set(projektMetadata.repo)
             mustRunAfter(generateReadme)

@@ -1,5 +1,6 @@
 package io.github.diskria.projektor.api
 
+import io.github.diskria.projektor.core.model.ProjektModule
 import io.github.diskria.projektor.core.model.ProjektType
 import io.github.diskria.projektor.core.model.github.GithubOwner
 import io.github.diskria.projektor.core.model.github.GithubRepo
@@ -24,7 +25,7 @@ open class ProjektMetadataExtension @Inject internal constructor(
     val version = objects.property<String>()
     val email = objects.property<String>().convention("diskria@proton.me")
 
-    internal val projektTypes = mutableSetOf<ProjektType>()
+    internal val modules = mutableListOf<ProjektModule>()
 
     internal var license: LicenseType? = null
         private set
@@ -32,18 +33,16 @@ open class ProjektMetadataExtension @Inject internal constructor(
     internal var isMonorepo: Boolean = false
         private set
 
-    internal var primaryProjectPath: String? = null
-
-    fun gradlePlugin() {
+    fun gradlePlugin(name: String? = null) {
         ensureSingleRepoMode()
         configureGradlePluginRepositories()
-        registerProjekt(":", ProjektType.GRADLE_PLUGIN)
+        registerModule(":", ProjektType.GRADLE_PLUGIN, name)
     }
 
-    fun kotlinLibrary() {
+    fun kotlinLibrary(name: String? = null) {
         ensureSingleRepoMode()
         configureKotlinLibraryRepositories()
-        registerProjekt(":", ProjektType.KOTLIN_LIBRARY)
+        registerModule(":", ProjektType.KOTLIN_LIBRARY, name)
     }
 
     fun license(configure: LicensingDsl.() -> Unit) {
@@ -51,7 +50,7 @@ open class ProjektMetadataExtension @Inject internal constructor(
     }
 
     fun monorepo(configure: MonorepoDsl.() -> Unit) {
-        Errors.frontend.check(projektTypes.isEmpty()) {
+        Errors.frontend.check(modules.isEmpty()) {
             "Cannot configure 'monorepo { ... }' when a single-repo project type has already been declared!"
         }
         isMonorepo = true
@@ -62,47 +61,18 @@ open class ProjektMetadataExtension @Inject internal constructor(
         Errors.frontend.check(!isMonorepo) {
             "Cannot declare single-repo project types outside of existing 'monorepo { ... }' block!"
         }
-        Errors.frontend.check(projektTypes.isEmpty()) {
+        Errors.frontend.check(modules.isEmpty()) {
             "Single-repo supports only one project type! Use 'monorepo { ... }' for multiple modules."
         }
     }
 
-    internal fun ensureConfigured(
-        ownerName: String,
-        repoName: String,
-        rootDirectory: File,
-        isBuildLogic: Boolean,
-    ): ProjektMetadata {
-        Errors.frontend.check(projektTypes.isNotEmpty()) {
-            "Projekt type is not configured in settings.gradle.kts! " +
-                "Call kotlinLibrary(), gradlePlugin() or monorepo { ... }"
-        }
-        return if (isBuildLogic) {
-            Errors.frontend.check(license == null) { "Build logic shouldn't have a license" }
-            Errors.frontend.check(!version.isPresent) { "Build logic shouldn't have a version" }
-            ProjektMetadata.BuildLogic(projektTypes = projektTypes)
-        } else {
-            ProjektMetadata.Distributable(
-                isMonorepo = isMonorepo,
-                projektTypes = projektTypes,
-                repo = GithubRepo(GithubOwner(ownerName, email.get()), repoName),
-                version = version.orNull ?: "0.1.0",
-                licenseType = license,
-                about = ProjektAbout.from(rootDirectory),
-            )
-        }
-    }
-
-    internal fun registerProjekt(projectPath: String, type: ProjektType) {
-        if (primaryProjectPath == null) {
-            primaryProjectPath = projectPath
-        }
-        projektTypes.add(type)
+    internal fun registerModule(path: String, type: ProjektType, name: String?) {
+        modules.add(ProjektModule(path, type, name ?: settings.layout.rootDirectory.asFile.name))
         settings.gradle.rootProject { rootProject ->
-            rootProject.project(projectPath) { project ->
+            rootProject.project(path) { project ->
                 project.afterEvaluate {
                     Errors.frontend.check(project.plugins.hasPlugin("io.github.diskria.projektor")) {
-                        "Project '$projectPath' was declared in settings.gradle.kts, " +
+                        "Project '$path' was declared in settings.gradle.kts, " +
                             "but 'alias(convention.plugins.projektor)' plugin was not applied in its build.gradle.kts!"
                     }
                 }
@@ -120,6 +90,32 @@ open class ProjektMetadataExtension @Inject internal constructor(
     internal fun configureKotlinLibraryRepositories() {
         settings.dependencyResolutionManagement.repositories.apply {
             mavenCentrals()
+        }
+    }
+
+    internal fun ensureConfigured(
+        ownerName: String,
+        repoName: String,
+        rootDirectory: File,
+        isBuildLogic: Boolean,
+    ): ProjektMetadata {
+        Errors.frontend.check(modules.isNotEmpty()) {
+            "Projekt type is not configured in settings.gradle.kts! " +
+                "Call kotlinLibrary(), gradlePlugin() or monorepo { ... }"
+        }
+        return if (isBuildLogic) {
+            Errors.frontend.check(license == null) { "Build logic shouldn't have a license" }
+            Errors.frontend.check(!version.isPresent) { "Build logic shouldn't have a version" }
+            ProjektMetadata.BuildLogic(modules = modules)
+        } else {
+            ProjektMetadata.Distributable(
+                isMonorepo = isMonorepo,
+                modules = modules,
+                repo = GithubRepo(GithubOwner(ownerName, email.get()), repoName),
+                version = version.orNull ?: "0.1.0",
+                licenseType = license,
+                about = ProjektAbout.from(rootDirectory),
+            )
         }
     }
 }

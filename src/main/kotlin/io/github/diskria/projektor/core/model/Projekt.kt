@@ -10,6 +10,7 @@ import io.github.diskria.projektor.extensions.get
 import io.github.diskria.projektor.internal.utils.Errors
 import io.github.diskria.projektor.internal.utils.capitalized
 import io.github.diskria.projektor.internal.utils.require
+import io.github.diskria.projektor.internal.utils.requireNotNull
 import org.gradle.api.Project
 
 internal sealed interface Projekt {
@@ -68,33 +69,39 @@ internal sealed interface KotlinLibrary : Projekt {
     }
 
     companion object {
-        fun of(
-            project: Project,
-            projektMetadata: ProjektMetadata,
-            configuration: KotlinLibraryDsl,
-        ): KotlinLibrary = when (projektMetadata) {
-            is ProjektMetadata.Distributable -> {
-                val extension = project.extensions.get<ProjektExtension>()
-                val targets = extension.distributionTargets.orNull.orEmpty()
-                Errors.frontend.require(targets.isNotEmpty()) {
-                    "Distributable projekts must have at least one distribution target! " +
-                        "Configure it via 'distribute { ... }'"
-                }
-                Distributable(project.name, projektMetadata, targets, configuration)
+        fun of(project: Project, projektMetadata: ProjektMetadata, configuration: KotlinLibraryDsl): KotlinLibrary {
+            val module = projektMetadata.modules.find {
+                it.path == project.path && it.type == ProjektType.KOTLIN_LIBRARY
             }
+            Errors.frontend.requireNotNull(module) {
+                "Module '${project.path}' is not registered as a Kotlin library in project settings. " +
+                    "Ensure that 'kotlinLibrary()' is declared for this module in settings.gradle.kts, " +
+                    "or change the build script declaration to match."
+            }
+            return when (projektMetadata) {
+                is ProjektMetadata.Distributable -> {
+                    val extension = project.extensions.get<ProjektExtension>()
+                    val targets = extension.distributionTargets.orNull.orEmpty()
+                    Errors.frontend.require(targets.isNotEmpty()) {
+                        "Distributable projekts must have at least one distribution target! " +
+                            "Configure it via 'distribute { ... }'"
+                    }
+                    Distributable(module.name, projektMetadata, targets, configuration)
+                }
 
-            is ProjektMetadata.BuildLogic -> {
-                val extension = project.extensions.get<ProjektExtension>()
-                Errors.frontend.require(extension.distributionTargets.orNull.isNullOrEmpty()) {
-                    "Build logic projekts shouldn't have distribution targets"
+                is ProjektMetadata.BuildLogic -> {
+                    val extension = project.extensions.get<ProjektExtension>()
+                    Errors.frontend.require(extension.distributionTargets.orNull.isNullOrEmpty()) {
+                        "Build logic projekts shouldn't have distribution targets"
+                    }
+                    Errors.frontend.require(!configuration.description.isPresent) {
+                        "Build logic projekts shouldn't have a description"
+                    }
+                    Errors.frontend.require(!configuration.version.isPresent) {
+                        "Build logic projekts shouldn't have a version"
+                    }
+                    BuildLogic(project.name, projektMetadata, configuration)
                 }
-                Errors.frontend.require(!configuration.description.isPresent) {
-                    "Build logic projekts shouldn't have a description"
-                }
-                Errors.frontend.require(!configuration.version.isPresent) {
-                    "Build logic projekts shouldn't have a version"
-                }
-                BuildLogic(project.name, projektMetadata, configuration)
             }
         }
     }
@@ -132,36 +139,42 @@ internal sealed interface GradlePlugin : Projekt {
     }
 
     companion object {
-        fun of(
-            project: Project,
-            projektMetadata: ProjektMetadata,
-            configuration: GradlePluginDsl,
-        ): GradlePlugin = when (projektMetadata) {
-            is ProjektMetadata.Distributable -> {
-                val extension = project.extensions.get<ProjektExtension>()
-                val targets = extension.distributionTargets.orNull.orEmpty()
-                Errors.frontend.require(targets.isNotEmpty()) {
-                    "Distributable projekts must have at least one distribution target! " +
-                        "Configure it via 'distribute { ... }'"
-                }
-                Distributable(project.name, projektMetadata, targets, configuration)
+        fun of(project: Project, projektMetadata: ProjektMetadata, configuration: GradlePluginDsl): GradlePlugin {
+            val module = projektMetadata.modules.find {
+                it.path == project.path && it.type == ProjektType.GRADLE_PLUGIN
             }
+            Errors.frontend.requireNotNull(module) {
+                "Module '${project.path}' is not registered as a Gradle plugin in project settings. " +
+                    "Ensure that 'gradlePlugin()' is declared for this module in settings.gradle.kts, " +
+                    "or change the build script declaration to match."
+            }
+            return when (projektMetadata) {
+                is ProjektMetadata.Distributable -> {
+                    val extension = project.extensions.get<ProjektExtension>()
+                    val targets = extension.distributionTargets.orNull.orEmpty()
+                    Errors.frontend.require(targets.isNotEmpty()) {
+                        "Distributable projekts must have at least one distribution target! " +
+                            "Configure it via 'distribute { ... }'"
+                    }
+                    Distributable(module.name, projektMetadata, targets, configuration)
+                }
 
-            is ProjektMetadata.BuildLogic -> {
-                val extension = project.extensions.get<ProjektExtension>()
-                Errors.frontend.require(extension.distributionTargets.orNull.isNullOrEmpty()) {
-                    "Build logic projekts shouldn't have distribution targets"
+                is ProjektMetadata.BuildLogic -> {
+                    val extension = project.extensions.get<ProjektExtension>()
+                    Errors.frontend.require(extension.distributionTargets.orNull.isNullOrEmpty()) {
+                        "Build logic projekts shouldn't have distribution targets"
+                    }
+                    Errors.frontend.require(!configuration.description.isPresent) {
+                        "Build logic projekts shouldn't have a description"
+                    }
+                    Errors.frontend.require(configuration.tags.orNull.isNullOrEmpty()) {
+                        "Build logic projekts shouldn't have tags"
+                    }
+                    Errors.frontend.require(!configuration.version.isPresent) {
+                        "Build logic projekts shouldn't have a version"
+                    }
+                    BuildLogic(project.name, projektMetadata, configuration)
                 }
-                Errors.frontend.require(!configuration.description.isPresent) {
-                    "Build logic projekts shouldn't have a description"
-                }
-                Errors.frontend.require(configuration.tags.orNull.isNullOrEmpty()) {
-                    "Build logic projekts shouldn't have tags"
-                }
-                Errors.frontend.require(!configuration.version.isPresent) {
-                    "Build logic projekts shouldn't have a version"
-                }
-                BuildLogic(project.name, projektMetadata, configuration)
             }
         }
     }
