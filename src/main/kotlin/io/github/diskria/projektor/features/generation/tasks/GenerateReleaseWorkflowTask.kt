@@ -5,9 +5,7 @@ import io.github.diskria.projektor.extensions.applyProjektorGroup
 import io.github.diskria.projektor.extensions.defaultTaskName
 import io.github.diskria.projektor.features.release.ReleaseProjektTask
 import io.github.diskria.projektor.internal.git.CommitType
-import io.github.diskria.projektor.internal.utils.ACTION_BUILTIN_ENVS
 import io.github.diskria.projektor.internal.utils.Envs
-import io.github.diskria.projektor.internal.utils.SECRET_ENV_NAMES
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.tasks.Input
@@ -30,8 +28,8 @@ abstract class GenerateReleaseWorkflowTask @Inject internal constructor(
 
     init {
         applyProjektorGroup()
-        actionBuiltinEnvs.set(ACTION_BUILTIN_ENVS)
-        secretEnvNames.set(SECRET_ENV_NAMES)
+        actionBuiltinEnvs.set(Envs.actionBuiltins)
+        secretEnvNames.set(Envs.secretNames)
     }
 
     override fun getFileText(repoDirectory: File, file: File): String {

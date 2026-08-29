@@ -90,21 +90,23 @@ abstract class GenerateEnvsTask : DefaultTask() {
                     }
                     +getEnvOrNull
                     +getEnv
-                }
-                property("ACTION_BUILTIN_ENVS", xClass<Map<*, *>>().generic(xType<String>(), xType<String>())) {
-                    initializer {
-                        val pairs = code {
-                            actionBuiltinEnvs.get().entries.joinToString(", ") { (name, value) ->
-                                "${S(name)} to ${S(value)}"
+                    companion {
+                        property("actionBuiltins", xClass<Map<*, *>>().generic(xType<String>(), xType<String>())) {
+                            initializer {
+                                val pairs = code {
+                                    actionBuiltinEnvs.get().entries.joinToString(", ") { (name, value) ->
+                                        "${S(name)} to ${S(value)}"
+                                    }
+                                }
+                                "mapOf(${L(pairs)})"
                             }
                         }
-                        "mapOf(${L(pairs)})"
-                    }
-                }
-                property("SECRET_ENV_NAMES", xClass<List<*>>().generic(xType<String>())) {
-                    initializer {
-                        val elements = code { secretEnvNames.get().joinToString(", ") { S(it) } }
-                        "listOf(${L(elements)})"
+                        property("secretNames", xClass<List<*>>().generic(xType<String>())) {
+                            initializer {
+                                val elements = code { secretEnvNames.get().joinToString(", ") { S(it) } }
+                                "listOf(${L(elements)})"
+                            }
+                        }
                     }
                 }
             }
