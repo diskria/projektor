@@ -5,5 +5,8 @@ plugins {
 projekt {
     version = "8.0.10"
     license { mit() }
+    buildLogic {
+        gradlePlugin(":envs-generator")
+    }
     gradlePlugin()
 }

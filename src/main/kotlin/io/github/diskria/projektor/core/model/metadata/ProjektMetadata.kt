@@ -3,7 +3,7 @@ package io.github.diskria.projektor.core.model.metadata
 import io.github.diskria.projektor.core.model.ProjektModule
 import io.github.diskria.projektor.core.model.github.GithubRepo
 import io.github.diskria.projektor.core.model.license.LicenseType
-import io.github.diskria.projektor.internal.utils.capitalized
+import io.github.diskria.projektor.extensions.capitalized
 import kotlinx.serialization.Serializable
 
 @Serializable

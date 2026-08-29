@@ -3,9 +3,9 @@ package io.github.diskria.projektor.features.distribution.target
 import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.GradlePlugin
 import io.github.diskria.projektor.core.model.Projekt
+import io.github.diskria.projektor.extensions.capitalized
 import io.github.diskria.projektor.extensions.maybeCreate
 import io.github.diskria.projektor.internal.utils.Errors
-import io.github.diskria.projektor.internal.utils.capitalized
 import io.github.diskria.projektor.internal.utils.checkNotNull
 import org.gradle.api.Project
 import org.gradle.api.Task

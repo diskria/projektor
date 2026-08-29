@@ -1,5 +1,6 @@
 plugins {
     alias(convention.plugins.projektor)
+    alias(builder.plugins.envs.generator)
 }
 
 dependencies {

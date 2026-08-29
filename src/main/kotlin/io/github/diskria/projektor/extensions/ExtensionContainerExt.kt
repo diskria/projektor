@@ -1,7 +1,6 @@
 package io.github.diskria.projektor.extensions
 
 import io.github.diskria.projektor.internal.utils.Errors
-import io.github.diskria.projektor.internal.utils.decapitalized
 import io.github.diskria.projektor.internal.utils.requireNotNull
 import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.kotlin.dsl.create

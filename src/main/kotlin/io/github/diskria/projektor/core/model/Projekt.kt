@@ -6,9 +6,9 @@ import io.github.diskria.projektor.api.ProjektExtension
 import io.github.diskria.projektor.core.model.license.License
 import io.github.diskria.projektor.core.model.license.mapToModel
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
+import io.github.diskria.projektor.extensions.capitalized
 import io.github.diskria.projektor.extensions.get
 import io.github.diskria.projektor.internal.utils.Errors
-import io.github.diskria.projektor.internal.utils.capitalized
 import io.github.diskria.projektor.internal.utils.require
 import io.github.diskria.projektor.internal.utils.requireNotNull
 import org.gradle.api.Project
