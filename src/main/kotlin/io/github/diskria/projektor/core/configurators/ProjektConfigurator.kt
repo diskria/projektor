@@ -38,8 +38,8 @@ internal abstract class ProjektConfigurator<T : Projekt> {
     abstract fun configureProject(project: Project, projekt: T): Any
 
     private fun applyCommonConfiguration(project: Project, projekt: T) {
+        project.group = projekt.metadata.namespace
         if (projekt is Projekt.Distributable) {
-            project.group = projekt.metadata.repo.owner.namespace
             project.version = projekt.version
         }
         project.extensions.configure<BasePluginExtension> {
