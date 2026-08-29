@@ -11,6 +11,8 @@ dependencies {
 
     implementation(libs.bundles.implementation.settings.plugins)
     implementation(libs.bundles.implementation.project.plugins)
+
+    implementation(libs.snake.yaml)
 }
 
 projekt {

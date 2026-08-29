@@ -10,12 +10,11 @@ import org.gradle.work.DisableCachingByDefault
 import java.io.File
 import javax.inject.Inject
 
-@DisableCachingByDefault(because = "Generates files and performs Git push side effects")
-abstract class GenerateLicenseTask @Inject constructor(envs: Envs) : AbstractGenerateFileTask(
-    outputFileName = "LICENSE",
-    commitType = CommitType.DOCS,
-    envs = envs,
-) {
+@DisableCachingByDefault
+abstract class GenerateLicenseTask @Inject constructor(
+    envs: Envs,
+) : AbstractGenerateFileTask("LICENSE", CommitType.DOCS, envs) {
+
     @get:Input
     abstract val licenseType: Property<LicenseType>
 

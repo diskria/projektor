@@ -14,7 +14,7 @@ sealed interface Projekt {
 
     val name: String
     val metadata: ProjektMetadata
-    val javaVersion: Int get() = 25
+    val javaVersion: Int get() = ToolchainDefaults.JAVA_VERSION
     val jvmTarget: Int get() = 17
 
     val packageName: String get() = "${metadata.namespace}.${name.lowercase().replace("-", "_")}"

@@ -16,7 +16,7 @@ import org.gradle.work.DisableCachingByDefault
 import java.io.File
 import javax.inject.Inject
 
-@DisableCachingByDefault(because = "Generates files and performs Git push side effects")
+@DisableCachingByDefault
 abstract class AbstractGenerateFileTask @Inject constructor(
     outputFileName: String,
     private val commitType: CommitType,
@@ -44,7 +44,7 @@ abstract class AbstractGenerateFileTask @Inject constructor(
         val outputFile = outputFile.get().asFile
         val wasFileExists = outputFile.exists()
         if (!wasFileExists) outputFile.createNewFile()
-        val fileText = getFileText(repoDirectory, outputFile) ?: return
+        val fileText = getFileText(repoDirectory, outputFile)
         val oldText = outputFile.readText()
         val newText = fileText.trim() + "\n"
         if (newText == oldText) return
@@ -54,5 +54,5 @@ abstract class AbstractGenerateFileTask @Inject constructor(
         }
     }
 
-    abstract fun getFileText(repoDirectory: File, file: File): String?
+    abstract fun getFileText(repoDirectory: File, file: File): String
 }

@@ -1,11 +1,12 @@
 package io.github.diskria.projektor.core.configurators
 
 import io.github.diskria.projektor.core.model.Projekt
+import io.github.diskria.projektor.core.model.ToolchainDefaults
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.features.distribution.target.mapToModel
-import io.github.diskria.projektor.features.generation.readme.tasks.GenerateReadmeTask
 import io.github.diskria.projektor.features.generation.tasks.GenerateLicenseTask
+import io.github.diskria.projektor.features.generation.tasks.GenerateReleaseWorkflowTask
 import io.github.diskria.projektor.features.metadata.tasks.UpdateGithubRepoMetadataTask
 import io.github.diskria.projektor.features.release.ReleaseProjektTask
 import org.gradle.api.Project
@@ -51,7 +52,7 @@ internal abstract class ProjektConfigurator<T : Projekt> {
         project.extensions.configure<JavaPluginExtension> {
             toolchain.apply {
                 languageVersion.set(JavaLanguageVersion.of(projekt.javaVersion))
-                vendor.set(JvmVendorSpec.ADOPTIUM)
+                vendor.set(JvmVendorSpec.of(ToolchainDefaults.JVM_VENDOR))
                 implementation.set(JvmImplementation.VENDOR_SPECIFIC)
             }
         }
@@ -87,9 +88,9 @@ internal abstract class ProjektConfigurator<T : Projekt> {
         val distributeTasks = projekt.distributionTargetTypes.map {
             it.mapToModel().configureDistributeTask(project, projekt)
         }
-        val generateReadmeTask = rootTaskContainer.get<GenerateReadmeTask>()
+        val generateReleaseWorkflowTask = rootTaskContainer.get<GenerateReleaseWorkflowTask>()
         distributeTasks.forEach { distributeTask ->
-            distributeTask.configure { it.mustRunAfter(generateReadmeTask) }
+            distributeTask.configure { it.mustRunAfter(generateReleaseWorkflowTask) }
         }
         rootTaskContainer.get<UpdateGithubRepoMetadataTask>().configure {
             it.mustRunAfter(distributeTasks)

@@ -14,10 +14,11 @@ class GithubRepo(val owner: GithubOwner, val name: String) : Serializable {
     val actionsUrl: String get() = "$url/actions"
     val pagesUrl: String get() = "https://${owner.developer}.github.io/$name"
 
-    val packagesMavenUrl: String get() = "https://maven.pkg.$host/${owner.name}/$name"
+    val path: String get() = "${owner.name}/$name"
+    val packagesMavenUrl: String get() = "https://maven.pkg.$host/$path"
     val vcsUrl: String get() = getUrl(vcs = true)
     val scmUrl: String get() = "scm:git:$vcsUrl"
-    val scmDeveloperUrl: String get() = "scm:git:git@$host:${owner.name}/$name.git"
+    val scmDeveloperUrl: String get() = "scm:git:git@$host:$path.git"
 
     private val host: String get() = "github.com"
 

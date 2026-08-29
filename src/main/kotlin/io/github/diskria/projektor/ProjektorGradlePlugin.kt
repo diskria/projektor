@@ -12,6 +12,7 @@ import io.github.diskria.projektor.features.generation.readme.tasks.GenerateRead
 import io.github.diskria.projektor.features.generation.tasks.GenerateGitAttributesTask
 import io.github.diskria.projektor.features.generation.tasks.GenerateGitIgnoreTask
 import io.github.diskria.projektor.features.generation.tasks.GenerateLicenseTask
+import io.github.diskria.projektor.features.generation.tasks.GenerateReleaseWorkflowTask
 import io.github.diskria.projektor.features.metadata.tasks.UpdateGithubRepoMetadataTask
 import io.github.diskria.projektor.features.release.ReleaseProjektTask
 import io.github.diskria.projektor.internal.gradle.VersionCatalogsHelper
@@ -200,42 +201,47 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     private fun configureReleaseTask(rootProject: Project, projektMetadata: ProjektMetadata.Distributable) {
         if (rootProject.tasks.has<ReleaseProjektTask>()) return
         val envs = Envs(rootProject.providers)
-        val generateGitAttributes = rootProject.tasks.register<GenerateGitAttributesTask>(envs) {
+        val generateGitAttributesTask = rootProject.tasks.register<GenerateGitAttributesTask>(envs) {
             repo.set(projektMetadata.repo)
         }
-        val generateGitIgnore = rootProject.tasks.register<GenerateGitIgnoreTask>(envs) {
+        val generateGitIgnoreTask = rootProject.tasks.register<GenerateGitIgnoreTask>(envs) {
             repo.set(projektMetadata.repo)
-            mustRunAfter(generateGitAttributes)
+            mustRunAfter(generateGitAttributesTask)
         }
-        val generateLicense = projektMetadata.licenseType?.let { licenseType ->
+        val generateLicenseTask = projektMetadata.licenseType?.let { licenseType ->
             rootProject.tasks.register<GenerateLicenseTask>(envs) {
                 this.licenseType.set(licenseType)
                 developer.set(projektMetadata.repo.owner.developer)
                 repo.set(projektMetadata.repo)
-                mustRunAfter(generateGitIgnore)
+                mustRunAfter(generateGitIgnoreTask)
             }
         }
-        val generateReadme = rootProject.tasks.register<GenerateReadmeTask>(envs) {
+        val generateReadmeTask = rootProject.tasks.register<GenerateReadmeTask>(envs) {
             displayName.set(projektMetadata.displayName)
             about.set(projektMetadata.about)
             license.set(projektMetadata.licenseType)
             repo.set(projektMetadata.repo)
-            mustRunAfter(generateLicense ?: generateGitIgnore)
+            mustRunAfter(generateLicenseTask ?: generateGitIgnoreTask)
         }
-        val updateGithubRepoMetadata = rootProject.tasks.register<UpdateGithubRepoMetadataTask>(envs) {
+        val generateReleaseWorkflowTask = rootProject.tasks.register<GenerateReleaseWorkflowTask>(envs) {
+            repo.set(projektMetadata.repo)
+            mustRunAfter(generateReadmeTask)
+        }
+        val updateGithubRepoMetadataTask = rootProject.tasks.register<UpdateGithubRepoMetadataTask>(envs) {
             projektTypes.set(projektMetadata.modules.map { it.type })
             about.set(projektMetadata.about)
             repo.set(projektMetadata.repo)
-            mustRunAfter(generateReadme)
+            mustRunAfter(generateReleaseWorkflowTask)
         }
         rootProject.tasks.register<ReleaseProjektTask> {
             dependsOn(
                 listOfNotNull(
-                    generateGitAttributes,
-                    generateGitIgnore,
-                    generateLicense,
-                    generateReadme,
-                    updateGithubRepoMetadata,
+                    generateGitAttributesTask,
+                    generateGitIgnoreTask,
+                    generateLicenseTask,
+                    generateReadmeTask,
+                    generateReleaseWorkflowTask,
+                    updateGithubRepoMetadataTask,
                 )
             )
         }
@@ -243,11 +249,11 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
             val projekts = rootProject.allprojects
                 .mapNotNull { it.extensions.find<ProjektExtension>()?.configuredProjekt?.orNull }
                 .filterIsInstance<Projekt.Distributable>()
-            generateReadme.configure {
+            generateReadmeTask.configure {
                 it.projekts.set(projekts)
                 it.distributionTargetTypes.set(projekts.flatMap { projekt -> projekt.distributionTargetTypes })
             }
-            updateGithubRepoMetadata.configure {
+            updateGithubRepoMetadataTask.configure {
                 val primaryProjekt = projekts.first()
                 val primaryDistributionTarget = primaryProjekt.distributionTargetTypes.firstOrNull()?.mapToModel()
                 it.homepageUrl.set(primaryDistributionTarget?.getHomepage(primaryProjekt))

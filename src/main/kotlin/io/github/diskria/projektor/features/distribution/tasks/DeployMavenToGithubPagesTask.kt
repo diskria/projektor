@@ -17,7 +17,7 @@ import org.gradle.work.DisableCachingByDefault
 import java.io.File
 import javax.inject.Inject
 
-@DisableCachingByDefault(because = "Deploys Maven artifacts to GitHub Pages and performs Git pushes")
+@DisableCachingByDefault
 abstract class DeployMavenToGithubPagesTask @Inject constructor(private val envs: Envs) : Sync() {
 
     @get:Input

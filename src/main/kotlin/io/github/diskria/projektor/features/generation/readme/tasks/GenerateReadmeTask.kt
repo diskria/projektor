@@ -20,12 +20,11 @@ import org.gradle.work.DisableCachingByDefault
 import java.io.File
 import javax.inject.Inject
 
-@DisableCachingByDefault(because = "Generates files and performs Git push side effects")
-abstract class GenerateReadmeTask @Inject constructor(envs: Envs) : AbstractGenerateFileTask(
-    outputFileName = MarkdownHelper.fileName("readme"),
-    commitType = CommitType.DOCS,
-    envs = envs,
-) {
+@DisableCachingByDefault
+abstract class GenerateReadmeTask @Inject constructor(
+    envs: Envs,
+) : AbstractGenerateFileTask(MarkdownHelper.fileName("readme"), CommitType.DOCS, envs) {
+
     @get:Internal
     abstract val projekts: ListProperty<Projekt.Distributable>
 
