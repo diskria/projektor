@@ -47,7 +47,7 @@ internal sealed interface KotlinLibrary : Projekt {
         override val name: String,
         override val metadata: ProjektMetadata.Distributable,
         override val distributionTargetTypes: List<DistributionTargetType>,
-        private val configuration: KotlinLibraryDsl,
+        internal val configuration: KotlinLibraryDsl,
     ) : KotlinLibrary, Projekt.Distributable {
         override val softwareComponent: String get() = "java"
         override val license: License? = metadata.licenseType?.mapToModel()
@@ -62,7 +62,7 @@ internal sealed interface KotlinLibrary : Projekt {
     class BuildLogic(
         override val name: String,
         override val metadata: ProjektMetadata.BuildLogic,
-        private val configuration: KotlinLibraryDsl,
+        internal val configuration: KotlinLibraryDsl,
     ) : KotlinLibrary, Projekt.BuildLogic {
         override val javaVersion: Int get() = configuration.javaVersion.orNull ?: super<Projekt.BuildLogic>.javaVersion
         override val jvmTarget: Int get() = configuration.jvmTarget.orNull ?: super<Projekt.BuildLogic>.jvmTarget
@@ -115,7 +115,7 @@ internal sealed interface GradlePlugin : Projekt {
         override val name: String,
         override val metadata: ProjektMetadata.Distributable,
         override val distributionTargetTypes: List<DistributionTargetType>,
-        private val configuration: GradlePluginDsl,
+        internal val configuration: GradlePluginDsl,
     ) : GradlePlugin, Projekt.Distributable {
         val tags: Set<String> get() = configuration.tags.orNull?.ifEmpty { null } ?: metadata.about.tags
 
@@ -132,7 +132,7 @@ internal sealed interface GradlePlugin : Projekt {
     class BuildLogic(
         override val name: String,
         override val metadata: ProjektMetadata.BuildLogic,
-        private val configuration: GradlePluginDsl,
+        internal val configuration: GradlePluginDsl,
     ) : GradlePlugin, Projekt.BuildLogic {
         override val javaVersion: Int get() = configuration.javaVersion.orNull ?: super<Projekt.BuildLogic>.javaVersion
         override val jvmTarget: Int get() = configuration.jvmTarget.orNull ?: super<Projekt.BuildLogic>.jvmTarget

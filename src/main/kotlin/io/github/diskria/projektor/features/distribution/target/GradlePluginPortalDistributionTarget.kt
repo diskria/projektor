@@ -11,12 +11,30 @@ import io.github.diskria.projektor.internal.utils.requireNotNull
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.kotlin.dsl.configure
+import org.gradle.plugin.compatibility.compatibility
+import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 
 internal object GradlePluginPortalDistributionTarget : DistributionTarget {
 
     override fun configureDistributeTask(project: Project, projekt: Projekt.Distributable): TaskProvider<out Task> {
-        projekt.requireGradlePlugin()
+        val gradlePlugin = projekt.requireGradlePlugin()
         project.pluginManager.apply("com.gradle.plugin-publish")
+        project.extensions.configure<GradlePluginDevelopmentExtension> {
+            website.set(gradlePlugin.metadata.repo.url)
+            vcsUrl.set(gradlePlugin.metadata.repo.vcsUrl)
+            plugins.getByName(gradlePlugin.id).apply {
+                displayName = gradlePlugin.displayName
+                description = gradlePlugin.description
+                tags.set(gradlePlugin.tags)
+                project.pluginManager.apply("org.gradle.plugin-compatibility")
+                compatibility {
+                    it.features.apply {
+                        configurationCache.set(gradlePlugin.configuration.supportsConfigurationCache)
+                    }
+                }
+            }
+        }
         val envs = Envs(project.providers)
         val taskName = if (envs.isCI) {
             envs.requireGradlePublishCredentials()
