@@ -1,7 +1,5 @@
 package io.github.diskria.projektor.internal.git
 
-import io.github.diskria.projektor.internal.utils.Errors
-import io.github.diskria.projektor.internal.utils.check
 import java.io.File
 
 internal class GitClient private constructor(private val repoDirectory: File) {
@@ -27,20 +25,6 @@ internal class GitClient private constructor(private val repoDirectory: File) {
         exec("remote", "set-url", remoteName, remoteUrl)
     }
 
-    fun hasUncommittedChanges(): Boolean {
-        val diff = exec("diff", "--quiet").isSuccess.not()
-        val diffCached = exec("diff", "--cached", "--quiet").isSuccess.not()
-        return diff || diffCached
-    }
-
-    fun hasStagedChanges(): Boolean {
-        val output = execAndGetOutput("status", "--porcelain")
-        return output.isNotBlank()
-    }
-
-    fun getRemoteUrl(remoteName: String = ORIGIN_REMOTE_NAME): String =
-        execAndGetOutput("remote", "get-url", remoteName)
-
     private fun exec(vararg args: String): ProcessResult = exec(args.toList())
 
     private fun exec(args: List<String>): ProcessResult {
@@ -53,20 +37,6 @@ internal class GitClient private constructor(private val repoDirectory: File) {
         val output = process.inputStream.bufferedReader().readText().trim()
         val exitCode = process.waitFor()
         return ProcessResult(exitCode == 0, output)
-    }
-
-    private fun execAndGetOutput(vararg args: String): String {
-        val result = exec(args.toList())
-        Errors.frontend.check(result.isSuccess) {
-            """
-            Failed to execute Git command: git ${args.joinToString(" ")}
-            Make sure Git is installed and current project is a valid Git repository
-            
-            Details:
-            ${result.output}
-            """.trimIndent()
-        }
-        return result.output
     }
 
     private data class ProcessResult(val isSuccess: Boolean, val output: String)

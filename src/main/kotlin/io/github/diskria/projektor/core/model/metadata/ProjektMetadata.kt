@@ -9,17 +9,16 @@ import kotlinx.serialization.Serializable
 @Serializable
 internal sealed interface ProjektMetadata {
 
-    val isMonorepo: Boolean
     val modules: List<ProjektModule>
     val namespace: String
 
     class Distributable(
-        override val isMonorepo: Boolean,
-        override val modules: List<ProjektModule>,
+        val isMonorepo: Boolean,
         val repo: GithubRepo,
         val version: String,
         val licenseType: LicenseType?,
         val about: ProjektAbout,
+        override val modules: List<ProjektModule>,
     ) : ProjektMetadata {
         val displayName: String get() = repo.name.split("-").joinToString(" ") { about.fixCase(it).capitalized() }
         override val namespace: String get() = repo.owner.namespace
@@ -28,7 +27,6 @@ internal sealed interface ProjektMetadata {
     class BuildLogic(
         override val modules: List<ProjektModule>,
     ) : ProjektMetadata {
-        override val isMonorepo: Boolean get() = true
         override val namespace: String get() = "builder"
     }
 }

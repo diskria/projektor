@@ -3,6 +3,8 @@ package io.github.diskria.projektor
 import io.github.diskria.projektor.api.ProjektExtension
 import io.github.diskria.projektor.api.ProjektMetadataExtension
 import io.github.diskria.projektor.core.model.Projekt
+import io.github.diskria.projektor.core.model.ProjektModule
+import io.github.diskria.projektor.core.model.ProjektType
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.features.distribution.target.mapToModel
@@ -14,6 +16,7 @@ import io.github.diskria.projektor.features.metadata.tasks.UpdateGithubRepoMetad
 import io.github.diskria.projektor.features.release.ReleaseProjektTask
 import io.github.diskria.projektor.internal.gradle.VersionCatalogsHelper
 import io.github.diskria.projektor.internal.utils.*
+import kotlinx.serialization.json.Json
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
@@ -50,29 +53,31 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     }
 
     private fun applyToSettings(settings: Settings) {
-        settings.pluginManager.apply("org.gradle.toolchains.foojay-resolver-convention")
         settings.dependencyResolutionManagement.repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
-        val rootDirectory = settings.layout.rootDirectory
-        val extension = settings.extensions.create<ProjektMetadataExtension>(settings, name = "projekt")
-        val buildLogicName = "build-logic"
-        val defaultCatalogPath = "gradle/libs.versions.toml"
-        val isBuildLogic = rootDirectory.asFile.name == buildLogicName
-        if (isBuildLogic) {
-            settings.dependencyResolutionManagement.versionCatalogs.create("libs").from(
-                rootDirectory.files(rootDirectory.asFile.parentFile.resolve(defaultCatalogPath))
-            )
+        if (settings.layout.rootDirectory.asFile.name != "build-logic") {
+            applyToDistributableSettings(settings)
         } else {
-            val defaultCatalogFile = rootDirectory.file(defaultCatalogPath).asFile
-            if (!defaultCatalogFile.exists()) {
-                defaultCatalogFile.parentFile.mkdirs()
-                defaultCatalogFile.writeText(VersionCatalogsHelper.TEMPLATE)
-            }
-            val buildLogicDirectory = rootDirectory.dir(buildLogicName).asFile
-            if (buildLogicDirectory.exists()) {
-                settings.includeBuild(buildLogicName)
-                settings.pluginManagement.includeBuild(buildLogicName)
-            }
+            applyToBuildLogicSettings(settings)
         }
+        settings.dependencyResolutionManagement.versionCatalogs.create("convention").apply {
+            plugin("projektor", "io.github.diskria.projektor").version("")
+        }
+    }
+
+    private fun applyToDistributableSettings(settings: Settings) {
+        val rootDirectory = settings.layout.rootDirectory
+        settings.pluginManager.apply("org.gradle.toolchains.foojay-resolver-convention")
+        val defaultCatalogFile = rootDirectory.file("gradle/libs.versions.toml").asFile
+        if (!defaultCatalogFile.exists()) {
+            defaultCatalogFile.parentFile.mkdirs()
+            defaultCatalogFile.writeText(VersionCatalogsHelper.TEMPLATE)
+        }
+        val buildLogicDirectory = rootDirectory.dir("build-logic").asFile
+        if (buildLogicDirectory.exists()) {
+            settings.includeBuild("build-logic")
+            settings.pluginManagement.includeBuild("build-logic")
+        }
+        val extension = settings.extensions.create<ProjektMetadataExtension>(settings, name = "projekt")
         settings.gradle.settingsEvaluated {
             val envs = Envs(settings.providers)
             val (ownerName, repoName) = if (envs.isCI) {
@@ -80,25 +85,64 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
             } else {
                 with(rootDirectory.asFile) { parentFile.name to name }
             }
-            val metadata = extension.ensureConfigured(ownerName, repoName, rootDirectory.asFile, isBuildLogic)
-            settings.gradle.rootProject {
-                if (metadata.isMonorepo) {
-                    val srcDirectory = rootDirectory.dir("src").asFile
-                    Errors.frontend.check(!srcDirectory.exists()) {
-                        """
-                        Root project source directory '${srcDirectory.absolutePath}' is not allowed in a monorepo!
-                        Move your source code into a subproject.
-                        """.trimIndent()
-                    }
+            val metadata = extension.ensureConfigured(ownerName, repoName)
+            if (metadata.isMonorepo) {
+                val srcDirectory = rootDirectory.dir("src").asFile
+                Errors.frontend.check(!srcDirectory.exists()) {
+                    """
+                    Root project source directory '${srcDirectory.absolutePath}' is not allowed in a monorepo!
+                    Move your source code into a subproject.
+                    """.trimIndent()
                 }
-                it.projektMetadata = metadata
             }
-            settings.dependencyResolutionManagement.versionCatalogs.create("convention").apply {
-                plugin("projektor", "io.github.diskria.projektor").version("")
+            if (extension.buildLogicModules.isNotEmpty()) {
+                configureBuildLogicVersionCatalog(settings, extension.buildLogicModules)
+                System.setProperty("projektorBuildLogicModules", Json.encodeToString(extension.buildLogicModules))
+            }
+            settings.gradle.rootProject { rootProject ->
+                rootProject.projektMetadata = metadata
             }
         }
         settings.gradle.rootProject { rootProject ->
             setupEnvironment(rootProject)
+        }
+    }
+
+    private fun applyToBuildLogicSettings(settings: Settings) {
+        val rootDirectory = settings.layout.rootDirectory
+        settings.dependencyResolutionManagement.versionCatalogs.create("libs").from(
+            rootDirectory.files(rootDirectory.asFile.parentFile.resolve("gradle/libs.versions.toml"))
+        )
+        val modules = System.getProperty("projektorBuildLogicModules")?.let {
+            Json.decodeFromString<List<ProjektModule>>(it)
+        }
+        Errors.frontend.requireNotNull(modules) {
+            "Build logic not configured in settings.gradle.kts"
+        }
+        ProjektMetadataExtension.applyModules(modules, settings)
+        settings.gradle.rootProject { rootProject ->
+            rootProject.pluginManager.apply("base")
+            rootProject.tasks.matching { it.group?.lowercase() == "build" }.configureEach { task ->
+                task.dependsOn(modules.map { module ->
+                    rootProject.project(module.path).tasks.matching { it.name == task.name }
+                })
+            }
+            rootProject.projektMetadata = ProjektMetadata.BuildLogic(modules)
+        }
+        configureBuildLogicVersionCatalog(settings, modules, skipPlugins = true)
+    }
+
+    private fun configureBuildLogicVersionCatalog(
+        settings: Settings,
+        modules: List<ProjektModule>,
+        skipPlugins: Boolean = false,
+    ) {
+        val plugins = if (skipPlugins) emptyList() else modules.filter { it.type == ProjektType.GRADLE_PLUGIN }
+        val libraries = modules.filter { it.type == ProjektType.KOTLIN_LIBRARY }
+        if (plugins.isEmpty() && libraries.isEmpty()) return
+        settings.dependencyResolutionManagement.versionCatalogs.create("builder").apply {
+            plugins.forEach { plugin(it.name, "builder.${it.name}").version("") }
+            libraries.forEach { library(it.name, "builder", it.name).withoutVersion() }
         }
     }
 
