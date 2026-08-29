@@ -10,7 +10,7 @@ import io.github.diskria.projektor.extensions.capitalized
 import io.github.diskria.projektor.extensions.get
 import org.gradle.api.Project
 
-internal sealed interface Projekt {
+sealed interface Projekt {
 
     val name: String
     val metadata: ProjektMetadata

@@ -18,7 +18,7 @@ import java.io.File
 import javax.inject.Inject
 
 @DisableCachingByDefault(because = "Deploys Maven artifacts to GitHub Pages and performs Git pushes")
-internal abstract class DeployMavenToGithubPagesTask @Inject constructor(private val envs: Envs) : Sync() {
+abstract class DeployMavenToGithubPagesTask @Inject constructor(private val envs: Envs) : Sync() {
 
     @get:Input
     abstract val repo: Property<GithubRepo>

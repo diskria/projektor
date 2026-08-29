@@ -3,7 +3,7 @@ package io.github.diskria.projektor.core.model.metadata
 import java.io.File
 import java.io.Serializable
 
-internal class ProjektAbout(
+class ProjektAbout(
     val description: String,
     val details: String,
     val tags: Set<String>,

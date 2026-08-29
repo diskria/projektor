@@ -7,7 +7,7 @@ import io.github.diskria.projektor.extensions.capitalized
 import kotlinx.serialization.Serializable
 
 @Serializable
-internal sealed interface ProjektMetadata {
+sealed interface ProjektMetadata {
 
     val modules: List<ProjektModule>
     val namespace: String

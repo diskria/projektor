@@ -19,7 +19,7 @@ import javax.inject.Inject
 import kotlin.io.encoding.Base64
 
 @DisableCachingByDefault(because = "Uploads a ZIP bundle to Maven Central via API")
-internal abstract class UploadBundleToMavenCentralTask @Inject constructor(private val envs: Envs) : Zip() {
+abstract class UploadBundleToMavenCentralTask @Inject constructor(private val envs: Envs) : Zip() {
 
     @get:Input
     abstract val bundleName: Property<String>

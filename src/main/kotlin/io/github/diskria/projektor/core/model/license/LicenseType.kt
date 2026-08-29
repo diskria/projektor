@@ -2,7 +2,7 @@ package io.github.diskria.projektor.core.model.license
 
 import io.github.diskria.projektor.core.model.license.LicenseType.MIT
 
-internal enum class LicenseType(val id: String) {
+enum class LicenseType(val id: String) {
     MIT("MIT"),
 }
 

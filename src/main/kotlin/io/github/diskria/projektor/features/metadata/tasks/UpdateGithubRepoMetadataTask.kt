@@ -26,7 +26,7 @@ import org.gradle.work.DisableCachingByDefault
 import javax.inject.Inject
 
 @DisableCachingByDefault(because = "Updates external GitHub repository metadata via API; must always reflect current project state")
-internal abstract class UpdateGithubRepoMetadataTask @Inject constructor(private val envs: Envs) : DefaultTask() {
+abstract class UpdateGithubRepoMetadataTask @Inject constructor(private val envs: Envs) : DefaultTask() {
 
     @get:Optional
     @get:Input

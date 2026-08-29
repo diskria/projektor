@@ -11,7 +11,7 @@ import java.io.File
 import javax.inject.Inject
 
 @DisableCachingByDefault(because = "Generates files and performs Git push side effects")
-internal abstract class GenerateLicenseTask @Inject constructor(envs: Envs) : AbstractGenerateFileTask(
+abstract class GenerateLicenseTask @Inject constructor(envs: Envs) : AbstractGenerateFileTask(
     outputFileName = "LICENSE",
     commitType = CommitType.DOCS,
     envs = envs,

@@ -2,7 +2,7 @@ package io.github.diskria.projektor.core.model.license
 
 import io.github.diskria.projektor.ProjektorGradlePlugin
 
-internal sealed class License(val type: LicenseType) {
+sealed class License(val type: LicenseType) {
 
     val url = "https://spdx.org/licenses/${type.id}"
 

@@ -7,7 +7,7 @@ import java.io.File
 import javax.inject.Inject
 
 @DisableCachingByDefault(because = "Generates files and performs Git push side effects")
-internal abstract class GenerateGitAttributesTask @Inject constructor(envs: Envs) : AbstractGenerateFileTask(
+abstract class GenerateGitAttributesTask @Inject constructor(envs: Envs) : AbstractGenerateFileTask(
     outputFileName = ".gitattributes",
     commitType = CommitType.CHORE,
     envs = envs,

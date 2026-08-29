@@ -48,7 +48,6 @@ abstract class GenerateEnvsClassTask : DefaultTask() {
             }
             kotlin.file(packageName, "Envs") {
                 class_(fileName) {
-                    internal()
                     constructor(primary = true) { parameter<ProviderFactory>("providers").property { private() } }
                     property<Boolean>("isCI") {
                         getter { expression { "${N(getEnvOrNull)}(${S("CI")})?.toBoolean() == true" } }

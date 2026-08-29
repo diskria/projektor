@@ -1,6 +1,6 @@
 package io.github.diskria.projektor.core.model
 
-internal enum class DistributionTargetType(val id: String, val displayName: String) {
+enum class DistributionTargetType(val id: String, val displayName: String) {
     MAVEN_LOCAL("maven-local", "Maven Local"),
     MAVEN_CENTRAL("maven-central", "Maven Central"),
     GITHUB_PAGES("github-pages", "GitHub Pages"),

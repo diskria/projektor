@@ -17,7 +17,7 @@ import java.io.File
 import javax.inject.Inject
 
 @DisableCachingByDefault(because = "Generates files and performs Git push side effects")
-internal abstract class AbstractGenerateFileTask @Inject constructor(
+abstract class AbstractGenerateFileTask @Inject constructor(
     outputFileName: String,
     private val commitType: CommitType,
     private val envs: Envs,

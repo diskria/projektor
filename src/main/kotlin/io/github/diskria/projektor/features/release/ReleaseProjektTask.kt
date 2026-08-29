@@ -5,7 +5,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.work.DisableCachingByDefault
 
 @DisableCachingByDefault(because = "Releasing involves external side effects like Git commits and tags")
-internal abstract class ReleaseProjektTask : DefaultTask() {
+abstract class ReleaseProjektTask : DefaultTask() {
 
     init {
         applyProjektorGroup()

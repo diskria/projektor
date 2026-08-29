@@ -21,7 +21,7 @@ import java.io.File
 import javax.inject.Inject
 
 @DisableCachingByDefault(because = "Generates files and performs Git push side effects")
-internal abstract class GenerateReadmeTask @Inject constructor(envs: Envs) : AbstractGenerateFileTask(
+abstract class GenerateReadmeTask @Inject constructor(envs: Envs) : AbstractGenerateFileTask(
     outputFileName = MarkdownHelper.fileName("readme"),
     commitType = CommitType.DOCS,
     envs = envs,

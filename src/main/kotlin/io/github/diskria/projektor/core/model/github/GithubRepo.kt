@@ -6,7 +6,7 @@ import io.github.diskria.projektor.internal.git.GitClient
 import java.io.File
 import java.io.Serializable
 
-internal class GithubRepo(val owner: GithubOwner, val name: String) : Serializable {
+class GithubRepo(val owner: GithubOwner, val name: String) : Serializable {
 
     val url: String get() = getUrl()
     val packagesUrl: String get() = "$url/packages"
