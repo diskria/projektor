@@ -29,10 +29,10 @@ jobs:
   release:
     runs-on: ubuntu-latest
     env:
-      GH_OWNER: ${{ github.repository_owner }}
-      GH_REPO: ${{ github.event.repository.name }}
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
-      GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+      GITHUB_OWNER: ${{ github.repository_owner }}
+      GITHUB_REPO: ${{ github.event.repository.name }}
+      GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      GITHUB_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
       GPG_KEY: ${{ secrets.GPG_KEY }}
       GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
       SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
