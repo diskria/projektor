@@ -1,6 +1,5 @@
 package io.github.diskria.projektor.features.distribution.target
 
-import com.gradle.publish.PublishTask
 import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.GradlePlugin
 import io.github.diskria.projektor.core.model.Projekt
@@ -13,7 +12,6 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.named
 import org.gradle.plugin.compatibility.compatibility
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 
@@ -37,16 +35,14 @@ internal object GradlePluginPortalDistributionTarget : DistributionTarget {
                 }
             }
         }
-        val publishPluginsTask = project.tasks.named<PublishTask>("publishPlugins")
         val envs = Envs(project.providers)
-        if (envs.isCI) {
+        val taskName = if (envs.isCI) {
             envs.requireGradlePublishCredentials()
+            "publishPlugins"
         } else {
-            publishPluginsTask.configure {
-                it.validateOnly.set(true)
-            }
+            "validatePlugins"
         }
-        return publishPluginsTask
+        return project.tasks.named(taskName)
     }
 
     override fun getHomepage(projekt: Projekt.Distributable): String =
