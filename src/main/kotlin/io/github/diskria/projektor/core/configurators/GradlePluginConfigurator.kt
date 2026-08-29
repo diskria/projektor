@@ -39,7 +39,7 @@ internal class GradlePluginConfigurator(
             }
         }
         project.dependencies {
-            "implementation"(project.gradleKotlinDsl())
+            "compileOnly"(project.gradleKotlinDsl())
         }
     }
 }
