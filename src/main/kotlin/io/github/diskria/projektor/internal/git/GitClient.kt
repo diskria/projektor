@@ -46,7 +46,7 @@ internal class GitClient private constructor(private val repoDirectory: File) {
         const val HEAD = "HEAD"
 
         fun open(repoDirectory: File): GitClient {
-            require(repoDirectory.exists() && repoDirectory.isDirectory) {
+            check(repoDirectory.exists() && repoDirectory.isDirectory) {
                 "Repository directory does not exist or is not a directory: ${repoDirectory.absolutePath}"
             }
             return GitClient(repoDirectory)

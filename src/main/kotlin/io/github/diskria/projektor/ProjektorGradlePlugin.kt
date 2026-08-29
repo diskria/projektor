@@ -15,7 +15,7 @@ import io.github.diskria.projektor.features.generation.tasks.GenerateLicenseTask
 import io.github.diskria.projektor.features.metadata.tasks.UpdateGithubRepoMetadataTask
 import io.github.diskria.projektor.features.release.ReleaseProjektTask
 import io.github.diskria.projektor.internal.gradle.VersionCatalogsHelper
-import io.github.diskria.projektor.internal.utils.*
+import io.github.diskria.projektor.internal.utils.Envs
 import kotlinx.serialization.json.Json
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -33,7 +33,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
         when (target) {
             is Settings -> applyToSettings(target)
             is Project -> applyToProject(target)
-            else -> Errors.frontend.error(
+            else -> error(
                 """
                 Projektor plugin cannot be applied to '${target.javaClass.simpleName}'.
                 
@@ -88,7 +88,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
             val metadata = extension.ensureConfigured(ownerName, repoName)
             if (metadata.isMonorepo) {
                 val srcDirectory = rootDirectory.dir("src").asFile
-                Errors.frontend.check(!srcDirectory.exists()) {
+                check(!srcDirectory.exists()) {
                     """
                     Root project source directory '${srcDirectory.absolutePath}' is not allowed in a monorepo!
                     Move your source code into a subproject.
@@ -116,7 +116,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
         val modules = System.getProperty("projektorBuildLogicModules")?.let {
             Json.decodeFromString<List<ProjektModule>>(it)
         }
-        Errors.frontend.requireNotNull(modules) {
+        checkNotNull(modules) {
             "Build logic not configured in settings.gradle.kts"
         }
         ProjektMetadataExtension.applyModules(modules, settings)
@@ -156,7 +156,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
         rootProject.gradle.taskGraph.whenReady { graph ->
             val isWrapperOnly = graph.allTasks.all { it.name == "wrapper" }
             if (!isWrapperOnly) {
-                Errors.frontend.require(current == required) {
+                check(current == required) {
                     """
                     Gradle version mismatch detected!
                     Current version: ${current.version}
@@ -171,7 +171,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     }
 
     private fun applyToProject(project: Project) {
-        val projektMetadata = Errors.frontend.requireNotNull(project.rootProject.projektMetadata) {
+        val projektMetadata = checkNotNull(project.rootProject.projektMetadata) {
             """
             Projektor plugin was applied in 'build.gradle.kts', but is missing from 'settings.gradle.kts'!
             
@@ -258,6 +258,6 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     internal companion object {
         fun readResourceText(path: String): String =
             ProjektorGradlePlugin::class.java.getResourceAsStream("/$path")?.bufferedReader()?.use { it.readText() }
-                ?: Errors.internal.error("Resource not found in plugin package: $path")
+                ?: error("Resource not found in plugin package: $path")
     }
 }

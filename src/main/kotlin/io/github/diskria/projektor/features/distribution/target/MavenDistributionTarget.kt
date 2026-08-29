@@ -5,8 +5,6 @@ import io.github.diskria.projektor.core.model.GradlePlugin
 import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.extensions.capitalized
 import io.github.diskria.projektor.extensions.maybeCreate
-import io.github.diskria.projektor.internal.utils.Errors
-import io.github.diskria.projektor.internal.utils.checkNotNull
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.dsl.RepositoryHandler
@@ -43,7 +41,7 @@ internal sealed class MavenDistributionTarget(
         configurePublishTask(project, projekt)
 
     protected fun configurePublishTask(project: Project, projekt: Projekt.Distributable): TaskProvider<out Task> {
-        val componentName = Errors.frontend.checkNotNull(projekt.softwareComponent) {
+        val componentName = checkNotNull(projekt.softwareComponent) {
             "This kind of project doesn't support publishing to ${distributionTargetType.displayName}"
         }
         project.pluginManager.apply("maven-publish")
@@ -62,7 +60,7 @@ internal sealed class MavenDistributionTarget(
                     if (index == 0) part else part.capitalized()
                 }
                 val publication = publications.maybeCreate<MavenPublication>(publicationName) {
-                    from(Errors.internal.checkNotNull(project.components.findByName(componentName)) {
+                    from(checkNotNull(project.components.findByName(componentName)) {
                         "SoftwareComponent '$componentName' not found in project '${project.path}'"
                     })
                     configurePom(pom, projekt)

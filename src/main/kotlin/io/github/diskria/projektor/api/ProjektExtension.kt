@@ -6,9 +6,6 @@ import io.github.diskria.projektor.core.configurators.ProjektConfigurator
 import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
-import io.github.diskria.projektor.internal.utils.Errors
-import io.github.diskria.projektor.internal.utils.check
-import io.github.diskria.projektor.internal.utils.checkNotNull
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
@@ -37,7 +34,7 @@ open class ProjektExtension @Inject internal constructor(private val objects: Ob
     }
 
     internal fun ensureConfigured(project: Project, projektMetadata: ProjektMetadata): Projekt {
-        val projekt = Errors.frontend.checkNotNull(configurator) {
+        val projekt = checkNotNull(configurator) {
             "Projekt configuration is missing in '${project.path}' build script! Please call 'projekt { ... }'."
         }.configure(project, projektMetadata)
         configuredProjekt.set(projekt)
@@ -45,7 +42,7 @@ open class ProjektExtension @Inject internal constructor(private val objects: Ob
     }
 
     private fun setConfigurator(configurator: ProjektConfigurator<*>) {
-        Errors.frontend.check(this.configurator == null) { "Projekt already configured" }
+        check(this.configurator == null) { "Projekt already configured" }
         this.configurator = configurator
     }
 }

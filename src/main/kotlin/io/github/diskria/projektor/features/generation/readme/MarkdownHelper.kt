@@ -7,7 +7,7 @@ internal object MarkdownHelper {
     fun fileName(name: String): String = "${name.uppercase()}.md"
 
     fun header(text: String, level: Int): String {
-        require(level in 1..6) { "Header level must be between 1 and 6" }
+        check(level in 1..6) { "Header level must be between 1 and 6" }
         return "${"#".repeat(level)} $text\n\n"
     }
 

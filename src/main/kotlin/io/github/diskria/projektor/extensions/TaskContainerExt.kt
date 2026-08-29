@@ -1,7 +1,5 @@
 package io.github.diskria.projektor.extensions
 
-import io.github.diskria.projektor.internal.utils.Errors
-import io.github.diskria.projektor.internal.utils.requireNotNull
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
@@ -14,7 +12,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 @PublishedApi
 internal inline fun <reified T : Task> defaultTaskName(): String =
-    Errors.internal.requireNotNull(T::class.simpleName) {
+    checkNotNull(T::class.simpleName) {
         "Cannot derive task name: class '${T::class}' does not have a simple name"
     }.removeSuffix("Task").decapitalized()
 

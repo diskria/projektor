@@ -31,7 +31,6 @@ abstract class GenerateEnvsClassTask : DefaultTask() {
     fun generate() {
         poetesse {
             val packageName = "io.github.diskria.projektor.internal.utils"
-            val errorsClass = xClass(packageName, "Errors")
             val getEnvOrNull by kotlin.function {
                 private()
                 val name by parameter<String>()
@@ -44,7 +43,7 @@ abstract class GenerateEnvsClassTask : DefaultTask() {
                 returns<String>()
                 expression {
                     val errorMessage = code { "Environment variable '$${N(name)}' is required but not set!".quoted() }
-                    "${N(getEnvOrNull)}(${N(name)}) ?: ${T(errorsClass)}.internal.error(${L(errorMessage)})"
+                    "${N(getEnvOrNull)}(${N(name)}) ?: error(${L(errorMessage)})"
                 }
             }
             kotlin.file(packageName, "Envs") {

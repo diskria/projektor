@@ -8,8 +8,6 @@ import io.github.diskria.projektor.core.model.license.LicenseType
 import io.github.diskria.projektor.core.model.metadata.ProjektAbout
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.configureRepositories
-import io.github.diskria.projektor.internal.utils.Errors
-import io.github.diskria.projektor.internal.utils.check
 import org.gradle.api.initialization.Settings
 import org.gradle.api.model.ObjectFactory
 import org.gradle.kotlin.dsl.property
@@ -47,7 +45,7 @@ open class ProjektMetadataExtension @Inject internal constructor(
     }
 
     fun monorepo(configure: MonorepoDsl.() -> Unit) {
-        Errors.frontend.check(modules.isEmpty()) {
+        check(modules.isEmpty()) {
             "Cannot configure 'monorepo { ... }' when a single-repo project type has already been declared!"
         }
         isMonorepo = true
@@ -59,10 +57,10 @@ open class ProjektMetadataExtension @Inject internal constructor(
     }
 
     private fun ensureSingleRepoMode() {
-        Errors.frontend.check(!isMonorepo) {
+        check(!isMonorepo) {
             "Cannot declare single-repo project types outside of existing 'monorepo { ... }' block!"
         }
-        Errors.frontend.check(modules.isEmpty()) {
+        check(modules.isEmpty()) {
             "Single-repo supports only one project type! Use 'monorepo { ... }' for multiple modules."
         }
     }
@@ -77,7 +75,7 @@ open class ProjektMetadataExtension @Inject internal constructor(
     }
 
     internal fun ensureConfigured(ownerName: String, repoName: String): ProjektMetadata.Distributable {
-        Errors.frontend.check(modules.isNotEmpty()) {
+        check(modules.isNotEmpty()) {
             "Projekt type is not configured in settings.gradle.kts! " +
                 "Call kotlinLibrary(), gradlePlugin() or monorepo { ... }"
         }
@@ -102,7 +100,7 @@ open class ProjektMetadataExtension @Inject internal constructor(
                 settings.gradle.rootProject { rootProject ->
                     rootProject.project(module.path) { project ->
                         project.afterEvaluate {
-                            Errors.frontend.check(project.plugins.hasPlugin("io.github.diskria.projektor")) {
+                            check(project.plugins.hasPlugin("io.github.diskria.projektor")) {
                                 "Project '${module.path}' was declared in settings.gradle.kts, " +
                                     "but 'alias(convention.plugins.projektor)' plugin " +
                                     "was not applied in its build.gradle.kts!"
