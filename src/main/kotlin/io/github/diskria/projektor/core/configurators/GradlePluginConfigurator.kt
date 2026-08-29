@@ -1,6 +1,7 @@
 package io.github.diskria.projektor.core.configurators
 
 import io.github.diskria.projektor.api.GradlePluginDsl
+import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.GradlePlugin
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import org.gradle.api.Project
@@ -20,14 +21,16 @@ internal class GradlePluginConfigurator(
     override fun configureProject(project: Project, projekt: GradlePlugin) {
         project.pluginManager.apply("java-gradle-plugin")
         project.extensions.configure<GradlePluginDevelopmentExtension> {
-            if (projekt is GradlePlugin.Distributable) {
+            val isPortalTarget = projekt is GradlePlugin.Distributable
+                && projekt.distributionTargetTypes.contains(DistributionTargetType.GRADLE_PLUGIN_PORTAL)
+            if (isPortalTarget) {
                 website.set(projekt.metadata.repo.url)
                 vcsUrl.set(projekt.metadata.repo.vcsUrl)
             }
             plugins.create(projekt.id).apply {
                 id = projekt.id
                 implementationClass = "${projekt.packageName}.${projekt.classNamePrefix}GradlePlugin"
-                if (projekt is GradlePlugin.Distributable) {
+                if (isPortalTarget) {
                     displayName = projekt.displayName
                     description = projekt.description
                     tags.set(projekt.tags)
