@@ -40,15 +40,13 @@ abstract class UploadBundleToMavenCentralTask @Inject constructor(
         archiveVersion.set(bundleVersion)
         from(MavenCentralDistributionTarget.getLocalMavenDirectory(layout))
         destinationDirectory.set(layout.buildDirectory.dir(DistributionTargetType.MAVEN_CENTRAL.id))
-        doLast { upload() }
+        doLast {
+            if (!envs.isCI) return@doLast
+            runBlocking { upload(archiveFile.get().asFile) }
+        }
     }
 
-    private fun upload() {
-        if (!envs.isCI) return
-        runBlocking { uploadBundle(archiveFile.get().asFile) }
-    }
-
-    private suspend fun uploadBundle(file: File) {
+    private suspend fun upload(file: File) {
         val deploymentName = file.name
         logger.lifecycle("Uploading bundle '$deploymentName' to Maven Central...")
         val item = PartData.FileItem(

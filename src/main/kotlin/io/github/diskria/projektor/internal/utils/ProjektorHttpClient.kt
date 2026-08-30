@@ -1,5 +1,6 @@
 package io.github.diskria.projektor.internal.utils
 
+import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
@@ -16,7 +17,7 @@ internal object ProjektorHttpClient {
                 requestTimeoutMillis = 5.minutes.inWholeMilliseconds
             }
             defaultRequest {
-                header(HttpHeaders.UserAgent, "Projektor/8.0.6")
+                header(HttpHeaders.UserAgent, "${ProjektorGradlePlugin.ID}/${ProjektorGradlePlugin.VERSION}")
             }
         }
     }

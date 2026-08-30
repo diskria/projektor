@@ -45,10 +45,10 @@ abstract class DeployMavenToGithubPagesTask @Inject constructor(
         )
     }
 
-    private fun generateIndexTree(directory: File, parentDirectory: File = directory) {
+    private fun generateIndexTree(directory: File) {
         val contents = directory.listFiles()?.sortedBy { it.name.lowercase() }?.ifEmpty { null } ?: return
         val directories = contents.filter { it.isDirectory }
-        val title = "Index of /${directory.relativeTo(parentDirectory).path}"
+        val title = "Index of /${directory.relativeTo(destinationDir).path}"
         directory.resolve("index.html").writeText(createHTML().html {
             lang = "en"
             head {
@@ -59,14 +59,17 @@ abstract class DeployMavenToGithubPagesTask @Inject constructor(
                 h2 { text(title) }
                 hr {}
                 ul {
-                    if (directory != parentDirectory) addLinkItem("../")
-                    directories.forEach { addLinkItem("${it.name}/") }
-                    contents.filter { it.isFile }.forEach { addLinkItem(it.name) }
+                    val hrefs = buildList {
+                        if (directory != destinationDir) add("../")
+                        directories.forEach { add("${it.name}/") }
+                        contents.filter { it.isFile }.forEach { add(it.name) }
+                    }
+                    hrefs.forEach { href ->
+                        li { a(href) { text(href) } }
+                    }
                 }
             }
         })
-        directories.forEach { generateIndexTree(it, parentDirectory) }
+        directories.forEach { generateIndexTree(it) }
     }
 }
-
-private fun UL.addLinkItem(href: String) = li { a(href) { text(href) } }

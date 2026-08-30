@@ -1,5 +1,6 @@
 package io.github.diskria.projektor.api
 
+import io.github.diskria.projektor.ProjektorGradlePlugin
 import io.github.diskria.projektor.core.model.ProjektModule
 import io.github.diskria.projektor.core.model.ProjektType
 import io.github.diskria.projektor.core.model.github.GithubOwner
@@ -100,7 +101,7 @@ open class ProjektMetadataExtension @Inject internal constructor(
                 settings.gradle.rootProject { rootProject ->
                     rootProject.project(module.path) { project ->
                         project.afterEvaluate {
-                            check(project.plugins.hasPlugin("io.github.diskria.projektor")) {
+                            check(project.plugins.hasPlugin(ProjektorGradlePlugin.ID)) {
                                 "Project '${module.path}' was declared in settings.gradle.kts, " +
                                     "but 'alias(convention.plugins.projektor)' plugin " +
                                     "was not applied in its build.gradle.kts!"

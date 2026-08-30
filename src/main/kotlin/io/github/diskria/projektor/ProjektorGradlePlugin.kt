@@ -41,7 +41,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
                 This plugin must be applied in two steps:
                   1. In 'settings.gradle.kts':
                      plugins {
-                         id("io.github.diskria.projektor") version "8.0.6"
+                         id("$ID") version "$VERSION"
                      }
                 
                   2. Then in 'build.gradle.kts':
@@ -61,7 +61,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
             applyToBuildLogicSettings(settings)
         }
         settings.dependencyResolutionManagement.versionCatalogs.create("convention").apply {
-            plugin("projektor", "io.github.diskria.projektor").version("")
+            plugin("projektor", ID).version("")
         }
     }
 
@@ -178,7 +178,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
             
             Please add it to 'settings.gradle.kts' with a version first:
               plugins {
-                  id("io.github.diskria.projektor") version "8.0.6"
+                  id("$ID") version "$VERSION"
               }
             
             And in 'build.gradle.kts', apply it WITHOUT a version:
@@ -267,6 +267,9 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     }
 
     internal companion object {
+        const val ID: String = "io.github.diskria.projektor"
+        const val VERSION: String = "8.0.11"
+
         fun readResourceText(path: String): String =
             ProjektorGradlePlugin::class.java.getResourceAsStream("/$path")?.bufferedReader()?.use { it.readText() }
                 ?: error("Resource not found in plugin package: $path")
