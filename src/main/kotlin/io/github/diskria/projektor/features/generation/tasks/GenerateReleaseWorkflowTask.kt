@@ -5,7 +5,9 @@ import io.github.diskria.projektor.extensions.applyProjektorGroup
 import io.github.diskria.projektor.extensions.defaultTaskName
 import io.github.diskria.projektor.features.release.ReleaseProjektTask
 import io.github.diskria.projektor.internal.git.CommitType
+import io.github.diskria.projektor.internal.utils.DisabledCachingReasons.SIDE_EFFECTS
 import io.github.diskria.projektor.internal.utils.Envs
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.tasks.Input
@@ -15,10 +17,11 @@ import org.yaml.snakeyaml.Yaml
 import java.io.File
 import javax.inject.Inject
 
-@DisableCachingByDefault
+@DisableCachingByDefault(because = SIDE_EFFECTS)
 abstract class GenerateReleaseWorkflowTask @Inject internal constructor(
     envs: Envs,
-) : AbstractGenerateFileTask(YML_PATH, CommitType.CI, envs) {
+    layout: ProjectLayout,
+) : AbstractGenerateFileTask(YML_PATH, CommitType.CI, envs, layout) {
 
     @get:Input
     abstract val actionBuiltinEnvs: MapProperty<String, String>

@@ -114,8 +114,8 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
         settings.dependencyResolutionManagement.versionCatalogs.create("libs").from(
             rootDirectory.files(rootDirectory.asFile.parentFile.resolve("gradle/libs.versions.toml"))
         )
-        val modules = System.getProperty("projektorBuildLogicModules")?.let {
-            Json.decodeFromString<List<ProjektModule>>(it)
+        val modules: List<ProjektModule>? = System.getProperty("projektorBuildLogicModules")?.let {
+            Json.decodeFromString(it)
         }
         checkNotNull(modules) {
             "Build logic not configured in settings.gradle.kts"
@@ -249,14 +249,19 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
             val projekts = rootProject.allprojects
                 .mapNotNull { it.extensions.find<ProjektExtension>()?.configuredProjekt?.orNull }
                 .filterIsInstance<Projekt.Distributable>()
-            generateReadmeTask.configure {
-                it.projekts.set(projekts)
-                it.distributionTargetTypes.set(projekts.flatMap { projekt -> projekt.distributionTargetTypes })
+            generateReadmeTask.configure { task ->
+                task.distributionTargetShieldMarkdowns.set(
+                    projekts.flatMap { projekt ->
+                        projekt.distributionTargetTypes.mapNotNull { targetType ->
+                            targetType.mapToModel().getReadmeShield(projekt)?.markdown
+                        }
+                    }
+                )
             }
-            updateGithubRepoMetadataTask.configure {
-                val primaryProjekt = projekts.first()
-                val primaryDistributionTarget = primaryProjekt.distributionTargetTypes.firstOrNull()?.mapToModel()
-                it.homepageUrl.set(primaryDistributionTarget?.getHomepage(primaryProjekt))
+            updateGithubRepoMetadataTask.configure { task ->
+                val primaryProjekt = projekts.firstOrNull()
+                val primaryDistributionTarget = primaryProjekt?.distributionTargetTypes?.firstOrNull()?.mapToModel()
+                task.homepageUrl.set(primaryDistributionTarget?.getHomepage(primaryProjekt))
             }
         }
     }

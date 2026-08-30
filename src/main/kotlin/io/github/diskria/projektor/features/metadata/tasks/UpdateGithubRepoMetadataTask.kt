@@ -9,6 +9,8 @@ import io.github.diskria.projektor.internal.network.github.UpdateInfoRequest
 import io.github.diskria.projektor.internal.network.github.UpdateTopicsRequest
 import io.github.diskria.projektor.internal.network.github.common.GithubJsonRequest
 import io.github.diskria.projektor.internal.network.github.common.GithubRepoRequest
+import io.github.diskria.projektor.internal.utils.DisabledCachingReasons.NON_DETERMINISTIC
+import io.github.diskria.projektor.internal.utils.DisabledCachingReasons.SIDE_EFFECTS
 import io.github.diskria.projektor.internal.utils.Envs
 import io.github.diskria.projektor.internal.utils.ProjektorHttpClient
 import io.ktor.client.request.*
@@ -25,12 +27,8 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 import javax.inject.Inject
 
-@DisableCachingByDefault(because = "Updates external GitHub repository metadata via API; must always reflect current project state")
+@DisableCachingByDefault(because = "$NON_DETERMINISTIC; $SIDE_EFFECTS")
 abstract class UpdateGithubRepoMetadataTask @Inject constructor(private val envs: Envs) : DefaultTask() {
-
-    @get:Optional
-    @get:Input
-    abstract val homepageUrl: Property<String>
 
     @get:Input
     abstract val projektTypes: ListProperty<ProjektType>
@@ -40,6 +38,10 @@ abstract class UpdateGithubRepoMetadataTask @Inject constructor(private val envs
 
     @get:Input
     abstract val repo: Property<GithubRepo>
+
+    @get:Optional
+    @get:Input
+    abstract val homepageUrl: Property<String>
 
     init {
         applyProjektorGroup()

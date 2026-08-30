@@ -66,7 +66,7 @@ internal class GradlePluginPortalShield(
 internal class MavenCentralShield(projekt: Projekt.Distributable) : DistributionTargetShield(MAVEN_CENTRAL, projekt) {
     override val imageUrl: String
         get() = buildShieldUrl(
-            "maven-central/v/${projekt.metadata.repo.owner.namespace}/${projekt.name}.svg",
+            "maven-central/v/${projekt.metadata.namespace}/${projekt.name}.svg",
             "label" to label,
             "style" to "for-the-badge",
         )

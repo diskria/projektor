@@ -90,13 +90,15 @@ internal abstract class ProjektConfigurator<T : Projekt> {
         }
         val generateReleaseWorkflowTask = rootTaskContainer.get<GenerateReleaseWorkflowTask>()
         distributeTasks.forEach { distributeTask ->
-            distributeTask.configure { it.mustRunAfter(generateReleaseWorkflowTask) }
+            distributeTask.configure { task ->
+                task.mustRunAfter(generateReleaseWorkflowTask)
+            }
         }
-        rootTaskContainer.get<UpdateGithubRepoMetadataTask>().configure {
-            it.mustRunAfter(distributeTasks)
+        rootTaskContainer.get<UpdateGithubRepoMetadataTask>().configure { task ->
+            task.mustRunAfter(distributeTasks)
         }
-        rootTaskContainer.get<ReleaseProjektTask>().configure {
-            it.dependsOn(distributeTasks)
+        rootTaskContainer.get<ReleaseProjektTask>().configure { task ->
+            task.dependsOn(distributeTasks)
         }
     }
 }

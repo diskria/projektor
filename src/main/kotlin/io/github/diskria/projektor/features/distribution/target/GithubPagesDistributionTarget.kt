@@ -17,9 +17,6 @@ internal object GithubPagesDistributionTarget : MavenDistributionTarget(Distribu
         val publishTask = configurePublishTask(project, projekt)
         return project.tasks.register<DeployMavenToGithubPagesTask>(Envs(project.providers)) {
             repo.set(projekt.metadata.repo)
-            repoDirectory.convention(project.layout.projectDirectory)
-            from(getLocalMavenDirectory(project))
-            into(project.layout.projectDirectory.dir("docs"))
             dependsOn(publishTask)
         }
     }

@@ -1,6 +1,9 @@
 package io.github.diskria.projektor.features.distribution.tasks
 
+import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.extensions.applyProjektorGroup
+import io.github.diskria.projektor.features.distribution.target.MavenCentralDistributionTarget
+import io.github.diskria.projektor.internal.utils.DisabledCachingReasons.SIDE_EFFECTS
 import io.github.diskria.projektor.internal.utils.Envs
 import io.github.diskria.projektor.internal.utils.ProjektorHttpClient
 import io.ktor.client.request.*
@@ -10,6 +13,7 @@ import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.util.cio.*
 import kotlinx.coroutines.runBlocking
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.bundling.Zip
@@ -18,8 +22,11 @@ import java.io.File
 import javax.inject.Inject
 import kotlin.io.encoding.Base64
 
-@DisableCachingByDefault
-abstract class UploadBundleToMavenCentralTask @Inject constructor(private val envs: Envs) : Zip() {
+@DisableCachingByDefault(because = SIDE_EFFECTS)
+abstract class UploadBundleToMavenCentralTask @Inject constructor(
+    private val envs: Envs,
+    layout: ProjectLayout,
+) : Zip() {
 
     @get:Input
     abstract val bundleName: Property<String>
@@ -31,6 +38,8 @@ abstract class UploadBundleToMavenCentralTask @Inject constructor(private val en
         applyProjektorGroup()
         archiveBaseName.set(bundleName)
         archiveVersion.set(bundleVersion)
+        from(MavenCentralDistributionTarget.getLocalMavenDirectory(layout))
+        destinationDirectory.set(layout.buildDirectory.dir(DistributionTargetType.MAVEN_CENTRAL.id))
         doLast { upload() }
     }
 

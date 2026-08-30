@@ -13,12 +13,12 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.ProviderFactory
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.gradle.work.DisableCachingByDefault
 
-@DisableCachingByDefault
+@CacheableTask
 abstract class GenerateEnvsTask : DefaultTask() {
 
     @get:Input
@@ -94,18 +94,15 @@ abstract class GenerateEnvsTask : DefaultTask() {
                         property("actionBuiltins", xClass<Map<*, *>>().generic(xType<String>(), xType<String>())) {
                             initializer {
                                 val pairs = code {
-                                    actionBuiltinEnvs.get().entries.joinToString(", ") { (name, value) ->
-                                        "${S(name)} to ${S(value)}"
+                                    actionBuiltinEnvs.get().entries.joinToString(", ") {
+                                        "${S(it.key)} to ${S(it.value)}"
                                     }
                                 }
                                 "mapOf(${L(pairs)})"
                             }
                         }
                         property("secretNames", xClass<List<*>>().generic(xType<String>())) {
-                            initializer {
-                                val elements = code { secretEnvNames.get().joinToString(", ") { S(it) } }
-                                "listOf(${L(elements)})"
-                            }
+                            initializer { "listOf(${secretEnvNames.get().joinToString(", ") { S(it) }})" }
                         }
                     }
                 }

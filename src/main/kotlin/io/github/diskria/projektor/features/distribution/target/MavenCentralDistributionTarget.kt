@@ -31,14 +31,12 @@ internal object MavenCentralDistributionTarget : MavenDistributionTarget(Distrib
         return project.tasks.register<UploadBundleToMavenCentralTask>(Envs(project.providers)) {
             bundleName.set(projekt.name)
             bundleVersion.set(projekt.version)
-            from(getLocalMavenDirectory(project))
-            destinationDirectory.set(project.layout.buildDirectory.dir(DistributionTargetType.MAVEN_CENTRAL.id))
             dependsOn(publishTask)
         }
     }
 
     override fun getHomepage(projekt: Projekt.Distributable): String =
-        "https://central.sonatype.com/artifact/${projekt.metadata.repo.owner.namespace}/${projekt.name}"
+        "https://central.sonatype.com/artifact/${projekt.metadata.namespace}/${projekt.name}"
 
     override fun getReadmeShield(projekt: Projekt.Distributable): ReadmeShield = MavenCentralShield(projekt)
 }

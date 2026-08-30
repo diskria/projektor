@@ -4,4 +4,4 @@ class CommitMessage(val type: CommitType, val subject: String) {
     override fun toString(): String = "${type.name.lowercase()}: $subject"
 }
 
-enum class CommitType { TEST, CHORE, BUILD, CI, DOCS }
+enum class CommitType { CHORE, CI, DOCS }

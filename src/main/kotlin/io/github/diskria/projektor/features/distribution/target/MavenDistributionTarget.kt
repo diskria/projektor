@@ -10,6 +10,7 @@ import org.gradle.api.Task
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.file.Directory
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.Provider
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPom
@@ -25,15 +26,15 @@ internal sealed class MavenDistributionTarget(
 
     private val repositoryName: String = distributionTargetType.id.split("-").joinToString("") { it.capitalized() }
 
-    fun getLocalMavenDirectory(project: Project): Provider<Directory> =
-        project.layout.buildDirectory.dir("maven/${distributionTargetType.id}")
+    fun getLocalMavenDirectory(layout: ProjectLayout): Provider<Directory> =
+        layout.buildDirectory.dir("maven/${distributionTargetType.id}")
 
     open fun configureRepository(
         project: Project,
         projekt: Projekt.Distributable,
         repositories: RepositoryHandler,
         configure: MavenArtifactRepository.() -> Unit
-    ): MavenArtifactRepository = repositories.maven(getLocalMavenDirectory(project), configure)
+    ): MavenArtifactRepository = repositories.maven(getLocalMavenDirectory(project.layout), configure)
 
     open fun configurePublication(project: Project, projekt: Projekt, publication: MavenPublication) {}
 

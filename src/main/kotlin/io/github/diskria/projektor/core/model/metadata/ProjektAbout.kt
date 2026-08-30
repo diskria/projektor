@@ -28,7 +28,6 @@ class ProjektAbout(
     companion object {
         fun from(repoDirectory: File): ProjektAbout {
             val aboutDirectory = repoDirectory.resolve("about").apply { mkdirs() }
-
             val description = aboutDirectory.resolve("DESCRIPTION.md").ensureCreated("TODO: Project description.")
                 .readText().trim()
             val details = aboutDirectory.resolve("DETAILS.md").ensureCreated("TODO: Detailed project documentation.")

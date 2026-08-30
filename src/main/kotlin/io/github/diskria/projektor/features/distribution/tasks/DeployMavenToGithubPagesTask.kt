@@ -3,31 +3,34 @@ package io.github.diskria.projektor.features.distribution.tasks
 import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.github.GithubRepo
 import io.github.diskria.projektor.extensions.applyProjektorGroup
+import io.github.diskria.projektor.features.distribution.target.GithubPagesDistributionTarget
 import io.github.diskria.projektor.internal.git.CommitMessage
 import io.github.diskria.projektor.internal.git.CommitType
+import io.github.diskria.projektor.internal.utils.DisabledCachingReasons.SIDE_EFFECTS
 import io.github.diskria.projektor.internal.utils.Envs
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
-import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Sync
 import org.gradle.work.DisableCachingByDefault
 import java.io.File
 import javax.inject.Inject
 
-@DisableCachingByDefault
-abstract class DeployMavenToGithubPagesTask @Inject constructor(private val envs: Envs) : Sync() {
+@DisableCachingByDefault(because = SIDE_EFFECTS)
+abstract class DeployMavenToGithubPagesTask @Inject constructor(
+    private val envs: Envs,
+    private val layout: ProjectLayout,
+) : Sync() {
 
     @get:Input
     abstract val repo: Property<GithubRepo>
 
-    @get:Internal
-    abstract val repoDirectory: DirectoryProperty
-
     init {
         applyProjektorGroup()
+        from(GithubPagesDistributionTarget.getLocalMavenDirectory(layout))
+        into(layout.projectDirectory.dir("docs"))
         doLast { deploy() }
     }
 
@@ -35,7 +38,7 @@ abstract class DeployMavenToGithubPagesTask @Inject constructor(private val envs
         generateIndexTree(destinationDir)
         if (!envs.isCI) return
         repo.get().pushFile(
-            repoDirectory.get().asFile,
+            layout.projectDirectory.asFile,
             CommitMessage(CommitType.CHORE, "deploy maven to ${DistributionTargetType.GITHUB_PAGES.displayName}"),
             destinationDir,
             envs.githubToken,
