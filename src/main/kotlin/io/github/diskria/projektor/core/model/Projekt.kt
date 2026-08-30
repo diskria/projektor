@@ -97,7 +97,7 @@ internal sealed interface KotlinLibrary : Projekt {
                     check(!configuration.version.isPresent) {
                         "Build logic projekts shouldn't have a version"
                     }
-                    BuildLogic(project.name, projektMetadata, configuration)
+                    BuildLogic(module.name, projektMetadata, configuration)
                 }
             }
         }
@@ -170,7 +170,7 @@ internal sealed interface GradlePlugin : Projekt {
                     check(!configuration.version.isPresent) {
                         "Build logic projekts shouldn't have a version"
                     }
-                    BuildLogic(project.name, projektMetadata, configuration)
+                    BuildLogic(module.name, projektMetadata, configuration)
                 }
             }
         }

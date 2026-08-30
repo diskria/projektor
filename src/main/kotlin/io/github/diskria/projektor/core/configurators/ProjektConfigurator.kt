@@ -59,7 +59,7 @@ internal abstract class ProjektConfigurator<T : Projekt> {
         project.tasks {
             configureJvmTarget(jvmTargetOf(projekt.jvmTarget))
             withType<KotlinCompile>().configureEach { kotlinCompile ->
-                kotlinCompile.compilerOptions.freeCompilerArgs.addAll("-module-name", project.name)
+                kotlinCompile.compilerOptions.freeCompilerArgs.addAll("-module-name", projekt.name)
             }
             withType<JavaCompile>().configureEach { javaCompile ->
                 javaCompile.options.encoding = Charsets.UTF_8.toString()
