@@ -11,7 +11,7 @@ internal data class UpdateInfoRequest(
     val name: String,
     val description: String,
     @SerialName("homepage") val homepageUrl: String? = null,
-) : GithubJsonRequest() {
+) : GithubJsonRequest {
     override fun getHttpMethod(): HttpMethod = HttpMethod.Patch
     override fun toJson(): String = Json.encodeToString(this)
 }

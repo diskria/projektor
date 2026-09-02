@@ -10,7 +10,7 @@ inline fun <reified T : Task> defaultTaskName(): String =
     }.removeSuffix("Task").decapitalized()
 
 inline fun <reified T : Task> TaskContainer.register(
-    vararg constructorArguments: Any,
+    vararg constructorArgs: Any,
     name: String = defaultTaskName<T>(),
     noinline configure: T.() -> Unit = {}
-): TaskProvider<T> = register(name, T::class.java, *constructorArguments).apply { configure(configure) }
+): TaskProvider<T> = register(name, T::class.java, *constructorArgs).apply { configure(configure) }

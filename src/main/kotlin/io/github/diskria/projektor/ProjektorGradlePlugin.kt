@@ -6,7 +6,10 @@ import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.core.model.ProjektModule
 import io.github.diskria.projektor.core.model.ProjektType
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
-import io.github.diskria.projektor.extensions.*
+import io.github.diskria.projektor.extensions.create
+import io.github.diskria.projektor.extensions.find
+import io.github.diskria.projektor.extensions.has
+import io.github.diskria.projektor.extensions.register
 import io.github.diskria.projektor.features.distribution.target.mapToModel
 import io.github.diskria.projektor.features.generation.readme.tasks.GenerateReadmeTask
 import io.github.diskria.projektor.features.generation.tasks.GenerateGitAttributesTask
@@ -86,8 +89,8 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
             } else {
                 with(rootDirectory.asFile) { parentFile.name to name }
             }
-            val metadata = extension.ensureConfigured(ownerName, repoName)
-            if (metadata.isMonorepo) {
+            val projektMetadata = extension.ensureConfigured(ownerName, repoName)
+            if (projektMetadata.isMonorepo) {
                 val srcDirectory = rootDirectory.dir("src").asFile
                 check(!srcDirectory.exists()) {
                     """
@@ -97,12 +100,12 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
                 }
             }
             if (extension.buildLogicModules.isNotEmpty()) {
+                val modulesConfigFile = buildLogicDirectory.resolve(MODULES_CONFIG_PATH)
+                modulesConfigFile.parentFile.mkdirs()
+                modulesConfigFile.writeText(Json.encodeToString(extension.buildLogicModules))
                 configureBuildLogicVersionCatalog(settings, extension.buildLogicModules)
-                System.setProperty("projektorBuildLogicModules", Json.encodeToString(extension.buildLogicModules))
             }
-            settings.gradle.rootProject { rootProject ->
-                rootProject.projektMetadata = metadata
-            }
+            settings.registerProjektMetadataBuildService(projektMetadata)
         }
         settings.gradle.rootProject { rootProject ->
             setupEnvironment(rootProject)
@@ -114,31 +117,29 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
         settings.dependencyResolutionManagement.versionCatalogs.create("libs").from(
             rootDirectory.files(rootDirectory.asFile.parentFile.resolve("gradle/libs.versions.toml"))
         )
-        val modules: List<ProjektModule>? = System.getProperty("projektorBuildLogicModules")?.let {
-            Json.decodeFromString(it)
+        val modulesConfigFile = rootDirectory.file(MODULES_CONFIG_PATH).asFile
+        check(modulesConfigFile.exists()) {
+            """
+            Build logic project cannot be built standalone!
+            It depends on the host project because its configuration is defined there.
+            Please build from the root project instead.
+            """.trimIndent()
         }
-        checkNotNull(modules) {
-            "Build logic not configured in settings.gradle.kts"
-        }
-        ProjektMetadataExtension.applyModules(modules, settings)
+        val projektMetadata = ProjektMetadata.BuildLogic(Json.decodeFromString(modulesConfigFile.readText()))
+        ProjektMetadataExtension.applyModules(projektMetadata.modules, settings)
         settings.gradle.rootProject { rootProject ->
-            rootProject.pluginManager.apply("base")
-            rootProject.tasks.matching { it.group?.lowercase() == "build" }.configureEach { task ->
-                task.dependsOn(modules.map { module ->
-                    rootProject.project(module.path).tasks.matching { it.name == task.name }
-                })
-            }
-            rootProject.projektMetadata = ProjektMetadata.BuildLogic(modules)
+            settings.registerProjektMetadataBuildService(projektMetadata)
         }
-        configureBuildLogicVersionCatalog(settings, modules, skipPlugins = true)
     }
 
-    private fun configureBuildLogicVersionCatalog(
-        settings: Settings,
-        modules: List<ProjektModule>,
-        skipPlugins: Boolean = false,
-    ) {
-        val plugins = if (skipPlugins) emptyList() else modules.filter { it.type == ProjektType.GRADLE_PLUGIN }
+    private fun Settings.registerProjektMetadataBuildService(projektMetadata: ProjektMetadata) {
+        gradle.sharedServices.register<ProjektMetadata.SharedService, ProjektMetadata.SharedService.Parameters> {
+            parameters.projektMetadata.set(projektMetadata)
+        }
+    }
+
+    private fun configureBuildLogicVersionCatalog(settings: Settings, modules: List<ProjektModule>) {
+        val plugins = modules.filter { it.type == ProjektType.GRADLE_PLUGIN }
         val libraries = modules.filter { it.type == ProjektType.KOTLIN_LIBRARY }
         if (plugins.isEmpty() && libraries.isEmpty()) return
         settings.dependencyResolutionManagement.versionCatalogs.create("builder").apply {
@@ -154,25 +155,24 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
             gradleVersion = required.version
             distributionType = Wrapper.DistributionType.ALL
         }
-        rootProject.gradle.taskGraph.whenReady { graph ->
-            val isWrapperOnly = graph.allTasks.all { it.name == "wrapper" }
-            if (!isWrapperOnly) {
-                check(current == required) {
-                    """
-                    Gradle version mismatch detected!
-                    Current version: ${current.version}
-                    Target convention version: ${required.version}
-                    
-                    To align your environment with the project standard, run:
-                      ./gradlew wrapper
-                    """.trimIndent()
-                }
+        val requestedTasks = rootProject.gradle.startParameter.taskNames
+        if (requestedTasks.none() || requestedTasks.any { it.substringAfterLast(":") != "wrapper" }) {
+            check(current == required) {
+                """
+                Gradle version mismatch detected!
+                Current version: ${current.version}
+                Target convention version: ${required.version}
+                
+                To align your environment with the project standard, run:
+                  ./gradlew wrapper
+                """.trimIndent()
             }
         }
     }
 
     private fun applyToProject(project: Project) {
-        val projektMetadata = checkNotNull(project.rootProject.projektMetadata) {
+        val sharedService = project.gradle.sharedServices.find<ProjektMetadata.SharedService>()
+        val projektMetadata = checkNotNull(sharedService?.parameters?.projektMetadata?.orNull) {
             """
             Projektor plugin was applied in 'build.gradle.kts', but is missing from 'settings.gradle.kts'!
             
@@ -269,6 +269,8 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     internal companion object {
         const val ID: String = "io.github.diskria.projektor"
         const val VERSION: String = "8.0.11"
+
+        private const val MODULES_CONFIG_PATH = ".gradle/projektor/modules.json"
 
         fun readResourceText(path: String): String =
             ProjektorGradlePlugin::class.java.getResourceAsStream("/$path")?.bufferedReader()?.use { it.readText() }

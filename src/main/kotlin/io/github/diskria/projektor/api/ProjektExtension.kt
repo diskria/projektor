@@ -14,7 +14,7 @@ import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
-open class ProjektExtension @Inject internal constructor(private val objects: ObjectFactory) : ProjektorScope {
+abstract class ProjektExtension @Inject internal constructor(private val objects: ObjectFactory) : ProjektorScope {
 
     internal val distributionTargets = objects.listProperty<DistributionTargetType>()
     internal val configuredProjekt: Property<Projekt> = objects.property()

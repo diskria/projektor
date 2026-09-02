@@ -72,7 +72,7 @@ internal class MavenCentralShield(projekt: Projekt.Distributable) : Distribution
         )
 }
 
-internal open class StaticShield(
+internal abstract class StaticShield(
     override val label: String,
     val message: String,
     val color: String,

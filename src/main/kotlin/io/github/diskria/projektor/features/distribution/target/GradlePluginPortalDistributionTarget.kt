@@ -16,7 +16,7 @@ import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 internal object GradlePluginPortalDistributionTarget : DistributionTarget {
 
     override fun configureDistributeTask(project: Project, projekt: Projekt.Distributable): TaskProvider<out Task> {
-        val gradlePlugin = projekt.requireGradlePlugin()
+        val gradlePlugin = projekt.ensureGradlePlugin()
         project.pluginManager.apply("com.gradle.plugin-publish")
         project.extensions.configure<GradlePluginDevelopmentExtension> {
             website.set(gradlePlugin.metadata.repo.url)
@@ -44,12 +44,12 @@ internal object GradlePluginPortalDistributionTarget : DistributionTarget {
     }
 
     override fun getHomepage(projekt: Projekt.Distributable): String =
-        "https://plugins.gradle.org/plugin/${projekt.requireGradlePlugin().id}"
+        "https://plugins.gradle.org/plugin/${projekt.ensureGradlePlugin().id}"
 
     override fun getReadmeShield(projekt: Projekt.Distributable): ReadmeShield =
-        GradlePluginPortalShield(projekt.requireGradlePlugin())
+        GradlePluginPortalShield(projekt.ensureGradlePlugin())
 
-    private fun Projekt.requireGradlePlugin(): GradlePlugin.Distributable =
+    private fun Projekt.ensureGradlePlugin(): GradlePlugin.Distributable =
         checkNotNull(this as? GradlePlugin.Distributable) {
             "This kind of project doesn't support distribution to " +
                 DistributionTargetType.GRADLE_PLUGIN_PORTAL.displayName

@@ -2,6 +2,6 @@ package io.github.diskria.projektor.internal.network.github.common
 
 import io.ktor.http.*
 
-internal open class GithubGetRequest : GithubRepoRequest {
+internal interface GithubGetRequest : GithubRepoRequest {
     override fun getHttpMethod(): HttpMethod = HttpMethod.Get
 }

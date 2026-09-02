@@ -4,10 +4,12 @@ import io.github.diskria.projektor.core.model.ProjektModule
 import io.github.diskria.projektor.core.model.github.GithubRepo
 import io.github.diskria.projektor.core.model.license.LicenseType
 import io.github.diskria.projektor.extensions.capitalized
-import kotlinx.serialization.Serializable
+import org.gradle.api.provider.Property
+import org.gradle.api.services.BuildService
+import org.gradle.api.services.BuildServiceParameters
+import java.io.Serializable
 
-@Serializable
-sealed interface ProjektMetadata {
+sealed interface ProjektMetadata : Serializable {
 
     val modules: List<ProjektModule>
     val namespace: String
@@ -28,5 +30,11 @@ sealed interface ProjektMetadata {
         override val modules: List<ProjektModule>,
     ) : ProjektMetadata {
         override val namespace: String get() = "builder"
+    }
+
+    interface SharedService : BuildService<SharedService.Parameters> {
+        interface Parameters : BuildServiceParameters {
+            val projektMetadata: Property<ProjektMetadata>
+        }
     }
 }

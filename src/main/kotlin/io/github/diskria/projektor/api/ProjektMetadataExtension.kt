@@ -14,7 +14,7 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
-open class ProjektMetadataExtension @Inject internal constructor(
+abstract class ProjektMetadataExtension @Inject internal constructor(
     private val settings: Settings,
     objects: ObjectFactory,
 ) : ProjektorScope {
@@ -98,14 +98,14 @@ open class ProjektMetadataExtension @Inject internal constructor(
                 if (module.path != ":") {
                     settings.include(module.path)
                 }
-                settings.gradle.rootProject { rootProject ->
-                    rootProject.project(module.path) { project ->
-                        project.afterEvaluate {
-                            check(project.plugins.hasPlugin(ProjektorGradlePlugin.ID)) {
-                                "Project '${module.path}' was declared in settings.gradle.kts, " +
-                                    "but 'alias(convention.plugins.projektor)' plugin " +
-                                    "was not applied in its build.gradle.kts!"
-                            }
+                settings.gradle.lifecycle.afterProject { project ->
+                    val currentProjectPath = project.path
+                    val matchingModule = modules.find { it.path == currentProjectPath }
+                    if (matchingModule != null) {
+                        check(project.plugins.hasPlugin(ProjektorGradlePlugin.ID)) {
+                            "Project '${module.path}' was declared in settings.gradle.kts, " +
+                                "but 'alias(convention.plugins.projektor)' plugin " +
+                                "was not applied in its build.gradle.kts!"
                         }
                     }
                 }

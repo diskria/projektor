@@ -1,3 +1,3 @@
 plugins {
-    id("io.github.diskria.projektor") version "8.0.10"
+    id("io.github.diskria.projektor") version "8.0.11"
 }
