@@ -7,9 +7,9 @@ import io.github.diskria.projektor.extensions.capitalized
 import org.gradle.api.provider.Property
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
-import java.io.Serializable
+import java.io.Serializable as PropertySerializable
 
-sealed interface ProjektMetadata : Serializable {
+sealed interface ProjektMetadata : PropertySerializable {
 
     val modules: List<ProjektModule>
     val namespace: String

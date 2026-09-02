@@ -1,13 +1,13 @@
 package io.github.diskria.projektor.core.model.metadata
 
 import java.io.File
-import java.io.Serializable
+import java.io.Serializable as PropertySerializable
 
 class ProjektAbout(
     val description: String,
     val details: String,
     val tags: Set<String>,
-) : Serializable {
+) : PropertySerializable {
 
     fun fixCase(word: String): String {
         val target = word.lowercase()

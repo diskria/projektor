@@ -4,9 +4,9 @@ import io.github.diskria.projektor.internal.git.CommitMessage
 import io.github.diskria.projektor.internal.git.CommitType
 import io.github.diskria.projektor.internal.git.GitClient
 import java.io.File
-import java.io.Serializable
+import java.io.Serializable as PropertySerializable
 
-class GithubRepo(val owner: GithubOwner, val name: String) : Serializable {
+class GithubRepo(val owner: GithubOwner, val name: String) : PropertySerializable {
 
     val url: String get() = getUrl()
     val packagesUrl: String get() = "$url/packages"
