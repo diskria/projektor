@@ -2,7 +2,6 @@ package builder.envs_generator.tasks
 
 import builder.envs_generator.extensions.capitalized
 import builder.envs_generator.extensions.quoted
-import io.github.diskria.poetesse.interop.XParameter
 import io.github.diskria.poetesse.interop.generic
 import io.github.diskria.poetesse.interop.xClass
 import io.github.diskria.poetesse.interop.xType
@@ -58,22 +57,22 @@ abstract class GenerateEnvsTask : DefaultTask() {
                 private()
                 val name by parameter<String>()
                 returns<String?>()
-                expression { "providers.environmentVariable(${N(name)}).orNull" }
+                expression { "providers.environmentVariable($name).orNull" }
             }
             val getEnv by kotlin.function {
                 private()
                 val name by parameter<String>()
                 returns<String>()
                 expression {
-                    val errorMessage = code { "Environment variable '$${N(name)}' is required but not set!".quoted() }
-                    "${N(getEnvOrNull)}(${N(name)}) ?: error(${L(errorMessage)})"
+                    val errorMessage = code { "Environment variable '$$name' is required but not set!".quoted() }
+                    "$getEnvOrNull($name) ?: error(${L(errorMessage)})"
                 }
             }
             kotlin.file("io.github.diskria.projektor.internal.utils", "Envs") {
                 class_(fileName) {
                     constructor(primary = true) { parameter<ProviderFactory>("providers").property { private() } }
                     property<Boolean>("isCI") {
-                        getter { expression { "${N(getEnvOrNull)}(${S("CI")})?.toBoolean() == true" } }
+                        getter { expression { "$getEnvOrNull(${S("CI")})?.toBoolean() == true" } }
                     }
                     val envNames = actionBuiltinEnvs.get().keys + secretEnvNames.get()
                     envNames.forEach { name ->
@@ -85,12 +84,12 @@ abstract class GenerateEnvsTask : DefaultTask() {
                             }
                         }
                         property<String>(propertyName) {
-                            getter { expression { "${N(getEnv)}(${S(name)})" } }
+                            getter { expression { "$getEnv(${S(name)})" } }
                         }
                     }
                     +getEnvOrNull
                     +getEnv
-                    companion {
+                    companion_object {
                         property("actionBuiltins", xClass<Map<*, *>>().generic(xType<String>(), xType<String>())) {
                             initializer {
                                 val pairs = code {
@@ -110,6 +109,3 @@ abstract class GenerateEnvsTask : DefaultTask() {
         }.writeTo(outputDirectory.get().asFile.toPath())
     }
 }
-
-fun KotlinCodeScope.N(value: KotlinFunctionRef): String = argument('L', value.name)
-fun KotlinCodeScope.N(value: XParameter): String = argument('L', value.name)
