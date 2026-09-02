@@ -186,7 +186,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
             
             And in 'build.gradle.kts', apply it WITHOUT a version:
               plugins {
-                  alias(convention.plugins.projektor) 
+                  alias(convention.plugins.projektor)
               }
             """.trimIndent()
         }
@@ -262,9 +262,13 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
                 )
             }
             updateGithubRepoMetadataTask.configure { task ->
-                val primaryProjekt = projekts.firstOrNull()
-                val primaryDistributionTarget = primaryProjekt?.distributionTargetTypes?.firstOrNull()?.mapToModel()
-                task.homepageUrl.set(primaryDistributionTarget?.getHomepage(primaryProjekt))
+                task.homepageUrl.set(
+                    projekts.firstNotNullOfOrNull { projekt ->
+                        projekt.distributionTargetTypes.firstNotNullOfOrNull { target ->
+                            target.mapToModel().getHomepage(projekt)
+                        }
+                    }
+                )
             }
         }
     }
