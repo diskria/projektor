@@ -6,7 +6,7 @@ import io.github.diskria.projektor.core.model.metadata.ProjektAbout
 import io.github.diskria.projektor.features.generation.readme.LicenseShield
 import io.github.diskria.projektor.features.generation.readme.MarkdownHelper
 import io.github.diskria.projektor.features.generation.tasks.AbstractGenerateFileTask
-import io.github.diskria.projektor.generated.Envs
+import io.github.diskria.projektor.generated.EnvProvider
 import io.github.diskria.projektor.internal.git.CommitType
 import io.github.diskria.projektor.internal.utils.DisabledCachingReasons.SIDE_EFFECTS
 import org.gradle.api.file.ProjectLayout
@@ -20,9 +20,9 @@ import javax.inject.Inject
 
 @DisableCachingByDefault(because = SIDE_EFFECTS)
 abstract class GenerateReadmeTask @Inject constructor(
-    envs: Envs,
+    env: EnvProvider,
     layout: ProjectLayout,
-) : AbstractGenerateFileTask(MarkdownHelper.fileName("readme"), CommitType.DOCS, envs, layout) {
+) : AbstractGenerateFileTask(MarkdownHelper.fileName("readme"), CommitType.DOCS, env, layout) {
 
     @get:Input
     abstract val displayName: Property<String>

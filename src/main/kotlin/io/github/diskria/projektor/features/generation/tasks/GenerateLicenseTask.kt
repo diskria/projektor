@@ -2,7 +2,7 @@ package io.github.diskria.projektor.features.generation.tasks
 
 import io.github.diskria.projektor.core.model.license.LicenseType
 import io.github.diskria.projektor.core.model.license.mapToModel
-import io.github.diskria.projektor.generated.Envs
+import io.github.diskria.projektor.generated.EnvProvider
 import io.github.diskria.projektor.internal.git.CommitType
 import io.github.diskria.projektor.internal.utils.DisabledCachingReasons.SIDE_EFFECTS
 import org.gradle.api.file.ProjectLayout
@@ -14,9 +14,9 @@ import javax.inject.Inject
 
 @DisableCachingByDefault(because = SIDE_EFFECTS)
 abstract class GenerateLicenseTask @Inject constructor(
-    envs: Envs,
+    env: EnvProvider,
     layout: ProjectLayout,
-) : AbstractGenerateFileTask("LICENSE", CommitType.DOCS, envs, layout) {
+) : AbstractGenerateFileTask("LICENSE", CommitType.DOCS, env, layout) {
 
     @get:Input
     abstract val licenseType: Property<LicenseType>

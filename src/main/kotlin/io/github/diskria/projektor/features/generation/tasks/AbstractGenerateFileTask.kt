@@ -2,7 +2,7 @@ package io.github.diskria.projektor.features.generation.tasks
 
 import io.github.diskria.projektor.core.model.github.GithubRepo
 import io.github.diskria.projektor.extensions.applyProjektorGroup
-import io.github.diskria.projektor.generated.Envs
+import io.github.diskria.projektor.generated.EnvProvider
 import io.github.diskria.projektor.internal.git.CommitType
 import io.github.diskria.projektor.internal.utils.DisabledCachingReasons.SIDE_EFFECTS
 import org.gradle.api.DefaultTask
@@ -20,7 +20,7 @@ import javax.inject.Inject
 abstract class AbstractGenerateFileTask @Inject constructor(
     outputFileName: String,
     private val commitType: CommitType,
-    private val envs: Envs,
+    private val env: EnvProvider,
     private val layout: ProjectLayout,
 ) : DefaultTask() {
 
@@ -46,8 +46,8 @@ abstract class AbstractGenerateFileTask @Inject constructor(
         val newText = fileText.trim() + "\n"
         if (newText == oldText) return
         outputFile.writeText(newText)
-        if (!envs.isCI) return
-        repo.get().pushFile(repoDirectory, commitType, outputFile, wasFileExists, envs.githubToken)
+        if (!env.isCI) return
+        repo.get().pushFile(repoDirectory, commitType, outputFile, wasFileExists, env.githubToken)
     }
 
     abstract fun getFileText(repoDirectory: File, file: File): String

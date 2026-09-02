@@ -18,7 +18,7 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
 @CacheableTask
-abstract class GenerateEnvsTask : DefaultTask() {
+abstract class GenerateEnvProviderTask : DefaultTask() {
 
     @get:Input
     abstract val actionBuiltinEnvs: MapProperty<String, String>
@@ -68,7 +68,7 @@ abstract class GenerateEnvsTask : DefaultTask() {
                     "$getEnvOrNull($name) ?: error(${L(errorMessage)})"
                 }
             }
-            kotlin.file("io.github.diskria.projektor.generated", "Envs") {
+            kotlin.file("io.github.diskria.projektor.generated", "EnvProvider") {
                 class_(fileName) {
                     constructor(primary = true) { parameter<ProviderFactory>("providers").property { private() } }
                     property<Boolean>("isCI") {

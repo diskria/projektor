@@ -3,7 +3,7 @@ package io.github.diskria.projektor.features.distribution.target
 import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.features.generation.readme.GithubPackagesShield
-import io.github.diskria.projektor.generated.Envs
+import io.github.diskria.projektor.generated.EnvProvider
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
@@ -17,15 +17,15 @@ internal object GithubPackagesDistributionTarget : MavenDistributionTarget(Distr
         repositories: RepositoryHandler,
         configure: MavenArtifactRepository.() -> Unit
     ): MavenArtifactRepository {
-        val envs = Envs(project.providers)
-        if (!envs.isCI) {
+        val env = EnvProvider(project.providers)
+        if (!env.isCI) {
             return super.configureRepository(project, projekt, repositories, configure)
         }
         return repositories.maven(projekt.metadata.repo.packagesMavenUrl) {
             configure()
             credentials {
                 it.username = projekt.metadata.repo.owner.developer
-                it.password = envs.githubPackagesToken
+                it.password = env.githubPackagesToken
             }
         }
     }

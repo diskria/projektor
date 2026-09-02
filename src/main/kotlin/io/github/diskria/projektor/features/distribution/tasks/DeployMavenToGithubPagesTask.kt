@@ -4,7 +4,7 @@ import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.github.GithubRepo
 import io.github.diskria.projektor.extensions.applyProjektorGroup
 import io.github.diskria.projektor.features.distribution.target.GithubPagesDistributionTarget
-import io.github.diskria.projektor.generated.Envs
+import io.github.diskria.projektor.generated.EnvProvider
 import io.github.diskria.projektor.internal.git.CommitMessage
 import io.github.diskria.projektor.internal.git.CommitType
 import io.github.diskria.projektor.internal.utils.DisabledCachingReasons.SIDE_EFFECTS
@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 @DisableCachingByDefault(because = SIDE_EFFECTS)
 abstract class DeployMavenToGithubPagesTask @Inject constructor(
-    private val envs: Envs,
+    private val env: EnvProvider,
     private val layout: ProjectLayout,
 ) : Sync() {
 
@@ -36,12 +36,12 @@ abstract class DeployMavenToGithubPagesTask @Inject constructor(
 
     private fun deploy() {
         generateIndexTree(destinationDir)
-        if (!envs.isCI) return
+        if (!env.isCI) return
         repo.get().pushFile(
             layout.projectDirectory.asFile,
             CommitMessage(CommitType.CHORE, "deploy maven to ${DistributionTargetType.GITHUB_PAGES.displayName}"),
             destinationDir,
-            envs.githubToken,
+            env.githubToken,
         )
     }
 

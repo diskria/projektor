@@ -3,7 +3,7 @@ package io.github.diskria.projektor.features.distribution.tasks
 import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.extensions.applyProjektorGroup
 import io.github.diskria.projektor.features.distribution.target.MavenCentralDistributionTarget
-import io.github.diskria.projektor.generated.Envs
+import io.github.diskria.projektor.generated.EnvProvider
 import io.github.diskria.projektor.internal.utils.DisabledCachingReasons.SIDE_EFFECTS
 import io.github.diskria.projektor.internal.utils.ProjektorHttpClient
 import io.ktor.client.request.*
@@ -24,7 +24,7 @@ import kotlin.io.encoding.Base64
 
 @DisableCachingByDefault(because = SIDE_EFFECTS)
 abstract class UploadBundleToMavenCentralTask @Inject constructor(
-    private val envs: Envs,
+    private val env: EnvProvider,
     layout: ProjectLayout,
 ) : Zip() {
 
@@ -41,7 +41,7 @@ abstract class UploadBundleToMavenCentralTask @Inject constructor(
         from(MavenCentralDistributionTarget.getLocalMavenDirectory(layout))
         destinationDirectory.set(layout.buildDirectory.dir(DistributionTargetType.MAVEN_CENTRAL.id))
         doLast {
-            if (!envs.isCI) return@doLast
+            if (!env.isCI) return@doLast
             runBlocking { upload(archiveFile.get().asFile) }
         }
     }
@@ -63,7 +63,7 @@ abstract class UploadBundleToMavenCentralTask @Inject constructor(
             }
         )
         val url = "https://central.sonatype.com/api/v1/publisher/upload?publishingType=AUTOMATIC"
-        val token = envs.sonatypeUsername + ":" + envs.sonatypePassword
+        val token = "${env.sonatypeUsername}:${env.sonatypePassword}"
         val response = ProjektorHttpClient.client.post(url) {
             bearerAuth(Base64.encode(token.toByteArray()))
             setBody(MultiPartFormDataContent(listOf(item)))

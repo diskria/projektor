@@ -4,7 +4,7 @@ import io.github.diskria.projektor.core.model.ProjektType
 import io.github.diskria.projektor.core.model.github.GithubRepo
 import io.github.diskria.projektor.core.model.metadata.ProjektAbout
 import io.github.diskria.projektor.extensions.applyProjektorGroup
-import io.github.diskria.projektor.generated.Envs
+import io.github.diskria.projektor.generated.EnvProvider
 import io.github.diskria.projektor.internal.network.github.GetLanguagesRequest
 import io.github.diskria.projektor.internal.network.github.UpdateInfoRequest
 import io.github.diskria.projektor.internal.network.github.UpdateTopicsRequest
@@ -28,7 +28,7 @@ import org.gradle.work.DisableCachingByDefault
 import javax.inject.Inject
 
 @DisableCachingByDefault(because = "$NON_DETERMINISTIC; $SIDE_EFFECTS")
-abstract class UpdateGithubRepoMetadataTask @Inject constructor(private val envs: Envs) : DefaultTask() {
+abstract class UpdateGithubRepoMetadataTask @Inject constructor(private val env: EnvProvider) : DefaultTask() {
 
     @get:Input
     abstract val projektTypes: ListProperty<ProjektType>
@@ -49,7 +49,7 @@ abstract class UpdateGithubRepoMetadataTask @Inject constructor(private val envs
 
     @TaskAction
     fun update() {
-        if (!envs.isCI) return
+        if (!env.isCI) return
         runBlocking {
             updateInfo()
             updateTopics()
@@ -87,7 +87,7 @@ abstract class UpdateGithubRepoMetadataTask @Inject constructor(private val envs
         }
         return ProjektorHttpClient.client.request(url) {
             method = request.getHttpMethod()
-            bearerAuth(envs.githubToken)
+            bearerAuth(env.githubToken)
             header(HttpHeaders.Accept, "application/vnd.github+json")
             if (request is GithubJsonRequest) {
                 contentType(ContentType.Application.Json)

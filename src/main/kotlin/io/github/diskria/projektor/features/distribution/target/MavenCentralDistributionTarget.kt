@@ -6,7 +6,7 @@ import io.github.diskria.projektor.extensions.register
 import io.github.diskria.projektor.features.distribution.tasks.UploadBundleToMavenCentralTask
 import io.github.diskria.projektor.features.generation.readme.MavenCentralShield
 import io.github.diskria.projektor.features.generation.readme.ReadmeShield
-import io.github.diskria.projektor.generated.Envs
+import io.github.diskria.projektor.generated.EnvProvider
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.publish.maven.MavenPublication
@@ -17,18 +17,18 @@ import org.gradle.plugins.signing.SigningExtension
 internal object MavenCentralDistributionTarget : MavenDistributionTarget(DistributionTargetType.MAVEN_CENTRAL) {
 
     override fun configurePublication(project: Project, projekt: Projekt, publication: MavenPublication) {
-        val envs = Envs(project.providers)
-        if (!envs.isCI) return
+        val env = EnvProvider(project.providers)
+        if (!env.isCI) return
         project.pluginManager.apply("signing")
         project.extensions.configure<SigningExtension> {
-            useInMemoryPgpKeys(envs.gpgKey, envs.gpgPassphrase)
+            useInMemoryPgpKeys(env.gpgKey, env.gpgPassphrase)
             sign(publication)
         }
     }
 
     override fun configureDistributeTask(project: Project, projekt: Projekt.Distributable): TaskProvider<out Task> {
         val publishTask = configurePublishTask(project, projekt)
-        return project.tasks.register<UploadBundleToMavenCentralTask>(Envs(project.providers)) {
+        return project.tasks.register<UploadBundleToMavenCentralTask>(EnvProvider(project.providers)) {
             bundleName.set(projekt.name)
             bundleVersion.set(projekt.version)
             dependsOn(publishTask)

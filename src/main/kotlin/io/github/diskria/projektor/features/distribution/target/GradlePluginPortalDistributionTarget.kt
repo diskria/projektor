@@ -5,7 +5,7 @@ import io.github.diskria.projektor.core.model.GradlePlugin
 import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.features.generation.readme.GradlePluginPortalShield
 import io.github.diskria.projektor.features.generation.readme.ReadmeShield
-import io.github.diskria.projektor.generated.Envs
+import io.github.diskria.projektor.generated.EnvProvider
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
@@ -33,9 +33,9 @@ internal object GradlePluginPortalDistributionTarget : DistributionTarget {
                 }
             }
         }
-        val envs = Envs(project.providers)
-        val taskName = if (envs.isCI) {
-            envs.requireGradlePublishCredentials()
+        val env = EnvProvider(project.providers)
+        val taskName = if (env.isCI) {
+            env.requireGradlePublishCredentials()
             "publishPlugins"
         } else {
             "validatePlugins"
@@ -56,6 +56,6 @@ internal object GradlePluginPortalDistributionTarget : DistributionTarget {
         }
 }
 
-private fun Envs.requireGradlePublishCredentials() {
+private fun EnvProvider.requireGradlePublishCredentials() {
     gradlePublishKey; gradlePublishSecret
 }

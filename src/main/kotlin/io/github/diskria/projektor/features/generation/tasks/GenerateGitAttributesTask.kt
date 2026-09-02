@@ -1,6 +1,6 @@
 package io.github.diskria.projektor.features.generation.tasks
 
-import io.github.diskria.projektor.generated.Envs
+import io.github.diskria.projektor.generated.EnvProvider
 import io.github.diskria.projektor.internal.git.CommitType
 import io.github.diskria.projektor.internal.utils.DisabledCachingReasons.SIDE_EFFECTS
 import org.gradle.api.file.ProjectLayout
@@ -10,9 +10,9 @@ import javax.inject.Inject
 
 @DisableCachingByDefault(because = SIDE_EFFECTS)
 abstract class GenerateGitAttributesTask @Inject constructor(
-    envs: Envs,
+    env: EnvProvider,
     layout: ProjectLayout,
-) : AbstractGenerateFileTask(".gitattributes", CommitType.CHORE, envs, layout) {
+) : AbstractGenerateFileTask(".gitattributes", CommitType.CHORE, env, layout) {
 
     override fun getFileText(repoDirectory: File, file: File): String =
         """
