@@ -69,7 +69,7 @@ abstract class UpdateGithubRepoMetadataTask @Inject constructor(private val env:
     private suspend fun updateTopics() {
         val topics = buildSet {
             getTopLanguage()?.let { add(it) }
-            addAll(projektTypes.get().map { it.topicName })
+            addAll(projektTypes.get().map { it.id })
             addAll(about.get().tags)
         }
         sendRequest(UpdateTopicsRequest(topics.toList()))

@@ -67,14 +67,7 @@ sealed interface KotlinLibrary : Projekt {
 
     companion object {
         fun of(project: Project, projektMetadata: ProjektMetadata, configuration: KotlinLibraryDsl): KotlinLibrary {
-            val module = projektMetadata.modules.find {
-                it.path == project.path && it.type == ProjektType.KOTLIN_LIBRARY
-            }
-            checkNotNull(module) {
-                "Module '${project.path}' is not registered as a Kotlin library in project settings. " +
-                    "Ensure that 'kotlinLibrary()' is declared for this module in settings.gradle.kts, " +
-                    "or change the build script declaration to match."
-            }
+            val module = projektMetadata.getModule(project, ProjektType.KOTLIN_LIBRARY)
             return when (projektMetadata) {
                 is ProjektMetadata.Distributable -> {
                     val extension = project.extensions.get<ProjektExtension>()
@@ -137,14 +130,7 @@ sealed interface GradlePlugin : Projekt {
 
     companion object {
         fun of(project: Project, projektMetadata: ProjektMetadata, configuration: GradlePluginDsl): GradlePlugin {
-            val module = projektMetadata.modules.find {
-                it.path == project.path && it.type == ProjektType.GRADLE_PLUGIN
-            }
-            checkNotNull(module) {
-                "Module '${project.path}' is not registered as a Gradle plugin in project settings. " +
-                    "Ensure that 'gradlePlugin()' is declared for this module in settings.gradle.kts, " +
-                    "or change the build script declaration to match."
-            }
+            val module = projektMetadata.getModule(project, ProjektType.GRADLE_PLUGIN)
             return when (projektMetadata) {
                 is ProjektMetadata.Distributable -> {
                     val extension = project.extensions.get<ProjektExtension>()
