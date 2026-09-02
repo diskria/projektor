@@ -9,9 +9,7 @@ import org.gradle.kotlin.dsl.registerIfAbsent
 
 @PublishedApi
 internal inline fun <reified S : BuildService<*>> defaultBuildServiceName(): String =
-    checkNotNull(S::class.simpleName) {
-        "Cannot derive build service name: class '${S::class}' does not have a simple name"
-    }.removeSuffix("BuildService").decapitalized()
+    defaultNameBySuffix<S>("BuildService")
 
 inline fun <reified S : BuildService<P>, P : BuildServiceParameters> BuildServiceRegistry.register(
     name: String = defaultBuildServiceName<S>(),

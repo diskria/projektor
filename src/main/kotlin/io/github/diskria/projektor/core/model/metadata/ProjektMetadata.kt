@@ -38,10 +38,13 @@ sealed interface ProjektMetadata : PropertySerializable {
     ) : ProjektMetadata {
         override val namespace: String get() = "builder"
     }
+}
 
-    interface SharedService : BuildService<SharedService.Parameters> {
-        interface Parameters : BuildServiceParameters {
-            val projektMetadata: Property<ProjektMetadata>
-        }
+interface ProjektMetadataBuildService : BuildService<ProjektMetadataBuildService.Parameters> {
+
+    val projektMetadata: Property<ProjektMetadata> get() = parameters.projektMetadata
+
+    interface Parameters : BuildServiceParameters {
+        val projektMetadata: Property<ProjektMetadata>
     }
 }

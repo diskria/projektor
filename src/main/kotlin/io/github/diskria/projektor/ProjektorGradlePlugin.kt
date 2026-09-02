@@ -6,6 +6,7 @@ import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.core.model.ProjektModule
 import io.github.diskria.projektor.core.model.ProjektType
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
+import io.github.diskria.projektor.core.model.metadata.ProjektMetadataBuildService
 import io.github.diskria.projektor.extensions.create
 import io.github.diskria.projektor.extensions.find
 import io.github.diskria.projektor.extensions.has
@@ -134,7 +135,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     }
 
     private fun Settings.registerProjektMetadataBuildService(projektMetadata: ProjektMetadata) {
-        gradle.sharedServices.register<ProjektMetadata.SharedService, ProjektMetadata.SharedService.Parameters> {
+        gradle.sharedServices.register<ProjektMetadataBuildService, ProjektMetadataBuildService.Parameters> {
             parameters.projektMetadata.set(projektMetadata)
         }
     }
@@ -172,8 +173,9 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     }
 
     private fun applyToProject(project: Project) {
-        val sharedService = project.gradle.sharedServices.find<ProjektMetadata.SharedService>()
-        val projektMetadata = checkNotNull(sharedService?.parameters?.projektMetadata?.orNull) {
+        val projektMetadata = checkNotNull(
+            project.gradle.sharedServices.find<ProjektMetadataBuildService>()?.projektMetadata?.orNull
+        ) {
             """
             Projektor plugin was applied in 'build.gradle.kts', but is missing from 'settings.gradle.kts'!
             
