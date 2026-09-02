@@ -38,7 +38,7 @@ sealed interface Projekt {
     }
 }
 
-internal sealed interface KotlinLibrary : Projekt {
+sealed interface KotlinLibrary : Projekt {
 
     class Distributable(
         override val name: String,
@@ -104,7 +104,7 @@ internal sealed interface KotlinLibrary : Projekt {
     }
 }
 
-internal sealed interface GradlePlugin : Projekt {
+sealed interface GradlePlugin : Projekt {
 
     val id: String get() = "${metadata.namespace}.${name.lowercase()}"
 

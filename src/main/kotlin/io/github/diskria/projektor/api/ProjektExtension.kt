@@ -9,6 +9,7 @@ import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.property
@@ -32,6 +33,9 @@ abstract class ProjektExtension @Inject internal constructor(private val objects
     fun distribute(configure: DistributionDsl.() -> Unit) {
         DistributionDsl(distributionTargets).configure()
     }
+
+    fun <T : Any> map(transform: (Projekt) -> T): Provider<T> =
+        configuredProjekt.map(transform)
 
     internal fun ensureConfigured(project: Project, projektMetadata: ProjektMetadata): Projekt {
         val projekt = checkNotNull(configurator) {
