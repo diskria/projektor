@@ -4,6 +4,6 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.kotlin.dsl.maven
 
 fun RepositoryHandler.mavenCentralWithDirect() {
-    mavenCentral { it.name = "MavenCentral" }
+    mavenCentral { repo -> repo.name = "MavenCentral" }
     maven("https://repo1.maven.org/maven2") { name = "MavenCentralDirect" }
 }

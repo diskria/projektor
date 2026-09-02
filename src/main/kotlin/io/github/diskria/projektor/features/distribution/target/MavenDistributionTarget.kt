@@ -51,11 +51,14 @@ internal sealed class MavenDistributionTarget(
                 name = repositoryName
             }
             if (projekt is GradlePlugin) {
-                publications.withType<MavenPublication>().matching { it.name == "pluginMaven" }.configureEach {
-                    if (it.pom.url.isPresent) return@configureEach
-                    configurePom(it.pom, projekt)
-                    configureSigning(project, projekt, it)
-                }
+                publications
+                    .withType<MavenPublication>()
+                    .matching { it.name == "pluginMaven" }
+                    .configureEach { publication ->
+                        if (publication.pom.url.isPresent) return@configureEach
+                        configurePom(publication.pom, projekt)
+                        configureSigning(project, projekt, publication)
+                    }
             } else {
                 val publicationName = projekt.name.split("-").withIndex().joinToString("") { (index, part) ->
                     if (index == 0) part else part.capitalized()
@@ -75,47 +78,45 @@ internal sealed class MavenDistributionTarget(
     private fun configurePom(pom: MavenPom, projekt: Projekt.Distributable) {
         val repo = projekt.metadata.repo
         val organizationUrl = repo.owner.organizationUrl
-        with(pom) {
-            name.set(projekt.displayName)
-            description.set(projekt.description)
-            url.set(repo.url)
-            organizationUrl?.let { organizationUrl ->
-                organization {
-                    it.name.set(repo.owner.name)
-                    it.url.set(organizationUrl)
+        pom.name.set(projekt.displayName)
+        pom.description.set(projekt.description)
+        pom.url.set(repo.url)
+        organizationUrl?.let {
+            pom.organization { org ->
+                org.name.set(repo.owner.name)
+                org.url.set(it)
+            }
+        }
+        pom.scm { scm ->
+            scm.url.set(repo.url)
+            scm.connection.set(repo.scmUrl)
+            scm.developerConnection.set(repo.scmDeveloperUrl)
+        }
+        pom.issueManagement { issues ->
+            issues.system.set("GitHub Issues")
+            issues.url.set(repo.issuesUrl)
+        }
+        pom.ciManagement { ci ->
+            ci.system.set("GitHub Actions")
+            ci.url.set(repo.actionsUrl)
+        }
+        pom.developers { spec ->
+            spec.developer { dev ->
+                dev.id.set(repo.owner.developer)
+                dev.name.set(repo.owner.developer)
+                dev.email.set(repo.owner.email)
+                dev.url.set(repo.owner.profileUrl)
+                organizationUrl?.let {
+                    dev.organization.set(repo.owner.name)
+                    dev.organizationUrl.set(it)
                 }
             }
-            scm {
-                it.url.set(repo.url)
-                it.connection.set(repo.scmUrl)
-                it.developerConnection.set(repo.scmDeveloperUrl)
-            }
-            issueManagement {
-                it.system.set("GitHub Issues")
-                it.url.set(repo.issuesUrl)
-            }
-            ciManagement {
-                it.system.set("GitHub Actions")
-                it.url.set(repo.actionsUrl)
-            }
-            developers { spec ->
-                spec.developer {
-                    it.id.set(repo.owner.developer)
-                    it.name.set(repo.owner.developer)
-                    it.email.set(repo.owner.email)
-                    it.url.set(repo.owner.profileUrl)
-                    organizationUrl?.let { organizationUrl ->
-                        it.organization.set(repo.owner.name)
-                        it.organizationUrl.set(organizationUrl)
-                    }
-                }
-            }
-            projekt.license?.let { projektLicense ->
-                licenses { spec ->
-                    spec.license {
-                        it.name.set(projektLicense.type.id)
-                        it.url.set(projektLicense.url)
-                    }
+        }
+        projekt.license?.let { projektLicense ->
+            pom.licenses { spec ->
+                spec.license { license ->
+                    license.name.set(projektLicense.type.id)
+                    license.url.set(projektLicense.url)
                 }
             }
         }

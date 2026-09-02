@@ -23,9 +23,9 @@ internal object GithubPackagesDistributionTarget : MavenDistributionTarget(Distr
         }
         return repositories.maven(projekt.metadata.repo.packagesMavenUrl) {
             configure()
-            credentials {
-                it.username = projekt.metadata.repo.owner.developer
-                it.password = env.githubPackagesToken
+            credentials { credentials ->
+                credentials.username = projekt.metadata.repo.owner.developer
+                credentials.password = env.githubPackagesToken
             }
         }
     }

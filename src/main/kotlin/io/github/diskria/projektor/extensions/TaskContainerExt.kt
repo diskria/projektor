@@ -14,8 +14,12 @@ internal fun TaskContainer.jar(configure: Jar.() -> Unit): TaskProvider<Jar> =
     named<Jar>("jar", configure)
 
 internal fun TaskContainer.configureJvmTarget(target: JvmTarget) {
-    withType<KotlinCompile>().configureEach { it.compilerOptions.jvmTarget.set(target) }
-    withType<JavaCompile>().configureEach { it.options.release.set(target.toVersion()) }
+    withType<KotlinCompile>().configureEach { kotlinCompile ->
+        kotlinCompile.compilerOptions.jvmTarget.set(target)
+    }
+    withType<JavaCompile>().configureEach { javaCompile ->
+        javaCompile.options.release.set(target.toVersion())
+    }
 }
 
 @PublishedApi

@@ -26,8 +26,8 @@ internal object GradlePluginPortalDistributionTarget : DistributionTarget {
                 description = gradlePlugin.description
                 tags.set(gradlePlugin.tags)
                 project.pluginManager.apply("org.gradle.plugin-compatibility")
-                compatibility {
-                    it.features.apply {
+                compatibility { compat ->
+                    compat.features.apply {
                         configurationCache.set(gradlePlugin.configuration.supportsConfigurationCache)
                     }
                 }
