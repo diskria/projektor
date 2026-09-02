@@ -1,7 +1,7 @@
-package builder.envs_generator.tasks
+package builder.metadata_generator.tasks
 
-import builder.envs_generator.extensions.capitalized
-import builder.envs_generator.extensions.quoted
+import builder.metadata_generator.extensions.capitalized
+import builder.metadata_generator.extensions.quoted
 import io.github.diskria.poetesse.interop.generic
 import io.github.diskria.poetesse.interop.xClass
 import io.github.diskria.poetesse.interop.xType
@@ -68,7 +68,7 @@ abstract class GenerateEnvsTask : DefaultTask() {
                     "$getEnvOrNull($name) ?: error(${L(errorMessage)})"
                 }
             }
-            kotlin.file("io.github.diskria.projektor.internal.utils", "Envs") {
+            kotlin.file("io.github.diskria.projektor.generated", "Envs") {
                 class_(fileName) {
                     constructor(primary = true) { parameter<ProviderFactory>("providers").property { private() } }
                     property<Boolean>("isCI") {

@@ -2,9 +2,9 @@ package io.github.diskria.projektor.features.generation.tasks
 
 import io.github.diskria.projektor.core.model.license.LicenseType
 import io.github.diskria.projektor.core.model.license.mapToModel
+import io.github.diskria.projektor.generated.Envs
 import io.github.diskria.projektor.internal.git.CommitType
 import io.github.diskria.projektor.internal.utils.DisabledCachingReasons.SIDE_EFFECTS
-import io.github.diskria.projektor.internal.utils.Envs
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input

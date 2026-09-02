@@ -1,8 +1,8 @@
 package io.github.diskria.projektor.features.generation.tasks
 
+import io.github.diskria.projektor.generated.Envs
 import io.github.diskria.projektor.internal.git.CommitType
 import io.github.diskria.projektor.internal.utils.DisabledCachingReasons.SIDE_EFFECTS
-import io.github.diskria.projektor.internal.utils.Envs
 import org.gradle.api.file.ProjectLayout
 import org.gradle.work.DisableCachingByDefault
 import java.io.File

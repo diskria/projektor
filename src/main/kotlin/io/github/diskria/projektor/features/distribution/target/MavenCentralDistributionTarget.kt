@@ -6,7 +6,7 @@ import io.github.diskria.projektor.extensions.register
 import io.github.diskria.projektor.features.distribution.tasks.UploadBundleToMavenCentralTask
 import io.github.diskria.projektor.features.generation.readme.MavenCentralShield
 import io.github.diskria.projektor.features.generation.readme.ReadmeShield
-import io.github.diskria.projektor.internal.utils.Envs
+import io.github.diskria.projektor.generated.Envs
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.publish.maven.MavenPublication

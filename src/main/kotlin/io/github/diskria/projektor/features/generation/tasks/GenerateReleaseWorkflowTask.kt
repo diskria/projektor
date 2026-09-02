@@ -4,9 +4,9 @@ import io.github.diskria.projektor.core.model.ToolchainDefaults
 import io.github.diskria.projektor.extensions.applyProjektorGroup
 import io.github.diskria.projektor.extensions.defaultTaskName
 import io.github.diskria.projektor.features.release.ReleaseProjektTask
+import io.github.diskria.projektor.generated.Envs
 import io.github.diskria.projektor.internal.git.CommitType
 import io.github.diskria.projektor.internal.utils.DisabledCachingReasons.SIDE_EFFECTS
-import io.github.diskria.projektor.internal.utils.Envs
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty

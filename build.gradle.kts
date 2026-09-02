@@ -1,6 +1,9 @@
+import builder.metadata_generator.tasks.GenerateBuildConfigTask
+import io.github.diskria.projektor.core.model.GradlePlugin
+
 plugins {
     alias(convention.plugins.projektor)
-    alias(builder.plugins.envs.generator)
+    alias(builder.plugins.metadata.generator)
 }
 
 dependencies {
@@ -23,4 +26,10 @@ projekt {
         mavenLocal()
         gradlePluginPortal()
     }
+}
+
+tasks.withType<GenerateBuildConfigTask>().configureEach {
+    val gradlePlugin = projekt.map { it as GradlePlugin.Distributable }
+    pluginId.set(gradlePlugin.map { it.id })
+    pluginVersion.set(gradlePlugin.map { it.version })
 }

@@ -1,4 +1,4 @@
-package builder.envs_generator.extensions
+package builder.metadata_generator.extensions
 
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskContainer

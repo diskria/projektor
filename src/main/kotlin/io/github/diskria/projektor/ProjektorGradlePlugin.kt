@@ -18,8 +18,9 @@ import io.github.diskria.projektor.features.generation.tasks.GenerateLicenseTask
 import io.github.diskria.projektor.features.generation.tasks.GenerateReleaseWorkflowTask
 import io.github.diskria.projektor.features.metadata.tasks.UpdateGithubRepoMetadataTask
 import io.github.diskria.projektor.features.release.ReleaseProjektTask
+import io.github.diskria.projektor.generated.BuildConfig
+import io.github.diskria.projektor.generated.Envs
 import io.github.diskria.projektor.internal.gradle.VersionCatalogsHelper
-import io.github.diskria.projektor.internal.utils.Envs
 import kotlinx.serialization.json.Json
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -267,8 +268,8 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     }
 
     internal companion object {
-        const val ID: String = "io.github.diskria.projektor"
-        const val VERSION: String = "8.0.11"
+        const val ID: String = BuildConfig.PLUGIN_ID
+        const val VERSION: String = BuildConfig.PLUGIN_VERSION
 
         private const val MODULES_CONFIG_PATH = ".gradle/projektor/modules.json"
 

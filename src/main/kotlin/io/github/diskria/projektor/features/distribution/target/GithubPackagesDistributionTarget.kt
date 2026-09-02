@@ -3,7 +3,7 @@ package io.github.diskria.projektor.features.distribution.target
 import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.features.generation.readme.GithubPackagesShield
-import io.github.diskria.projektor.internal.utils.Envs
+import io.github.diskria.projektor.generated.Envs
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository

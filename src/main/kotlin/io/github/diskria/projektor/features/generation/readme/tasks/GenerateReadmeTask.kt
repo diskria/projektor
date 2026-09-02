@@ -6,9 +6,9 @@ import io.github.diskria.projektor.core.model.metadata.ProjektAbout
 import io.github.diskria.projektor.features.generation.readme.LicenseShield
 import io.github.diskria.projektor.features.generation.readme.MarkdownHelper
 import io.github.diskria.projektor.features.generation.tasks.AbstractGenerateFileTask
+import io.github.diskria.projektor.generated.Envs
 import io.github.diskria.projektor.internal.git.CommitType
 import io.github.diskria.projektor.internal.utils.DisabledCachingReasons.SIDE_EFFECTS
-import io.github.diskria.projektor.internal.utils.Envs
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property

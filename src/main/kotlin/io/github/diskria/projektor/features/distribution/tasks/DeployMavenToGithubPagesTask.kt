@@ -4,10 +4,10 @@ import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.github.GithubRepo
 import io.github.diskria.projektor.extensions.applyProjektorGroup
 import io.github.diskria.projektor.features.distribution.target.GithubPagesDistributionTarget
+import io.github.diskria.projektor.generated.Envs
 import io.github.diskria.projektor.internal.git.CommitMessage
 import io.github.diskria.projektor.internal.git.CommitType
 import io.github.diskria.projektor.internal.utils.DisabledCachingReasons.SIDE_EFFECTS
-import io.github.diskria.projektor.internal.utils.Envs
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.gradle.api.file.ProjectLayout

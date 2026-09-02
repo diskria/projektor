@@ -5,7 +5,7 @@ import io.github.diskria.projektor.core.model.GradlePlugin
 import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.features.generation.readme.GradlePluginPortalShield
 import io.github.diskria.projektor.features.generation.readme.ReadmeShield
-import io.github.diskria.projektor.internal.utils.Envs
+import io.github.diskria.projektor.generated.Envs
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider

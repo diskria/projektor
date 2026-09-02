@@ -8,7 +8,7 @@ import io.github.diskria.projektor.core.model.github.GithubRepo
 import io.github.diskria.projektor.core.model.license.LicenseType
 import io.github.diskria.projektor.core.model.metadata.ProjektAbout
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
-import io.github.diskria.projektor.extensions.configureRepositories
+import io.github.diskria.projektor.extensions.mavenCentralWithDirect
 import org.gradle.api.initialization.Settings
 import org.gradle.api.model.ObjectFactory
 import org.gradle.kotlin.dsl.property
@@ -94,7 +94,18 @@ abstract class ProjektMetadataExtension @Inject internal constructor(
     internal companion object {
         fun applyModules(modules: List<ProjektModule>, settings: Settings) {
             modules.forEach { module ->
-                settings.dependencyResolutionManagement.configureRepositories(module.type)
+                with(settings.dependencyResolutionManagement.repositories) {
+                    when (module.type) {
+                        ProjektType.GRADLE_PLUGIN -> {
+                            gradlePluginPortal()
+                            mavenCentralWithDirect()
+                        }
+
+                        ProjektType.KOTLIN_LIBRARY -> {
+                            mavenCentralWithDirect()
+                        }
+                    }
+                }
                 if (module.path != ":") {
                     settings.include(module.path)
                 }

@@ -4,6 +4,7 @@ import io.github.diskria.projektor.core.model.ProjektType
 import io.github.diskria.projektor.core.model.github.GithubRepo
 import io.github.diskria.projektor.core.model.metadata.ProjektAbout
 import io.github.diskria.projektor.extensions.applyProjektorGroup
+import io.github.diskria.projektor.generated.Envs
 import io.github.diskria.projektor.internal.network.github.GetLanguagesRequest
 import io.github.diskria.projektor.internal.network.github.UpdateInfoRequest
 import io.github.diskria.projektor.internal.network.github.UpdateTopicsRequest
@@ -11,7 +12,6 @@ import io.github.diskria.projektor.internal.network.github.common.GithubJsonRequ
 import io.github.diskria.projektor.internal.network.github.common.GithubRepoRequest
 import io.github.diskria.projektor.internal.utils.DisabledCachingReasons.NON_DETERMINISTIC
 import io.github.diskria.projektor.internal.utils.DisabledCachingReasons.SIDE_EFFECTS
-import io.github.diskria.projektor.internal.utils.Envs
 import io.github.diskria.projektor.internal.utils.ProjektorHttpClient
 import io.ktor.client.request.*
 import io.ktor.client.statement.*

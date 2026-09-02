@@ -1,4 +1,4 @@
-package builder.envs_generator.extensions
+package builder.metadata_generator.extensions
 
 fun String.capitalized(): String =
     replaceFirstChar { if (it.isLowerCase()) it.uppercase() else it.toString() }
