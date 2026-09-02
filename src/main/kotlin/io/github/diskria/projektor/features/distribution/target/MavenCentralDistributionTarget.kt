@@ -16,7 +16,7 @@ import org.gradle.plugins.signing.SigningExtension
 
 internal object MavenCentralDistributionTarget : MavenDistributionTarget(DistributionTargetType.MAVEN_CENTRAL) {
 
-    override fun configurePublication(project: Project, projekt: Projekt, publication: MavenPublication) {
+    override fun configureSigning(project: Project, projekt: Projekt, publication: MavenPublication) {
         val env = EnvProvider(project.providers)
         if (!env.isCI) return
         project.pluginManager.apply("signing")

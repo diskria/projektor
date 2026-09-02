@@ -1,15 +1,14 @@
 package io.github.diskria.projektor
 
-import io.github.diskria.projektor.api.ProjektExtension
+import io.github.diskria.projektor.api.BuildLogicProjektExtension
+import io.github.diskria.projektor.api.DistributableProjektExtension
 import io.github.diskria.projektor.api.ProjektMetadataExtension
-import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.core.model.ProjektModule
 import io.github.diskria.projektor.core.model.ProjektType
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadataBuildService
 import io.github.diskria.projektor.extensions.create
-import io.github.diskria.projektor.extensions.find
-import io.github.diskria.projektor.extensions.has
+import io.github.diskria.projektor.extensions.findByType
 import io.github.diskria.projektor.extensions.register
 import io.github.diskria.projektor.features.distribution.target.mapToModel
 import io.github.diskria.projektor.features.generation.readme.tasks.GenerateReadmeTask
@@ -29,6 +28,7 @@ import org.gradle.api.initialization.Settings
 import org.gradle.api.initialization.resolve.RepositoriesMode
 import org.gradle.api.plugins.PluginAware
 import org.gradle.api.tasks.wrapper.Wrapper
+import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.withType
 import org.gradle.util.GradleVersion
 
@@ -151,14 +151,14 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     }
 
     private fun setupEnvironment(rootProject: Project) {
-        val current = GradleVersion.current()
         val required = GradleVersion.version("9.7.1")
-        rootProject.tasks.withType<Wrapper> {
-            gradleVersion = required.version
-            distributionType = Wrapper.DistributionType.ALL
+        rootProject.tasks.withType<Wrapper>().configureEach { wrapper ->
+            wrapper.gradleVersion = required.version
+            wrapper.distributionType = Wrapper.DistributionType.ALL
         }
         val requestedTasks = rootProject.gradle.startParameter.taskNames
         if (requestedTasks.none() || requestedTasks.any { it.substringAfterLast(":") != "wrapper" }) {
+            val current = GradleVersion.current()
             check(current == required) {
                 """
                 Gradle version mismatch detected!
@@ -174,7 +174,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
 
     private fun applyToProject(project: Project) {
         val projektMetadata = checkNotNull(
-            project.gradle.sharedServices.find<ProjektMetadataBuildService>()?.projektMetadata?.orNull
+            project.gradle.sharedServices.findByType<ProjektMetadataBuildService>()?.projektMetadata?.orNull
         ) {
             """
             Projektor plugin was applied in 'build.gradle.kts', but is missing from 'settings.gradle.kts'!
@@ -192,17 +192,26 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
         }
         project.pluginManager.apply("org.jetbrains.kotlin.jvm")
         project.pluginManager.apply("org.jetbrains.kotlin.plugin.serialization")
-        val extension = project.extensions.create<ProjektExtension>()
-        project.afterEvaluate {
-            extension.ensureConfigured(project, projektMetadata)
-        }
-        if (projektMetadata is ProjektMetadata.Distributable) {
-            configureReleaseTask(project.rootProject, projektMetadata)
+        when (projektMetadata) {
+            is ProjektMetadata.Distributable -> {
+                val extension = project.extensions.create<DistributableProjektExtension>(name = "projekt")
+                project.afterEvaluate {
+                    extension.ensureConfigured(project, projektMetadata)
+                }
+                configureReleaseTask(project.rootProject, projektMetadata)
+            }
+
+            is ProjektMetadata.BuildLogic -> {
+                val extension = project.extensions.create<BuildLogicProjektExtension>(name = "projekt")
+                project.afterEvaluate {
+                    extension.ensureConfigured(project, projektMetadata)
+                }
+            }
         }
     }
 
     private fun configureReleaseTask(rootProject: Project, projektMetadata: ProjektMetadata.Distributable) {
-        if (rootProject.tasks.has<ReleaseProjektTask>()) return
+        if (rootProject.tasks.findByType<ReleaseProjektTask>() != null) return
         val env = EnvProvider(rootProject.providers)
         val generateGitAttributesTask = rootProject.tasks.register<GenerateGitAttributesTask>(env) {
             repo.set(projektMetadata.repo)
@@ -249,9 +258,9 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
             )
         }
         rootProject.gradle.projectsEvaluated {
-            val projekts = rootProject.allprojects
-                .mapNotNull { it.extensions.find<ProjektExtension>()?.configuredProjekt?.orNull }
-                .filterIsInstance<Projekt.Distributable>()
+            val projekts = rootProject.allprojects.mapNotNull {
+                it.extensions.findByType<DistributableProjektExtension>()?.projekt?.orNull
+            }
             generateReadmeTask.configure { task ->
                 task.distributionTargetShieldMarkdowns.set(
                     projekts.flatMap { projekt ->

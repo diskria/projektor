@@ -1,14 +1,14 @@
 package io.github.diskria.projektor.core.model
 
-import io.github.diskria.projektor.api.GradlePluginDsl
-import io.github.diskria.projektor.api.KotlinLibraryDsl
-import io.github.diskria.projektor.api.ProjektExtension
+import io.github.diskria.projektor.api.DistributableProjektExtension
+import io.github.diskria.projektor.api.GradlePluginConfiguration
+import io.github.diskria.projektor.api.KotlinLibraryConfiguration
 import io.github.diskria.projektor.core.model.license.License
 import io.github.diskria.projektor.core.model.license.mapToModel
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.capitalized
-import io.github.diskria.projektor.extensions.get
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.getByType
 
 sealed interface Projekt {
 
@@ -44,7 +44,7 @@ sealed interface KotlinLibrary : Projekt {
         override val name: String,
         override val metadata: ProjektMetadata.Distributable,
         override val distributionTargetTypes: List<DistributionTargetType>,
-        internal val configuration: KotlinLibraryDsl,
+        internal val configuration: KotlinLibraryConfiguration,
     ) : KotlinLibrary, Projekt.Distributable {
         override val softwareComponent: String get() = "java"
         override val license: License? = metadata.licenseType?.mapToModel()
@@ -59,18 +59,22 @@ sealed interface KotlinLibrary : Projekt {
     class BuildLogic(
         override val name: String,
         override val metadata: ProjektMetadata.BuildLogic,
-        internal val configuration: KotlinLibraryDsl,
+        internal val configuration: KotlinLibraryConfiguration,
     ) : KotlinLibrary, Projekt.BuildLogic {
         override val javaVersion: Int get() = configuration.javaVersion.orNull ?: super<Projekt.BuildLogic>.javaVersion
         override val jvmTarget: Int get() = configuration.jvmTarget.orNull ?: super<Projekt.BuildLogic>.jvmTarget
     }
 
     companion object {
-        fun of(project: Project, projektMetadata: ProjektMetadata, configuration: KotlinLibraryDsl): KotlinLibrary {
+        fun of(
+            project: Project,
+            projektMetadata: ProjektMetadata,
+            configuration: KotlinLibraryConfiguration,
+        ): KotlinLibrary {
             val module = projektMetadata.getModule(project, ProjektType.KOTLIN_LIBRARY)
             return when (projektMetadata) {
                 is ProjektMetadata.Distributable -> {
-                    val extension = project.extensions.get<ProjektExtension>()
+                    val extension = project.extensions.getByType<DistributableProjektExtension>()
                     val targets = extension.distributionTargets.orNull.orEmpty()
                     check(targets.isNotEmpty()) {
                         "Distributable projekts must have at least one distribution target! " +
@@ -80,10 +84,6 @@ sealed interface KotlinLibrary : Projekt {
                 }
 
                 is ProjektMetadata.BuildLogic -> {
-                    val extension = project.extensions.get<ProjektExtension>()
-                    check(extension.distributionTargets.orNull.isNullOrEmpty()) {
-                        "Build logic projekts shouldn't have distribution targets"
-                    }
                     check(!configuration.description.isPresent) {
                         "Build logic projekts shouldn't have a description"
                     }
@@ -105,7 +105,7 @@ sealed interface GradlePlugin : Projekt {
         override val name: String,
         override val metadata: ProjektMetadata.Distributable,
         override val distributionTargetTypes: List<DistributionTargetType>,
-        internal val configuration: GradlePluginDsl,
+        internal val configuration: GradlePluginConfiguration,
     ) : GradlePlugin, Projekt.Distributable {
         val tags: Set<String> get() = configuration.tags.orNull?.ifEmpty { null } ?: metadata.about.tags
 
@@ -122,18 +122,22 @@ sealed interface GradlePlugin : Projekt {
     class BuildLogic(
         override val name: String,
         override val metadata: ProjektMetadata.BuildLogic,
-        internal val configuration: GradlePluginDsl,
+        internal val configuration: GradlePluginConfiguration,
     ) : GradlePlugin, Projekt.BuildLogic {
         override val javaVersion: Int get() = configuration.javaVersion.orNull ?: super<Projekt.BuildLogic>.javaVersion
         override val jvmTarget: Int get() = configuration.jvmTarget.orNull ?: super<Projekt.BuildLogic>.jvmTarget
     }
 
     companion object {
-        fun of(project: Project, projektMetadata: ProjektMetadata, configuration: GradlePluginDsl): GradlePlugin {
+        fun of(
+            project: Project,
+            projektMetadata: ProjektMetadata,
+            configuration: GradlePluginConfiguration,
+        ): GradlePlugin {
             val module = projektMetadata.getModule(project, ProjektType.GRADLE_PLUGIN)
             return when (projektMetadata) {
                 is ProjektMetadata.Distributable -> {
-                    val extension = project.extensions.get<ProjektExtension>()
+                    val extension = project.extensions.getByType<DistributableProjektExtension>()
                     val targets = extension.distributionTargets.orNull.orEmpty()
                     check(targets.isNotEmpty()) {
                         "Distributable projekts must have at least one distribution target! " +
@@ -143,10 +147,6 @@ sealed interface GradlePlugin : Projekt {
                 }
 
                 is ProjektMetadata.BuildLogic -> {
-                    val extension = project.extensions.get<ProjektExtension>()
-                    check(extension.distributionTargets.orNull.isNullOrEmpty()) {
-                        "Build logic projekts shouldn't have distribution targets"
-                    }
                     check(!configuration.description.isPresent) {
                         "Build logic projekts shouldn't have a description"
                     }

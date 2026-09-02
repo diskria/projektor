@@ -36,7 +36,7 @@ internal sealed class MavenDistributionTarget(
         configure: MavenArtifactRepository.() -> Unit
     ): MavenArtifactRepository = repositories.maven(getLocalMavenDirectory(project.layout), configure)
 
-    open fun configurePublication(project: Project, projekt: Projekt, publication: MavenPublication) {}
+    open fun configureSigning(project: Project, projekt: Projekt, publication: MavenPublication) {}
 
     override fun configureDistributeTask(project: Project, projekt: Projekt.Distributable): TaskProvider<out Task> =
         configurePublishTask(project, projekt)
@@ -51,10 +51,10 @@ internal sealed class MavenDistributionTarget(
                 name = repositoryName
             }
             if (projekt is GradlePlugin) {
-                publications.matching { it.name == "pluginMaven" }.withType<MavenPublication>().configureEach {
+                publications.withType<MavenPublication>().matching { it.name == "pluginMaven" }.configureEach {
                     if (it.pom.url.isPresent) return@configureEach
                     configurePom(it.pom, projekt)
-                    configurePublication(project, projekt, it)
+                    configureSigning(project, projekt, it)
                 }
             } else {
                 val publicationName = projekt.name.split("-").withIndex().joinToString("") { (index, part) ->
@@ -66,7 +66,7 @@ internal sealed class MavenDistributionTarget(
                     })
                     configurePom(pom, projekt)
                 }
-                configurePublication(project, projekt, publication)
+                configureSigning(project, projekt, publication)
             }
         }
         return project.tasks.named("publishAllPublicationsTo${repositoryName}Repository")

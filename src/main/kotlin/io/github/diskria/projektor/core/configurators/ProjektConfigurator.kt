@@ -3,7 +3,10 @@ package io.github.diskria.projektor.core.configurators
 import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.core.model.ToolchainDefaults
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
-import io.github.diskria.projektor.extensions.*
+import io.github.diskria.projektor.extensions.configureJvmTarget
+import io.github.diskria.projektor.extensions.findByType
+import io.github.diskria.projektor.extensions.jar
+import io.github.diskria.projektor.extensions.jvmTargetOf
 import io.github.diskria.projektor.features.distribution.target.mapToModel
 import io.github.diskria.projektor.features.generation.tasks.GenerateLicenseTask
 import io.github.diskria.projektor.features.generation.tasks.GenerateReleaseWorkflowTask
@@ -22,23 +25,32 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-internal abstract class ProjektConfigurator<T : Projekt> {
+internal abstract class ProjektConfigurator<P : Projekt, D : Projekt.Distributable, BL : Projekt.BuildLogic> {
 
-    fun configure(project: Project, projektMetadata: ProjektMetadata): T {
+    @Suppress("UNCHECKED_CAST")
+    fun configure(project: Project, projektMetadata: ProjektMetadata.Distributable): D {
         val projekt = buildProjekt(project, projektMetadata)
         applyCommonConfiguration(project, projekt)
         configureProject(project, projekt)
         if (projekt is Projekt.Distributable) {
             configureDistribution(project, projekt)
         }
-        return projekt
+        return projekt as D
     }
 
-    abstract fun buildProjekt(project: Project, projektMetadata: ProjektMetadata): T
+    @Suppress("UNCHECKED_CAST")
+    fun configure(project: Project, projektMetadata: ProjektMetadata.BuildLogic): BL {
+        val projekt = buildProjekt(project, projektMetadata)
+        applyCommonConfiguration(project, projekt)
+        configureProject(project, projekt)
+        return projekt as BL
+    }
 
-    abstract fun configureProject(project: Project, projekt: T): Any
+    abstract fun buildProjekt(project: Project, projektMetadata: ProjektMetadata): P
 
-    private fun applyCommonConfiguration(project: Project, projekt: T) {
+    abstract fun configureProject(project: Project, projekt: P): Any
+
+    private fun applyCommonConfiguration(project: Project, projekt: P) {
         project.group = projekt.metadata.namespace
         if (projekt is Projekt.Distributable) {
             project.version = projekt.version
@@ -66,10 +78,9 @@ internal abstract class ProjektConfigurator<T : Projekt> {
             }
             jar {
                 if (projekt is Projekt.Distributable) {
-                    project.rootProject.tasks.find<GenerateLicenseTask>()?.let { generateLicenseTask ->
-                        dependsOn(generateLicenseTask)
-                        from(generateLicenseTask) {
-                            it.rename { fileName -> "${fileName}_${projekt.metadata.repo.name}" }
+                    project.rootProject.tasks.findByType<GenerateLicenseTask>()?.let { generateLicenseTask ->
+                        from(generateLicenseTask) { copySpec ->
+                            copySpec.rename { fileName -> "${fileName}_${projekt.metadata.repo.name}" }
                         }
                     }
                     archiveVersion.set(projekt.version)
@@ -88,16 +99,16 @@ internal abstract class ProjektConfigurator<T : Projekt> {
         val distributeTasks = projekt.distributionTargetTypes.map {
             it.mapToModel().configureDistributeTask(project, projekt)
         }
-        val generateReleaseWorkflowTask = rootTaskContainer.get<GenerateReleaseWorkflowTask>()
+        val generateReleaseWorkflowTask = rootTaskContainer.withType<GenerateReleaseWorkflowTask>()
         distributeTasks.forEach { distributeTask ->
             distributeTask.configure { task ->
                 task.mustRunAfter(generateReleaseWorkflowTask)
             }
         }
-        rootTaskContainer.get<UpdateGithubRepoMetadataTask>().configure { task ->
+        rootTaskContainer.withType<UpdateGithubRepoMetadataTask>().configureEach { task ->
             task.mustRunAfter(distributeTasks)
         }
-        rootTaskContainer.get<ReleaseProjektTask>().configure { task ->
+        rootTaskContainer.withType<ReleaseProjektTask>().configureEach { task ->
             task.dependsOn(distributeTasks)
         }
     }

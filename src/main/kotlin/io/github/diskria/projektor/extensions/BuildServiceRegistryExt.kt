@@ -18,15 +18,7 @@ inline fun <reified S : BuildService<P>, P : BuildServiceParameters> BuildServic
     registerIfAbsent(name, S::class) { it.configure() }
 }
 
-internal inline fun <reified S : BuildService<*>> BuildServiceRegistry.has(
-    name: String = defaultBuildServiceName<S>()
-): Boolean = registrations.findByName(name)?.service?.orNull is S
-
 @Suppress("UNCHECKED_CAST")
-internal inline fun <reified S : BuildService<*>> BuildServiceRegistry.get(
+internal inline fun <reified S : BuildService<*>> BuildServiceRegistry.findByType(
     name: String = defaultBuildServiceName<S>()
-): S = (registrations.findByName(name)?.service as Provider<S>).get()
-
-internal inline fun <reified S : BuildService<*>> BuildServiceRegistry.find(
-    name: String = defaultBuildServiceName<S>()
-): S? = if (has<S>(name)) get<S>(name) else null
+): S? = (registrations.findByName(name)?.service as? Provider<S>)?.orNull

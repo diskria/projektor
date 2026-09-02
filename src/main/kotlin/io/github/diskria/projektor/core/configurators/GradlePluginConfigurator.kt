@@ -1,6 +1,6 @@
 package io.github.diskria.projektor.core.configurators
 
-import io.github.diskria.projektor.api.GradlePluginDsl
+import io.github.diskria.projektor.api.GradlePluginConfiguration
 import io.github.diskria.projektor.core.model.GradlePlugin
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import org.gradle.api.Project
@@ -10,8 +10,8 @@ import org.gradle.kotlin.dsl.gradleKotlinDsl
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 
 internal class GradlePluginConfigurator(
-    private val configuration: GradlePluginDsl
-) : ProjektConfigurator<GradlePlugin>() {
+    private val configuration: GradlePluginConfiguration
+) : ProjektConfigurator<GradlePlugin, GradlePlugin.Distributable, GradlePlugin.BuildLogic>() {
 
     override fun buildProjekt(project: Project, projektMetadata: ProjektMetadata): GradlePlugin =
         GradlePlugin.of(project, projektMetadata, configuration)

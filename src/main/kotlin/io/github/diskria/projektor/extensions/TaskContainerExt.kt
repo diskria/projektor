@@ -28,12 +28,5 @@ internal inline fun <reified T : Task> TaskContainer.register(
     noinline configure: T.() -> Unit = {}
 ): TaskProvider<T> = register(name, T::class.java, *constructorArgs).apply { configure(configure) }
 
-internal inline fun <reified T : Task> TaskContainer.has(name: String = defaultTaskName<T>()): Boolean =
-    findByName(name) is T
-
-internal inline fun <reified T : Task> TaskContainer.get(name: String = defaultTaskName<T>()): TaskProvider<T> =
-    named<T>(name)
-
-internal inline fun <reified T : Task> TaskContainer.find(name: String = defaultTaskName<T>()): TaskProvider<T>? =
-    if (has<T>(name)) get<T>(name)
-    else null
+internal inline fun <reified T : Task> TaskContainer.findByType(): T? =
+    withType<T>().firstOrNull()

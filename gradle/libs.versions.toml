@@ -21,17 +21,15 @@ poetesse = { group = "io.github.diskria", name = "poetesse", version.ref = "poet
 foojay-resolver-plugin = { group = "org.gradle.toolchains.foojay-resolver-convention", name = "org.gradle.toolchains.foojay-resolver-convention.gradle.plugin", version.ref = "foojay-resolver-plugin" }
 kotlin-jvm-plugin = { group = "org.jetbrains.kotlin.jvm", name = "org.jetbrains.kotlin.jvm.gradle.plugin", version.ref = "kotlin" }
 kotlin-serialization-plugin = { group = "org.jetbrains.kotlin.plugin.serialization", name = "org.jetbrains.kotlin.plugin.serialization.gradle.plugin", version.ref = "kotlin" }
-plugin-publish-plugin = { group = "com.gradle.publish", name = "plugin-publish-plugin", version.ref = "plugin-publish-plugin" }
+plugin-publish-plugin = { group = "com.gradle.plugin-publish", name = "com.gradle.plugin-publish.gradle.plugin", version.ref = "plugin-publish-plugin" }
 
 [bundles]
 ktor-client = [
     "ktor-client-core",
     "ktor-client-cio",
 ]
-implementation-settings-plugins = [
+embedded-plugins = [
     "foojay-resolver-plugin",
-]
-implementation-project-plugins = [
     "kotlin-jvm-plugin",
     "kotlin-serialization-plugin",
     "plugin-publish-plugin",
