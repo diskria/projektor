@@ -3,8 +3,6 @@ package io.github.diskria.projektor.core.model
 import io.github.diskria.projektor.api.DistributableProjektExtension
 import io.github.diskria.projektor.api.GradlePluginConfiguration
 import io.github.diskria.projektor.api.KotlinLibraryConfiguration
-import io.github.diskria.projektor.core.model.license.License
-import io.github.diskria.projektor.core.model.license.mapToModel
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.capitalized
 import org.gradle.api.Project
@@ -23,7 +21,6 @@ sealed interface Projekt {
     interface Distributable : Projekt {
         val version: String
         val description: String
-        val license: License?
         val softwareComponent: String? get() = null
         val distributionTargetTypes: List<DistributionTargetType>
         val isSourcesEnabled: Boolean get() = true
@@ -47,7 +44,6 @@ sealed interface KotlinLibrary : Projekt {
         internal val configuration: KotlinLibraryConfiguration,
     ) : KotlinLibrary, Projekt.Distributable {
         override val softwareComponent: String get() = "java"
-        override val license: License? = metadata.licenseType?.mapToModel()
         override val description: String get() = configuration.description.orNull ?: metadata.about.description
         override val version: String get() = configuration.version.orNull ?: metadata.version
         override val javaVersion: Int
@@ -76,10 +72,6 @@ sealed interface KotlinLibrary : Projekt {
                 is ProjektMetadata.Distributable -> {
                     val extension = project.extensions.getByType<DistributableProjektExtension>()
                     val targets = extension.distributionTargets.orNull.orEmpty()
-                    check(targets.isNotEmpty()) {
-                        "Distributable projekts must have at least one distribution target! " +
-                            "Configure it via 'distribute { ... }'"
-                    }
                     Distributable(module.name, projektMetadata, targets, configuration)
                 }
 
@@ -110,7 +102,6 @@ sealed interface GradlePlugin : Projekt {
         val tags: Set<String> get() = configuration.tags.orNull?.ifEmpty { null } ?: metadata.about.tags
 
         override val softwareComponent: String get() = "java"
-        override val license: License? = metadata.licenseType?.mapToModel()
         override val description: String get() = configuration.description.orNull ?: metadata.about.description
         override val version: String get() = configuration.version.orNull ?: metadata.version
         override val javaVersion: Int
@@ -139,10 +130,6 @@ sealed interface GradlePlugin : Projekt {
                 is ProjektMetadata.Distributable -> {
                     val extension = project.extensions.getByType<DistributableProjektExtension>()
                     val targets = extension.distributionTargets.orNull.orEmpty()
-                    check(targets.isNotEmpty()) {
-                        "Distributable projekts must have at least one distribution target! " +
-                            "Configure it via 'distribute { ... }'"
-                    }
                     Distributable(module.name, projektMetadata, targets, configuration)
                 }
 

@@ -28,7 +28,7 @@ internal object MavenCentralDistributionTarget : MavenDistributionTarget(Distrib
 
     override fun configureDistributeTask(project: Project, projekt: Projekt.Distributable): TaskProvider<out Task> {
         val publishTask = configurePublishTask(project, projekt)
-        return project.tasks.register<UploadBundleToMavenCentralTask>(EnvProvider(project.providers)) {
+        return project.tasks.register<UploadBundleToMavenCentralTask> {
             bundleName.set(projekt.name)
             bundleVersion.set(projekt.version)
             dependsOn(publishTask)

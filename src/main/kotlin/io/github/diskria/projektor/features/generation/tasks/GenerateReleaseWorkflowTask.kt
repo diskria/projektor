@@ -1,7 +1,6 @@
 package io.github.diskria.projektor.features.generation.tasks
 
 import io.github.diskria.projektor.core.model.ToolchainDefaults
-import io.github.diskria.projektor.extensions.applyProjektorGroup
 import io.github.diskria.projektor.extensions.defaultTaskName
 import io.github.diskria.projektor.features.release.ReleaseProjektTask
 import io.github.diskria.projektor.generated.EnvProvider
@@ -10,6 +9,7 @@ import io.github.diskria.projektor.internal.utils.DisabledCachingReasons.SIDE_EF
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
 import org.gradle.work.DisableCachingByDefault
 import org.yaml.snakeyaml.DumperOptions
@@ -19,9 +19,9 @@ import javax.inject.Inject
 
 @DisableCachingByDefault(because = SIDE_EFFECTS)
 abstract class GenerateReleaseWorkflowTask @Inject internal constructor(
-    env: EnvProvider,
+    providers: ProviderFactory,
     layout: ProjectLayout,
-) : AbstractGenerateFileTask(YML_PATH, CommitType.CI, env, layout) {
+) : AbstractGenerateFileTask(providers, layout) {
 
     @get:Input
     abstract val actionBuiltinEnvs: MapProperty<String, String>
@@ -30,9 +30,10 @@ abstract class GenerateReleaseWorkflowTask @Inject internal constructor(
     abstract val secretEnvNames: ListProperty<String>
 
     init {
-        applyProjektorGroup()
-        actionBuiltinEnvs.set(EnvProvider.actionBuiltins)
-        secretEnvNames.set(EnvProvider.secretNames)
+        fileName.convention(YML_PATH)
+        commitType.convention(CommitType.CI)
+        actionBuiltinEnvs.convention(EnvProvider.actionBuiltins)
+        secretEnvNames.convention(EnvProvider.secretNames)
     }
 
     override fun getFileText(repoDirectory: File, file: File): String {

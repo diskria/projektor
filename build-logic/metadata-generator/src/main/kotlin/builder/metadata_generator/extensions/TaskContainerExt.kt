@@ -14,3 +14,6 @@ inline fun <reified T : Task> TaskContainer.register(
     name: String = defaultTaskName<T>(),
     noinline configure: T.() -> Unit = {}
 ): TaskProvider<T> = register(name, T::class.java, *constructorArgs).apply { configure(configure) }
+
+inline fun <reified T : Task> TaskContainer.getByType(): T =
+    getByName(defaultTaskName<T>()) as T

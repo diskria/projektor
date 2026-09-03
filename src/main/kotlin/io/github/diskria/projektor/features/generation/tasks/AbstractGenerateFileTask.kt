@@ -9,45 +9,49 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 import java.io.File
-import javax.inject.Inject
 
 @DisableCachingByDefault(because = SIDE_EFFECTS)
-abstract class AbstractGenerateFileTask @Inject constructor(
-    outputFileName: String,
-    private val commitType: CommitType,
-    private val env: EnvProvider,
+abstract class AbstractGenerateFileTask(
+    private val providers: ProviderFactory,
     private val layout: ProjectLayout,
 ) : DefaultTask() {
 
     @get:Input
-    abstract val repo: Property<GithubRepo>
+    abstract val fileName: Property<String>
 
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
 
+    @get:Input
+    abstract val repo: Property<GithubRepo>
+
+    @get:Input
+    abstract val commitType: Property<CommitType>
+
     init {
         applyProjektorGroup()
-        outputFile.set(layout.projectDirectory.file(outputFileName))
+        outputFile.set(layout.projectDirectory.file(fileName))
     }
 
     @TaskAction
     fun generate() {
         val repoDirectory = layout.projectDirectory.asFile
-        val outputFile = outputFile.get().asFile
-        val wasFileExists = outputFile.exists()
-        if (!wasFileExists) outputFile.createNewFile()
-        val fileText = getFileText(repoDirectory, outputFile)
-        val oldText = outputFile.readText()
+        val targetFile = outputFile.get().asFile
+        val wasFileExists = targetFile.exists()
+        val fileText = getFileText(repoDirectory, targetFile)
         val newText = fileText.trim() + "\n"
-        if (newText == oldText) return
-        outputFile.writeText(newText)
+        if (wasFileExists && newText == targetFile.readText()) return
+        targetFile.parentFile?.mkdirs()
+        targetFile.writeText(newText)
+        val env = EnvProvider(providers)
         if (!env.isCI) return
-        repo.get().pushFile(repoDirectory, commitType, outputFile, wasFileExists, env.githubToken)
+        repo.get().pushFile(repoDirectory, commitType.get(), targetFile, wasFileExists, env.githubToken)
     }
 
     abstract fun getFileText(repoDirectory: File, file: File): String

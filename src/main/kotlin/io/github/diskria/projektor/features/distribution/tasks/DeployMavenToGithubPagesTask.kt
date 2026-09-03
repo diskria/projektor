@@ -12,6 +12,7 @@ import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Sync
 import org.gradle.work.DisableCachingByDefault
@@ -19,8 +20,8 @@ import java.io.File
 import javax.inject.Inject
 
 @DisableCachingByDefault(because = SIDE_EFFECTS)
-abstract class DeployMavenToGithubPagesTask @Inject constructor(
-    private val env: EnvProvider,
+abstract class DeployMavenToGithubPagesTask @Inject internal constructor(
+    private val providers: ProviderFactory,
     private val layout: ProjectLayout,
 ) : Sync() {
 
@@ -36,6 +37,7 @@ abstract class DeployMavenToGithubPagesTask @Inject constructor(
 
     private fun deploy() {
         generateIndexTree(destinationDir)
+        val env = EnvProvider(providers)
         if (!env.isCI) return
         repo.get().pushFile(
             layout.projectDirectory.asFile,

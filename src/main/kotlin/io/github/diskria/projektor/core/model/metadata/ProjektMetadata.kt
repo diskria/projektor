@@ -16,8 +16,11 @@ sealed interface ProjektMetadata : PropertySerializable {
     val modules: List<ProjektModule>
     val namespace: String
 
+    fun findModule(project: Project): ProjektModule? =
+        modules.find { it.path == project.path }
+
     fun getModule(project: Project, type: ProjektType): ProjektModule =
-        checkNotNull(modules.find { it.path == project.path && it.type == type }) {
+        checkNotNull(findModule(project)?.takeIf { it.type == type }) {
             "Module '${project.path}' is not registered as a '${type.id}' in projekt dsl."
         }
 

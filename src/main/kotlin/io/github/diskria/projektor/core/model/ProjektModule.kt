@@ -8,4 +8,6 @@ class ProjektModule(
     val path: String,
     val type: ProjektType,
     val name: String,
-) : PropertySerializable
+) : PropertySerializable {
+    val isRoot: Boolean get() = path == ":"
+}

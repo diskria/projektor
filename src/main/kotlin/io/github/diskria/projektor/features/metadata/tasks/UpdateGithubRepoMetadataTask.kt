@@ -21,6 +21,7 @@ import kotlinx.serialization.json.Json
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
@@ -28,7 +29,9 @@ import org.gradle.work.DisableCachingByDefault
 import javax.inject.Inject
 
 @DisableCachingByDefault(because = "$NON_DETERMINISTIC; $SIDE_EFFECTS")
-abstract class UpdateGithubRepoMetadataTask @Inject constructor(private val env: EnvProvider) : DefaultTask() {
+abstract class UpdateGithubRepoMetadataTask @Inject internal constructor(
+    private val providers: ProviderFactory,
+) : DefaultTask() {
 
     @get:Input
     abstract val projektTypes: ListProperty<ProjektType>
@@ -49,38 +52,40 @@ abstract class UpdateGithubRepoMetadataTask @Inject constructor(private val env:
 
     @TaskAction
     fun update() {
+        val env = EnvProvider(providers)
         if (!env.isCI) return
         runBlocking {
-            updateInfo()
-            updateTopics()
+            updateInfo(env)
+            updateTopics(env)
         }
     }
 
-    private suspend fun updateInfo() {
+    private suspend fun updateInfo(env: EnvProvider) {
         sendRequest(
             UpdateInfoRequest(
                 name = repo.get().name,
                 description = about.get().description,
                 homepageUrl = homepageUrl.orNull,
-            )
+            ),
+            env
         )
     }
 
-    private suspend fun updateTopics() {
+    private suspend fun updateTopics(env: EnvProvider) {
         val topics = buildSet {
-            getTopLanguage()?.let { add(it) }
+            getTopLanguage(env)?.let { add(it) }
             addAll(projektTypes.get().map { it.id })
             addAll(about.get().tags)
         }
-        sendRequest(UpdateTopicsRequest(topics.toList()))
+        sendRequest(UpdateTopicsRequest(topics.toList()), env)
     }
 
-    private suspend fun getTopLanguage(): String? {
-        val languages: Map<String, Int> = Json.decodeFromString(sendRequest(GetLanguagesRequest()).bodyAsText())
+    private suspend fun getTopLanguage(env: EnvProvider): String? {
+        val languages = Json.decodeFromString<Map<String, Int>>(sendRequest(GetLanguagesRequest(), env).bodyAsText())
         return languages.maxByOrNull { it.value }?.key
     }
 
-    private suspend fun sendRequest(request: GithubRepoRequest): HttpResponse {
+    private suspend fun sendRequest(request: GithubRepoRequest, env: EnvProvider): HttpResponse {
         val url = buildString {
             append("https://api.github.com/repos/${repo.get().owner.name}/${repo.get().name}")
             request.getPathSegment()?.let { append("/$it") }

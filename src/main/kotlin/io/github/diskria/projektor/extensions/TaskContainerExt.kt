@@ -32,5 +32,12 @@ internal inline fun <reified T : Task> TaskContainer.register(
     noinline configure: T.() -> Unit = {}
 ): TaskProvider<T> = register(name, T::class.java, *constructorArgs).apply { configure(configure) }
 
+@PublishedApi
+internal inline fun <reified T : Task> TaskContainer.isRegistered(): Boolean =
+    names.contains(defaultTaskName<T>())
+
 internal inline fun <reified T : Task> TaskContainer.findByType(): T? =
-    withType<T>().firstOrNull()
+    findByName(defaultTaskName<T>()) as? T
+
+internal inline fun <reified T : Task> TaskContainer.getByType(): T =
+    getByName(defaultTaskName<T>()) as T

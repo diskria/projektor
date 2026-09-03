@@ -5,7 +5,7 @@ import io.github.diskria.projektor.core.model.ToolchainDefaults
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.extensions.configureJvmTarget
 import io.github.diskria.projektor.extensions.findByType
-import io.github.diskria.projektor.extensions.jar
+import io.github.diskria.projektor.extensions.getByType
 import io.github.diskria.projektor.extensions.jvmTargetOf
 import io.github.diskria.projektor.features.distribution.target.mapToModel
 import io.github.diskria.projektor.features.generation.tasks.GenerateLicenseTask
@@ -16,11 +16,13 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.jvm.tasks.Jar
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JvmImplementation
 import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.invoke
+import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -76,11 +78,13 @@ internal abstract class ProjektConfigurator<P : Projekt, D : Projekt.Distributab
             withType<JavaCompile>().configureEach { javaCompile ->
                 javaCompile.options.encoding = Charsets.UTF_8.toString()
             }
-            jar {
+            named<Jar>("jar") {
                 if (projekt is Projekt.Distributable) {
                     project.rootProject.tasks.findByType<GenerateLicenseTask>()?.let { generateLicenseTask ->
-                        from(generateLicenseTask) { copySpec ->
-                            copySpec.rename { fileName -> "${fileName}_${projekt.metadata.repo.name}" }
+                        val fileNameSuffix = "_${projekt.metadata.repo.name}"
+                        inputs.property("licenseFileNameSuffix", fileNameSuffix)
+                        from(generateLicenseTask.outputFile) {
+                            rename { fileName -> "$fileName$fileNameSuffix" }
                         }
                     }
                     archiveVersion.set(projekt.version)
@@ -99,17 +103,13 @@ internal abstract class ProjektConfigurator<P : Projekt, D : Projekt.Distributab
         val distributeTasks = projekt.distributionTargetTypes.map {
             it.mapToModel().configureDistributeTask(project, projekt)
         }
-        val generateReleaseWorkflowTask = rootTaskContainer.withType<GenerateReleaseWorkflowTask>()
+        val generateReleaseWorkflowTask = rootTaskContainer.getByType<GenerateReleaseWorkflowTask>()
         distributeTasks.forEach { distributeTask ->
             distributeTask.configure { task ->
                 task.mustRunAfter(generateReleaseWorkflowTask)
             }
         }
-        rootTaskContainer.withType<UpdateGithubRepoMetadataTask>().configureEach { task ->
-            task.mustRunAfter(distributeTasks)
-        }
-        rootTaskContainer.withType<ReleaseProjektTask>().configureEach { task ->
-            task.dependsOn(distributeTasks)
-        }
+        rootTaskContainer.getByType<UpdateGithubRepoMetadataTask>().mustRunAfter(distributeTasks)
+        rootTaskContainer.getByType<ReleaseProjektTask>().dependsOn(distributeTasks)
     }
 }

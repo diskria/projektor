@@ -16,7 +16,7 @@ internal abstract class ReadmeShield {
     open val alt: String get() = label
 
     val markdown: String? by lazy {
-        targetUrl?.let { MarkdownHelper.link(it, MarkdownHelper.image(imageUrl, alt)) }
+        targetUrl?.let { Markdown.link(it, Markdown.image(imageUrl, alt)) }
     }
 
     protected fun buildShieldUrl(path: String, vararg queryParameters: Pair<String, String>): String =

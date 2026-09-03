@@ -15,6 +15,7 @@ import io.ktor.util.cio.*
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.work.DisableCachingByDefault
@@ -23,8 +24,8 @@ import javax.inject.Inject
 import kotlin.io.encoding.Base64
 
 @DisableCachingByDefault(because = SIDE_EFFECTS)
-abstract class UploadBundleToMavenCentralTask @Inject constructor(
-    private val env: EnvProvider,
+abstract class UploadBundleToMavenCentralTask @Inject internal constructor(
+    private val providers: ProviderFactory,
     layout: ProjectLayout,
 ) : Zip() {
 
@@ -41,12 +42,13 @@ abstract class UploadBundleToMavenCentralTask @Inject constructor(
         from(MavenCentralDistributionTarget.getLocalMavenDirectory(layout))
         destinationDirectory.set(layout.buildDirectory.dir(DistributionTargetType.MAVEN_CENTRAL.id))
         doLast {
+            val env = EnvProvider(providers)
             if (!env.isCI) return@doLast
-            runBlocking { upload(archiveFile.get().asFile) }
+            runBlocking { upload(archiveFile.get().asFile, env) }
         }
     }
 
-    private suspend fun upload(file: File) {
+    private suspend fun upload(file: File, env: EnvProvider) {
         val deploymentName = file.name
         logger.lifecycle("Uploading bundle '$deploymentName' to Maven Central...")
         val item = PartData.FileItem(

@@ -3,8 +3,9 @@ package io.github.diskria.projektor.features.distribution.target
 import io.github.diskria.projektor.core.model.DistributionTargetType
 import io.github.diskria.projektor.core.model.GradlePlugin
 import io.github.diskria.projektor.core.model.Projekt
+import io.github.diskria.projektor.core.model.license.mapToModel
 import io.github.diskria.projektor.extensions.capitalized
-import io.github.diskria.projektor.extensions.maybeCreate
+import io.github.diskria.projektor.extensions.create
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.dsl.RepositoryHandler
@@ -63,12 +64,14 @@ internal sealed class MavenDistributionTarget(
                 val publicationName = projekt.name.split("-").withIndex().joinToString("") { (index, part) ->
                     if (index == 0) part else part.capitalized()
                 }
-                val publication = publications.maybeCreate<MavenPublication>(publicationName) {
-                    from(checkNotNull(project.components.findByName(componentName)) {
-                        "SoftwareComponent '$componentName' not found in project '${project.path}'"
-                    })
-                    configurePom(pom, projekt)
-                }
+                val publication = publications.findByName(publicationName) as? MavenPublication
+                    ?: publications.create<MavenPublication>(publicationName) { publication ->
+                        val component = checkNotNull(project.components.findByName(componentName)) {
+                            "SoftwareComponent '$componentName' not found in project '${project.path}'"
+                        }
+                        publication.from(component)
+                        configurePom(publication.pom, projekt)
+                    }
                 configureSigning(project, projekt, publication)
             }
         }
@@ -112,7 +115,7 @@ internal sealed class MavenDistributionTarget(
                 }
             }
         }
-        projekt.license?.let { projektLicense ->
+        projekt.metadata.licenseType?.mapToModel()?.let { projektLicense ->
             pom.licenses { spec ->
                 spec.license { license ->
                     license.name.set(projektLicense.type.id)

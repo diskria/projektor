@@ -1,3 +1,4 @@
+import builder.metadata_generator.extensions.getByType
 import builder.metadata_generator.tasks.GenerateBuildConfigTask
 import io.github.diskria.projektor.core.model.GradlePlugin
 
@@ -24,7 +25,7 @@ projekt {
     }
 }
 
-tasks.withType<GenerateBuildConfigTask>().configureEach {
+tasks.getByType<GenerateBuildConfigTask>().apply {
     val gradlePlugin = projekt.map { it as GradlePlugin.Distributable }
     pluginId.set(gradlePlugin.map { it.id })
     pluginVersion.set(gradlePlugin.map { it.version })

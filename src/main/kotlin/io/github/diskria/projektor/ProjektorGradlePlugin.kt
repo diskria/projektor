@@ -9,6 +9,7 @@ import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadataBuildService
 import io.github.diskria.projektor.extensions.create
 import io.github.diskria.projektor.extensions.findByType
+import io.github.diskria.projektor.extensions.isRegistered
 import io.github.diskria.projektor.extensions.register
 import io.github.diskria.projektor.features.distribution.target.mapToModel
 import io.github.diskria.projektor.features.generation.readme.tasks.GenerateReadmeTask
@@ -128,10 +129,8 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
             """.trimIndent()
         }
         val projektMetadata = ProjektMetadata.BuildLogic(Json.decodeFromString(modulesConfigFile.readText()))
-        ProjektMetadataExtension.applyModules(projektMetadata.modules, settings)
-        settings.gradle.rootProject { rootProject ->
-            settings.registerProjektMetadataBuildService(projektMetadata)
-        }
+        ProjektMetadataExtension.applyModules(projektMetadata, settings)
+        settings.registerProjektMetadataBuildService(projektMetadata)
     }
 
     private fun Settings.registerProjektMetadataBuildService(projektMetadata: ProjektMetadata) {
@@ -211,35 +210,34 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     }
 
     private fun configureReleaseTask(rootProject: Project, projektMetadata: ProjektMetadata.Distributable) {
-        if (rootProject.tasks.findByType<ReleaseProjektTask>() != null) return
-        val env = EnvProvider(rootProject.providers)
-        val generateGitAttributesTask = rootProject.tasks.register<GenerateGitAttributesTask>(env) {
+        if (rootProject.tasks.isRegistered<ReleaseProjektTask>()) return
+        val generateGitAttributesTask = rootProject.tasks.register<GenerateGitAttributesTask> {
             repo.set(projektMetadata.repo)
         }
-        val generateGitIgnoreTask = rootProject.tasks.register<GenerateGitIgnoreTask>(env) {
+        val generateGitIgnoreTask = rootProject.tasks.register<GenerateGitIgnoreTask> {
             repo.set(projektMetadata.repo)
             mustRunAfter(generateGitAttributesTask)
         }
         val generateLicenseTask = projektMetadata.licenseType?.let { licenseType ->
-            rootProject.tasks.register<GenerateLicenseTask>(env) {
+            rootProject.tasks.register<GenerateLicenseTask> {
                 this.licenseType.set(licenseType)
                 developer.set(projektMetadata.repo.owner.developer)
                 repo.set(projektMetadata.repo)
                 mustRunAfter(generateGitIgnoreTask)
             }
         }
-        val generateReadmeTask = rootProject.tasks.register<GenerateReadmeTask>(env) {
+        val generateReadmeTask = rootProject.tasks.register<GenerateReadmeTask> {
             displayName.set(projektMetadata.displayName)
             about.set(projektMetadata.about)
-            license.set(projektMetadata.licenseType)
+            licenseType.set(projektMetadata.licenseType)
             repo.set(projektMetadata.repo)
             mustRunAfter(generateLicenseTask ?: generateGitIgnoreTask)
         }
-        val generateReleaseWorkflowTask = rootProject.tasks.register<GenerateReleaseWorkflowTask>(env) {
+        val generateReleaseWorkflowTask = rootProject.tasks.register<GenerateReleaseWorkflowTask> {
             repo.set(projektMetadata.repo)
             mustRunAfter(generateReadmeTask)
         }
-        val updateGithubRepoMetadataTask = rootProject.tasks.register<UpdateGithubRepoMetadataTask>(env) {
+        val updateGithubRepoMetadataTask = rootProject.tasks.register<UpdateGithubRepoMetadataTask> {
             projektTypes.set(projektMetadata.modules.map { it.type })
             about.set(projektMetadata.about)
             repo.set(projektMetadata.repo)

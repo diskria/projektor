@@ -19,7 +19,7 @@ abstract class ProjektMetadataExtension @Inject internal constructor(
     objects: ObjectFactory,
 ) : ProjektorScope {
 
-    val version = objects.property<String>()
+    val version = objects.property<String>().convention("0.1.0")
     val email = objects.property<String>().convention("diskria@proton.me")
 
     internal val modules = mutableListOf<ProjektModule>()
@@ -80,24 +80,25 @@ abstract class ProjektMetadataExtension @Inject internal constructor(
             "Projekt type is not configured in settings.gradle.kts! " +
                 "Call kotlinLibrary(), gradlePlugin() or monorepo { ... }"
         }
-        applyModules(modules, settings)
-        return ProjektMetadata.Distributable(
+        val projektMetadata = ProjektMetadata.Distributable(
             isMonorepo = isMonorepo,
             modules = modules,
             repo = GithubRepo(GithubOwner(ownerName, email.get()), repoName),
-            version = version.orNull ?: "0.1.0",
+            version = version.get(),
             licenseType = license,
             about = ProjektAbout.from(settings.layout.rootDirectory.asFile),
         )
+        applyModules(projektMetadata, settings)
+        return projektMetadata
     }
 
     internal companion object {
-        fun applyModules(modules: List<ProjektModule>, settings: Settings) {
-            modules.forEach { module ->
-                with(settings.dependencyResolutionManagement.repositories) {
+        fun applyModules(projektMetadata: ProjektMetadata, settings: Settings) {
+            projektMetadata.modules.forEach { module ->
+                settings.dependencyResolutionManagement.repositories.apply {
                     when (module.type) {
                         ProjektType.GRADLE_PLUGIN -> {
-                            gradlePluginPortal()
+                            gradlePluginPortal { it.name = "GradlePluginPortal" }
                             mavenCentralWithDirect()
                         }
 
@@ -106,19 +107,16 @@ abstract class ProjektMetadataExtension @Inject internal constructor(
                         }
                     }
                 }
-                if (module.path != ":") {
+                if (!module.isRoot) {
                     settings.include(module.path)
                 }
-                settings.gradle.lifecycle.afterProject { project ->
-                    val currentProjectPath = project.path
-                    val matchingModule = modules.find { it.path == currentProjectPath }
-                    if (matchingModule != null) {
-                        check(project.plugins.hasPlugin(ProjektorGradlePlugin.ID)) {
-                            "Project '${module.path}' was declared in settings.gradle.kts, " +
-                                "but 'alias(convention.plugins.projektor)' plugin " +
-                                "was not applied in its build.gradle.kts!"
-                        }
-                    }
+            }
+            settings.gradle.lifecycle.afterProject { project ->
+                val module = projektMetadata.findModule(project) ?: return@afterProject
+                check(project.plugins.hasPlugin(ProjektorGradlePlugin.ID)) {
+                    "Project '${module.path}' was declared in settings.gradle.kts, " +
+                        "but 'alias(convention.plugins.projektor)' plugin " +
+                        "was not applied in its build.gradle.kts!"
                 }
             }
         }
