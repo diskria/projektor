@@ -83,8 +83,8 @@ internal abstract class ProjektConfigurator<P : Projekt, D : Projekt.Distributab
                     project.rootProject.tasks.findByType<GenerateLicenseTask>()?.let { generateLicenseTask ->
                         val fileNameSuffix = "_${projekt.metadata.repo.name}"
                         inputs.property("licenseFileNameSuffix", fileNameSuffix)
-                        from(generateLicenseTask.outputFile) {
-                            rename { fileName -> "$fileName$fileNameSuffix" }
+                        from(generateLicenseTask.outputFile) { copySpec ->
+                            copySpec.rename { fileName -> "$fileName$fileNameSuffix" }
                         }
                     }
                     archiveVersion.set(projekt.version)
