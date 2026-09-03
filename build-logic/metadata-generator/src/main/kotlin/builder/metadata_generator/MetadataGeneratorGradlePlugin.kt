@@ -13,16 +13,15 @@ class MetadataGeneratorGradlePlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         val generatedDirectory = project.layout.buildDirectory.dir("generated/sources/kotlin/main")
-        val generateEnvProviderTask = project.tasks.register<GenerateEnvProviderTask> {
-            outputDirectory.set(generatedDirectory.map { it.dir("envProvider") })
-        }
         val generateBuildConfigTask = project.tasks.register<GenerateBuildConfigTask> {
             outputDirectory.set(generatedDirectory.map { it.dir("buildConfig") })
         }
+        val generateEnvProviderTask = project.tasks.register<GenerateEnvProviderTask> {
+            outputDirectory.set(generatedDirectory.map { it.dir("envProvider") })
+        }
         project.extensions.getByType<SourceSetContainer>().named("main").configure { main ->
             main.extensions.configure<SourceDirectorySet>("kotlin") { kotlin ->
-                kotlin.srcDir(generateEnvProviderTask)
-                kotlin.srcDir(generateBuildConfigTask)
+                kotlin.srcDirs(generateBuildConfigTask, generateEnvProviderTask)
             }
         }
     }

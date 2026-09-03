@@ -1,5 +1,6 @@
 package builder.metadata_generator.tasks
 
+import builder.metadata_generator.extensions.applyBuildLogicGroup
 import io.github.diskria.poetesse.kotlin.file
 import io.github.diskria.poetesse.kotlin.object_
 import io.github.diskria.poetesse.kotlin.property
@@ -23,6 +24,10 @@ abstract class GenerateBuildConfigTask : DefaultTask() {
 
     @get:OutputDirectory
     abstract val outputDirectory: DirectoryProperty
+
+    init {
+        applyBuildLogicGroup()
+    }
 
     @TaskAction
     fun generate() {

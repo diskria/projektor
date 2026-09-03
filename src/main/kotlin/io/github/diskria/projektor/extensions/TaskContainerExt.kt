@@ -26,18 +26,17 @@ internal fun TaskContainer.configureJvmTarget(target: JvmTarget) {
 internal inline fun <reified T : Task> defaultTaskName(): String =
     defaultNameBySuffix<T>("Task")
 
-internal inline fun <reified T : Task> TaskContainer.register(
+inline fun <reified T : Task> TaskContainer.register(
     vararg constructorArgs: Any,
     name: String = defaultTaskName<T>(),
     noinline configure: T.() -> Unit = {}
 ): TaskProvider<T> = register(name, T::class.java, *constructorArgs).apply { configure(configure) }
 
-@PublishedApi
-internal inline fun <reified T : Task> TaskContainer.isRegistered(): Boolean =
+inline fun <reified T : Task> TaskContainer.isRegistered(): Boolean =
     names.contains(defaultTaskName<T>())
 
-internal inline fun <reified T : Task> TaskContainer.findByType(): T? =
+inline fun <reified T : Task> TaskContainer.findByType(): T? =
     findByName(defaultTaskName<T>()) as? T
 
-internal inline fun <reified T : Task> TaskContainer.getByType(): T =
+inline fun <reified T : Task> TaskContainer.getByType(): T =
     getByName(defaultTaskName<T>()) as T

@@ -19,6 +19,6 @@ inline fun <reified S : BuildService<P>, P : BuildServiceParameters> BuildServic
 }
 
 @Suppress("UNCHECKED_CAST")
-internal inline fun <reified S : BuildService<*>> BuildServiceRegistry.findByType(
+inline fun <reified S : BuildService<*>> BuildServiceRegistry.findByType(
     name: String = defaultBuildServiceName<S>()
 ): S? = (registrations.findByName(name)?.service as? Provider<S>)?.orNull

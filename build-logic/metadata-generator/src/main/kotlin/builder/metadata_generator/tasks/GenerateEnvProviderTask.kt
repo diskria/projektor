@@ -1,5 +1,6 @@
 package builder.metadata_generator.tasks
 
+import builder.metadata_generator.extensions.applyBuildLogicGroup
 import builder.metadata_generator.extensions.capitalized
 import builder.metadata_generator.extensions.quoted
 import io.github.diskria.poetesse.interop.generic
@@ -30,6 +31,7 @@ abstract class GenerateEnvProviderTask : DefaultTask() {
     abstract val outputDirectory: DirectoryProperty
 
     init {
+        applyBuildLogicGroup()
         actionBuiltinEnvs.set(
             mapOf(
                 "GH_OWNER" to "github.repository_owner",
