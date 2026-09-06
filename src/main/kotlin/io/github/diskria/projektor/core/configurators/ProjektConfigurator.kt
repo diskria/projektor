@@ -3,10 +3,8 @@ package io.github.diskria.projektor.core.configurators
 import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.core.model.ToolchainDefaults
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
-import io.github.diskria.projektor.extensions.configureJvmTarget
 import io.github.diskria.projektor.extensions.findByType
 import io.github.diskria.projektor.extensions.getByType
-import io.github.diskria.projektor.extensions.jvmTargetOf
 import io.github.diskria.projektor.features.distribution.target.mapToModel
 import io.github.diskria.projektor.features.generation.tasks.GenerateLicenseTask
 import io.github.diskria.projektor.features.generation.tasks.GenerateReleaseWorkflowTask
@@ -24,6 +22,7 @@ import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.invoke
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -71,23 +70,31 @@ internal abstract class ProjektConfigurator<P : Projekt, D : Projekt.Distributab
             }
         }
         project.tasks {
-            configureJvmTarget(jvmTargetOf(projekt.jvmTarget))
             withType<KotlinCompile>().configureEach { kotlinCompile ->
-                kotlinCompile.compilerOptions.freeCompilerArgs.addAll("-module-name", projekt.name)
+                kotlinCompile.compilerOptions.apply {
+                    jvmTarget.set(
+                        if (projekt.jvmTarget == 8) JvmTarget.JVM_1_8
+                        else JvmTarget.fromTarget(projekt.jvmTarget.toString())
+                    )
+                    freeCompilerArgs.addAll("-module-name", projekt.name)
+                }
             }
             withType<JavaCompile>().configureEach { javaCompile ->
-                javaCompile.options.encoding = Charsets.UTF_8.toString()
+                javaCompile.options.apply {
+                    release.set(projekt.jvmTarget)
+                    encoding = Charsets.UTF_8.toString()
+                }
             }
-            named<Jar>("jar") {
-                if (projekt is Projekt.Distributable) {
+            if (projekt is Projekt.Distributable) {
+                named<Jar>("jar").configure { jar ->
                     project.rootProject.tasks.findByType<GenerateLicenseTask>()?.let { generateLicenseTask ->
                         val fileNameSuffix = "_${projekt.metadata.repo.name}"
-                        inputs.property("licenseFileNameSuffix", fileNameSuffix)
-                        from(generateLicenseTask.outputFile) { copySpec ->
+                        jar.inputs.property("licenseFileNameSuffix", fileNameSuffix)
+                        jar.from(generateLicenseTask.outputFile) { copySpec ->
                             copySpec.rename { fileName -> "$fileName$fileNameSuffix" }
                         }
                     }
-                    archiveVersion.set(projekt.version)
+                    jar.archiveVersion.set(projekt.version)
                 }
             }
         }

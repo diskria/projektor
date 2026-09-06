@@ -16,20 +16,18 @@ import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 internal object GradlePluginPortalDistributionTarget : DistributionTarget {
 
     override fun configureDistributeTask(project: Project, projekt: Projekt.Distributable): TaskProvider<out Task> {
-        val gradlePlugin = projekt.ensureGradlePlugin()
+        val pluginProjekt = projekt.ensureGradlePlugin()
         project.pluginManager.apply("com.gradle.plugin-publish")
         project.extensions.configure<GradlePluginDevelopmentExtension> {
-            website.set(gradlePlugin.metadata.repo.url)
-            vcsUrl.set(gradlePlugin.metadata.repo.vcsUrl)
-            plugins.getByName(gradlePlugin.name).apply {
-                displayName = gradlePlugin.displayName
-                description = gradlePlugin.description
-                tags.set(gradlePlugin.tags)
+            website.set(projekt.metadata.repo.url)
+            vcsUrl.set(projekt.metadata.repo.vcsUrl)
+            plugins.named(projekt.name).configure { plugin ->
+                plugin.displayName = projekt.displayName
+                plugin.description = projekt.description
+                plugin.tags.set(pluginProjekt.tags)
                 project.pluginManager.apply("org.gradle.plugin-compatibility")
-                compatibility { compat ->
-                    compat.features.apply {
-                        configurationCache.set(gradlePlugin.configuration.supportsConfigurationCache)
-                    }
+                plugin.compatibility { compat ->
+                    compat.features.configurationCache.set(pluginProjekt.configuration.supportsConfigurationCache)
                 }
             }
         }

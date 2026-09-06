@@ -3,19 +3,6 @@ package io.github.diskria.projektor.extensions
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.api.tasks.compile.JavaCompile
-import org.gradle.kotlin.dsl.withType
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-internal fun TaskContainer.configureJvmTarget(target: JvmTarget) {
-    withType<KotlinCompile>().configureEach { kotlinCompile ->
-        kotlinCompile.compilerOptions.jvmTarget.set(target)
-    }
-    withType<JavaCompile>().configureEach { javaCompile ->
-        javaCompile.options.release.set(target.toVersion())
-    }
-}
 
 @PublishedApi
 internal inline fun <reified T : Task> defaultTaskName(): String =

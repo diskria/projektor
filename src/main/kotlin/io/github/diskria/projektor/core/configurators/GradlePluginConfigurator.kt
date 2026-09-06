@@ -19,9 +19,9 @@ internal class GradlePluginConfigurator(
     override fun configureProject(project: Project, projekt: GradlePlugin) {
         project.pluginManager.apply("java-gradle-plugin")
         project.extensions.configure<GradlePluginDevelopmentExtension> {
-            plugins.create(projekt.name).apply {
-                id = projekt.id
-                implementationClass = "${projekt.packageName}.${projekt.classNamePrefix}GradlePlugin"
+            plugins.register(projekt.name) { plugin ->
+                plugin.id = projekt.id
+                plugin.implementationClass = "${projekt.packageName}.${projekt.classNamePrefix}GradlePlugin"
             }
         }
         project.dependencies {
