@@ -134,8 +134,8 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     }
 
     private fun Settings.registerProjektMetadataBuildService(projektMetadata: ProjektMetadata) {
-        gradle.sharedServices.register<ProjektMetadataBuildService, ProjektMetadataBuildService.Parameters> {
-            parameters.projektMetadata.set(projektMetadata)
+        gradle.sharedServices.register<ProjektMetadataBuildService, ProjektMetadataBuildService.Parameters> { service ->
+            service.parameters.projektMetadata.set(projektMetadata)
         }
     }
 
@@ -211,40 +211,40 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
 
     private fun configureReleaseTask(rootProject: Project, projektMetadata: ProjektMetadata.Distributable) {
         if (rootProject.tasks.isRegistered<ReleaseProjektTask>()) return
-        val generateGitAttributesTask = rootProject.tasks.register<GenerateGitAttributesTask> {
-            repo.set(projektMetadata.repo)
+        val generateGitAttributesTask = rootProject.tasks.register<GenerateGitAttributesTask> { task ->
+            task.repo.set(projektMetadata.repo)
         }
-        val generateGitIgnoreTask = rootProject.tasks.register<GenerateGitIgnoreTask> {
-            repo.set(projektMetadata.repo)
-            mustRunAfter(generateGitAttributesTask)
+        val generateGitIgnoreTask = rootProject.tasks.register<GenerateGitIgnoreTask> { task ->
+            task.repo.set(projektMetadata.repo)
+            task.mustRunAfter(generateGitAttributesTask)
         }
         val generateLicenseTask = projektMetadata.licenseType?.let { licenseType ->
-            rootProject.tasks.register<GenerateLicenseTask> {
-                this.licenseType.set(licenseType)
-                developer.set(projektMetadata.repo.owner.developer)
-                repo.set(projektMetadata.repo)
-                mustRunAfter(generateGitIgnoreTask)
+            rootProject.tasks.register<GenerateLicenseTask> { task ->
+                task.licenseType.set(licenseType)
+                task.developer.set(projektMetadata.repo.owner.developer)
+                task.repo.set(projektMetadata.repo)
+                task.mustRunAfter(generateGitIgnoreTask)
             }
         }
-        val generateReadmeTask = rootProject.tasks.register<GenerateReadmeTask> {
-            displayName.set(projektMetadata.displayName)
-            about.set(projektMetadata.about)
-            licenseType.set(projektMetadata.licenseType)
-            repo.set(projektMetadata.repo)
-            mustRunAfter(generateLicenseTask ?: generateGitIgnoreTask)
+        val generateReadmeTask = rootProject.tasks.register<GenerateReadmeTask> { task ->
+            task.displayName.set(projektMetadata.displayName)
+            task.about.set(projektMetadata.about)
+            task.licenseType.set(projektMetadata.licenseType)
+            task.repo.set(projektMetadata.repo)
+            task.mustRunAfter(generateLicenseTask ?: generateGitIgnoreTask)
         }
-        val generateReleaseWorkflowTask = rootProject.tasks.register<GenerateReleaseWorkflowTask> {
-            repo.set(projektMetadata.repo)
-            mustRunAfter(generateReadmeTask)
+        val generateReleaseWorkflowTask = rootProject.tasks.register<GenerateReleaseWorkflowTask> { task ->
+            task.repo.set(projektMetadata.repo)
+            task.mustRunAfter(generateReadmeTask)
         }
-        val updateGithubRepoMetadataTask = rootProject.tasks.register<UpdateGithubRepoMetadataTask> {
-            projektTypes.set(projektMetadata.modules.map { it.type })
-            about.set(projektMetadata.about)
-            repo.set(projektMetadata.repo)
-            mustRunAfter(generateReleaseWorkflowTask)
+        val updateGithubRepoMetadataTask = rootProject.tasks.register<UpdateGithubRepoMetadataTask> { task ->
+            task.projektTypes.set(projektMetadata.modules.map { it.type })
+            task.about.set(projektMetadata.about)
+            task.repo.set(projektMetadata.repo)
+            task.mustRunAfter(generateReleaseWorkflowTask)
         }
-        rootProject.tasks.register<ReleaseProjektTask> {
-            dependsOn(
+        rootProject.tasks.register<ReleaseProjektTask> { task ->
+            task.dependsOn(
                 listOfNotNull(
                     generateGitAttributesTask,
                     generateGitIgnoreTask,

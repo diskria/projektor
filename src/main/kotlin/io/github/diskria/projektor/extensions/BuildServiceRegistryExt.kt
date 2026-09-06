@@ -13,9 +13,9 @@ internal inline fun <reified S : BuildService<*>> defaultBuildServiceName(): Str
 
 inline fun <reified S : BuildService<P>, P : BuildServiceParameters> BuildServiceRegistry.register(
     name: String = defaultBuildServiceName<S>(),
-    crossinline configure: BuildServiceSpec<P>.() -> Unit = {}
+    crossinline configure: (BuildServiceSpec<P>) -> Unit = {}
 ) {
-    registerIfAbsent(name, S::class) { it.configure() }
+    registerIfAbsent(name, S::class) { configure(it) }
 }
 
 @Suppress("UNCHECKED_CAST")

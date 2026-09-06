@@ -12,6 +12,6 @@ internal object MavenLocalDistributionTarget : MavenDistributionTarget(Distribut
         project: Project,
         projekt: Projekt.Distributable,
         repositories: RepositoryHandler,
-        configure: MavenArtifactRepository.() -> Unit
+        configure: (MavenArtifactRepository) -> Unit
     ): MavenArtifactRepository = repositories.mavenLocal(configure)
 }

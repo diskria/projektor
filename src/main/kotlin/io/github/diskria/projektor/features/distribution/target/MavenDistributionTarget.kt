@@ -5,7 +5,7 @@ import io.github.diskria.projektor.core.model.GradlePlugin
 import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.core.model.license.mapToModel
 import io.github.diskria.projektor.extensions.capitalized
-import io.github.diskria.projektor.extensions.create
+import io.github.diskria.projektor.extensions.getOrCreate
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.dsl.RepositoryHandler
@@ -18,7 +18,6 @@ import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.maven
 import org.gradle.kotlin.dsl.withType
 
 internal sealed class MavenDistributionTarget(
@@ -34,10 +33,14 @@ internal sealed class MavenDistributionTarget(
         project: Project,
         projekt: Projekt.Distributable,
         repositories: RepositoryHandler,
-        configure: MavenArtifactRepository.() -> Unit
-    ): MavenArtifactRepository = repositories.maven(getLocalMavenDirectory(project.layout), configure)
+        configure: (MavenArtifactRepository) -> Unit
+    ): MavenArtifactRepository =
+        repositories.maven { repository ->
+            configure(repository)
+            repository.setUrl(getLocalMavenDirectory(project.layout))
+        }
 
-    open fun configureSigning(project: Project, projekt: Projekt, publication: MavenPublication) {}
+    open fun configurePublication(project: Project, projekt: Projekt, publication: MavenPublication) {}
 
     override fun configureDistributeTask(project: Project, projekt: Projekt.Distributable): TaskProvider<out Task> =
         configurePublishTask(project, projekt)
@@ -48,31 +51,34 @@ internal sealed class MavenDistributionTarget(
         }
         project.pluginManager.apply("maven-publish")
         project.extensions.configure<PublishingExtension> {
-            configureRepository(project, projekt, repositories) {
-                name = repositoryName
+            configureRepository(project, projekt, repositories) { repository ->
+                repository.name = repositoryName
             }
             if (projekt is GradlePlugin) {
                 publications
                     .withType<MavenPublication>()
-                    .matching { it.name == "pluginMaven" }
+                    .matching { it.name == "pluginMaven" || it.name == "${projekt.name}PluginMarkerMaven" }
                     .configureEach { publication ->
                         if (publication.pom.url.isPresent) return@configureEach
+                        if (publication.name == "pluginMaven") {
+                            publication.artifactId = projekt.name
+                        }
                         configurePom(publication.pom, projekt)
-                        configureSigning(project, projekt, publication)
+                        configurePublication(project, projekt, publication)
                     }
             } else {
                 val publicationName = projekt.name.split("-").withIndex().joinToString("") { (index, part) ->
                     if (index == 0) part else part.capitalized()
                 }
-                val publication = publications.findByName(publicationName) as? MavenPublication
-                    ?: publications.create<MavenPublication>(publicationName) { publication ->
-                        val component = checkNotNull(project.components.findByName(componentName)) {
-                            "SoftwareComponent '$componentName' not found in project '${project.path}'"
-                        }
-                        publication.from(component)
-                        configurePom(publication.pom, projekt)
+                val publication = publications.getOrCreate<MavenPublication>(publicationName) { publication ->
+                    publication.artifactId = projekt.name
+                    val component = checkNotNull(project.components.findByName(componentName)) {
+                        "SoftwareComponent '$componentName' not found in project '${project.path}'"
                     }
-                configureSigning(project, projekt, publication)
+                    publication.from(component)
+                    configurePom(publication.pom, projekt)
+                }
+                configurePublication(project, projekt, publication)
             }
         }
         return project.tasks.named("publishAllPublicationsTo${repositoryName}Repository")

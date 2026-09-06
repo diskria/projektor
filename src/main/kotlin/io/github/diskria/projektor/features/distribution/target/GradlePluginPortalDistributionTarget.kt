@@ -21,7 +21,7 @@ internal object GradlePluginPortalDistributionTarget : DistributionTarget {
         project.extensions.configure<GradlePluginDevelopmentExtension> {
             website.set(gradlePlugin.metadata.repo.url)
             vcsUrl.set(gradlePlugin.metadata.repo.vcsUrl)
-            plugins.getByName(gradlePlugin.id).apply {
+            plugins.getByName(gradlePlugin.name).apply {
                 displayName = gradlePlugin.displayName
                 description = gradlePlugin.description
                 tags.set(gradlePlugin.tags)

@@ -16,7 +16,7 @@ import org.gradle.plugins.signing.SigningExtension
 
 internal object MavenCentralDistributionTarget : MavenDistributionTarget(DistributionTargetType.MAVEN_CENTRAL) {
 
-    override fun configureSigning(project: Project, projekt: Projekt, publication: MavenPublication) {
+    override fun configurePublication(project: Project, projekt: Projekt, publication: MavenPublication) {
         val env = EnvProvider(project.providers)
         if (!env.isCI) return
         project.pluginManager.apply("signing")
@@ -28,10 +28,10 @@ internal object MavenCentralDistributionTarget : MavenDistributionTarget(Distrib
 
     override fun configureDistributeTask(project: Project, projekt: Projekt.Distributable): TaskProvider<out Task> {
         val publishTask = configurePublishTask(project, projekt)
-        return project.tasks.register<UploadBundleToMavenCentralTask> {
-            bundleName.set(projekt.name)
-            bundleVersion.set(projekt.version)
-            dependsOn(publishTask)
+        return project.tasks.register<UploadBundleToMavenCentralTask> { task ->
+            task.bundleName.set(projekt.name)
+            task.bundleVersion.set(projekt.version)
+            task.dependsOn(publishTask)
         }
     }
 

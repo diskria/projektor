@@ -14,9 +14,9 @@ internal object GithubPagesDistributionTarget : MavenDistributionTarget(Distribu
 
     override fun configureDistributeTask(project: Project, projekt: Projekt.Distributable): TaskProvider<out Task> {
         val publishTask = configurePublishTask(project, projekt)
-        return project.tasks.register<DeployMavenToGithubPagesTask> {
-            repo.set(projekt.metadata.repo)
-            dependsOn(publishTask)
+        return project.tasks.register<DeployMavenToGithubPagesTask> { task ->
+            task.repo.set(projekt.metadata.repo)
+            task.dependsOn(publishTask)
         }
     }
 

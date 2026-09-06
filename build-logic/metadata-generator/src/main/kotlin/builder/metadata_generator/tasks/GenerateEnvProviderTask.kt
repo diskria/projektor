@@ -2,7 +2,6 @@ package builder.metadata_generator.tasks
 
 import builder.metadata_generator.extensions.applyBuildLogicGroup
 import builder.metadata_generator.extensions.capitalized
-import builder.metadata_generator.extensions.quoted
 import io.github.diskria.poetesse.interop.generic
 import io.github.diskria.poetesse.interop.xClass
 import io.github.diskria.poetesse.interop.xType
@@ -66,8 +65,7 @@ abstract class GenerateEnvProviderTask : DefaultTask() {
                 val name by parameter<String>()
                 returns<String>()
                 expression {
-                    val errorMessage = code { "Environment variable '$$name' is required but not set!".quoted() }
-                    "$getEnvOrNull($name) ?: error(${L(errorMessage)})"
+                    "$getEnvOrNull($name) ?: error(${S("Environment variable '$$name' is required but not set!")})"
                 }
             }
             kotlin.file("io.github.diskria.projektor.generated", "EnvProvider") {
