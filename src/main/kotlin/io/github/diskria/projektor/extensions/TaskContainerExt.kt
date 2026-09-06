@@ -15,8 +15,8 @@ inline fun <reified T : Task> TaskContainer.register(
     noinline configure: (T) -> Unit = {}
 ): TaskProvider<T> = register(name, T::class.java, *constructorArgs).apply { configure(configure) }
 
-inline fun <reified T : Task> TaskContainer.isRegistered(): Boolean =
-    names.contains(defaultTaskName<T>())
+inline fun <reified T : Task> TaskContainer.isRegistered(name: String = defaultTaskName<T>()): Boolean =
+    names.contains(name)
 
 inline fun <reified T : Task> TaskContainer.namedByType(name: String = defaultTaskName<T>()): TaskProvider<T> =
     named<T>(name)

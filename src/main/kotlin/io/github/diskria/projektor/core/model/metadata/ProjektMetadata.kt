@@ -32,7 +32,7 @@ sealed interface ProjektMetadata : PropertySerializable {
         val about: ProjektAbout,
         override val modules: List<ProjektModule>,
     ) : ProjektMetadata {
-        val displayName: String get() = repo.name.split("-").joinToString(" ") { about.fixCase(it).capitalized() }
+        val displayName: String get() = repo.name.split('-').joinToString(" ") { about.fixCase(it).capitalized() }
         override val namespace: String get() = repo.owner.namespace
     }
 

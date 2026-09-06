@@ -11,12 +11,10 @@ import org.gradle.kotlin.dsl.registerIfAbsent
 internal inline fun <reified S : BuildService<*>> defaultBuildServiceName(): String =
     defaultNameBySuffix<S>("BuildService")
 
-inline fun <reified S : BuildService<P>, P : BuildServiceParameters> BuildServiceRegistry.register(
+inline fun <reified S : BuildService<P>, P : BuildServiceParameters> BuildServiceRegistry.registerIfAbsent(
     name: String = defaultBuildServiceName<S>(),
-    crossinline configure: (BuildServiceSpec<P>) -> Unit = {}
-) {
-    registerIfAbsent(name, S::class) { configure(it) }
-}
+    noinline configure: (BuildServiceSpec<P>) -> Unit = {}
+): Provider<S> = registerIfAbsent(name, S::class, configure)
 
 @Suppress("UNCHECKED_CAST")
 inline fun <reified S : BuildService<*>> BuildServiceRegistry.findByType(

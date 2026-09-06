@@ -7,10 +7,7 @@ import io.github.diskria.projektor.core.model.ProjektModule
 import io.github.diskria.projektor.core.model.ProjektType
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadataBuildService
-import io.github.diskria.projektor.extensions.create
-import io.github.diskria.projektor.extensions.findByType
-import io.github.diskria.projektor.extensions.isRegistered
-import io.github.diskria.projektor.extensions.register
+import io.github.diskria.projektor.extensions.*
 import io.github.diskria.projektor.features.distribution.target.mapToModel
 import io.github.diskria.projektor.features.generation.readme.tasks.GenerateReadmeTask
 import io.github.diskria.projektor.features.generation.tasks.GenerateGitAttributesTask
@@ -134,8 +131,8 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     }
 
     private fun Settings.registerProjektMetadataBuildService(projektMetadata: ProjektMetadata) {
-        gradle.sharedServices.register<ProjektMetadataBuildService, ProjektMetadataBuildService.Parameters> { service ->
-            service.parameters.projektMetadata.set(projektMetadata)
+        gradle.sharedServices.registerIfAbsent<ProjektMetadataBuildService, ProjektMetadataBuildService.Parameters> {
+            it.parameters.projektMetadata.set(projektMetadata)
         }
     }
 

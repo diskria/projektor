@@ -5,7 +5,8 @@ import io.github.diskria.projektor.core.model.GradlePlugin
 import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.core.model.license.mapToModel
 import io.github.diskria.projektor.extensions.capitalized
-import io.github.diskria.projektor.extensions.getOrCreate
+import io.github.diskria.projektor.extensions.registerIfAbsent
+import org.gradle.api.DomainObjectCollection
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
@@ -16,13 +17,15 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.get
+import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
 
 internal sealed class MavenDistributionTarget(
     private val distributionTargetType: DistributionTargetType
 ) : DistributionTarget {
 
-    private val repositoryName: String = distributionTargetType.id.split("-").joinToString("") { it.capitalized() }
+    private val repositoryName: String = distributionTargetType.id.split('-').joinToString("") { it.capitalized() }
 
     fun getLocalMavenDirectory(layout: ProjectLayout): Provider<Directory> =
         layout.buildDirectory.dir("maven/${distributionTargetType.id}")
@@ -38,7 +41,12 @@ internal sealed class MavenDistributionTarget(
             repository.setUrl(getLocalMavenDirectory(project.layout))
         }
 
-    open fun configurePublication(project: Project, projekt: Projekt, publication: MavenPublication) {}
+    open fun configureSigning(
+        project: Project,
+        projekt: Projekt,
+        publications: DomainObjectCollection<MavenPublication>,
+    ) {
+    }
 
     override fun configureDistributeTasks(project: Project, projekt: Projekt.Distributable): List<String> =
         configurePublishTask(project, projekt)
@@ -53,34 +61,29 @@ internal sealed class MavenDistributionTarget(
                 repository.name = repositoryName
             }
         }
+        val container = project.extensions.getByType<PublishingExtension>().publications
+        val mavenPublications = container.withType<MavenPublication>()
         val publicationNames = if (projekt is GradlePlugin) {
             val pluginPublicationName = "pluginMaven"
             val publicationNames = listOf(pluginPublicationName, "${projekt.internalName}PluginMarkerMaven")
-            project.extensions.configure<PublishingExtension> {
-                publications.withType<MavenPublication>().matching { it.name in publicationNames }
-                    .configureEach { publication ->
-                        if (publication.pom.url.isPresent) return@configureEach
-                        if (publication.name == pluginPublicationName) {
-                            publication.artifactId = projekt.name
-                        }
-                        configurePom(publication.pom, projekt)
-                        configurePublication(project, projekt, publication)
-                    }
+            val pluginPublications = mavenPublications.matching { it.name in publicationNames }
+            pluginPublications.configureEach { publication ->
+                if (publication.pom.url.isPresent) return@configureEach
+                configurePom(publication.pom, projekt)
+                if (publication.name == pluginPublicationName) {
+                    publication.artifactId = projekt.name
+                }
             }
+            configureSigning(project, projekt, pluginPublications)
             publicationNames
         } else {
             val publicationName = "${projekt.internalName}Maven"
-            project.extensions.configure<PublishingExtension> {
-                val publication = publications.getOrCreate<MavenPublication>(publicationName) { publication ->
-                    publication.artifactId = projekt.name
-                    val component = checkNotNull(project.components.findByName(componentName)) {
-                        "SoftwareComponent '$componentName' not found in project '${project.path}'"
-                    }
-                    publication.from(component)
-                    configurePom(publication.pom, projekt)
-                }
-                configurePublication(project, projekt, publication)
+            container.registerIfAbsent<MavenPublication>(publicationName) { publication ->
+                configurePom(publication.pom, projekt)
+                publication.artifactId = projekt.name
+                publication.from(project.components[componentName])
             }
+            configureSigning(project, projekt, mavenPublications.matching { it.name == publicationName })
             listOf(publicationName)
         }
         return publicationNames.map { "publish${it.capitalized()}PublicationTo${repositoryName}Repository" }

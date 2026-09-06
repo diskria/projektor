@@ -16,8 +16,8 @@ sealed interface Projekt {
     val javaVersion: Int get() = ToolchainDefaults.JAVA_VERSION
     val jvmTarget: Int get() = 17
 
-    val packageName: String get() = "${metadata.namespace}.${name.lowercase().replace("-", "_")}"
-    val classNamePrefix: String get() = name.split("-").joinToString("") { it.capitalized() }
+    val packageName: String get() = "${metadata.namespace}.${name.lowercase().replace('-', '_')}"
+    val classNamePrefix: String get() = name.split('-').joinToString("") { it.capitalized() }
 
     interface Distributable : Projekt {
         val version: String
