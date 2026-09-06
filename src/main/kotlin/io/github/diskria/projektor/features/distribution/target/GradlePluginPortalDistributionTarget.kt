@@ -7,15 +7,13 @@ import io.github.diskria.projektor.features.generation.readme.GradlePluginPortal
 import io.github.diskria.projektor.features.generation.readme.ReadmeShield
 import io.github.diskria.projektor.generated.EnvProvider
 import org.gradle.api.Project
-import org.gradle.api.Task
-import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.configure
 import org.gradle.plugin.compatibility.compatibility
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 
 internal object GradlePluginPortalDistributionTarget : DistributionTarget {
 
-    override fun configureDistributeTask(project: Project, projekt: Projekt.Distributable): TaskProvider<out Task> {
+    override fun configureDistributeTasks(project: Project, projekt: Projekt.Distributable): List<String> {
         val pluginProjekt = projekt.ensureGradlePlugin()
         project.pluginManager.apply("com.gradle.plugin-publish")
         project.extensions.configure<GradlePluginDevelopmentExtension> {
@@ -32,13 +30,12 @@ internal object GradlePluginPortalDistributionTarget : DistributionTarget {
             }
         }
         val env = EnvProvider(project.providers)
-        val taskName = if (env.isCI) {
+        return if (env.isCI) {
             env.requireGradlePublishCredentials()
-            "publishPlugins"
+            listOf("publishPlugins")
         } else {
-            "validatePlugins"
+            listOf("validatePlugins")
         }
-        return project.tasks.named(taskName)
     }
 
     override fun getHomepage(projekt: Projekt.Distributable): String =

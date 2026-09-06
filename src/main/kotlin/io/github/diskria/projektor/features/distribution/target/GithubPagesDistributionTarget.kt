@@ -7,17 +7,16 @@ import io.github.diskria.projektor.features.distribution.tasks.DeployMavenToGith
 import io.github.diskria.projektor.features.generation.readme.GithubPagesShield
 import io.github.diskria.projektor.features.generation.readme.ReadmeShield
 import org.gradle.api.Project
-import org.gradle.api.Task
-import org.gradle.api.tasks.TaskProvider
 
 internal object GithubPagesDistributionTarget : MavenDistributionTarget(DistributionTargetType.GITHUB_PAGES) {
 
-    override fun configureDistributeTask(project: Project, projekt: Projekt.Distributable): TaskProvider<out Task> {
+    override fun configureDistributeTasks(project: Project, projekt: Projekt.Distributable): List<String> {
         val publishTask = configurePublishTask(project, projekt)
-        return project.tasks.register<DeployMavenToGithubPagesTask> { task ->
+        val distributeTask = project.tasks.register<DeployMavenToGithubPagesTask> { task ->
             task.repo.set(projekt.metadata.repo)
             task.dependsOn(publishTask)
         }
+        return listOf(distributeTask.name)
     }
 
     override fun getHomepage(projekt: Projekt.Distributable): String = projekt.metadata.repo.pagesUrl

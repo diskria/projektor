@@ -66,8 +66,8 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
         } else {
             applyToBuildLogicSettings(settings)
         }
-        settings.dependencyResolutionManagement.versionCatalogs.create("convention").apply {
-            plugin("projektor", ID).version("")
+        settings.dependencyResolutionManagement.versionCatalogs.register("convention") { catalog ->
+            catalog.plugin("projektor", ID).version("")
         }
     }
 
@@ -117,9 +117,9 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
 
     private fun applyToBuildLogicSettings(settings: Settings) {
         val rootDirectory = settings.layout.rootDirectory
-        settings.dependencyResolutionManagement.versionCatalogs.create("libs").from(
-            rootDirectory.files(rootDirectory.asFile.parentFile.resolve("gradle/libs.versions.toml"))
-        )
+        settings.dependencyResolutionManagement.versionCatalogs.register("libs") { catalog ->
+            catalog.from(rootDirectory.files(rootDirectory.asFile.parentFile.resolve("gradle/libs.versions.toml")))
+        }
         val modulesConfigFile = rootDirectory.file(MODULES_CONFIG_PATH).asFile
         check(modulesConfigFile.exists()) {
             """
@@ -143,9 +143,9 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
         val plugins = modules.filter { it.type == ProjektType.GRADLE_PLUGIN }
         val libraries = modules.filter { it.type == ProjektType.KOTLIN_LIBRARY }
         if (plugins.isEmpty() && libraries.isEmpty()) return
-        settings.dependencyResolutionManagement.versionCatalogs.create("builder").apply {
-            plugins.forEach { plugin(it.name, "builder.${it.name}").version("") }
-            libraries.forEach { library(it.name, "builder", it.name).withoutVersion() }
+        settings.dependencyResolutionManagement.versionCatalogs.register("builder") { catalog ->
+            plugins.forEach { catalog.plugin(it.name, "builder.${it.name}").version("") }
+            libraries.forEach { catalog.library(it.name, "builder", it.name).withoutVersion() }
         }
     }
 

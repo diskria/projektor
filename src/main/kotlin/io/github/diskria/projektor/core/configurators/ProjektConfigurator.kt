@@ -3,8 +3,7 @@ package io.github.diskria.projektor.core.configurators
 import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.core.model.ToolchainDefaults
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
-import io.github.diskria.projektor.extensions.findByType
-import io.github.diskria.projektor.extensions.getByType
+import io.github.diskria.projektor.extensions.namedByType
 import io.github.diskria.projektor.features.distribution.target.mapToModel
 import io.github.diskria.projektor.features.generation.tasks.GenerateLicenseTask
 import io.github.diskria.projektor.features.generation.tasks.GenerateReleaseWorkflowTask
@@ -87,7 +86,7 @@ internal abstract class ProjektConfigurator<P : Projekt, D : Projekt.Distributab
             }
             if (projekt is Projekt.Distributable) {
                 named<Jar>("jar").configure { jar ->
-                    project.rootProject.tasks.findByType<GenerateLicenseTask>()?.let { generateLicenseTask ->
+                    project.rootProject.tasks.withType<GenerateLicenseTask>().configureEach { generateLicenseTask ->
                         val fileNameSuffix = "_${projekt.metadata.repo.name}"
                         jar.inputs.property("licenseFileNameSuffix", fileNameSuffix)
                         jar.from(generateLicenseTask.outputFile) { copySpec ->
@@ -106,17 +105,14 @@ internal abstract class ProjektConfigurator<P : Projekt, D : Projekt.Distributab
             if (projekt.isSourcesEnabled) withSourcesJar()
             if (projekt.isJavadocEnabled) withJavadocJar()
         }
-        val rootTaskContainer = project.rootProject.tasks
-        val distributeTasks = projekt.distributionTargetTypes.map {
-            it.mapToModel().configureDistributeTask(project, projekt)
+        val distributeTaskNames = projekt.distributionTargetTypes.flatMap {
+            it.mapToModel().configureDistributeTasks(project, projekt)
         }
-        val generateReleaseWorkflowTask = rootTaskContainer.getByType<GenerateReleaseWorkflowTask>()
-        distributeTasks.forEach { distributeTask ->
-            distributeTask.configure { task ->
-                task.mustRunAfter(generateReleaseWorkflowTask)
-            }
-        }
-        rootTaskContainer.getByType<UpdateGithubRepoMetadataTask>().mustRunAfter(distributeTasks)
-        rootTaskContainer.getByType<ReleaseProjektTask>().dependsOn(distributeTasks)
+        val distributeTasks = project.tasks.matching { it.name in distributeTaskNames }
+        val rootTasks = project.rootProject.tasks
+        val generateReleaseWorkflowTask = rootTasks.namedByType<GenerateReleaseWorkflowTask>()
+        distributeTasks.configureEach { it.mustRunAfter(generateReleaseWorkflowTask) }
+        rootTasks.namedByType<UpdateGithubRepoMetadataTask>().configure { it.mustRunAfter(distributeTasks) }
+        rootTasks.namedByType<ReleaseProjektTask>().configure { it.dependsOn(distributeTasks) }
     }
 }

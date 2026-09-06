@@ -11,6 +11,7 @@ import org.gradle.kotlin.dsl.getByType
 sealed interface Projekt {
 
     val name: String
+    val internalName: String get() = "${name}Projekt"
     val metadata: ProjektMetadata
     val javaVersion: Int get() = ToolchainDefaults.JAVA_VERSION
     val jvmTarget: Int get() = 17

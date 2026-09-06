@@ -8,9 +8,7 @@ import io.github.diskria.projektor.features.generation.readme.MavenCentralShield
 import io.github.diskria.projektor.features.generation.readme.ReadmeShield
 import io.github.diskria.projektor.generated.EnvProvider
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.configure
 import org.gradle.plugins.signing.SigningExtension
 
@@ -26,13 +24,14 @@ internal object MavenCentralDistributionTarget : MavenDistributionTarget(Distrib
         }
     }
 
-    override fun configureDistributeTask(project: Project, projekt: Projekt.Distributable): TaskProvider<out Task> {
+    override fun configureDistributeTasks(project: Project, projekt: Projekt.Distributable): List<String> {
         val publishTask = configurePublishTask(project, projekt)
-        return project.tasks.register<UploadBundleToMavenCentralTask> { task ->
+        val distributeTask = project.tasks.register<UploadBundleToMavenCentralTask> { task ->
             task.bundleName.set(projekt.name)
             task.bundleVersion.set(projekt.version)
             task.dependsOn(publishTask)
         }
+        return listOf(distributeTask.name)
     }
 
     override fun getHomepage(projekt: Projekt.Distributable): String =

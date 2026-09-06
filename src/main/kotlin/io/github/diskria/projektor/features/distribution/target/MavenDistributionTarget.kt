@@ -7,7 +7,6 @@ import io.github.diskria.projektor.core.model.license.mapToModel
 import io.github.diskria.projektor.extensions.capitalized
 import io.github.diskria.projektor.extensions.getOrCreate
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.file.Directory
@@ -16,7 +15,6 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.withType
 
@@ -42,10 +40,10 @@ internal sealed class MavenDistributionTarget(
 
     open fun configurePublication(project: Project, projekt: Projekt, publication: MavenPublication) {}
 
-    override fun configureDistributeTask(project: Project, projekt: Projekt.Distributable): TaskProvider<out Task> =
+    override fun configureDistributeTasks(project: Project, projekt: Projekt.Distributable): List<String> =
         configurePublishTask(project, projekt)
 
-    protected fun configurePublishTask(project: Project, projekt: Projekt.Distributable): TaskProvider<out Task> {
+    protected fun configurePublishTask(project: Project, projekt: Projekt.Distributable): List<String> {
         val componentName = checkNotNull(projekt.softwareComponent) {
             "This kind of project doesn't support publishing to ${distributionTargetType.displayName}"
         }
@@ -54,22 +52,25 @@ internal sealed class MavenDistributionTarget(
             configureRepository(project, projekt, repositories) { repository ->
                 repository.name = repositoryName
             }
-            if (projekt is GradlePlugin) {
-                publications
-                    .withType<MavenPublication>()
-                    .matching { it.name == "pluginMaven" || it.name == "${projekt.name}PluginMarkerMaven" }
+        }
+        val publicationNames = if (projekt is GradlePlugin) {
+            val pluginPublicationName = "pluginMaven"
+            val publicationNames = listOf(pluginPublicationName, "${projekt.internalName}PluginMarkerMaven")
+            project.extensions.configure<PublishingExtension> {
+                publications.withType<MavenPublication>().matching { it.name in publicationNames }
                     .configureEach { publication ->
                         if (publication.pom.url.isPresent) return@configureEach
-                        if (publication.name == "pluginMaven") {
+                        if (publication.name == pluginPublicationName) {
                             publication.artifactId = projekt.name
                         }
                         configurePom(publication.pom, projekt)
                         configurePublication(project, projekt, publication)
                     }
-            } else {
-                val publicationName = projekt.name.split("-").withIndex().joinToString("") { (index, part) ->
-                    if (index == 0) part else part.capitalized()
-                }
+            }
+            publicationNames
+        } else {
+            val publicationName = "${projekt.internalName}Maven"
+            project.extensions.configure<PublishingExtension> {
                 val publication = publications.getOrCreate<MavenPublication>(publicationName) { publication ->
                     publication.artifactId = projekt.name
                     val component = checkNotNull(project.components.findByName(componentName)) {
@@ -80,8 +81,9 @@ internal sealed class MavenDistributionTarget(
                 }
                 configurePublication(project, projekt, publication)
             }
+            listOf(publicationName)
         }
-        return project.tasks.named("publishAllPublicationsTo${repositoryName}Repository")
+        return publicationNames.map { "publish${it.capitalized()}PublicationTo${repositoryName}Repository" }
     }
 
     private fun configurePom(pom: MavenPom, projekt: Projekt.Distributable) {
