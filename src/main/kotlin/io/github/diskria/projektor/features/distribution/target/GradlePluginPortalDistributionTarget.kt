@@ -19,7 +19,7 @@ internal object GradlePluginPortalDistributionTarget : DistributionTarget {
         project.extensions.configure<GradlePluginDevelopmentExtension> {
             website.set(projekt.metadata.repo.url)
             vcsUrl.set(projekt.metadata.repo.vcsUrl)
-            plugins.named(projekt.name).configure { plugin ->
+            plugins.named(projekt.internalName).configure { plugin ->
                 plugin.displayName = projekt.displayName
                 plugin.description = projekt.description
                 plugin.tags.set(pluginProjekt.tags)
