@@ -1,6 +1,7 @@
 package io.github.diskria.projektor.core.model.metadata
 
-import java.io.File
+import io.github.diskria.projektor.extensions.writeTextCreatingParent
+import org.gradle.api.file.Directory
 import java.io.Serializable as PropertySerializable
 
 class ProjektAbout(
@@ -26,23 +27,26 @@ class ProjektAbout(
     }
 
     companion object {
-        fun from(repoDirectory: File): ProjektAbout {
-            val aboutDirectory = repoDirectory.resolve("about").apply { mkdirs() }
-            val description = aboutDirectory.resolve("DESCRIPTION.md").ensureCreated("TODO: Project description.")
-                .readText().trim()
-            val details = aboutDirectory.resolve("DETAILS.md").ensureCreated("TODO: Detailed project documentation.")
-                .readText().trim()
-            val tags = aboutDirectory.resolve("TAGS.md").ensureCreated("kotlin")
-                .readLines().map { it.trim() }.filter { it.isNotEmpty() }.toSet()
-            return ProjektAbout(description, details, tags)
-        }
-
-        private fun File.ensureCreated(defaultContent: String): File {
-            if (!exists()) {
-                createNewFile()
-                writeText(defaultContent)
+        fun from(repoDirectory: Directory): ProjektAbout {
+            val aboutDirectory = repoDirectory.dir("about")
+            val descriptionFile = aboutDirectory.file("DESCRIPTION.md")
+            if (!descriptionFile.asFile.exists()) {
+                descriptionFile.writeTextCreatingParent("TODO: Project description.")
             }
-            return this
+            val description = descriptionFile.asFile.readText().trim()
+
+            val detailsFile = aboutDirectory.file("DETAILS.md")
+            if (!detailsFile.asFile.exists()) {
+                detailsFile.writeTextCreatingParent("TODO: Detailed project documentation.")
+            }
+            val details = descriptionFile.asFile.readText().trim()
+
+            val tagsFile = aboutDirectory.file("TAGS.md")
+            if (!tagsFile.asFile.exists()) {
+                tagsFile.writeTextCreatingParent("kotlin")
+            }
+            val tags = tagsFile.asFile.readLines().map { it.trim() }.filter { it.isNotEmpty() }.toSet()
+            return ProjektAbout(description, details, tags)
         }
     }
 }

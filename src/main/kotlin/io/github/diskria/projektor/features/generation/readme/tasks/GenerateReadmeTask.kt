@@ -15,7 +15,6 @@ import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.work.DisableCachingByDefault
-import java.io.File
 import javax.inject.Inject
 
 @DisableCachingByDefault(because = SIDE_EFFECTS)
@@ -42,7 +41,7 @@ abstract class GenerateReadmeTask @Inject internal constructor(
         commitType.convention(CommitType.DOCS)
     }
 
-    override fun getFileText(repoDirectory: File, file: File): String {
+    override fun build(): String {
         val licenseModel = licenseType.orNull?.mapToModel()
         val shields = buildList {
             addAll(distributionTargetShieldMarkdowns.get())

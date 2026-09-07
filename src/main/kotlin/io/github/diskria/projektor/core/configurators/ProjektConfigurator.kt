@@ -1,13 +1,16 @@
 package io.github.diskria.projektor.core.configurators
 
+import io.github.diskria.projektor.ProjektorGradlePlugin
+import io.github.diskria.projektor.core.model.DistributableProjektModel
 import io.github.diskria.projektor.core.model.Projekt
 import io.github.diskria.projektor.core.model.ToolchainDefaults
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
-import io.github.diskria.projektor.extensions.namedByType
+import io.github.diskria.projektor.extensions.defaultTaskName
+import io.github.diskria.projektor.extensions.register
 import io.github.diskria.projektor.features.distribution.target.mapToModel
+import io.github.diskria.projektor.features.distribution.tasks.DistributeProjektTask
+import io.github.diskria.projektor.features.distribution.tasks.GenerateDistributableProjektModelTask
 import io.github.diskria.projektor.features.generation.tasks.GenerateLicenseTask
-import io.github.diskria.projektor.features.generation.tasks.GenerateReleaseWorkflowTask
-import io.github.diskria.projektor.features.metadata.tasks.UpdateGithubRepoMetadataTask
 import io.github.diskria.projektor.features.release.ReleaseProjektTask
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePluginExtension
@@ -85,21 +88,38 @@ internal abstract class ProjektConfigurator<P : Projekt, D : Projekt.Distributab
                 }
             }
             if (projekt is Projekt.Distributable) {
-                named<Jar>("jar").configure { jar ->
-                    project.rootProject.tasks.withType<GenerateLicenseTask>().configureEach { generateLicenseTask ->
-                        val fileNameSuffix = "_${projekt.metadata.repo.name}"
-                        jar.inputs.property("licenseFileNameSuffix", fileNameSuffix)
-                        jar.from(generateLicenseTask.outputFile) { copySpec ->
-                            copySpec.rename { fileName -> "$fileName$fileNameSuffix" }
-                        }
+                val dependencyScope = project.configurations.dependencyScope(
+                    "${ProjektorGradlePlugin.ROOT_LICENSE_TASK_CONFIGURATION_NAME}Scope"
+                )
+                val dependency = project.dependencies.project(
+                    mapOf("path" to ":", "configuration" to ProjektorGradlePlugin.ROOT_LICENSE_TASK_CONFIGURATION_NAME)
+                )
+                project.dependencies.add(dependencyScope.name, dependency)
+                val rootLicenseTask = project.configurations.resolvable(
+                    ProjektorGradlePlugin.ROOT_LICENSE_TASK_CONFIGURATION_NAME + "Resolver"
+                ) { it.extendsFrom(dependencyScope.get()) }
+                named<Jar>("jar").configure { task ->
+                    val fileNameSuffix = "_${projekt.metadata.repo.name}"
+                    task.inputs.property(
+                        "${ProjektorGradlePlugin.ID}.${defaultTaskName<GenerateLicenseTask>()}.fileNameSuffix",
+                        fileNameSuffix
+                    )
+                    task.from(rootLicenseTask) { copySpec ->
+                        copySpec.rename { fileName -> "$fileName$fileNameSuffix" }
                     }
-                    jar.archiveVersion.set(projekt.version)
+                    task.archiveVersion.set(projekt.version)
                 }
             }
         }
     }
 
     private fun configureDistribution(project: Project, projekt: Projekt.Distributable) {
+        val distributableTaskConfiguration = project.configurations.consumable(
+            ProjektorGradlePlugin.DISTRIBUTE_PROJEKT_TASK_CONFIGURATION_NAME
+        )
+        val distributableProjektModelConfiguration = project.configurations.consumable(
+            ProjektorGradlePlugin.DISTRIBUTABLE_PROJEKT_MODEL_CONFIGURATION_NAME
+        )
         if (projekt.distributionTargetTypes.isEmpty()) return
         project.extensions.configure<JavaPluginExtension> {
             if (projekt.isSourcesEnabled) withSourcesJar()
@@ -108,11 +128,26 @@ internal abstract class ProjektConfigurator<P : Projekt, D : Projekt.Distributab
         val distributeTaskNames = projekt.distributionTargetTypes.flatMap {
             it.mapToModel().configureDistributeTasks(project, projekt)
         }
-        val distributeTasks = project.tasks.matching { it.name in distributeTaskNames }
-        val rootTasks = project.rootProject.tasks
-        val generateReleaseWorkflowTask = rootTasks.namedByType<GenerateReleaseWorkflowTask>()
-        distributeTasks.configureEach { it.mustRunAfter(generateReleaseWorkflowTask) }
-        rootTasks.namedByType<UpdateGithubRepoMetadataTask>().configure { it.mustRunAfter(distributeTasks) }
-        rootTasks.namedByType<ReleaseProjektTask>().configure { it.dependsOn(distributeTasks) }
+        val distributeTask = project.tasks.register<DistributeProjektTask> { task ->
+            task.mustRunAfter(ReleaseProjektTask.PREPARATION_TASK_PATHS)
+            task.dependsOn(project.tasks.matching { it.name in distributeTaskNames })
+        }
+        distributableTaskConfiguration.configure { configuration ->
+            configuration.outgoing.artifact(project.layout.buildDirectory) { artifact ->
+                artifact.builtBy(distributeTask)
+            }
+        }
+        val generateModelTask = project.tasks.register<GenerateDistributableProjektModelTask> { task ->
+            val targets = projekt.distributionTargetTypes.map { it.mapToModel() }
+            task.model.set(
+                DistributableProjektModel(
+                    homepageUrl = targets.firstNotNullOfOrNull { it.getHomepage(projekt) },
+                    readmeShieldMarkdowns = targets.mapNotNull { it.getReadmeShield(projekt)?.markdown },
+                )
+            )
+        }
+        distributableProjektModelConfiguration.configure { configuration ->
+            configuration.outgoing.artifact(generateModelTask.map { it.outputFile })
+        }
     }
 }

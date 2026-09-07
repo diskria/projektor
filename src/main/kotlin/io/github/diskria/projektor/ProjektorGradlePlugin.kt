@@ -3,12 +3,12 @@ package io.github.diskria.projektor
 import io.github.diskria.projektor.api.BuildLogicProjektExtension
 import io.github.diskria.projektor.api.DistributableProjektExtension
 import io.github.diskria.projektor.api.ProjektMetadataExtension
+import io.github.diskria.projektor.core.model.DistributableProjektModel
 import io.github.diskria.projektor.core.model.ProjektModule
 import io.github.diskria.projektor.core.model.ProjektType
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadata
 import io.github.diskria.projektor.core.model.metadata.ProjektMetadataBuildService
 import io.github.diskria.projektor.extensions.*
-import io.github.diskria.projektor.features.distribution.target.mapToModel
 import io.github.diskria.projektor.features.generation.readme.tasks.GenerateReadmeTask
 import io.github.diskria.projektor.features.generation.tasks.GenerateGitAttributesTask
 import io.github.diskria.projektor.features.generation.tasks.GenerateGitIgnoreTask
@@ -20,13 +20,14 @@ import io.github.diskria.projektor.generated.BuildConfig
 import io.github.diskria.projektor.generated.EnvProvider
 import io.github.diskria.projektor.internal.gradle.VersionCatalogsHelper
 import kotlinx.serialization.json.Json
+import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.ResolvableConfiguration
 import org.gradle.api.initialization.Settings
 import org.gradle.api.initialization.resolve.RepositoriesMode
 import org.gradle.api.plugins.PluginAware
 import org.gradle.api.tasks.wrapper.Wrapper
-import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.withType
 import org.gradle.util.GradleVersion
 
@@ -63,25 +64,21 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
         } else {
             applyToBuildLogicSettings(settings)
         }
-        settings.dependencyResolutionManagement.versionCatalogs.register("convention") { catalog ->
-            catalog.plugin("projektor", ID).version("")
-        }
     }
 
     private fun applyToDistributableSettings(settings: Settings) {
         val rootDirectory = settings.layout.rootDirectory
         settings.pluginManager.apply("org.gradle.toolchains.foojay-resolver-convention")
-        val defaultCatalogFile = rootDirectory.file("gradle/libs.versions.toml").asFile
-        if (!defaultCatalogFile.exists()) {
-            defaultCatalogFile.parentFile.mkdirs()
-            defaultCatalogFile.writeText(VersionCatalogsHelper.TEMPLATE)
+        val defaultCatalogFile = rootDirectory.file("gradle/libs.versions.toml")
+        if (!defaultCatalogFile.asFile.exists()) {
+            defaultCatalogFile.writeTextCreatingParent(VersionCatalogsHelper.TEMPLATE)
         }
-        val buildLogicDirectory = rootDirectory.dir("build-logic").asFile
-        if (buildLogicDirectory.exists()) {
+        val buildLogicDirectory = rootDirectory.dir("build-logic")
+        if (buildLogicDirectory.asFile.exists()) {
             settings.includeBuild("build-logic")
             settings.pluginManagement.includeBuild("build-logic")
         }
-        val extension = settings.extensions.create<ProjektMetadataExtension>(settings, name = "projekt")
+        val extension = settings.extensions.create<ProjektMetadataExtension>(settings, name = "projektor")
         settings.gradle.settingsEvaluated {
             val env = EnvProvider(settings.providers)
             val (ownerName, repoName) = if (env.isCI) {
@@ -90,19 +87,10 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
                 with(rootDirectory.asFile) { parentFile.name to name }
             }
             val projektMetadata = extension.ensureConfigured(ownerName, repoName)
-            if (projektMetadata.isMonorepo) {
-                val srcDirectory = rootDirectory.dir("src").asFile
-                check(!srcDirectory.exists()) {
-                    """
-                    Root project source directory '${srcDirectory.absolutePath}' is not allowed in a monorepo!
-                    Move your source code into a subproject.
-                    """.trimIndent()
-                }
-            }
+            if (projektMetadata.isMonorepo) settings.ensureRootSourcesEmpty()
             if (extension.buildLogicModules.isNotEmpty()) {
-                val modulesConfigFile = buildLogicDirectory.resolve(MODULES_CONFIG_PATH)
-                modulesConfigFile.parentFile.mkdirs()
-                modulesConfigFile.writeText(Json.encodeToString(extension.buildLogicModules))
+                buildLogicDirectory.file(BUILD_LOGIC_MODULES_PATH)
+                    .writeTextCreatingParent(Json.encodeToString(extension.buildLogicModules))
                 configureBuildLogicVersionCatalog(settings, extension.buildLogicModules)
             }
             settings.registerProjektMetadataBuildService(projektMetadata)
@@ -117,7 +105,7 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
         settings.dependencyResolutionManagement.versionCatalogs.register("libs") { catalog ->
             catalog.from(rootDirectory.files(rootDirectory.asFile.parentFile.resolve("gradle/libs.versions.toml")))
         }
-        val modulesConfigFile = rootDirectory.file(MODULES_CONFIG_PATH).asFile
+        val modulesConfigFile = rootDirectory.file(BUILD_LOGIC_MODULES_PATH).asFile
         check(modulesConfigFile.exists()) {
             """
             Build logic project cannot be built standalone!
@@ -126,8 +114,19 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
             """.trimIndent()
         }
         val projektMetadata = ProjektMetadata.BuildLogic(Json.decodeFromString(modulesConfigFile.readText()))
+        if (projektMetadata.isMonorepo) settings.ensureRootSourcesEmpty()
         ProjektMetadataExtension.applyModules(projektMetadata, settings)
         settings.registerProjektMetadataBuildService(projektMetadata)
+    }
+
+    private fun Settings.ensureRootSourcesEmpty() {
+        val srcDirectory = layout.rootDirectory.dir("src")
+        check(!srcDirectory.asFile.exists()) {
+            """
+            Root project source directory '${srcDirectory.asFile.path}' is not allowed in a monorepo!
+            Move your source code into a subprojects.
+            """.trimIndent()
+        }
     }
 
     private fun Settings.registerProjektMetadataBuildService(projektMetadata: ProjektMetadata) {
@@ -169,32 +168,35 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
     }
 
     private fun applyToProject(project: Project) {
-        val projektMetadata = checkNotNull(
-            project.gradle.sharedServices.findByType<ProjektMetadataBuildService>()?.projektMetadata?.orNull
-        ) {
+        val serviceProvider = project.gradle.sharedServices.findByType<ProjektMetadataBuildService>()
+        val projektMetadata = checkNotNull(serviceProvider?.orNull?.projektMetadata?.orNull) {
             """
-            Projektor plugin was applied in 'build.gradle.kts', but is missing from 'settings.gradle.kts'!
+            Projektor metadata is missing for project '${project.path}'.
             
-            Please add it to 'settings.gradle.kts' with a version first:
+            To fix this, ensure 'settings.gradle.kts' is configured:
+            
+            1. Apply the plugin: 
               plugins {
                   id("$ID") version "$VERSION"
               }
             
-            And in 'build.gradle.kts', apply it WITHOUT a version:
-              plugins {
-                  alias(convention.plugins.projektor)
+            2. Configure projektor modules:
+              projektor {
+                  // ...
               }
             """.trimIndent()
         }
-        project.pluginManager.apply("org.jetbrains.kotlin.jvm")
-        project.pluginManager.apply("org.jetbrains.kotlin.plugin.serialization")
+        if (project == project.rootProject) {
+            if (projektMetadata is ProjektMetadata.Distributable) configureReleaseTask(project, projektMetadata)
+            if (projektMetadata.isMonorepo) return
+        }
+        project.applyKotlinPlugins()
         when (projektMetadata) {
             is ProjektMetadata.Distributable -> {
                 val extension = project.extensions.create<DistributableProjektExtension>(name = "projekt")
                 project.afterEvaluate {
                     extension.ensureConfigured(project, projektMetadata)
                 }
-                configureReleaseTask(project.rootProject, projektMetadata)
             }
 
             is ProjektMetadata.BuildLogic -> {
@@ -206,8 +208,23 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
         }
     }
 
+    private fun Project.applyKotlinPlugins() {
+        pluginManager.apply("org.jetbrains.kotlin.jvm")
+        pluginManager.apply("org.jetbrains.kotlin.plugin.serialization")
+    }
+
     private fun configureReleaseTask(rootProject: Project, projektMetadata: ProjektMetadata.Distributable) {
         if (rootProject.tasks.isRegistered<ReleaseProjektTask>()) return
+        val distributableProjektModels = collectSubprojectConfig(
+            DISTRIBUTABLE_PROJEKT_MODEL_CONFIGURATION_NAME, rootProject, projektMetadata.modules
+        ).flatMap { config ->
+            config.incoming.files.elements.map { locations ->
+                locations.map { Json.decodeFromString<DistributableProjektModel>(it.asFile.readText()) }
+            }
+        }
+        val distributeProjektTasks = collectSubprojectConfig(
+            DISTRIBUTE_PROJEKT_TASK_CONFIGURATION_NAME, rootProject, projektMetadata.modules
+        )
         val generateGitAttributesTask = rootProject.tasks.register<GenerateGitAttributesTask> { task ->
             task.repo.set(projektMetadata.repo)
         }
@@ -223,10 +240,16 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
                 task.mustRunAfter(generateGitIgnoreTask)
             }
         }
+        rootProject.configurations.consumable(ROOT_LICENSE_TASK_CONFIGURATION_NAME) { config ->
+            generateLicenseTask?.let { task -> config.outgoing.artifact(task) }
+        }
         val generateReadmeTask = rootProject.tasks.register<GenerateReadmeTask> { task ->
             task.displayName.set(projektMetadata.displayName)
             task.about.set(projektMetadata.about)
             task.licenseType.set(projektMetadata.licenseType)
+            task.distributionTargetShieldMarkdowns.set(
+                distributableProjektModels.map { it.flatMap { model -> model.readmeShieldMarkdowns } }
+            )
             task.repo.set(projektMetadata.repo)
             task.mustRunAfter(generateLicenseTask ?: generateGitIgnoreTask)
         }
@@ -234,54 +257,49 @@ class ProjektorGradlePlugin : Plugin<PluginAware> {
             task.repo.set(projektMetadata.repo)
             task.mustRunAfter(generateReadmeTask)
         }
-        val updateGithubRepoMetadataTask = rootProject.tasks.register<UpdateGithubRepoMetadataTask> { task ->
+        rootProject.tasks.register<UpdateGithubRepoMetadataTask> { task ->
             task.projektTypes.set(projektMetadata.modules.map { it.type })
             task.about.set(projektMetadata.about)
             task.repo.set(projektMetadata.repo)
+            task.homepageUrl.set(
+                distributableProjektModels.map { it.firstNotNullOfOrNull { model -> model.homepageUrl } }
+            )
             task.mustRunAfter(generateReleaseWorkflowTask)
         }
         rootProject.tasks.register<ReleaseProjektTask> { task ->
-            task.dependsOn(
-                listOfNotNull(
-                    generateGitAttributesTask,
-                    generateGitIgnoreTask,
-                    generateLicenseTask,
-                    generateReadmeTask,
-                    generateReleaseWorkflowTask,
-                    updateGithubRepoMetadataTask,
-                )
+            task.dependsOn(ReleaseProjektTask.PREPARATION_TASK_NAMES.mapNotNull { taskName ->
+                if (rootProject.tasks.names.contains(taskName)) rootProject.tasks.named(taskName)
+                else null
+            })
+            task.dependsOn(distributeProjektTasks)
+        }
+    }
+
+    private fun collectSubprojectConfig(
+        consumableName: String,
+        rootProject: Project,
+        modules: List<ProjektModule>,
+    ): NamedDomainObjectProvider<ResolvableConfiguration> {
+        val resolvableName = consumableName + "Resolver"
+        val dependencyScope = rootProject.configurations.dependencyScope("${resolvableName}Scope")
+        modules.forEach { module ->
+            val dependency = rootProject.dependencies.project(
+                mapOf("path" to module.path, "configuration" to consumableName)
             )
+            rootProject.dependencies.add(dependencyScope.name, dependency)
         }
-        rootProject.gradle.projectsEvaluated {
-            val projekts = rootProject.allprojects.mapNotNull {
-                it.extensions.findByType<DistributableProjektExtension>()?.projekt?.orNull
-            }
-            generateReadmeTask.configure { task ->
-                task.distributionTargetShieldMarkdowns.set(
-                    projekts.flatMap { projekt ->
-                        projekt.distributionTargetTypes.mapNotNull { targetType ->
-                            targetType.mapToModel().getReadmeShield(projekt)?.markdown
-                        }
-                    }
-                )
-            }
-            updateGithubRepoMetadataTask.configure { task ->
-                task.homepageUrl.set(
-                    projekts.firstNotNullOfOrNull { projekt ->
-                        projekt.distributionTargetTypes.firstNotNullOfOrNull { target ->
-                            target.mapToModel().getHomepage(projekt)
-                        }
-                    }
-                )
-            }
-        }
+        return rootProject.configurations.resolvable(resolvableName) { it.extendsFrom(dependencyScope) }
     }
 
     internal companion object {
         const val ID: String = BuildConfig.PLUGIN_ID
         const val VERSION: String = BuildConfig.PLUGIN_VERSION
 
-        private const val MODULES_CONFIG_PATH = ".gradle/projektor/modules.json"
+        internal const val DISTRIBUTABLE_PROJEKT_MODEL_CONFIGURATION_NAME = "distributableProjektModel"
+        internal const val DISTRIBUTE_PROJEKT_TASK_CONFIGURATION_NAME = "distributeProjektTask"
+        internal const val ROOT_LICENSE_TASK_CONFIGURATION_NAME = "rootLicenseTask"
+
+        private const val BUILD_LOGIC_MODULES_PATH = ".gradle/$ID/build-logic-modules.json"
 
         fun readResourceText(path: String): String =
             ProjektorGradlePlugin::class.java.getResourceAsStream("/$path")?.bufferedReader()?.use { it.readText() }

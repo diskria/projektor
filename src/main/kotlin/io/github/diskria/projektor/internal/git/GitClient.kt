@@ -1,8 +1,8 @@
 package io.github.diskria.projektor.internal.git
 
-import java.io.File
+import org.gradle.api.file.Directory
 
-internal class GitClient private constructor(private val repoDirectory: File) {
+internal class GitClient private constructor(private val repoDirectory: Directory) {
 
     fun configureUser(name: String, email: String, isGlobal: Boolean = false) {
         val configArgs = listOfNotNull("config", if (isGlobal) "--global" else null)
@@ -29,11 +29,7 @@ internal class GitClient private constructor(private val repoDirectory: File) {
 
     private fun exec(args: List<String>): ProcessResult {
         val command = listOf("git") + args
-        val process = ProcessBuilder(command)
-            .directory(repoDirectory)
-            .redirectErrorStream(true)
-            .start()
-
+        val process = ProcessBuilder(command).directory(repoDirectory.asFile).redirectErrorStream(true).start()
         val output = process.inputStream.bufferedReader().readText().trim()
         val exitCode = process.waitFor()
         return ProcessResult(exitCode == 0, output)
@@ -45,9 +41,9 @@ internal class GitClient private constructor(private val repoDirectory: File) {
         const val ORIGIN_REMOTE_NAME = "origin"
         const val HEAD = "HEAD"
 
-        fun open(repoDirectory: File): GitClient {
-            check(repoDirectory.exists() && repoDirectory.isDirectory) {
-                "Repository directory does not exist or is not a directory: ${repoDirectory.absolutePath}"
+        fun open(repoDirectory: Directory): GitClient {
+            check(repoDirectory.asFile.exists() && repoDirectory.asFile.isDirectory) {
+                "Repository directory does not exist or is not a directory: ${repoDirectory.asFile.absolutePath}"
             }
             return GitClient(repoDirectory)
         }

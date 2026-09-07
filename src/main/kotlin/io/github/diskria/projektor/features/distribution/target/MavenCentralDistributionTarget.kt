@@ -10,7 +10,6 @@ import io.github.diskria.projektor.features.generation.readme.ReadmeShield
 import io.github.diskria.projektor.generated.EnvProvider
 import org.gradle.api.DomainObjectCollection
 import org.gradle.api.Project
-import org.gradle.api.publish.Publication
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.configure
 import org.gradle.plugins.signing.SigningExtension

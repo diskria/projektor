@@ -20,3 +20,7 @@ inline fun <reified T : Task> TaskContainer.isRegistered(name: String = defaultT
 
 inline fun <reified T : Task> TaskContainer.namedByType(name: String = defaultTaskName<T>()): TaskProvider<T> =
     named<T>(name)
+
+inline fun <reified T : Task> TaskContainer.namedByTypeOrNull(name: String = defaultTaskName<T>()): TaskProvider<T>? =
+    if (isRegistered<T>()) named<T>(name)
+    else null

@@ -3,7 +3,9 @@ package io.github.diskria.projektor.core.model.github
 import io.github.diskria.projektor.internal.git.CommitMessage
 import io.github.diskria.projektor.internal.git.CommitType
 import io.github.diskria.projektor.internal.git.GitClient
-import java.io.File
+import org.gradle.api.file.Directory
+import org.gradle.api.file.FileSystemLocation
+import org.gradle.api.file.RegularFile
 import java.io.Serializable as PropertySerializable
 
 class GithubRepo(val owner: GithubOwner, val name: String) : PropertySerializable {
@@ -22,9 +24,14 @@ class GithubRepo(val owner: GithubOwner, val name: String) : PropertySerializabl
 
     private val host: String get() = "github.com"
 
-    fun pushFile(repoDirectory: File, commitMessage: CommitMessage, file: File, githubToken: String) {
+    fun pushFileOrDirectory(
+        repoDirectory: Directory,
+        commitMessage: CommitMessage,
+        location: FileSystemLocation,
+        githubToken: String,
+    ) {
         with(GitClient.open(repoDirectory)) {
-            stage(file.relativeTo(repoDirectory).path)
+            stage(location.asFile.relativeTo(repoDirectory.asFile).path)
             configureUser(owner.developer, owner.email)
             commit(commitMessage)
             setRemoteUrl(GitClient.ORIGIN_REMOTE_NAME, getUrl(vcs = true, token = githubToken))
@@ -32,9 +39,15 @@ class GithubRepo(val owner: GithubOwner, val name: String) : PropertySerializabl
         }
     }
 
-    fun pushFile(repoDirectory: File, commitType: CommitType, file: File, wasFileExists: Boolean, githubToken: String) {
-        val action = if (wasFileExists) "update" else "add"
-        pushFile(repoDirectory, CommitMessage(commitType, "$action ${file.name}"), file, githubToken)
+    fun pushFile(
+        repoDirectory: Directory,
+        commitType: CommitType,
+        location: RegularFile,
+        isUpdate: Boolean,
+        githubToken: String,
+    ) {
+        val commitMessage = CommitMessage(commitType, "${if (isUpdate) "update" else "add"} ${location.asFile.name}")
+        pushFileOrDirectory(repoDirectory, commitMessage, location, githubToken)
     }
 
     private fun getUrl(vcs: Boolean = false, token: String? = null): String {

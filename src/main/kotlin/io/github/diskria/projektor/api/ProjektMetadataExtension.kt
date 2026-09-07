@@ -86,7 +86,7 @@ abstract class ProjektMetadataExtension @Inject internal constructor(
             repo = GithubRepo(GithubOwner(ownerName, email.get()), repoName),
             version = version.get(),
             licenseType = license,
-            about = ProjektAbout.from(settings.layout.rootDirectory.asFile),
+            about = ProjektAbout.from(settings.layout.rootDirectory),
         )
         applyModules(projektMetadata, settings)
         return projektMetadata
@@ -111,12 +111,10 @@ abstract class ProjektMetadataExtension @Inject internal constructor(
                     settings.include(module.path)
                 }
             }
-            settings.gradle.lifecycle.afterProject { project ->
-                val module = projektMetadata.findModule(project) ?: return@afterProject
-                check(project.plugins.hasPlugin(ProjektorGradlePlugin.ID)) {
-                    "Project '${module.path}' was declared in settings.gradle.kts, " +
-                        "but 'alias(convention.plugins.projektor)' plugin " +
-                        "was not applied in its build.gradle.kts!"
+            val modulePaths = projektMetadata.modules.filter { !it.isRoot }.map { it.path }.toSet()
+            settings.gradle.lifecycle.beforeProject { project ->
+                if (project.path == ":" || project.path in modulePaths) {
+                    project.plugins.apply(ProjektorGradlePlugin::class.java)
                 }
             }
         }

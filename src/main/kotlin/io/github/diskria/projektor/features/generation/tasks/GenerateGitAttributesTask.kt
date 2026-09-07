@@ -5,7 +5,6 @@ import io.github.diskria.projektor.internal.utils.DisabledCachingReasons.SIDE_EF
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.work.DisableCachingByDefault
-import java.io.File
 import javax.inject.Inject
 
 @DisableCachingByDefault(because = SIDE_EFFECTS)
@@ -19,7 +18,7 @@ abstract class GenerateGitAttributesTask @Inject internal constructor(
         commitType.convention(CommitType.CHORE)
     }
 
-    override fun getFileText(repoDirectory: File, file: File): String =
+    override fun build(): String =
         """
         * text=auto eol=lf
         *.sh text eol=lf

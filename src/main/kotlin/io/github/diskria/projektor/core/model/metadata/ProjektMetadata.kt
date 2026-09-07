@@ -15,6 +15,7 @@ sealed interface ProjektMetadata : PropertySerializable {
 
     val modules: List<ProjektModule>
     val namespace: String
+    val isMonorepo: Boolean
 
     fun findModule(project: Project): ProjektModule? =
         modules.find { it.path == project.path }
@@ -25,12 +26,12 @@ sealed interface ProjektMetadata : PropertySerializable {
         }
 
     class Distributable(
-        val isMonorepo: Boolean,
         val repo: GithubRepo,
         val version: String,
         val licenseType: LicenseType?,
         val about: ProjektAbout,
         override val modules: List<ProjektModule>,
+        override val isMonorepo: Boolean,
     ) : ProjektMetadata {
         val displayName: String get() = repo.name.split('-').joinToString(" ") { about.fixCase(it).capitalized() }
         override val namespace: String get() = repo.owner.namespace
@@ -39,11 +40,12 @@ sealed interface ProjektMetadata : PropertySerializable {
     class BuildLogic(
         override val modules: List<ProjektModule>,
     ) : ProjektMetadata {
+        override val isMonorepo: Boolean get() = true
         override val namespace: String get() = "builder"
     }
 }
 
-interface ProjektMetadataBuildService : BuildService<ProjektMetadataBuildService.Parameters> {
+abstract class ProjektMetadataBuildService : BuildService<ProjektMetadataBuildService.Parameters> {
 
     val projektMetadata: Property<ProjektMetadata> get() = parameters.projektMetadata
 

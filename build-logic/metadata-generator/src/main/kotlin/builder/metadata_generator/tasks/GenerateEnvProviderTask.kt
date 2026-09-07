@@ -31,13 +31,13 @@ abstract class GenerateEnvProviderTask : DefaultTask() {
 
     init {
         applyBuildLogicGroup()
-        actionBuiltinEnvs.set(
+        actionBuiltinEnvs.convention(
             mapOf(
                 "GH_OWNER" to "github.repository_owner",
                 "GH_REPO" to "github.event.repository.name",
             )
         )
-        secretEnvNames.set(
+        secretEnvNames.convention(
             listOf(
                 "GH_TOKEN",
                 "GH_PACKAGES_TOKEN",

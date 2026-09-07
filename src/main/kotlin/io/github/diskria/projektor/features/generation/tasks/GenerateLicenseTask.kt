@@ -9,7 +9,6 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
 import org.gradle.work.DisableCachingByDefault
-import java.io.File
 import javax.inject.Inject
 
 @DisableCachingByDefault(because = SIDE_EFFECTS)
@@ -29,6 +28,5 @@ abstract class GenerateLicenseTask @Inject internal constructor(
         commitType.convention(CommitType.DOCS)
     }
 
-    override fun getFileText(repoDirectory: File, file: File): String =
-        licenseType.get().mapToModel().getLicenseText(developer.get())
+    override fun build(): String = licenseType.get().mapToModel().getLicenseText(developer.get())
 }

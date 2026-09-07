@@ -14,12 +14,12 @@ import io.ktor.http.content.*
 import io.ktor.util.cio.*
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.file.ProjectLayout
+import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.work.DisableCachingByDefault
-import java.io.File
 import javax.inject.Inject
 import kotlin.io.encoding.Base64
 
@@ -37,29 +37,29 @@ abstract class UploadBundleToMavenCentralTask @Inject internal constructor(
 
     init {
         applyProjektorGroup()
-        archiveBaseName.set(bundleName)
-        archiveVersion.set(bundleVersion)
+        archiveBaseName.convention(bundleName)
+        archiveVersion.convention(bundleVersion)
         from(MavenCentralDistributionTarget.getLocalMavenDirectory(layout))
-        destinationDirectory.set(layout.buildDirectory.dir(DistributionTargetType.MAVEN_CENTRAL.id))
+        destinationDirectory.convention(layout.buildDirectory.dir(DistributionTargetType.MAVEN_CENTRAL.id))
         doLast {
             val env = EnvProvider(providers)
             if (!env.isCI) return@doLast
-            runBlocking { upload(archiveFile.get().asFile, env) }
+            runBlocking { upload(archiveFile.get(), env) }
         }
     }
 
-    private suspend fun upload(file: File, env: EnvProvider) {
-        val deploymentName = file.name
+    private suspend fun upload(file: RegularFile, env: EnvProvider) {
+        val deploymentName = file.asFile.name
         logger.lifecycle("Uploading bundle '$deploymentName' to Maven Central...")
         val item = PartData.FileItem(
-            provider = { file.readChannel() },
+            provider = { file.asFile.readChannel() },
             dispose = {},
             partHeaders = Headers.build {
                 append(
                     HttpHeaders.ContentDisposition,
                     ContentDisposition(ContentType.MultiPart.FormData.contentSubtype)
                         .withParameter(ContentDisposition.Parameters.Name, "bundle")
-                        .withParameter(ContentDisposition.Parameters.FileName, file.name)
+                        .withParameter(ContentDisposition.Parameters.FileName, deploymentName)
                 )
                 append(HttpHeaders.ContentType, ContentType.Application.OctetStream)
             }
