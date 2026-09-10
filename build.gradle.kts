@@ -16,7 +16,7 @@ dependencies {
 
 projekt {
     gradlePlugin {
-        supportsConfigurationCache = true
+        supportsIsolatedProjects = true
     }
     distribute {
         mavenLocal()

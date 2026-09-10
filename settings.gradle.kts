@@ -1,5 +1,5 @@
 plugins {
-    id("io.github.diskria.projektor") version "8.0.13"
+    id("io.github.diskria.projektor") version "8.0.14"
 }
 
 projektor {
