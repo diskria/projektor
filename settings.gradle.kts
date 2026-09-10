@@ -1,8 +1,8 @@
 plugins {
-    id("io.github.diskria.projektor") version "8.0.12"
+    id("io.github.diskria.projektor") version "8.0.13"
 }
 
-projekt {
+projektor {
     version = "8.0.13"
     license { mit() }
     buildLogic {

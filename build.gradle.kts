@@ -3,7 +3,6 @@ import builder.metadata_generator.tasks.GenerateBuildConfigTask
 import io.github.diskria.projektor.core.model.GradlePlugin
 
 plugins {
-    alias(convention.plugins.projektor)
     alias(builder.plugins.metadata.generator)
 }
 
