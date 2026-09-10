@@ -19,10 +19,12 @@ internal object GradlePluginPortalDistributionTarget : DistributionTarget {
         val supportsIsolatedProjects = pluginProjekt.configuration.supportsIsolatedProjects.get()
         if (supportsIsolatedProjects && !supportsConfigurationCache) {
             throw IllegalArgumentException(
-                "Invalid Gradle feature configuration for plugin '${pluginProjekt.id}': " +
-                    "Isolated Projects require Configuration Cache to be enabled. " +
-                    "Please enable Configuration Cache (supportsConfigurationCache = true) " +
-                    "or disable Isolated Projects (supportsIsolatedProjects = false)."
+                """
+                Invalid Gradle feature configuration for plugin '${pluginProjekt.id}'.
+                Isolated Projects require Configuration Cache to be enabled.
+                Please enable Configuration Cache (supportsConfigurationCache = true)
+                or disable Isolated Projects (supportsIsolatedProjects = false).
+                """.trimIndent()
             )
         }
         project.pluginManager.apply("com.gradle.plugin-publish")
