@@ -3,7 +3,7 @@ plugins {
 }
 
 projektor {
-    version = "8.0.14"
+    version = "8.0.15"
     license { mit() }
     buildLogic {
         gradlePlugin(":metadata-generator")
