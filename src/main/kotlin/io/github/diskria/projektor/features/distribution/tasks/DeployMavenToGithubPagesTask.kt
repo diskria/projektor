@@ -79,7 +79,7 @@ abstract class DeployMavenToGithubPagesTask @Inject internal constructor(
                 meta(charset = Charsets.UTF_8.name())
                 meta(name = "viewport", content = "width=device-width, initial-scale=1.0")
                 title { text(title) }
-                style { +CSS_STYLE }
+                style { unsafe { +CSS_STYLE } }
             }
             body {
                 h2 { text(title) }
