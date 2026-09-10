@@ -15,6 +15,16 @@ internal object GradlePluginPortalDistributionTarget : DistributionTarget {
 
     override fun configureDistributeTasks(project: Project, projekt: Projekt.Distributable): List<String> {
         val pluginProjekt = projekt.ensureGradlePlugin()
+        val supportsConfigurationCache = pluginProjekt.configuration.supportsConfigurationCache.get()
+        val supportsIsolatedProjects = pluginProjekt.configuration.supportsIsolatedProjects.get()
+        if (supportsIsolatedProjects && !supportsConfigurationCache) {
+            throw IllegalArgumentException(
+                "Invalid Gradle feature configuration for plugin '${pluginProjekt.id}': " +
+                    "Isolated Projects require Configuration Cache to be enabled. " +
+                    "Please enable Configuration Cache (supportsConfigurationCache = true) " +
+                    "or disable Isolated Projects (supportsIsolatedProjects = false)."
+            )
+        }
         project.pluginManager.apply("com.gradle.plugin-publish")
         project.extensions.configure<GradlePluginDevelopmentExtension> {
             website.set(projekt.metadata.repo.url)
@@ -25,7 +35,8 @@ internal object GradlePluginPortalDistributionTarget : DistributionTarget {
                 plugin.tags.set(pluginProjekt.tags)
                 project.pluginManager.apply("org.gradle.plugin-compatibility")
                 plugin.compatibility { compat ->
-                    compat.features.configurationCache.set(pluginProjekt.configuration.supportsConfigurationCache)
+                    compat.features.configurationCache.set(supportsConfigurationCache)
+                    compat.features.isolatedProjects.set(supportsIsolatedProjects)
                 }
             }
         }

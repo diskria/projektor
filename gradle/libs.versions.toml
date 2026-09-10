@@ -1,6 +1,6 @@
 [versions]
 foojay-resolver-plugin = "1.0.0"
-plugin-publish-plugin = "2.1.1"
+plugin-publish-plugin = "2.2.1"
 
 kotlin = "2.4.0"
 kotlin-serialization-json = "1.11.0"
