@@ -39,7 +39,7 @@ class ProjektAbout(
             if (!detailsFile.asFile.exists()) {
                 detailsFile.writeTextCreatingParent("TODO: Detailed project documentation.")
             }
-            val details = descriptionFile.asFile.readText().trim()
+            val details = detailsFile.asFile.readText().trim()
 
             val tagsFile = aboutDirectory.file("TAGS.md")
             if (!tagsFile.asFile.exists()) {

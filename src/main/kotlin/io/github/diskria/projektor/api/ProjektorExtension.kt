@@ -14,10 +14,10 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
-abstract class ProjektMetadataExtension @Inject internal constructor(
+abstract class ProjektorExtension @Inject internal constructor(
     private val settings: Settings,
     objects: ObjectFactory,
-) : ProjektorScope {
+) : ProjektorDslScope {
 
     val version = objects.property<String>().convention("0.1.0")
     val email = objects.property<String>().convention("diskria@proton.me")

@@ -1,7 +1,7 @@
 package io.github.diskria.projektor.api
 
 @ProjektorDsl
-internal interface ProjektorScope
+internal interface ProjektorDslScope
 
 @DslMarker
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)

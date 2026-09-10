@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 abstract class BuildLogicProjektExtension @Inject internal constructor(
     private val objects: ObjectFactory,
-) : ProjektorScope {
+) : ProjektorDslScope {
 
     internal val projekt = objects.property<Projekt.BuildLogic>()
 

@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 abstract class DistributableProjektExtension @Inject internal constructor(
     private val objects: ObjectFactory,
-) : ProjektorScope {
+) : ProjektorDslScope {
 
     internal val distributionTargets = objects.listProperty<DistributionTargetType>()
     internal val projekt = objects.property<Projekt.Distributable>()
